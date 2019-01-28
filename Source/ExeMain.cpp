@@ -1,16 +1,19 @@
-/*****************************************************************************
-* Hookshot
-*   General-purpose library for hooking API calls in spawned processes.
-*****************************************************************************
-* Authored by Samuel Grossman
-* Copyright (c) 2019
-*************************************************************************//**
-* @file ExeMain.cpp
-*   Entry point for the bootstrap executable.
-*****************************************************************************/
+/******************************************************************************
+ * Hookshot
+ *   General-purpose library for hooking API calls in spawned processes.
+ ******************************************************************************
+ * Authored by Samuel Grossman
+ * Copyright (c) 2019
+ **************************************************************************//**
+ * @file ExeMain.cpp
+ *   Entry point for the bootstrap executable.
+ *****************************************************************************/
 
-#include <tchar.h>
-#include <Windows.h>
+#include "ApiWindows.h"
+#include "Globals.h"
+#include "Message.h"
+
+using namespace Hookshot;
 
 
 // -------- ENTRY POINT ---------------------------------------------------- //
@@ -23,5 +26,6 @@
 /// @return `TRUE` if this function successfully initialized or uninitialized this library, `FALSE` otherwise.
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PTSTR lpCmdLine, int nCmdShow)
 {
+    Globals::SetInstanceHandle(hInstance);
     return 0;
 }

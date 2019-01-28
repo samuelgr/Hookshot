@@ -1,16 +1,18 @@
-/*****************************************************************************
-* Hookshot
-*   General-purpose library for hooking API calls in spawned processes.
-*****************************************************************************
-* Authored by Samuel Grossman
-* Copyright (c) 2019
-*************************************************************************//**
-* @file DllMain.cpp
-*   Entry point for the injected library.
-*****************************************************************************/
+/******************************************************************************
+ * Hookshot
+ *   General-purpose library for hooking API calls in spawned processes.
+ ******************************************************************************
+ * Authored by Samuel Grossman
+ * Copyright (c) 2019
+ **************************************************************************//**
+ * @file DllMain.cpp
+ *   Entry point for the injected library.
+ *****************************************************************************/
 
-#include <tchar.h>
-#include <Windows.h>
+#include "ApiWindows.h"
+#include "Globals.h"
+
+using namespace Hookshot;
 
 
 // -------- ENTRY POINT ---------------------------------------------------- //
@@ -27,6 +29,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     switch (fdwReason)
     {
     case DLL_PROCESS_ATTACH:
+        Globals::SetInstanceHandle(hinstDLL);
         break;
 
     case DLL_PROCESS_DETACH:
