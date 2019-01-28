@@ -108,14 +108,14 @@ EInjectResult ProcessInjector::GetProcessEntryPointAddress(const HANDLE processH
     // First read the DOS header to figure out the location of the NT header.
     IMAGE_DOS_HEADER dosHeader;
 
-    if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)baseAddress, (LPVOID)&dosHeader, sizeof(dosHeader), &numBytesRead)) || (sizeof(dosHeader) != numBytesRead))
+    if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)baseAddress, (LPVOID)&dosHeader, sizeof(dosHeader), (SIZE_T*)&numBytesRead)) || (sizeof(dosHeader) != numBytesRead))
         return EInjectResult::InjectResultErrorReadDOSHeadersFailed;
 
     // Next read the NT header to figure out the location of the entry point.
     IMAGE_NT_HEADERS ntHeaders;
     void* const ntHeadersVA = (void*)((size_t)baseAddress + (size_t)dosHeader.e_lfanew);
 
-    if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)ntHeadersVA, (LPVOID)&ntHeaders, sizeof(ntHeaders), &numBytesRead)) || (sizeof(ntHeaders) != numBytesRead))
+    if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)ntHeadersVA, (LPVOID)&ntHeaders, sizeof(ntHeaders), (SIZE_T*)&numBytesRead)) || (sizeof(ntHeaders) != numBytesRead))
         return EInjectResult::InjectResultErrorReadNTHeadersFailed;
 
     // Compute the absolute entry point address.
@@ -159,7 +159,7 @@ EInjectResult ProcessInjector::GetProcessImageBaseAddress(const HANDLE processHa
     PEB processPEB;
     size_t numBytesRead = 0;
     
-    if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)processBasicInfo.PebBaseAddress, (LPVOID)&processPEB, sizeof(processPEB), &numBytesRead)) || (sizeof(processPEB) != numBytesRead))
+    if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)processBasicInfo.PebBaseAddress, (LPVOID)&processPEB, sizeof(processPEB), (SIZE_T*)&numBytesRead)) || (sizeof(processPEB) != numBytesRead))
         return EInjectResult::InjectResultErrorReadProcessPEBFailed;
     
     // Read the base address from the PEB.
