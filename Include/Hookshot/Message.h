@@ -14,8 +14,7 @@
 #include "ApiWindows.h"
 
 #include <cstdarg>
-#include <cstdint>
-#include <cstdio>
+#include <cstddef>
 
 
  namespace Hookshot
@@ -34,7 +33,7 @@
     class Message
     {
     private:
-        // -------- CONSTANTS ------------------------------------------------------ //
+        // -------- CONSTANTS ---------------------------------------------- //
 
         /// Buffer size, in characters, for the temporary buffer to hold strings read from a resource identifier and formatted.
         /// When writing log messages using a resource identifier (rather than a raw string), a temporary buffer is created to hold the loaded resource string.
@@ -42,21 +41,21 @@
         static const size_t kMessageBufferSize = 2048;
 
 
-        // -------- CLASS VARIABLES ------------------------------------------------ //
+        // -------- CLASS VARIABLES ---------------------------------------- //
 
         /// Specifies the minimum severity required to output a message.
         /// Messages below this severity are ignored.
         static const EMessageSeverity kMinimumSeverityForOutput;
 
         
-        // -------- CONSTRUCTION AND DESTRUCTION ----------------------------------- //
+        // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
         /// Default constructor. Should never be invoked.
         Message(void) = delete;
 
 
     public:
-        // -------- CLASS METHODS -------------------------------------------------- //
+        // -------- CLASS METHODS ------------------------------------------ //
         
         /// Outputs the specified message.
         /// Requires both a severity and a message string.
@@ -84,7 +83,7 @@
 
 
     private:
-        // -------- HELPERS -------------------------------------------------------- //
+        // -------- HELPERS ------------------------------------------------ //
 
         /// Formats and outputs some text of the given severity.
         /// @param [in] severity Severity of the message.

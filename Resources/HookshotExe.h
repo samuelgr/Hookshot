@@ -3,6 +3,10 @@
 // Used by HookshotExe.rc
 //
 #define IDS_HOOKSHOT_VERSION_NAME       101
+#define IDS_HOOKSHOT_VERSION_EXTENSION  102
+#define IDS_HOOKSHOT_EXE_ERROR_USAGE    103
+#define IDS_HOOKSHOT_ERROR_INJECT_FAILED_FORMAT 104
+#define IDS_HOOKSHOT_SUCCESS_INJECT_FORMAT 105
 
 // Next default values for new objects
 // 

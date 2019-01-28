@@ -12,6 +12,7 @@
 #include "ApiWindows.h"
 #include "Globals.h"
 #include "Message.h"
+#include "ProcessInjector.h"
 
 using namespace Hookshot;
 
@@ -27,5 +28,33 @@ using namespace Hookshot;
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PTSTR lpCmdLine, int nCmdShow)
 {
     Globals::SetInstanceHandle(hInstance);
-    return 0;
+    
+    if (2 != __argc)
+    {
+        Message::OutputFromResource(EMessageSeverity::MessageSeverityError, IDS_HOOKSHOT_EXE_ERROR_USAGE);
+        return __LINE__;
+    }
+
+    STARTUPINFO startupInfo;
+    PROCESS_INFORMATION processInfo;
+    
+    memset((void*)&startupInfo, 0, sizeof(startupInfo));
+    memset((void*)&processInfo, 0, sizeof(processInfo));
+
+    const EInjectResult result = ProcessInjector::CreateInjectedProcess(NULL, __targv[1], NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
+
+    switch (result)
+    {
+    case EInjectResult::InjectResultSuccess:
+        CloseHandle(processInfo.hProcess);
+        CloseHandle(processInfo.hThread);
+        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_SUCCESS_INJECT_FORMAT, __targv[1]);
+        break;
+
+    default:
+        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityError, IDS_HOOKSHOT_ERROR_INJECT_FAILED_FORMAT, (int)result, (int)GetLastError(), __targv[1]);
+        break;
+    }
+
+    return (int)result;
 }

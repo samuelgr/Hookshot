@@ -167,8 +167,9 @@ void Message::OutputInternalUsingDebugString(const EMessageSeverity severity, LP
 
 void Message::OutputInternalUsingMessageBox(const EMessageSeverity severity, LPCTSTR message)
 {
-    TCHAR moduleBaseNameBuf[kMessageBufferSize];
-    GetModuleBaseName(GetCurrentProcess(), Globals::GetInstanceHandle(), moduleBaseNameBuf, _countof(moduleBaseNameBuf));
+    TCHAR productNameBuf[kMessageBufferSize];
+    if (0 == LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, productNameBuf, _countof(productNameBuf)))
+        productNameBuf[0] = _T('\0');
     
     UINT messageBoxType = 0;
     
@@ -191,7 +192,7 @@ void Message::OutputInternalUsingMessageBox(const EMessageSeverity severity, LPC
         break;
     }
 
-    MessageBox(NULL, message, moduleBaseNameBuf, messageBoxType);
+    MessageBox(NULL, message, productNameBuf, messageBoxType);
 }
 
 // --------
