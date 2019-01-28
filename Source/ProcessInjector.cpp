@@ -28,10 +28,24 @@ using namespace Hookshot;
 /// Prototype definition of the "NtQueryInformationProcess" function.
 typedef NTSTATUS(WINAPI *NTQUERYINFORMATIONPROCESSPROC)(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG);
 
+// 32-bit (8 bytes)
+// { 0x50, 0xB8, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xD0 } 
+// 0:  50                      push   eax
+// 1 : b8 00 00 00 00          mov    eax, 0x0
+// 6 : ff d0                   call   eax
+
+// 64-bit (16 bytes)
+// 0:  50                      push   rax
+// 1 : 90                      nop
+// 2 : 48 b8 00 00 00 00 00    movabs rax, 0x0
+// 9 : 00 00 00
+// c : ff d0                   call   rax
+// e : 90                      nop
+// f : 90                      nop
+
 
 // -------- INTERNAL VARIABLES --------------------------------------------- //
 
-//
 
 
 // -------- CLASS VARIABLES ------------------------------------------------ //
@@ -86,52 +100,6 @@ EInjectResult ProcessInjector::CreateInjectedProcessW(LPCWSTR lpApplicationName,
 
 // -------- HELPERS -------------------------------------------------------- //
 // See "ProcessInjector.h" for documentation.
-
-EInjectResult ProcessInjector::HandleInjectionResult(const EInjectResult result, const bool shouldKeepSuspended, const HANDLE processHandle, const HANDLE threadHandle)
-{
-    if (EInjectResult::InjectResultSuccess != result)
-    {
-        // If injection failed for a reason other than CreateProcess failing, kill the new process because there is no guarantee it will run correctly.
-        if (EInjectResult::InjectResultErrorCreateProcess != result)
-            TerminateProcess(processHandle, UINT_MAX);
-    }
-    else
-    {
-        // If injection succeeded and the process was not supposed to be kept suspended, resume it.
-        if (false == shouldKeepSuspended)
-            ResumeThread(threadHandle);
-    }
-
-    return result;
-}
-
-// --------
-
-EInjectResult ProcessInjector::InjectNewlyCreatedProcess(const HANDLE processHandle, const HANDLE threadHandle)
-{
-    void* processBaseAddress = NULL;
-    void* processEntryPoint = NULL;
-    void* injectedCodeBase = NULL;
-    void* injectedDataBase = NULL;
-
-    EInjectResult operationResult = EInjectResult::InjectResultSuccess;
-
-    // Attempt to obtain the base address of the executable image of the new process.
-    operationResult = GetProcessImageBaseAddress(processHandle, &processBaseAddress);
-    if (EInjectResult::InjectResultSuccess != operationResult)
-        return operationResult;
-
-    // Attempt to obtain the entry point address of the new process.
-    operationResult = GetProcessEntryPointAddress(processHandle, processBaseAddress, &processEntryPoint);
-    if (EInjectResult::InjectResultSuccess != operationResult)
-        return operationResult;
-
-
-    
-    return operationResult;
-}
-
-// --------
 
 EInjectResult ProcessInjector::GetProcessEntryPointAddress(const HANDLE processHandle, const void* const baseAddress, void** const entryPoint)
 {
@@ -214,4 +182,68 @@ size_t ProcessInjector::GetSystemAllocationGranularity(void)
     }
 
     return systemAllocationGranularity;
+}
+
+// --------
+
+EInjectResult ProcessInjector::HandleInjectionResult(const EInjectResult result, const bool shouldKeepSuspended, const HANDLE processHandle, const HANDLE threadHandle)
+{
+    if (EInjectResult::InjectResultSuccess != result)
+    {
+        // If injection failed for a reason other than CreateProcess failing, kill the new process because there is no guarantee it will run correctly.
+        if (EInjectResult::InjectResultErrorCreateProcess != result)
+            TerminateProcess(processHandle, UINT_MAX);
+    }
+    else
+    {
+        // If injection succeeded and the process was not supposed to be kept suspended, resume it.
+        if (false == shouldKeepSuspended)
+            ResumeThread(threadHandle);
+    }
+
+    return result;
+}
+
+// --------
+
+EInjectResult ProcessInjector::InjectNewlyCreatedProcess(const HANDLE processHandle, const HANDLE threadHandle)
+{
+    void* processBaseAddress = NULL;
+    void* processEntryPoint = NULL;
+    void* injectedCodeBase = NULL;
+    void* injectedDataBase = NULL;
+    const size_t allocationGranularity = GetSystemAllocationGranularity();
+
+    EInjectResult operationResult = EInjectResult::InjectResultSuccess;
+
+    // Attempt to obtain the base address of the executable image of the new process.
+    operationResult = GetProcessImageBaseAddress(processHandle, &processBaseAddress);
+    if (EInjectResult::InjectResultSuccess != operationResult)
+        return operationResult;
+
+    // Attempt to obtain the entry point address of the new process.
+    operationResult = GetProcessEntryPointAddress(processHandle, processBaseAddress, &processEntryPoint);
+    if (EInjectResult::InjectResultSuccess != operationResult)
+        return operationResult;
+
+    // Figure out the alignment of the base address relative to the allocation granularity.
+    // Use this information to compute code and data starting addresses (essentially the two blocks right before the executable image in memory).
+    {
+        void* const processAlignedBaseAddress = (void*)((size_t)processBaseAddress - (((size_t)processBaseAddress) % allocationGranularity));
+
+        injectedCodeBase = (void*)((size_t)processAlignedBaseAddress - (1 * allocationGranularity));
+        injectedDataBase = (void*)((size_t)processAlignedBaseAddress - (2 * allocationGranularity));
+    }
+
+    // Allocate code and data areas in the target process.
+    if (NULL == VirtualAllocEx(processHandle, injectedCodeBase, allocationGranularity, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READ))
+        return EInjectResult::InjectResultErrorVirtualAllocCodeFailed;
+
+    if (NULL == VirtualAllocEx(processHandle, injectedDataBase, allocationGranularity, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE))
+        return EInjectResult::InjectResultErrorVirtualAllocDataFailed;
+
+    // Inject code and data
+    // TODO
+
+    return operationResult;
 }

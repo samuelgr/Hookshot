@@ -34,6 +34,10 @@ namespace Hookshot
         // Issues determining the entry point address of a process
         InjectResultErrorReadDOSHeadersFailed = 6,                  ///< Failed to read DOS headers from the process' executable image.
         InjectResultErrorReadNTHeadersFailed = 7,                   ///< Failed to read NT headers from the process' executable image.
+
+        // Issues injecting code or data into the target process
+        InjectResultErrorVirtualAllocCodeFailed = 8,                ///< Failed to allocate virtual memory for code.
+        InjectResultErrorVirtualAllocDataFailed = 9,                ///< Failed to allocate virtual memory for data.
     };
     
     /// Provides all functionality related to creating processes and injecting them with Hookshot code.
@@ -90,7 +94,7 @@ namespace Hookshot
         // -------- HELPERS ------------------------------------------------ //
         
         /// Retrieves and returns the system's virtual memory allocation granularity.
-        /// @return Allocation granularity in bytes, or 0 to indicate a failure.
+        /// @return Allocation granularity in bytes. Note that the underlying Windows API function does not fail.
         static size_t GetSystemAllocationGranularity(void);
         
         /// Attempts to determine the address of the entry point of the given process.
