@@ -178,7 +178,7 @@ size_t ProcessInjector::GetSystemAllocationGranularity(void)
         SYSTEM_INFO systemInfo;
         GetSystemInfo(&systemInfo);
 
-        systemAllocationGranularity = (size_t)systemInfo.dwAllocationGranularity;
+        systemAllocationGranularity = (size_t)systemInfo.dwPageSize;
     }
 
     return systemAllocationGranularity;
@@ -192,7 +192,11 @@ EInjectResult ProcessInjector::HandleInjectionResult(const EInjectResult result,
     {
         // If injection failed for a reason other than CreateProcess failing, kill the new process because there is no guarantee it will run correctly.
         if (EInjectResult::InjectResultErrorCreateProcess != result)
+        {
+            const DWORD systemErrorCode = GetLastError();
             TerminateProcess(processHandle, UINT_MAX);
+            SetLastError(systemErrorCode);
+        }
     }
     else
     {
@@ -208,11 +212,12 @@ EInjectResult ProcessInjector::HandleInjectionResult(const EInjectResult result,
 
 EInjectResult ProcessInjector::InjectNewlyCreatedProcess(const HANDLE processHandle, const HANDLE threadHandle)
 {
+    const size_t allocationGranularity = GetSystemAllocationGranularity();
+    const size_t kEffectiveInjectRegionSize = (kInjectRegionSize < allocationGranularity) ? allocationGranularity : kInjectRegionSize;
     void* processBaseAddress = NULL;
     void* processEntryPoint = NULL;
     void* injectedCodeBase = NULL;
     void* injectedDataBase = NULL;
-    const size_t allocationGranularity = GetSystemAllocationGranularity();
 
     EInjectResult operationResult = EInjectResult::InjectResultSuccess;
 
@@ -226,21 +231,24 @@ EInjectResult ProcessInjector::InjectNewlyCreatedProcess(const HANDLE processHan
     if (EInjectResult::InjectResultSuccess != operationResult)
         return operationResult;
 
-    // Figure out the alignment of the base address relative to the allocation granularity.
-    // Use this information to compute code and data starting addresses (essentially the two blocks right before the executable image in memory).
-    {
-        void* const processAlignedBaseAddress = (void*)((size_t)processBaseAddress - (((size_t)processBaseAddress) % allocationGranularity));
-
-        injectedCodeBase = (void*)((size_t)processAlignedBaseAddress - (1 * allocationGranularity));
-        injectedDataBase = (void*)((size_t)processAlignedBaseAddress - (2 * allocationGranularity));
-    }
-
     // Allocate code and data areas in the target process.
-    if (NULL == VirtualAllocEx(processHandle, injectedCodeBase, allocationGranularity, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READ))
-        return EInjectResult::InjectResultErrorVirtualAllocCodeFailed;
+    // Code first, then data.
+    injectedCodeBase = VirtualAllocEx(processHandle, NULL, ((SIZE_T)kEffectiveInjectRegionSize * (SIZE_T)2), MEM_RESERVE | MEM_COMMIT, PAGE_NOACCESS);
+    injectedDataBase = (void*)((size_t)injectedCodeBase + kEffectiveInjectRegionSize);
 
-    if (NULL == VirtualAllocEx(processHandle, injectedDataBase, allocationGranularity, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE))
-        return EInjectResult::InjectResultErrorVirtualAllocDataFailed;
+    if (NULL == injectedCodeBase)
+        return EInjectResult::InjectResultErrorVirtualAllocFailed;
+
+    // Set appropriate protection values onto the new areas individually.
+    {
+        DWORD unusedOldProtect = 0;
+        
+        if (FALSE == VirtualProtectEx(processHandle, injectedCodeBase, kEffectiveInjectRegionSize, PAGE_EXECUTE_READ, &unusedOldProtect))
+            return EInjectResult::InjectResultErrorVirtualProtectFailed;
+
+        if (FALSE == VirtualProtectEx(processHandle, injectedDataBase, kEffectiveInjectRegionSize, PAGE_READWRITE, &unusedOldProtect))
+            return EInjectResult::InjectResultErrorVirtualProtectFailed;
+    }
 
     // Inject code and data
     // TODO

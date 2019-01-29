@@ -36,8 +36,8 @@ namespace Hookshot
         InjectResultErrorReadNTHeadersFailed = 7,                   ///< Failed to read NT headers from the process' executable image.
 
         // Issues injecting code or data into the target process
-        InjectResultErrorVirtualAllocCodeFailed = 8,                ///< Failed to allocate virtual memory for code.
-        InjectResultErrorVirtualAllocDataFailed = 9,                ///< Failed to allocate virtual memory for data.
+        InjectResultErrorVirtualAllocFailed = 8,                    ///< Failed to allocate virtual memory for code and data in the target process.
+        InjectResultErrorVirtualProtectFailed = 9,                  ///< Failed to set protection values for code and data in the target process.
     };
     
     /// Provides all functionality related to creating processes and injecting them with Hookshot code.
@@ -45,6 +45,12 @@ namespace Hookshot
     class ProcessInjector
     {
     private:
+        // -------- CONSTANTS ------------------------------------------------------ //
+
+        /// Size, in bytes, of the memory region in the injected process to allocate for storing code and data.
+        static const size_t kInjectRegionSize = 1024;
+
+        
         // -------- CLASS VARIABLES ------------------------------------------------ //
 
         /// Module handle for "ntdll.dll" which is loaded dynamically as part of the process injection functionality.
@@ -94,6 +100,7 @@ namespace Hookshot
         // -------- HELPERS ------------------------------------------------ //
         
         /// Retrieves and returns the system's virtual memory allocation granularity.
+        /// This is usually the system page size.
         /// @return Allocation granularity in bytes. Note that the underlying Windows API function does not fail.
         static size_t GetSystemAllocationGranularity(void);
         
