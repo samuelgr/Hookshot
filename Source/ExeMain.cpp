@@ -11,6 +11,7 @@
 
 #include "ApiWindows.h"
 #include "Globals.h"
+#include "InjectResult.h"
 #include "Message.h"
 #include "ProcessInjector.h"
 

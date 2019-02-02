@@ -27,6 +27,9 @@
     <ClCompile Include="Source\ProcessInjector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\CodeInjector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Hookshot\ApiWindows.h">
@@ -47,6 +50,12 @@
     <ClInclude Include="Include\Hookshot\ProcessInjector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Hookshot\CodeInjector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Hookshot\InjectResult.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc">
@@ -55,5 +64,18 @@
     <ResourceCompile Include="Resources\HookshotDll.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Source\Inject.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Include\Hookshot\Registers.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Include\Hookshot\Preamble.inc">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

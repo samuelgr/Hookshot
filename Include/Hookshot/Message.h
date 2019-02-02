@@ -48,13 +48,13 @@
         static const EMessageSeverity kMinimumSeverityForOutput;
 
         
+    public:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
         /// Default constructor. Should never be invoked.
         Message(void) = delete;
 
 
-    public:
         // -------- CLASS METHODS ------------------------------------------ //
         
         /// Outputs the specified message.

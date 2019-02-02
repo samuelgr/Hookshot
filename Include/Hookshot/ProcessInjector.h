@@ -12,34 +12,13 @@
 #pragma once
 
 #include "ApiWindows.h"
+#include "InjectResult.h"
+
+#include <cstddef>
 
 
 namespace Hookshot
 {
-    /// Enumeration of possible error conditions that arise when attempting to create and inject a process.
-    enum EInjectResult : int
-    {
-        // Success
-        InjectResultSuccess = 0,                                    ///< All operations succeeded.
-        
-        // Issues creating the process
-        InjectResultErrorCreateProcess = 1,                         ///< Call to `CreateProcess` failed.  `GetLastError` can be used to obtain more details.
-        
-        // Issues determining the base address of the process' executable image
-        InjectResultErrorLoadNtDll = 2,                             ///< Attempt to dynamically load `ntdll.dll` failed.
-        InjectResultErrorNtQueryInformationProcessUnavailable = 3,  ///< Attempt to locate `NtQueryInformationProcess` within `ntdll.dll` failed.
-        InjectResultErrorNtQueryInformationProcessFailed = 4,       ///< Call to `NtQueryInformationProcess` failed to retrieve the desired information.
-        InjectResultErrorReadProcessPEBFailed = 5,                  ///< Virtual memory read of the process PEB failed.
-
-        // Issues determining the entry point address of a process
-        InjectResultErrorReadDOSHeadersFailed = 6,                  ///< Failed to read DOS headers from the process' executable image.
-        InjectResultErrorReadNTHeadersFailed = 7,                   ///< Failed to read NT headers from the process' executable image.
-
-        // Issues injecting code or data into the target process
-        InjectResultErrorVirtualAllocFailed = 8,                    ///< Failed to allocate virtual memory for code and data in the target process.
-        InjectResultErrorVirtualProtectFailed = 9,                  ///< Failed to set protection values for code and data in the target process.
-    };
-    
     /// Provides all functionality related to creating processes and injecting them with Hookshot code.
     /// All methods are class methods.
     class ProcessInjector
@@ -62,14 +41,14 @@ namespace Hookshot
         /// System allocation granularity.  Captured once and re-used as needed.
         static size_t systemAllocationGranularity;
 
-        
+
+    public:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
         /// Default constructor. Should never be invoked.
         ProcessInjector(void) = delete;
 
 
-    public:
         // -------- CLASS METHODS ------------------------------------------ //
 
         /// Creates a new process using the specified parameters and attempts to inject Hookshot code into it before it is allowed to run.

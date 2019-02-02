@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\CodeInjector.cpp" />
     <ClCompile Include="Source\DllMain.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\Message.cpp" />
@@ -26,7 +27,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Hookshot\ApiWindows.h" />
+    <ClInclude Include="Include\Hookshot\CodeInjector.h" />
     <ClInclude Include="Include\Hookshot\Globals.h" />
+    <ClInclude Include="Include\Hookshot\InjectResult.h" />
     <ClInclude Include="Include\Hookshot\Message.h" />
     <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
     <ClInclude Include="Resources\Hookshot.h" />
@@ -35,6 +38,13 @@
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc" />
     <ResourceCompile Include="Resources\HookshotDll.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Source\Inject.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Include\Hookshot\Preamble.inc" />
+    <None Include="Include\Hookshot\Registers.inc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -118,7 +128,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
       <OmitFramePointers>false</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT_DLL;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT_DLL;HOOKSHOT64;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).asm</AssemblerListingLocation>
@@ -136,6 +146,9 @@
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
+      <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
+      <PreserveIdentifierCase>1</PreserveIdentifierCase>
     </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -145,7 +158,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT_DLL;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT_DLL;HOOKSHOT32;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).asm</AssemblerListingLocation>
@@ -163,6 +176,9 @@
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
+      <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
+      <PreserveIdentifierCase>1</PreserveIdentifierCase>
     </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -175,7 +191,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT_DLL;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT_DLL;HOOKSHOT32;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).asm</AssemblerListingLocation>
@@ -194,6 +210,9 @@
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
+      <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
+      <PreserveIdentifierCase>1</PreserveIdentifierCase>
     </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -206,7 +225,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT_DLL;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT_DLL;HOOKSHOT64;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).asm</AssemblerListingLocation>
@@ -225,6 +244,9 @@
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
+      <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
+      <PreserveIdentifierCase>1</PreserveIdentifierCase>
     </MASM>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

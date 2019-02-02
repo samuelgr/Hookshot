@@ -28,13 +28,15 @@ namespace Hookshot
         static HINSTANCE gInstanceHandle;
 
 
+    public:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
         /// Default constructor. Should never be invoked.
         Globals(void) = delete;
 
 
-    public:
+        // -------- CLASS METHODS ------------------------------------------ //
+
         /// Retrieves the handle of the instance that represents the current running form of Hookshot, be it the library or the bootstrap executable.
         /// @return Instance handle for Xidi.
         static HINSTANCE GetInstanceHandle(void);

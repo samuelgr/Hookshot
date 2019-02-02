@@ -13,26 +13,27 @@
 #include "ApiWindows.h"
 #include "Globals.h"
 
-using namespace Hookshot;
 
-
-// -------- CLASS VARIABLES ------------------------------------------------ //
-// See "Globals.h" for documentation.
-
-HINSTANCE Globals::gInstanceHandle = NULL;
-
-
-// -------- CLASS METHODS -------------------------------------------------- //
-// See "Globals.h" for documentation.
-
-HINSTANCE Globals::GetInstanceHandle(void)
+namespace Hookshot
 {
-    return gInstanceHandle;
-}
+    // -------- CLASS VARIABLES -------------------------------------------- //
+    // See "Globals.h" for documentation.
 
-// ---------
+    HINSTANCE Globals::gInstanceHandle = NULL;
 
-void Globals::SetInstanceHandle(HINSTANCE newInstanceHandle)
-{
-    gInstanceHandle = newInstanceHandle;
+
+    // -------- CLASS METHODS ---------------------------------------------- //
+    // See "Globals.h" for documentation.
+
+    HINSTANCE Globals::GetInstanceHandle(void)
+    {
+        return gInstanceHandle;
+    }
+
+    // ---------
+
+    void Globals::SetInstanceHandle(HINSTANCE newInstanceHandle)
+    {
+        gInstanceHandle = newInstanceHandle;
+    }
 }
