@@ -9,6 +9,7 @@
 ;   Implementation of all code that gets injected into another process.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+INCLUDE Inject.inc
 INCLUDE Preamble.inc
 INCLUDE Registers.inc
 
@@ -64,14 +65,22 @@ _injectCodeBegin:
     mov SIZE_T PTR [ssp+(7*SIZEOF(SIZE_T))], scx
     
     ; Get the address of the data region.
-    call $L00
-  $L00:
+    call $next
+  $next:
     pop sbp
-    mov sbp, SIZE_T PTR [sbp-($L00-_injectCodeStart)]
+    mov sbp, SIZE_T PTR [sbp-($next-_injectCodeStart)]
 
+    ; Initialize, then synchronize with the injecting process.
+    injectSyncInit ssi, sdi
+    injectSync ssi, sdi, sbp
+    
     ;;;;;;;;;;
     ; TODO
     ;;;;;;;;;;
+
+    ; All injection operations completed successfully.
+    ; Perform one final synchronization with the injecting process.
+    injectSync ssi, sdi, sbp
     
     ; Restore all general-purpose registers and return to the program's entry point.
     pop sbp

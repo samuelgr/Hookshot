@@ -38,9 +38,15 @@ namespace Hookshot
         InjectResultErrorVirtualProtectFailed,                      ///< Failed to set protection values for code and data in the target process.
 
         // Issues actually injecting code or data into the target process.
+        InjectResultErrorInsufficientTrampolineSpace,               ///< Failed to inject due to insufficient space available for storing the old trampoline code.
         InjectResultErrorInsufficientCodeSpace,                     ///< Failed to inject due to insufficient allocated space for the code region.
         InjectResultErrorInsufficientDataSpace,                     ///< Failed to inject due to insufficient allocated space for the data region.
         InjectResultErrorInternalInvalidParams,                     ///< Failed to inject due to an internal issue resulting in invalid injection parameters.
-        InjectResultErrorSetFailedWriteProcessMemory,               ///< Failed to inject due to a failed attempt to set injected code into the injected process.
+        InjectResultErrorSetFailedRead,                             ///< Failed to inject due to a failed attempt to retrieve existing code from the injected process.
+        InjectResultErrorSetFailedWrite,                            ///< Failed to inject due to a failed attempt to write new code into the injected process.
+        InjectResultErrorRunFailedResumeThread,                     ///< Failed to run injected code due to the main thread of the injected process not waking up.
+        InjectResultErrorRunFailedSync,                             ///< Failed to synchronize with injected code due to an issue reading from or writing to injected process memory.
+        InjectResultErrorRunFailedSuspendThread,                    ///< Failed to place the injected process back into a suspended state after running the injected code.
+        InjectResultErrorUnsetFailed,                               ///< Failed to inject due to a failed attempt to return the trampoline region to its original content.
     };
 }

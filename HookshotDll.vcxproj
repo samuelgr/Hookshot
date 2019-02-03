@@ -44,6 +44,7 @@
     <MASM Include="Source\Inject.asm" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Include\Hookshot\Inject.inc" />
     <None Include="Include\Hookshot\Preamble.inc" />
     <None Include="Include\Hookshot\Registers.inc" />
   </ItemGroup>

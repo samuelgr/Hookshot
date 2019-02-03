@@ -23,9 +23,9 @@
      /// These are primarily used to assist with output formatting.
      enum EMessageSeverity
      {
-         MessageSeverityError = 0,                                   ///< Error. Causes a change in behavior if encountered, possibly leading to application termination.
-         MessageSeverityWarning = 1,                                 ///< Warning. May cause a change in behavior but is not critical and will not terminate the application.
-         MessageSeverityInfo = 2,                                    ///< Informational. Useful status-related remarks for tracking application behavior.
+         MessageSeverityError = 0,                                  ///< Error. Causes a change in behavior if encountered, possibly leading to application termination.
+         MessageSeverityWarning = 1,                                ///< Warning. May cause a change in behavior but is not critical and will not terminate the application.
+         MessageSeverityInfo = 2,                                   ///< Informational. Useful status-related remarks for tracking application behavior.
      };
      
     /// Encapsulates all message-related functionality.

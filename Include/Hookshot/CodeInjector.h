@@ -15,6 +15,7 @@
 #include "InjectResult.h"
 
 #include <cstddef>
+#include <cstdint>
 
 
 namespace Hookshot
@@ -28,6 +29,12 @@ namespace Hookshot
     class CodeInjector
     {
     private:
+        // -------- CONSTANTS ---------------------------------------------- //
+        
+        /// Maximum number of bytes that the trampoline code is allowed to required.
+        static const unsigned int kMaxTrampolineCodeBytes = 128;
+
+        
         // -------- INSTANCE VARIABLES ------------------------------------- //
 
         /// Base address of the code region of the injected process.
@@ -50,6 +57,9 @@ namespace Hookshot
 
         /// Main thread handle for the injected process.
         const HANDLE injectedProcessMainThread;
+
+        /// Container for holding the code that gets replaced by trampoline code.
+        uint8_t oldCodeAtTrampoline[kMaxTrampolineCodeBytes];
 
 
     public:
@@ -109,5 +119,10 @@ namespace Hookshot
         /// Sets the injected code into the injected process, performing all required operations.
         /// @return Indictor of the result of the operation.
         EInjectResult Set(void);
+
+        /// Returns the code region occupied by the trampoline to its original content.
+        /// This is necessary to allow the injected process to execute as normal.
+        /// @return Indicator of the result of the operation.
+        EInjectResult UnsetTrampoline(void);
     };
 }

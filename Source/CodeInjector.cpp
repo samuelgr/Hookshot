@@ -63,6 +63,9 @@ namespace Hookshot
 
         if (EInjectResult::InjectResultSuccess == result)
             result = Run();
+
+        if (EInjectResult::InjectResultSuccess == result)
+            result = UnsetTrampoline();
         
         return result;
     }
@@ -73,6 +76,9 @@ namespace Hookshot
 
     EInjectResult CodeInjector::Check(void)
     {
+        if (GetTrampolineCodeSize() > sizeof(oldCodeAtTrampoline))
+            return EInjectResult::InjectResultErrorInsufficientTrampolineSpace;
+        
         if (GetRequiredCodeSize() > sizeCode)
             return EInjectResult::InjectResultErrorInsufficientCodeSpace;
 
@@ -89,10 +95,33 @@ namespace Hookshot
 
     EInjectResult CodeInjector::Run(void)
     {
-        // TODO
-        // Also remember to save old code in Set and restore it here in Run
-        ResumeThread(injectedProcessMainThread);
+        injectSyncInit(injectedProcess, baseAddressData);
         
+        // Allow the injected code to start running.
+        if (1 != ResumeThread(injectedProcessMainThread))
+            return EInjectResult::InjectResultErrorRunFailedResumeThread;
+
+        // Synchronize with the injected code.
+        if (false == injectSync())
+            return EInjectResult::InjectResultErrorRunFailedSync;
+        
+        //
+        // TODO
+        //
+        
+        // Wait for the injected code to reach completion and synchronize with it.
+        // Once the injected code reaches this point, put the thread to sleep and then allow it to advance.
+        // This way, upon waking, the thread will advance past the barrier and execute the process as normal.
+        if (false == injectSyncWait())
+            return EInjectResult::InjectResultErrorRunFailedSync;
+
+        if (0 != SuspendThread(injectedProcessMainThread))
+            return EInjectResult::InjectResultErrorRunFailedSuspendThread;
+
+        if (false == injectSyncAdvance())
+            return EInjectResult::InjectResultErrorRunFailedSync;
+
+        // All injection operations completed successfully.
         return EInjectResult::InjectResultSuccess;
     }
 
@@ -100,33 +129,58 @@ namespace Hookshot
 
     EInjectResult CodeInjector::Set(void)
     {
-        SIZE_T numBytesWritten = 0;
+        SIZE_T numBytes = 0;
 
+        // Back up the code currently at the trampoline's target location.
+        if ((FALSE == ReadProcessMemory(injectedProcess, entryPoint, oldCodeAtTrampoline, GetTrampolineCodeSize(), &numBytes)) || (GetTrampolineCodeSize() != numBytes))
+            EInjectResult::InjectResultErrorSetFailedRead;
+        
         // Write the trampoline code.
-        if ((FALSE == WriteProcessMemory(injectedProcess, entryPoint, &injectTrampolineStart, GetTrampolineCodeSize(), &numBytesWritten)) || (GetTrampolineCodeSize() != numBytesWritten))
-            EInjectResult::InjectResultErrorSetFailedWriteProcessMemory;
+        if ((FALSE == WriteProcessMemory(injectedProcess, entryPoint, &injectTrampolineStart, GetTrampolineCodeSize(), &numBytes)) || (GetTrampolineCodeSize() != numBytes) || (FALSE == FlushInstructionCache(injectedProcess, entryPoint, GetTrampolineCodeSize())))
+            EInjectResult::InjectResultErrorSetFailedWrite;
 
         // Place the address of the main code entry point into the trampoline code at the correct location.
         {
             void* const targetAddress = (void*)((size_t)entryPoint + ((size_t)&injectTrampolineAddressMarker - (size_t)&injectTrampolineStart) - sizeof(size_t));
             const size_t sourceData = (size_t)baseAddressCode + ((size_t)&injectCodeBegin - (size_t)&injectCodeStart);
             
-            if ((FALSE == WriteProcessMemory(injectedProcess, targetAddress, &sourceData, sizeof(sourceData), &numBytesWritten)) || (sizeof(sourceData) != numBytesWritten))
-                EInjectResult::InjectResultErrorSetFailedWriteProcessMemory;
+            if ((FALSE == WriteProcessMemory(injectedProcess, targetAddress, &sourceData, sizeof(sourceData), &numBytes)) || (sizeof(sourceData) != numBytes) || (FALSE == FlushInstructionCache(injectedProcess, targetAddress, sizeof(sourceData))))
+                EInjectResult::InjectResultErrorSetFailedWrite;
         }
 
         // Write the main code.
-        if ((FALSE == WriteProcessMemory(injectedProcess, baseAddressCode, &injectCodeStart, GetRequiredCodeSize(), &numBytesWritten)) || (GetRequiredCodeSize() != numBytesWritten))
-            EInjectResult::InjectResultErrorSetFailedWriteProcessMemory;
+        if ((FALSE == WriteProcessMemory(injectedProcess, baseAddressCode, &injectCodeStart, GetRequiredCodeSize(), &numBytes)) || (GetRequiredCodeSize() != numBytes) || (FALSE == FlushInstructionCache(injectedProcess, baseAddressCode, GetRequiredCodeSize())))
+            EInjectResult::InjectResultErrorSetFailedWrite;
 
         // Place the pointer to the data region into the correct spot in the code region.
         {
             void* const targetAddress = baseAddressCode;
             const size_t sourceData = (size_t)baseAddressData;
 
-            if ((FALSE == WriteProcessMemory(injectedProcess, targetAddress, &sourceData, sizeof(sourceData), &numBytesWritten)) || (sizeof(sourceData) != numBytesWritten))
-                EInjectResult::InjectResultErrorSetFailedWriteProcessMemory;
+            if ((FALSE == WriteProcessMemory(injectedProcess, targetAddress, &sourceData, sizeof(sourceData), &numBytes)) || (sizeof(sourceData) != numBytes) || (FALSE == FlushInstructionCache(injectedProcess, targetAddress, sizeof(sourceData))))
+                EInjectResult::InjectResultErrorSetFailedWrite;
         }
+
+        // Initialize the data region.
+        {
+            SInjectData injectData;
+            memset((void*)&injectData, 0, sizeof(injectData));
+
+            if ((FALSE == WriteProcessMemory(injectedProcess, baseAddressData, &injectData, sizeof(injectData), &numBytes)) || (sizeof(injectData) != numBytes))
+                EInjectResult::InjectResultErrorSetFailedWrite;
+        }
+        
+        return EInjectResult::InjectResultSuccess;
+    }
+
+    // --------
+
+    EInjectResult CodeInjector::UnsetTrampoline(void)
+    {
+        SIZE_T numBytes = 0;
+
+        if ((FALSE == WriteProcessMemory(injectedProcess, entryPoint, oldCodeAtTrampoline, GetTrampolineCodeSize(), &numBytes)) || (GetTrampolineCodeSize() != numBytes) || (FALSE == FlushInstructionCache(injectedProcess, entryPoint, GetTrampolineCodeSize())))
+            return EInjectResult::InjectResultErrorUnsetFailed;
         
         return EInjectResult::InjectResultSuccess;
     }
