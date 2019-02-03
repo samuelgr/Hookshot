@@ -13,54 +13,14 @@
 
 #include "ApiWindows.h"
 #include "CodeInjector.h"
+#include "Inject.h"
 #include "InjectResult.h"
 
 #include <cstddef>
 
 
-// -------- EXTERNAL REFERENCES -------------------------------------------- //
-
-// Required because names automatically get leading underscores in 32-bit mode.
-#ifdef HOOKSHOT64
-#define injectTrampolineStart               _injectTrampolineStart
-#define injectTrampolineAddressMarker       _injectTrampolineAddressMarker
-#define injectTrampolineEnd                 _injectTrampolineEnd
-#define injectCodeStart                     _injectCodeStart
-#define injectCodeBegin                     _injectCodeBegin
-#define injectCodeEnd                       _injectCodeEnd
-#endif
-
-/// Start of the trampoline code block.
-extern "C" void injectTrampolineStart(void);
-
-/// Marker for where to place the address to which the trampoline should jump.
-extern "C" void injectTrampolineAddressMarker(void);
-
-/// End of the trampoline code block.
-extern "C" void injectTrampolineEnd(void);
-
-/// Start of the main code block.
-extern "C" void injectCodeStart(void);
-
-/// Entry point within the main code block.
-extern "C" void injectCodeBegin(void);
-
-/// End of the main code block.
-extern "C" void injectCodeEnd(void);
-
-
 namespace Hookshot
 {
-    // -------- INTERNAL TYPES --------------------------------------------- //
-
-    /// Defines the structure of the data exchanged between the injecting and injected processes.
-    // TODO
-    struct SInjectData
-    {
-        size_t unused;
-    };
-
-
     // -------- CONSTRUCTION AND DESTRUCTION ------------------------------- //
     // See "CodeInjector.h" for documentation.
 

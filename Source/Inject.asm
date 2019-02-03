@@ -57,11 +57,11 @@ _injectCodeBegin:
     ; Fix up the stack.
     ; Switch the order of the return address and the old value of sax.
     ; Reset the return address to point to the program's original entry point.
-    mov sax, SIZE_T PTR [ssp+56]
-    mov scx, SIZE_T PTR [ssp+48]
-    mov SIZE_T PTR [ssp+48], sax
+    mov sax, SIZE_T PTR [ssp+(7*SIZEOF(SIZE_T))]
+    mov scx, SIZE_T PTR [ssp+(6*SIZEOF(SIZE_T))]
+    mov SIZE_T PTR [ssp+(6*SIZEOF(SIZE_T))], sax
     sub scx, (_injectTrampolineEnd-_injectTrampolineStart)
-    mov SIZE_T PTR [ssp+56], scx
+    mov SIZE_T PTR [ssp+(7*SIZEOF(SIZE_T))], scx
     
     ; Get the address of the data region.
     call $L00

@@ -29,6 +29,7 @@
     <ClInclude Include="Include\Hookshot\ApiWindows.h" />
     <ClInclude Include="Include\Hookshot\CodeInjector.h" />
     <ClInclude Include="Include\Hookshot\Globals.h" />
+    <ClInclude Include="Include\Hookshot\Inject.h" />
     <ClInclude Include="Include\Hookshot\InjectResult.h" />
     <ClInclude Include="Include\Hookshot\Message.h" />
     <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
