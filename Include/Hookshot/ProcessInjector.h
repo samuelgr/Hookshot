@@ -23,13 +23,14 @@ namespace Hookshot
     /// All methods are class methods.
     class ProcessInjector
     {
-    private:
+    public:
         // -------- CONSTANTS ------------------------------------------------------ //
 
         /// Size, in bytes, of the memory region in the injected process to allocate for storing code and data.
         static const size_t kInjectRegionSize = 1024;
 
         
+    private:
         // -------- CLASS VARIABLES ------------------------------------------------ //
 
         /// Module handle for "ntdll.dll" which is loaded dynamically as part of the process injection functionality.

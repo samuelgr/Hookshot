@@ -12,6 +12,7 @@
 #pragma once
 
 #include "ApiWindows.h"
+#include "Inject.h"
 #include "InjectResult.h"
 
 #include <cstddef>
@@ -28,13 +29,14 @@ namespace Hookshot
     /// For newly-created processes in suspended state, the entry point can simply be the starting address of the process. Once injection completes successfully, the process will simply start normally.
     class CodeInjector
     {
-    private:
+    public:
         // -------- CONSTANTS ---------------------------------------------- //
         
         /// Maximum number of bytes that the trampoline code is allowed to required.
         static const unsigned int kMaxTrampolineCodeBytes = 128;
 
         
+    private:
         // -------- INSTANCE VARIABLES ------------------------------------- //
 
         /// Base address of the code region of the injected process.
@@ -61,6 +63,9 @@ namespace Hookshot
         /// Container for holding the code that gets replaced by trampoline code.
         uint8_t oldCodeAtTrampoline[kMaxTrampolineCodeBytes];
 
+        /// Utility object for providing access to all code being injected.
+        const InjectInfo injectInfo;
+
 
     public:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
@@ -78,20 +83,8 @@ namespace Hookshot
         /// @param [in] injectedProcessMainThread Main thread handle for the injected process.
         CodeInjector(void* const baseAddressCode, void* const baseAddressData, void* const entryPoint, const size_t sizeCode, const size_t sizeData, const HANDLE injectedProcess, const HANDLE injectedProcessMainThread);
 
-
-        // -------- CLASS METHODS ------------------------------------------ //
-
-        /// Computes the number of bytes needed to represent the injected code.
-        /// @return Number of bytes required for the injected code.
-        static size_t GetRequiredCodeSize(void);
-
-        /// Computes the number of bytes needed for the data region within the injected process.
-        /// @return Number of bytes needed for the data region.
-        static size_t GetRequiredDataSize(void);
-
-        /// Computes the number of bytes occupied by the trampoline code, which replaces the entry point code and causes execution of the injected code.
-        /// @return Number of bytes occupied by the trampoline code.
-        static size_t GetTrampolineCodeSize(void);
+        /// Copy constructor. Should never be invoked.
+        CodeInjector(const CodeInjector&) = delete;
 
 
     public:
@@ -110,7 +103,19 @@ namespace Hookshot
         /// Validates all of the parameters specified at object creation time.
         /// Sources of possible errors include null pointers and insufficiently-sized code or data regions.
         /// @return Indictor of the result of the operation.
-        EInjectResult Check(void);
+        EInjectResult Check(void) const;
+
+        /// Computes the number of bytes needed to represent the injected code.
+        /// @return Number of bytes required for the injected code.
+        size_t GetRequiredCodeSize(void) const;
+
+        /// Computes the number of bytes needed for the data region within the injected process.
+        /// @return Number of bytes needed for the data region.
+        size_t GetRequiredDataSize(void) const;
+
+        /// Computes the number of bytes occupied by the trampoline code, which replaces the entry point code and causes execution of the injected code.
+        /// @return Number of bytes occupied by the trampoline code.
+        size_t GetTrampolineCodeSize(void) const;
         
         /// Runs the injected process once the injected code has been set.
         /// @return Indictor of the result of the operation.

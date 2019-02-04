@@ -20,6 +20,9 @@ namespace Hookshot
         // Success
         InjectResultSuccess = 0,                                    ///< All operations succeeded.
 
+        // Unknown failure
+        InjectResultFailure,                                        ///< Unknown error.
+
         // Issues creating the process
         InjectResultErrorCreateProcess,                             ///< Call to `CreateProcess` failed.  `GetLastError` can be used to obtain more details.
 
@@ -38,6 +41,8 @@ namespace Hookshot
         InjectResultErrorVirtualProtectFailed,                      ///< Failed to set protection values for code and data in the target process.
 
         // Issues actually injecting code or data into the target process.
+        InjectResultErrorCannotGenerateInjectCodeFilename,          ///< Failed to compute the name of the file holding injected code.
+        InjectResultErrorCannotLoadInjectCode,                      ///< Failed to load the file containing injection code.
         InjectResultErrorInsufficientTrampolineSpace,               ///< Failed to inject due to insufficient space available for storing the old trampoline code.
         InjectResultErrorInsufficientCodeSpace,                     ///< Failed to inject due to insufficient allocated space for the code region.
         InjectResultErrorInsufficientDataSpace,                     ///< Failed to inject due to insufficient allocated space for the data region.

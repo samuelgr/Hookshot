@@ -21,6 +21,15 @@ namespace Hookshot
     /// Not intended to be instantiated.
     class Globals
     {
+    public:
+        // -------- CONSTANTS ---------------------------------------------- //
+
+        /// Buffer size to use for temporarily holding path names.
+        /// Useful when determining the names of modules to load for various purposes.
+        /// Measured in characters, not bytes.
+        static const size_t kPathBufferLength = 2048;
+
+    
     private:
         // -------- CLASS VARIABLES ---------------------------------------- //
 
@@ -37,8 +46,16 @@ namespace Hookshot
 
         // -------- CLASS METHODS ------------------------------------------ //
 
+        /// Fills the specified buffer with the fully-qualified path of the current running form of Hookshot, minus the extension.
+        /// This is useful for determining the correct path of the next module to load.
+        /// Internally uses `GetModuleFilename()` so check MSDN for documentation on error values, which are simply passed unchanged back.
+        /// @param [in,out] buf Buffer to be filled.
+        /// @param [in] numchars Size of the buffer, measured in characters.
+        /// @return Number of characters written to the buffer (not including the terminal `NULL` character, which is always written), or 0 in the event of an error.
+        static size_t FillModuleBasePath(TCHAR* buf, const size_t numchars);
+        
         /// Retrieves the handle of the instance that represents the current running form of Hookshot, be it the library or the bootstrap executable.
-        /// @return Instance handle for Xidi.
+        /// @return Instance handle for the loaded module.
         static HINSTANCE GetInstanceHandle(void);
 
         /// Sets the handle of the instance that represents the current running form of Hookshot, be it the library or the bootstrap executable.

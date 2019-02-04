@@ -22,6 +22,7 @@
     <ClCompile Include="Source\CodeInjector.cpp" />
     <ClCompile Include="Source\ExeMain.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
+    <ClCompile Include="Source\Inject.cpp" />
     <ClCompile Include="Source\Message.cpp" />
     <ClCompile Include="Source\ProcessInjector.cpp" />
   </ItemGroup>
@@ -39,14 +40,6 @@
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc" />
     <ResourceCompile Include="Resources\HookshotExe.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="Source\Inject.asm" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Include\Hookshot\Inject.inc" />
-    <None Include="Include\Hookshot\Preamble.inc" />
-    <None Include="Include\Hookshot\Registers.inc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -80,9 +73,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
-  </ImportGroup>
+  <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -143,15 +134,8 @@
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
     </Link>
-    <MASM>
-      <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
-    </MASM>
-    <MASM>
-      <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
-      <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
-      <PreserveIdentifierCase>1</PreserveIdentifierCase>
-    </MASM>
+    <MASM />
+    <MASM />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -175,15 +159,8 @@
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
     </Link>
-    <MASM>
-      <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
-    </MASM>
-    <MASM>
-      <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
-      <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
-      <PreserveIdentifierCase>1</PreserveIdentifierCase>
-    </MASM>
+    <MASM />
+    <MASM />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -210,15 +187,8 @@
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
     </Link>
-    <MASM>
-      <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
-    </MASM>
-    <MASM>
-      <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
-      <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
-      <PreserveIdentifierCase>1</PreserveIdentifierCase>
-    </MASM>
+    <MASM />
+    <MASM />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -245,18 +215,9 @@
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
     </Link>
-    <MASM>
-      <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
-    </MASM>
-    <MASM>
-      <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
-      <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
-      <PreserveIdentifierCase>1</PreserveIdentifierCase>
-    </MASM>
+    <MASM />
+    <MASM />
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

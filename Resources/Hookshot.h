@@ -3,6 +3,8 @@
 // Used by Hookshot.rc
 //
 #define IDS_HOOKSHOT_PRODUCT_NAME       201
+#define IDS_HOOKSHOT_INJECT32_EXTENSION 202
+#define IDS_HOOKSHOT_INJECT64_EXTENSION 203
 
 // Next default values for new objects
 // 

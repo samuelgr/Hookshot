@@ -12,6 +12,7 @@
 #pragma once
 
 #include "ApiWindows.h"
+#include "InjectResult.h"
 
 #include <cstddef>
 
@@ -51,7 +52,7 @@ struct SInjectData
 /// Implements the first part of the syncing logic.
 /// Waits until the injected process writes the expected value to the sync flag and then returns.
 /// Not intended to be invoked other than by using appropriate macros.
-inline bool injectSyncImplWait(size_t& syncVar1, size_t& syncVar2, const HANDLE& syncProcessHandle, size_t* const& syncFlagAddress)
+static inline bool injectSyncImplWait(size_t& syncVar1, size_t& syncVar2, const HANDLE& syncProcessHandle, size_t* const& syncFlagAddress)
 {
     size_t syncFlagValue = 0;
     SIZE_T numBytes = 0;
@@ -68,7 +69,7 @@ inline bool injectSyncImplWait(size_t& syncVar1, size_t& syncVar2, const HANDLE&
 /// Implements the second part of the syncing logic.
 /// Writes the value to the sync flag for which the injected process is currently waiting.
 /// Not intended to be invoked other than by using appropriate macros.
-inline bool injectSyncImplAdvance(size_t& syncVar1, size_t& syncVar2, const HANDLE& syncProcessHandle, size_t* const& syncFlagAddress)
+static inline bool injectSyncImplAdvance(size_t& syncVar1, size_t& syncVar2, const HANDLE& syncProcessHandle, size_t* const& syncFlagAddress)
 {
     SIZE_T numBytes = 0;
 
@@ -82,32 +83,121 @@ inline bool injectSyncImplAdvance(size_t& syncVar1, size_t& syncVar2, const HAND
 }
 
 
-// -------- EXTERNAL REFERENCES -------------------------------------------- //
+namespace Hookshot
+{
+    /// Utility class for managing information about the structure of the assembly-written injected code.
+    /// Injected code is dynamically loaded into this process at runtime and then copied to the injected process.
+    /// Pointers contained within this class are expressed in this process' address space and correspond to the code that has been loaded.
+    /// Requires knowledge of the symbols exported by the modules that contain the code.
+    class InjectInfo
+    {
+    private:
+        // -------- INSTANCE VARIABLES ------------------------------------- //
 
-// Required because names automatically get leading underscores in 32-bit mode.
-#ifdef HOOKSHOT64
-#define injectTrampolineStart               _injectTrampolineStart
-#define injectTrampolineAddressMarker       _injectTrampolineAddressMarker
-#define injectTrampolineEnd                 _injectTrampolineEnd
-#define injectCodeStart                     _injectCodeStart
-#define injectCodeBegin                     _injectCodeBegin
-#define injectCodeEnd                       _injectCodeEnd
-#endif
+        /// Start of the trampoline code block.
+        void* injectTrampolineStart;
 
-/// Start of the trampoline code block.
-extern "C" void injectTrampolineStart(void);
+        /// Marker for where to place the address to which the trampoline should jump.
+        /// The assembly code reserves space for this address, and the injecting process must fill it in dynamically.
+        void* injectTrampolineAddressMarker;
 
-/// Marker for where to place the address to which the trampoline should jump.
-extern "C" void injectTrampolineAddressMarker(void);
+        /// End of the trampoline code block.
+        void* injectTrampolineEnd;
 
-/// End of the trampoline code block.
-extern "C" void injectTrampolineEnd(void);
+        /// Start of the main code block.
+        void* injectCodeStart;
 
-/// Start of the main code block.
-extern "C" void injectCodeStart(void);
+        /// Entry point within the main code block.
+        /// This is the address that should be placed at the trampoline address marker after it is converted into a pointer in the injected process' address space.
+        void* injectCodeBegin;
 
-/// Entry point within the main code block.
-extern "C" void injectCodeBegin(void);
+        /// End of the main code block.
+        void* injectCodeEnd;
 
-/// End of the main code block.
-extern "C" void injectCodeEnd(void);
+        /// Handle to the file that corresponds to the file containing injected code.
+        HANDLE injectFileHandle;
+
+        /// Handle to the file mapping object that is created when the file that contains injected code is mapped into memory.
+        HANDLE injectFileMappingHandle;
+
+        /// Base address of the mapped injected code file once it is mapped into memory.
+        void* injectFileBase;
+
+        /// Indicator of the result of the initialization of this object.
+        EInjectResult initializationResult;
+
+
+    public:
+        // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
+
+        /// Default constructor.
+        InjectInfo(void);
+
+        /// Default destructor.
+        ~InjectInfo(void);
+
+        /// Copy constructor. Should never be invoked.
+        InjectInfo(const InjectInfo&) = delete;
+
+
+    private:
+        // -------- CLASS METHODS ------------------------------------------ //
+
+        /// Generates the expected filename of the file containing the injected code that is to be loaded and places it into the specified buffer.
+        static bool FillInjectCodeFilename(TCHAR* buf, const size_t size);
+
+
+    public:
+        // -------- INSTANCE METHODS --------------------------------------- //
+
+        /// Provides read-only access to the correspondingly-named instance variable.
+        /// @return Value of the corresponding instance variable.
+        inline void* GetInjectTrampolineStart(void) const
+        {
+            return injectTrampolineStart;
+        }
+
+        /// Provides read-only access to the correspondingly-named instance variable.
+        /// @return Value of the corresponding instance variable.
+        inline void* GetInjectTrampolineAddressMarker(void) const
+        {
+            return injectTrampolineAddressMarker;
+        }
+        
+        /// Provides read-only access to the correspondingly-named instance variable.
+        /// @return Value of the corresponding instance variable.
+        inline void* GetInjectTrampolineEnd(void) const
+        {
+            return injectTrampolineEnd;
+        }
+
+        /// Provides read-only access to the correspondingly-named instance variable.
+        /// @return Value of the corresponding instance variable.
+        inline void* GetInjectCodeStart(void) const
+        {
+            return injectCodeStart;
+        }
+
+        /// Provides read-only access to the correspondingly-named instance variable.
+        /// @return Value of the corresponding instance variable.
+        inline void* GetInjectCodeBegin(void) const
+        {
+            return injectCodeBegin;
+        }
+
+        /// Provides read-only access to the correspondingly-named instance variable.
+        /// @return Value of the corresponding instance variable.
+        inline void* GetInjectCodeEnd(void) const
+        {
+            return injectCodeEnd;
+        }
+
+        /// Specifies the result of attempting to initialize this object.
+        /// If not successful, it should be destroyed without any other methods called.
+        /// @return Indicator of the result of initialization.
+        inline EInjectResult InitializationResult(void) const
+        {
+            return initializationResult;
+        }
+    };
+}

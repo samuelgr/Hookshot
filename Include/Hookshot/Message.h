@@ -32,15 +32,16 @@
     /// All methods are class methods.
     class Message
     {
-    private:
+    public:
         // -------- CONSTANTS ---------------------------------------------- //
 
         /// Buffer size, in characters, for the temporary buffer to hold strings read from a resource identifier and formatted.
         /// When writing log messages using a resource identifier (rather than a raw string), a temporary buffer is created to hold the loaded resource string.
         /// Similarly, when formatting messages, a temporary buffer is created to hold the output formatted string.
-        static const size_t kMessageBufferSize = 2048;
+        static const size_t kMessageBufferSize = 4096;
 
 
+    private:
         // -------- CLASS VARIABLES ---------------------------------------- //
 
         /// Specifies the minimum severity required to output a message.

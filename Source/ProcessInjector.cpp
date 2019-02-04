@@ -38,24 +38,6 @@ namespace Hookshot
     };
     
     
-    
-    // 32-bit (8 bytes)
-    // { 0x50, 0xB8, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xD0 } 
-    // 0:  50                      push   eax
-    // 1 : b8 00 00 00 00          mov    eax, 0x0
-    // 6 : ff d0                   call   eax
-
-    // 64-bit (16 bytes)
-    // 0:  50                      push   rax
-    // 1 : 90                      nop
-    // 2 : 48 b8 00 00 00 00 00    movabs rax, 0x0
-    // 9 : 00 00 00
-    // c : ff d0                   call   rax
-    // e : 90                      nop
-    // f : 90                      nop
-
-
-
     // -------- CLASS VARIABLES -------------------------------------------- //
     // See "ProcessInjector.h" for documentation.
 

@@ -1,0 +1,20 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Hookshot
+;   General-purpose library for hooking API calls in spawned processes.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Authored by Samuel Grossman
+; Copyright (c) 2019
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Hookshot.def
+;   Export definition for the library files that contain injection code.
+;   Must be updated as changes are made to the assembly interface.
+;   Used by both 32-bit and 64-bit versions.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+EXPORTS
+    injectTrampolineStart           @1
+    injectTrampolineAddressMarker   @2
+    injectTrampolineEnd             @3
+    injectCodeStart                 @4
+    injectCodeBegin                 @5
+    injectCodeEnd                   @6

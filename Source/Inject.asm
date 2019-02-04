@@ -23,16 +23,16 @@ _TEXT                                       SEGMENT
 ; Initial value is to be overwritten with the actual target address within the code region.
 ; Address of the initial value is injectTrampolineAddressMarker - sizeof(size_t) in C/C++.
 
-_injectTrampolineStart:
+injectTrampolineStart:
 
     push sax
     mov sax, initialvalue
 
-_injectTrampolineAddressMarker:
+injectTrampolineAddressMarker:
 
     call sax
 
-_injectTrampolineEnd:
+injectTrampolineEnd:
 
 
 ; --------- MAIN CODE ---------------------------------------------------------
@@ -40,11 +40,11 @@ _injectTrampolineEnd:
 ; Injected into the code region of a process.
 ; Reserved bytes at the beginning are to be overwritten with the address of the data region.
 
-_injectCodeStart:
+injectCodeStart:
 
     DSZ 0
 
-_injectCodeBegin:
+injectCodeBegin:
     
     ; Save all other general-purpose registers.
     ; Register sax was already saved by the trampoline.
@@ -61,14 +61,14 @@ _injectCodeBegin:
     mov sax, SIZE_T PTR [ssp+(7*SIZEOF(SIZE_T))]
     mov scx, SIZE_T PTR [ssp+(6*SIZEOF(SIZE_T))]
     mov SIZE_T PTR [ssp+(6*SIZEOF(SIZE_T))], sax
-    sub scx, (_injectTrampolineEnd-_injectTrampolineStart)
+    sub scx, (injectTrampolineEnd-injectTrampolineStart)
     mov SIZE_T PTR [ssp+(7*SIZEOF(SIZE_T))], scx
     
     ; Get the address of the data region.
     call $next
   $next:
     pop sbp
-    mov sbp, SIZE_T PTR [sbp-($next-_injectCodeStart)]
+    mov sbp, SIZE_T PTR [sbp-($next-injectCodeStart)]
 
     ; Initialize, then synchronize with the injecting process.
     injectSyncInit ssi, sdi
@@ -92,19 +92,19 @@ _injectCodeBegin:
     pop sax
     ret
 
-_injectCodeEnd:
+injectCodeEnd:
 
 
 _TEXT                                       ENDS
 
 
 ; Export all labels needed by the C/C++ code to understand the structure of this injection code.
-PUBLIC _injectTrampolineStart
-PUBLIC _injectTrampolineAddressMarker
-PUBLIC _injectTrampolineEnd
-PUBLIC _injectCodeStart
-PUBLIC _injectCodeBegin
-PUBLIC _injectCodeEnd
+PUBLIC injectTrampolineStart
+PUBLIC injectTrampolineAddressMarker
+PUBLIC injectTrampolineEnd
+PUBLIC injectCodeStart
+PUBLIC injectCodeBegin
+PUBLIC injectCodeEnd
 
 
 END
