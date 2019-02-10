@@ -150,17 +150,6 @@ namespace Hookshot
         OutputDebugString(messageStampBuf);
         OutputDebugString(message);
         OutputDebugString(_T("\n"));
-
-        switch (severity)
-        {
-        case EMessageSeverity::MessageSeverityWarning:
-        case EMessageSeverity::MessageSeverityInfo:
-            break;
-
-        default:
-            DebugBreak();
-            break;
-        }
     }
 
     // --------

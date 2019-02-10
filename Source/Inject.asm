@@ -12,9 +12,10 @@
 INCLUDE Inject.inc
 INCLUDE Preamble.inc
 INCLUDE Registers.inc
+INCLUDE Strings.inc
 
 
-_CODE                                       SEGMENT READ
+kStrInjectCodeSectionName                   SEGMENT READ
 ; --------- TRAMPOLINE --------------------------------------------------------
 
 ; Injected to the entry point of a process.
@@ -91,12 +92,12 @@ injectCodeBegin:
     ret
 
 injectCodeEnd:
-_CODE                                       ENDS
+kStrInjectCodeSectionName                   ENDS
 
 
-_META                                       SEGMENT READ
+kStrInjectMetaSectionName                   SEGMENT READ
     SInjectMeta <kInjectionMetaMagicValue, 0, x1, x2, x3, x4, x5, x6>
-_META                                       ENDS
+kStrInjectMetaSectionName                   ENDS
 
 
 x1 EQU (injectTrampolineStart-injectTrampolineStart)

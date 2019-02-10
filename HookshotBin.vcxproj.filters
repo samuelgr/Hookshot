@@ -29,5 +29,8 @@
     <None Include="Include\Hookshot\Registers.inc">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="Include\Hookshot\Strings.inc">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

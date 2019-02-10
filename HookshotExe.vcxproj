@@ -25,6 +25,7 @@
     <ClCompile Include="Source\Inject.cpp" />
     <ClCompile Include="Source\Message.cpp" />
     <ClCompile Include="Source\ProcessInjector.cpp" />
+    <ClCompile Include="Source\Strings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc" />
@@ -38,6 +39,7 @@
     <ClInclude Include="Include\Hookshot\InjectResult.h" />
     <ClInclude Include="Include\Hookshot\Message.h" />
     <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
+    <ClInclude Include="Include\Hookshot\Strings.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

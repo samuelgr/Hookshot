@@ -17,19 +17,6 @@
 #include <cstddef>
 
 
-// -------- TYPE DEFINITIONS ----------------------------------------------- //
-
-/// Defines the structure of the data exchanged between the injecting and injected processes.
-/// One instance of this structure is placed into the data region and accessed by both the injecting and injected processes.
-/// A corresponding structure definition must appear in "Inject.inc" for the assembly code.
-// TODO
-struct SInjectData
-{
-    size_t sync;                                                    ///< Synchronization flag between injecting and injected processes.
-    size_t unused1[(128 / sizeof(size_t)) - 1];                     ///< Padding for 128-byte alignment.
-};
-
-
 // -------- MACROS --------------------------------------------------------- //
 
 /// Initializes the state required to synchronize between injecting and injected processes using the `sync` member of SInjectData.
@@ -85,6 +72,16 @@ static inline bool injectSyncImplAdvance(size_t& syncVar1, size_t& syncVar2, con
 
 namespace Hookshot
 {
+    /// Defines the structure of the data exchanged between the injecting and injected processes.
+    /// One instance of this structure is placed into the data region and accessed by both the injecting and injected processes.
+    /// A corresponding structure definition must appear in "Inject.inc" for the assembly code.
+    // TODO
+    struct SInjectData
+    {
+        size_t sync;                                                    ///< Synchronization flag between injecting and injected processes.
+        size_t unused1[(128 / sizeof(size_t)) - 1];                     ///< Padding for 128-byte alignment.
+    };
+    
     /// Utility class for managing information about the structure of the assembly-written injected code.
     /// Injected code is dynamically loaded into this process at runtime and then copied to the injected process.
     /// Pointers contained within this class are expressed in this process' address space and correspond to the code that has been loaded.

@@ -13,6 +13,7 @@
 #include "Globals.h"
 #include "Inject.h"
 #include "InjectResult.h"
+#include "Strings.h"
 
 #include <cstddef>
 #include <cstring>
@@ -24,12 +25,6 @@ namespace Hookshot
     
     /// Maximum size, in bytes, of the binary files that are loaded.
     static const LONGLONG kMaxInjectBinaryFileSize = 16384;
-    
-    /// Section name within the loaded binary files that correspond to injection code.
-    static const BYTE kSectionNameInjectionCode[] = "_CODE";
-
-    /// Section name within the loaded binary files that correspond to injection code metadata.
-    static const BYTE kSectionNameInjectionMeta[] = "_META";
 
     /// Magic value that identifies the metadata section of a loaded binary file.
     static const DWORD kInjectionMetaMagicValue = 0x51525354;
@@ -164,7 +159,7 @@ namespace Hookshot
                 // Since each such section should only appear once, also verify uniqueness.
                 for (WORD secidx = 0; secidx < ntHeader->FileHeader.NumberOfSections; ++secidx)
                 {
-                    if (0 == memcmp((void*)kSectionNameInjectionCode, (void*)&sectionHeader[secidx].Name, sizeof(kSectionNameInjectionCode)))
+                    if (0 == memcmp((void*)Strings::kStrInjectCodeSectionName, (void*)&sectionHeader[secidx].Name, Strings::kLenInjectCodeSectionName * sizeof(Strings::kStrInjectCodeSectionName[0])))
                     {
                         if (NULL != sectionCode)
                         {
@@ -174,7 +169,7 @@ namespace Hookshot
 
                         sectionCode = (void*)((size_t)injectFileBase + (size_t)sectionHeader[secidx].PointerToRawData);
                     }
-                    else if (0 == memcmp((void*)kSectionNameInjectionMeta, (void*)&sectionHeader[secidx].Name, sizeof(kSectionNameInjectionMeta)))
+                    else if (0 == memcmp((void*)Strings::kStrInjectMetaSectionName, (void*)&sectionHeader[secidx].Name, Strings::kLenInjectMetaSectionName * sizeof(Strings::kStrInjectMetaSectionName[0])))
                     {
                         if (NULL != sectionMeta)
                         {
@@ -239,25 +234,13 @@ namespace Hookshot
         if (0 == lengthBasePath)
             return false;
 
-#if defined(HOOKSHOT64)
-        const UINT extensionResourceID = IDS_HOOKSHOT_INJECT64_EXTENSION;
-#else
-        const UINT extensionResourceID = IDS_HOOKSHOT_INJECT32_EXTENSION;
-#endif
-        
-        TCHAR extension[16];
-        const size_t lengthExtension = LoadString(Globals::GetInstanceHandle(), extensionResourceID, extension, _countof(extension));
-
-        if (0 == lengthExtension)
-            return false;
-
-        if ((lengthBasePath + lengthExtension) >= numchars)
+        if ((lengthBasePath + Strings::kLenInjectBinaryExtension) >= numchars)
         {
             SetLastError(ERROR_INSUFFICIENT_BUFFER);
             return false;
         }
 
-        _tcscpy_s(&buf[lengthBasePath], (1 + lengthExtension), extension);
+        _tcscpy_s(&buf[lengthBasePath], Strings::kLenInjectBinaryExtension, Strings::kStrInjectBinaryExtension);
 
         return true;
     }
