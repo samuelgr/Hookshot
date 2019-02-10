@@ -12,6 +12,7 @@
 #include "ApiWindows.h"
 #include "CodeInjector.h"
 #include "Globals.h"
+#include "Inject.h"
 #include "InjectResult.h"
 #include "Message.h"
 #include "ProcessInjector.h"
@@ -189,7 +190,7 @@ namespace Hookshot
     EInjectResult ProcessInjector::InjectNewlyCreatedProcess(const HANDLE processHandle, const HANDLE threadHandle)
     {
         const size_t allocationGranularity = GetSystemAllocationGranularity();
-        const size_t kEffectiveInjectRegionSize = (kInjectRegionSize < allocationGranularity) ? allocationGranularity : kInjectRegionSize;
+        const size_t kEffectiveInjectRegionSize = (InjectInfo::kMaxInjectBinaryFileSize < allocationGranularity) ? allocationGranularity : InjectInfo::kMaxInjectBinaryFileSize;
         void* processBaseAddress = NULL;
         void* processEntryPoint = NULL;
         void* injectedCodeBase = NULL;

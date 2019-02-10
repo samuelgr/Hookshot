@@ -88,6 +88,13 @@ namespace Hookshot
     /// Requires knowledge of the symbols exported by the modules that contain the code.
     class InjectInfo
     {
+    public:
+        // -------- CONSTANTS ---------------------------------------------- //
+        
+        /// Maximum size, in bytes, of the binary files that are loaded.
+        static const size_t kMaxInjectBinaryFileSize = 4096;
+
+
     private:
         // -------- INSTANCE VARIABLES ------------------------------------- //
 

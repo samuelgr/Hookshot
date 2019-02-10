@@ -22,9 +22,6 @@
 namespace Hookshot
 {
     // -------- INTERNAL CONSTANTS ----------------------------------------- //
-    
-    /// Maximum size, in bytes, of the binary files that are loaded.
-    static const LONGLONG kMaxInjectBinaryFileSize = 16384;
 
     /// Magic value that identifies the metadata section of a loaded binary file.
     static const DWORD kInjectionMetaMagicValue = 0x51525354;
@@ -79,7 +76,7 @@ namespace Hookshot
         {
             LARGE_INTEGER fileSize;
 
-            if ((FALSE == GetFileSizeEx(injectFileHandle, &fileSize)) || (kMaxInjectBinaryFileSize < fileSize.QuadPart))
+            if ((FALSE == GetFileSizeEx(injectFileHandle, &fileSize)) || ((LONGLONG)kMaxInjectBinaryFileSize < fileSize.QuadPart))
             {
                 initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
                 return;
@@ -130,19 +127,6 @@ namespace Hookshot
 #else
             if (IMAGE_FILE_MACHINE_I386 != ntHeader->FileHeader.Machine)
 #endif
-            {
-                initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
-                return;
-            }
-
-            if (sizeof(IMAGE_OPTIONAL_HEADER) > ntHeader->FileHeader.SizeOfOptionalHeader)
-            {
-                initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
-                return;
-            }
-
-            // Verify a valid NT optional header.
-            if (IMAGE_NT_OPTIONAL_HDR_MAGIC != ntHeader->OptionalHeader.Magic)
             {
                 initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
                 return;
