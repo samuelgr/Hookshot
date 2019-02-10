@@ -22,7 +22,7 @@
     <MASM Include="Source\Inject.asm" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Hookshot.def" />
+    <None Include="HookshotBin.def" />
     <None Include="Include\Hookshot\Inject.inc" />
     <None Include="Include\Hookshot\Preamble.inc" />
     <None Include="Include\Hookshot\Registers.inc" />
@@ -30,7 +30,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{27D7F05E-E694-4395-B3F7-C29FDA024883}</ProjectGuid>
-    <RootNamespace>HookshotInject</RootNamespace>
+    <RootNamespace>HookshotBin</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -143,7 +143,7 @@
       <ImportLibrary>$(IntDir)$(TargetName)$(TargetExt).lib</ImportLibrary>
       <ProgramDatabaseFile>
       </ProgramDatabaseFile>
-      <ModuleDefinitionFile>Hookshot.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>HookshotBin.def</ModuleDefinitionFile>
       <SubSystem>NotSet</SubSystem>
       <ProfileGuidedDatabase />
     </Link>
@@ -182,7 +182,7 @@
       <ImportLibrary>$(IntDir)$(TargetName)$(TargetExt).lib</ImportLibrary>
       <ProgramDatabaseFile>
       </ProgramDatabaseFile>
-      <ModuleDefinitionFile>Hookshot.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>HookshotBin.def</ModuleDefinitionFile>
       <SubSystem>NotSet</SubSystem>
       <ProfileGuidedDatabase>
       </ProfileGuidedDatabase>
@@ -213,7 +213,7 @@
       <ImportLibrary>$(IntDir)$(TargetName)$(TargetExt).lib</ImportLibrary>
       <ProgramDatabaseFile>
       </ProgramDatabaseFile>
-      <ModuleDefinitionFile>Hookshot.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>HookshotBin.def</ModuleDefinitionFile>
       <SubSystem>NotSet</SubSystem>
       <ProfileGuidedDatabase />
     </Link>
@@ -254,7 +254,7 @@
       <ImportLibrary>$(IntDir)$(TargetName)$(TargetExt).lib</ImportLibrary>
       <ProgramDatabaseFile>
       </ProgramDatabaseFile>
-      <ModuleDefinitionFile>Hookshot.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>HookshotBin.def</ModuleDefinitionFile>
       <SubSystem>NotSet</SubSystem>
       <ProfileGuidedDatabase>
       </ProfileGuidedDatabase>

@@ -29,6 +29,6 @@
     <None Include="Include\Hookshot\Registers.inc">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="Hookshot.def" />
+    <None Include="HookshotBin.def" />
   </ItemGroup>
 </Project>

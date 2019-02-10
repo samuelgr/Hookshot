@@ -5,8 +5,8 @@
 ; Authored by Samuel Grossman
 ; Copyright (c) 2019
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Hookshot.def
-;   Export definition for the library files that contain injection code.
+; HookshotBin.def
+;   Export definition for the binary files that contain injection code.
 ;   Must be updated as changes are made to the assembly interface.
 ;   Used by both 32-bit and 64-bit versions.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
