@@ -43,6 +43,7 @@ namespace Hookshot
         // Issues actually injecting code or data into the target process.
         InjectResultErrorCannotGenerateInjectCodeFilename,          ///< Failed to compute the name of the file holding injected code.
         InjectResultErrorCannotLoadInjectCode,                      ///< Failed to load the file containing injection code.
+        InjectResultErrorMalformedInjectCodeFile,                   ///< Failed to inject because the file containing inject code is malformed.
         InjectResultErrorInsufficientTrampolineSpace,               ///< Failed to inject due to insufficient space available for storing the old trampoline code.
         InjectResultErrorInsufficientCodeSpace,                     ///< Failed to inject due to insufficient allocated space for the code region.
         InjectResultErrorInsufficientDataSpace,                     ///< Failed to inject due to insufficient allocated space for the data region.

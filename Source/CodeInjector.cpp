@@ -103,7 +103,7 @@ namespace Hookshot
         // Allow the injected code to start running.
         if (1 != ResumeThread(injectedProcessMainThread))
             return EInjectResult::InjectResultErrorRunFailedResumeThread;
-
+        
         // Synchronize with the injected code.
         if (false == injectSync())
             return EInjectResult::InjectResultErrorRunFailedSync;

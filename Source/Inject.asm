@@ -14,9 +14,7 @@ INCLUDE Preamble.inc
 INCLUDE Registers.inc
 
 
-_TEXT                                       SEGMENT
-
-
+_CODE                                       SEGMENT READ
 ; --------- TRAMPOLINE --------------------------------------------------------
 
 ; Injected to the entry point of a process.
@@ -93,18 +91,20 @@ injectCodeBegin:
     ret
 
 injectCodeEnd:
+_CODE                                       ENDS
 
 
-_TEXT                                       ENDS
+_META                                       SEGMENT READ
+    SInjectMeta <kInjectionMetaMagicValue, 0, x1, x2, x3, x4, x5, x6>
+_META                                       ENDS
 
 
-; Export all labels needed by the C/C++ code to understand the structure of this injection code.
-PUBLIC injectTrampolineStart
-PUBLIC injectTrampolineAddressMarker
-PUBLIC injectTrampolineEnd
-PUBLIC injectCodeStart
-PUBLIC injectCodeBegin
-PUBLIC injectCodeEnd
+x1 EQU (injectTrampolineStart-injectTrampolineStart)
+x2 EQU (injectTrampolineAddressMarker-injectTrampolineStart)
+x3 EQU (injectTrampolineEnd-injectTrampolineStart)
+x4 EQU (injectCodeStart-injectTrampolineStart)
+x5 EQU (injectCodeBegin-injectTrampolineStart)
+x6 EQU (injectCodeEnd-injectTrampolineStart)
 
 
 END

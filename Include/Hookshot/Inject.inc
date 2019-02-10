@@ -16,6 +16,11 @@ __HOOKSHOT_INJECT_INC EQU 1
 INCLUDE Preamble.inc
 
 
+; --------- CONSTANTS ---------------------------------------------------------
+
+kInjectionMetaMagicValue EQU 51525354h
+
+
 ; --------- TYPE DEFINITIONS --------------------------------------------------
 
 ; Defines the structure of the data exchanged between the injecting and injected processes.
@@ -25,6 +30,20 @@ SInjectData STRUCT
     sync SIZE_T ?
     ALIGN 128
 SInjectData ENDS
+
+; Corresponds to the identically-named structured type in "Inject.cpp" and must be updated when any changes are made there.
+; See "Inject.cpp" for documentation.
+SInjectMeta STRUCT
+    magic DWORD ?
+    version DWORD ?
+
+    offsetInjectTrampolineStart DWORD kInjectionMetaMagicValue
+    offsetInjectTrampolineAddressMarker DWORD 0
+    offsetInjectTrampolineEnd DWORD ?
+    offsetInjectCodeStart DWORD ?
+    offsetInjectCodeBegin DWORD ?
+    offsetInjectCodeEnd DWORD ?
+SInjectMeta ENDS
 
 
 ; --------- MACROS ------------------------------------------------------------

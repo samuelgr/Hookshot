@@ -24,20 +24,6 @@
 
 namespace Hookshot
 {
-    // -------- INTERNAL VARIABLES ----------------------------------------- //
-
-    //
-
-    
-    // -------- INTERNAL TYPES --------------------------------------------- //
-
-    /// Defines the structure of the data exchanged between the injecting and injected processes.
-    struct SInjectData
-    {
-        size_t unused;
-    };
-    
-    
     // -------- CLASS VARIABLES -------------------------------------------- //
     // See "ProcessInjector.h" for documentation.
 

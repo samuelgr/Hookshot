@@ -22,7 +22,6 @@
     <MASM Include="Source\Inject.asm" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="HookshotBin.def" />
     <None Include="Include\Hookshot\Inject.inc" />
     <None Include="Include\Hookshot\Preamble.inc" />
     <None Include="Include\Hookshot\Registers.inc" />
@@ -143,9 +142,10 @@
       <ImportLibrary>$(IntDir)$(TargetName)$(TargetExt).lib</ImportLibrary>
       <ProgramDatabaseFile>
       </ProgramDatabaseFile>
-      <ModuleDefinitionFile>HookshotBin.def</ModuleDefinitionFile>
       <SubSystem>NotSet</SubSystem>
       <ProfileGuidedDatabase />
+      <AdditionalOptions>/FILEALIGN:1 %(AdditionalOptions)</AdditionalOptions>
+      <PreventDllBinding>false</PreventDllBinding>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -182,10 +182,11 @@
       <ImportLibrary>$(IntDir)$(TargetName)$(TargetExt).lib</ImportLibrary>
       <ProgramDatabaseFile>
       </ProgramDatabaseFile>
-      <ModuleDefinitionFile>HookshotBin.def</ModuleDefinitionFile>
       <SubSystem>NotSet</SubSystem>
       <ProfileGuidedDatabase>
       </ProfileGuidedDatabase>
+      <AdditionalOptions>/FILEALIGN:1 %(AdditionalOptions)</AdditionalOptions>
+      <PreventDllBinding>false</PreventDllBinding>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -213,9 +214,10 @@
       <ImportLibrary>$(IntDir)$(TargetName)$(TargetExt).lib</ImportLibrary>
       <ProgramDatabaseFile>
       </ProgramDatabaseFile>
-      <ModuleDefinitionFile>HookshotBin.def</ModuleDefinitionFile>
       <SubSystem>NotSet</SubSystem>
       <ProfileGuidedDatabase />
+      <AdditionalOptions>/FILEALIGN:1 %(AdditionalOptions)</AdditionalOptions>
+      <PreventDllBinding>false</PreventDllBinding>
     </Link>
     <MASM>
       <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
@@ -254,10 +256,11 @@
       <ImportLibrary>$(IntDir)$(TargetName)$(TargetExt).lib</ImportLibrary>
       <ProgramDatabaseFile>
       </ProgramDatabaseFile>
-      <ModuleDefinitionFile>HookshotBin.def</ModuleDefinitionFile>
       <SubSystem>NotSet</SubSystem>
       <ProfileGuidedDatabase>
       </ProfileGuidedDatabase>
+      <AdditionalOptions>/FILEALIGN:1 %(AdditionalOptions)</AdditionalOptions>
+      <PreventDllBinding>false</PreventDllBinding>
     </Link>
     <MASM>
       <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
