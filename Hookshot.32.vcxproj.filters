@@ -30,6 +30,5 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="Hookshot.def" />
-    <None Include="Hookshot.32.props" />
   </ItemGroup>
 </Project>

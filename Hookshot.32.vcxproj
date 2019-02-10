@@ -22,7 +22,6 @@
     <MASM Include="Source\Inject.asm" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Hookshot.32.props" />
     <None Include="Hookshot.def" />
     <None Include="Include\Hookshot\Inject.inc" />
     <None Include="Include\Hookshot\Preamble.inc" />
@@ -57,7 +56,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(SolutionDir)\$(ProjectName).props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -93,7 +92,6 @@
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <ExecutablePath>$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Output\$(Platform)\$(Configuration)\</OutDir>
@@ -114,7 +112,6 @@
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <ExecutablePath>$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -126,6 +123,11 @@
     <MASM>
       <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
       <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
+      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
+      <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
+      <PreserveIdentifierCase>1</PreserveIdentifierCase>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </MASM>
     <Lib />
     <Link>
@@ -157,8 +159,13 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <MASM>
-      <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
       <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
+      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
+      <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
+      <PreserveIdentifierCase>1</PreserveIdentifierCase>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </MASM>
     <Lib />
     <Link>
@@ -179,7 +186,6 @@
       <SubSystem>NotSet</SubSystem>
       <ProfileGuidedDatabase>
       </ProfileGuidedDatabase>
-      <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -214,6 +220,11 @@
     <MASM>
       <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
       <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
+      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
+      <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
+      <PreserveIdentifierCase>1</PreserveIdentifierCase>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </MASM>
     <Lib />
     <ProjectReference>
@@ -247,11 +258,15 @@
       <SubSystem>NotSet</SubSystem>
       <ProfileGuidedDatabase>
       </ProfileGuidedDatabase>
-      <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <MASM>
-      <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
       <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
+      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
+      <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
+      <PreserveIdentifierCase>1</PreserveIdentifierCase>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </MASM>
     <Lib />
     <ProjectReference>
