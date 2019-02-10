@@ -19,17 +19,25 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\CodeInjector.cpp" />
     <ClCompile Include="Source\ExeMain.cpp" />
+    <ClCompile Include="Source\Globals.cpp" />
+    <ClCompile Include="Source\Inject.cpp" />
+    <ClCompile Include="Source\Message.cpp" />
+    <ClCompile Include="Source\ProcessInjector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc" />
     <ResourceCompile Include="Resources\HookshotExe.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="HookshotLib.vcxproj">
-      <Project>{91c55ba6-fd4a-4b8b-a5e6-b01c0a3eddde}</Project>
-      <Private>false</Private>
-    </ProjectReference>
+    <ClInclude Include="Include\Hookshot\ApiWindows.h" />
+    <ClInclude Include="Include\Hookshot\CodeInjector.h" />
+    <ClInclude Include="Include\Hookshot\Globals.h" />
+    <ClInclude Include="Include\Hookshot\Inject.h" />
+    <ClInclude Include="Include\Hookshot\InjectResult.h" />
+    <ClInclude Include="Include\Hookshot\Message.h" />
+    <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

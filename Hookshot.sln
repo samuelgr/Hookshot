@@ -9,8 +9,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookshotDll", "HookshotDll.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookshotBin", "HookshotBin.vcxproj", "{27D7F05E-E694-4395-B3F7-C29FDA024883}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookshotLib", "HookshotLib.vcxproj", "{91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -43,14 +41,6 @@ Global
 		{27D7F05E-E694-4395-B3F7-C29FDA024883}.Release|Win32.Build.0 = Release|Win32
 		{27D7F05E-E694-4395-B3F7-C29FDA024883}.Release|x64.ActiveCfg = Release|x64
 		{27D7F05E-E694-4395-B3F7-C29FDA024883}.Release|x64.Build.0 = Release|x64
-		{91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE}.Debug|Win32.ActiveCfg = Debug|Win32
-		{91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE}.Debug|Win32.Build.0 = Debug|Win32
-		{91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE}.Debug|x64.ActiveCfg = Debug|x64
-		{91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE}.Debug|x64.Build.0 = Debug|x64
-		{91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE}.Release|Win32.ActiveCfg = Release|Win32
-		{91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE}.Release|Win32.Build.0 = Release|Win32
-		{91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE}.Release|x64.ActiveCfg = Release|x64
-		{91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
