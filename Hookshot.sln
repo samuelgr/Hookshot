@@ -4,14 +4,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookshotExe", "HookshotExe.vcxproj", "{253DE136-4F3B-4504-AED7-DE7CE821A02F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE} = {91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookshotDll", "HookshotDll.vcxproj", "{9167F194-FEF9-4225-9D1D-C634136CFACE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE} = {91C55BA6-FD4A-4B8B-A5E6-B01C0A3EDDDE}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookshotBin", "HookshotBin.vcxproj", "{27D7F05E-E694-4395-B3F7-C29FDA024883}"
 EndProject
