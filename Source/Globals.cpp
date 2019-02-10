@@ -27,33 +27,30 @@ namespace Hookshot
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "Globals.h" for documentation.
 
-    size_t Globals::FillModuleBasePath(TCHAR* buf, const size_t numchars)
+    size_t Globals::FillHookshotModuleBasePath(TCHAR* buf, const size_t numchars)
     {
         const DWORD length = GetModuleFileName(GetInstanceHandle(), buf, (DWORD)numchars);
 
         if (0 == length || (numchars == length && ERROR_INSUFFICIENT_BUFFER == GetLastError()))
             return 0;
 
-        // Find the index of the last '.' character in the returned path.
-        // If it does not exist, then there is no extension so nothing more to do.
+        // Hookshot module filenames are expected to end with a double-extension, the first specifying the platform and the second the actual file type.
+        // Therefore, look for the last two dot characters and truncate them.
         TCHAR* const lastDot = _tcsrchr(buf, _T('.'));
 
         if (NULL == lastDot)
-            return length;
-        
-        // Find the index of the last '\' character in the returned path.
-        // There may be a '.' character somewhere in the directory name, so truncating blindly would be incorrect.
-        TCHAR* const lastBackslash = _tcsrchr(buf, _T('\\'));
+            return 0;
 
-        // If the last '\' is further than the last '.' then there is also no extension present so nothing more to do.
-        if ((size_t)lastBackslash > (size_t)lastDot)
-            return length;
-        
-        // Otherwise, truncate the string at the '.' and reduce the effective length.
-        const size_t truncatedLength = ((size_t)lastDot - (size_t)buf) / sizeof(buf[0]);
-        buf[truncatedLength] = _T('\0');
-        
-        return truncatedLength;
+        *lastDot = _T('\0');
+
+        TCHAR* const secondLastDot = _tcsrchr(buf, _T('.'));
+
+        if (NULL == secondLastDot)
+            return 0;
+
+        *secondLastDot = _T('\0');
+
+        return ((size_t)secondLastDot - (size_t)buf) / sizeof(buf[0]);
     }
 
     HINSTANCE Globals::GetInstanceHandle(void)
