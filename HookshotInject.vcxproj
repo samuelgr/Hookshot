@@ -81,7 +81,7 @@
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <TargetExt>.inject</TargetExt>
+    <TargetExt>.bin</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
@@ -91,7 +91,7 @@
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <TargetExt>.inject</TargetExt>
+    <TargetExt>.bin</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
@@ -101,7 +101,7 @@
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <TargetExt>.inject</TargetExt>
+    <TargetExt>.bin</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
@@ -111,7 +111,7 @@
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
-    <TargetExt>.inject</TargetExt>
+    <TargetExt>.bin</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
