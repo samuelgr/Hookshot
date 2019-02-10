@@ -19,23 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\CodeInjector.cpp" />
     <ClCompile Include="Source\ExeMain.cpp" />
-    <ClCompile Include="Source\Globals.cpp" />
-    <ClCompile Include="Source\Inject.cpp" />
-    <ClCompile Include="Source\Message.cpp" />
-    <ClCompile Include="Source\ProcessInjector.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Include\Hookshot\ApiWindows.h" />
-    <ClInclude Include="Include\Hookshot\CodeInjector.h" />
-    <ClInclude Include="Include\Hookshot\Globals.h" />
-    <ClInclude Include="Include\Hookshot\Inject.h" />
-    <ClInclude Include="Include\Hookshot\InjectResult.h" />
-    <ClInclude Include="Include\Hookshot\Message.h" />
-    <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
-    <ClInclude Include="Resources\Hookshot.h" />
-    <ClInclude Include="Resources\HookshotExe.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc" />
@@ -90,27 +74,27 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)Output\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Platform)\$(Configuration)\Build\$(ProjectName)\</IntDir>
-    <TargetName>$(SolutionName)</TargetName>
+    <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(PlatformTarget)\$(ProjectName)\</IntDir>
+    <TargetName>$(SolutionName).$(PlatformTarget)</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)Output\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Platform)\$(Configuration)\Build\$(ProjectName)\</IntDir>
-    <TargetName>$(SolutionName)</TargetName>
+    <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(PlatformTarget)\$(ProjectName)\</IntDir>
+    <TargetName>$(SolutionName).$(PlatformTarget)</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Output\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Platform)\$(Configuration)\Build\$(ProjectName)\</IntDir>
-    <TargetName>$(SolutionName)</TargetName>
+    <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(PlatformTarget)\$(ProjectName)\</IntDir>
+    <TargetName>$(SolutionName).$(PlatformTarget)</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Output\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Platform)\$(Configuration)\Build\$(ProjectName)\</IntDir>
-    <TargetName>$(SolutionName)</TargetName>
+    <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(PlatformTarget)\$(ProjectName)\</IntDir>
+    <TargetName>$(SolutionName).$(PlatformTarget)</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -119,20 +103,22 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT_EXE;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <ConformanceMode>true</ConformanceMode>
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
-      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).asm</AssemblerListingLocation>
+      <AssemblerOutput>All</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
+      <AdditionalDependencies>$(OutDir)\$(TargetName).lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <MASM />
     <MASM />
@@ -144,20 +130,22 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
       <OmitFramePointers>false</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT_EXE;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <ConformanceMode>true</ConformanceMode>
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
-      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).asm</AssemblerListingLocation>
+      <AssemblerOutput>All</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
+      <AdditionalDependencies>$(OutDir)\$(TargetName).lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <MASM />
     <MASM />
@@ -166,16 +154,15 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT_EXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <ConformanceMode>true</ConformanceMode>
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
-      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).asm</AssemblerListingLocation>
+      <AssemblerOutput>All</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -186,6 +173,7 @@
       <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
+      <AdditionalDependencies>$(OutDir)\$(TargetName).lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <MASM />
     <MASM />
@@ -194,16 +182,15 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT_EXE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <ConformanceMode>true</ConformanceMode>
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
-      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).asm</AssemblerListingLocation>
+      <AssemblerOutput>All</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
@@ -214,6 +201,7 @@
       <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
+      <AdditionalDependencies>$(OutDir)\$(TargetName).lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <MASM />
     <MASM />
