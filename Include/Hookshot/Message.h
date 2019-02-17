@@ -17,7 +17,7 @@
 #include <cstddef>
 
 
- namespace Hookshot
+namespace Hookshot
 {
      /// Enumerates all supported severity levels for messages.
      /// These are primarily used to assist with output formatting.

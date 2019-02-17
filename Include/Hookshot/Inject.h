@@ -17,8 +17,6 @@
 #include <cstddef>
 
 
-// -------- MACROS --------------------------------------------------------- //
-
 /// Initializes the state required to synchronize between injecting and injected processes using the `sync` member of SInjectData.
 /// Requires the injected process handle and SInjectData base address.
 #define injectSyncInit(hproc, pinjectdata)  size_t syncVar1 = 1, syncVar2 = 2; const HANDLE syncProcessHandle = hproc; size_t* const syncFlagAddress = (size_t*)((size_t)pinjectdata + offsetof(SInjectData, sync))
@@ -36,42 +34,43 @@
 /// Returns `true` if sync was successful, `false` if reading or writing the sync flag from the injected process failed.
 #define injectSync()                        (injectSyncWait() && injectSyncAdvance())
 
-/// Implements the first part of the syncing logic.
-/// Waits until the injected process writes the expected value to the sync flag and then returns.
-/// Not intended to be invoked other than by using appropriate macros.
-static inline bool injectSyncImplWait(size_t& syncVar1, size_t& syncVar2, const HANDLE& syncProcessHandle, size_t* const& syncFlagAddress)
-{
-    size_t syncFlagValue = 0;
-    SIZE_T numBytes = 0;
-
-    while (syncFlagValue != syncVar1)
-    {
-        if ((FALSE == ReadProcessMemory(syncProcessHandle, syncFlagAddress, &syncFlagValue, sizeof(syncFlagValue), &numBytes)) || (sizeof(syncFlagValue) != numBytes))
-            return false;
-    }
-
-    return true;
-}
-
-/// Implements the second part of the syncing logic.
-/// Writes the value to the sync flag for which the injected process is currently waiting.
-/// Not intended to be invoked other than by using appropriate macros.
-static inline bool injectSyncImplAdvance(size_t& syncVar1, size_t& syncVar2, const HANDLE& syncProcessHandle, size_t* const& syncFlagAddress)
-{
-    SIZE_T numBytes = 0;
-
-    if ((FALSE == WriteProcessMemory(syncProcessHandle, syncFlagAddress, &syncVar2, sizeof(syncVar2), &numBytes)) || (sizeof(syncVar2) != numBytes))
-        return false;
-
-    syncVar1 += 2;
-    syncVar2 += 2;
-
-    return true;
-}
-
 
 namespace Hookshot
 {
+    /// Implements the first part of the syncing logic.
+    /// Waits until the injected process writes the expected value to the sync flag and then returns.
+    /// Not intended to be invoked other than by using appropriate macros.
+    static inline bool injectSyncImplWait(size_t& syncVar1, size_t& syncVar2, const HANDLE& syncProcessHandle, size_t* const& syncFlagAddress)
+    {
+        size_t syncFlagValue = 0;
+        SIZE_T numBytes = 0;
+
+        while (syncFlagValue != syncVar1)
+        {
+            if ((FALSE == ReadProcessMemory(syncProcessHandle, syncFlagAddress, &syncFlagValue, sizeof(syncFlagValue), &numBytes)) || (sizeof(syncFlagValue) != numBytes))
+                return false;
+        }
+
+        return true;
+    }
+
+    /// Implements the second part of the syncing logic.
+    /// Writes the value to the sync flag for which the injected process is currently waiting.
+    /// Not intended to be invoked other than by using appropriate macros.
+    static inline bool injectSyncImplAdvance(size_t& syncVar1, size_t& syncVar2, const HANDLE& syncProcessHandle, size_t* const& syncFlagAddress)
+    {
+        SIZE_T numBytes = 0;
+
+        if ((FALSE == WriteProcessMemory(syncProcessHandle, syncFlagAddress, &syncVar2, sizeof(syncVar2), &numBytes)) || (sizeof(syncVar2) != numBytes))
+            return false;
+
+        syncVar1 += 2;
+        syncVar2 += 2;
+
+        return true;
+    }
+    
+
     /// Defines the structure of the data exchanged between the injecting and injected processes.
     /// One instance of this structure is placed into the data region and accessed by both the injecting and injected processes.
     /// A corresponding structure definition must appear in "Inject.inc" for the assembly code.
