@@ -30,7 +30,7 @@ namespace Hookshot
 
     HMODULE ProcessInjector::ntdllModuleHandle = NULL;
 
-    void* ProcessInjector::ntdllProcAddress = NULL;
+    NTSTATUS(WINAPI* ProcessInjector::ntdllQueryInformationProcessProc)(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG) = NULL;
 
     size_t ProcessInjector::systemAllocationGranularity = 0;
 
@@ -83,20 +83,19 @@ namespace Hookshot
         size_t numBytesRead = 0;
 
         // First read the DOS header to figure out the location of the NT header.
-        IMAGE_DOS_HEADER dosHeader;
+        decltype(IMAGE_DOS_HEADER::e_lfanew) ntHeadersOffset = 0;
 
-        if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)baseAddress, (LPVOID)&dosHeader, sizeof(dosHeader), (SIZE_T*)&numBytesRead)) || (sizeof(dosHeader) != numBytesRead))
+        if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)((size_t)baseAddress + (size_t)offsetof(IMAGE_DOS_HEADER, e_lfanew)), (LPVOID)&ntHeadersOffset, sizeof(ntHeadersOffset), (SIZE_T*)&numBytesRead)) || (sizeof(ntHeadersOffset) != numBytesRead))
             return EInjectResult::InjectResultErrorReadDOSHeadersFailed;
 
         // Next read the NT header to figure out the location of the entry point.
-        IMAGE_NT_HEADERS ntHeaders;
-        void* const ntHeadersVA = (void*)((size_t)baseAddress + (size_t)dosHeader.e_lfanew);
+        decltype(IMAGE_NT_HEADERS::OptionalHeader.AddressOfEntryPoint) entryPointOffset = 0;
 
-        if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)ntHeadersVA, (LPVOID)&ntHeaders, sizeof(ntHeaders), (SIZE_T*)&numBytesRead)) || (sizeof(ntHeaders) != numBytesRead))
+        if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)((size_t)baseAddress + (size_t)ntHeadersOffset + (size_t)offsetof(IMAGE_NT_HEADERS, OptionalHeader.AddressOfEntryPoint)), (LPVOID)&entryPointOffset, sizeof(entryPointOffset), (SIZE_T*)&numBytesRead)) || (sizeof(entryPointOffset) != numBytesRead))
             return EInjectResult::InjectResultErrorReadNTHeadersFailed;
 
         // Compute the absolute entry point address.
-        *entryPoint = (void*)((size_t)baseAddress + (size_t)ntHeaders.OptionalHeader.AddressOfEntryPoint);
+        *entryPoint = (void*)((size_t)baseAddress + (size_t)entryPointOffset);
 
         // Success.
         return EInjectResult::InjectResultSuccess;
@@ -114,35 +113,30 @@ namespace Hookshot
             if (NULL == ntdllModuleHandle)
                 return EInjectResult::InjectResultErrorLoadNtDll;
 
-            ntdllProcAddress = NULL;
+            ntdllQueryInformationProcessProc = NULL;
         }
 
         // Verify that "NtQueryInformationProcess" is available.
-        if (NULL == ntdllProcAddress)
+        if (NULL == ntdllQueryInformationProcessProc)
         {
-            ntdllProcAddress = GetProcAddress(ntdllModuleHandle, "NtQueryInformationProcess");
+            ntdllQueryInformationProcessProc = (decltype(ntdllQueryInformationProcessProc))GetProcAddress(ntdllModuleHandle, "NtQueryInformationProcess");
 
-            if (NULL == ntdllProcAddress)
+            if (NULL == ntdllQueryInformationProcessProc)
                 return EInjectResult::InjectResultErrorNtQueryInformationProcessUnavailable;
         }
 
         // Obtain the address of the process environment block (PEB) for the process, which is within the address space of the process.
         PROCESS_BASIC_INFORMATION processBasicInfo;
 
-        if (0 != ((NTSTATUS(WINAPI *)(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG))ntdllProcAddress)(processHandle, ProcessBasicInformation, &processBasicInfo, sizeof(processBasicInfo), NULL))
+        if (0 != ntdllQueryInformationProcessProc(processHandle, ProcessBasicInformation, &processBasicInfo, sizeof(processBasicInfo), NULL))
             return EInjectResult::InjectResultErrorNtQueryInformationProcessFailed;
 
-        // Read the PEB from the process' address space.
-        PEB processPEB;
+        // Read the desired information from the PEB in the process' address space.
         size_t numBytesRead = 0;
 
-        if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)processBasicInfo.PebBaseAddress, (LPVOID)&processPEB, sizeof(processPEB), (SIZE_T*)&numBytesRead)) || (sizeof(processPEB) != numBytesRead))
+        if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)((size_t)processBasicInfo.PebBaseAddress + (size_t)offsetof(PEB, Reserved3[1])), (LPVOID)baseAddress, sizeof(baseAddress), (SIZE_T*)&numBytesRead)) || (sizeof(baseAddress) != numBytesRead))
             return EInjectResult::InjectResultErrorReadProcessPEBFailed;
 
-        // Read the base address from the PEB.
-        *baseAddress = (void*)processPEB.Reserved3[1];
-
-        // Success.
         return EInjectResult::InjectResultSuccess;
     }
 
@@ -189,50 +183,67 @@ namespace Hookshot
 
     EInjectResult ProcessInjector::InjectNewlyCreatedProcess(const HANDLE processHandle, const HANDLE threadHandle)
     {
-        const size_t allocationGranularity = GetSystemAllocationGranularity();
-        const size_t kEffectiveInjectRegionSize = (InjectInfo::kMaxInjectBinaryFileSize < allocationGranularity) ? allocationGranularity : InjectInfo::kMaxInjectBinaryFileSize;
-        void* processBaseAddress = NULL;
-        void* processEntryPoint = NULL;
-        void* injectedCodeBase = NULL;
-        void* injectedDataBase = NULL;
+        USHORT machineProcess = 0;
+        USHORT machineHookshot = 0;
+        
+        if ((FALSE == IsWow64Process2(processHandle, &machineProcess, NULL)) || (FALSE == IsWow64Process2(GetCurrentProcess(), &machineHookshot, NULL)))
+            return EInjectResult::InjectResultErrorDetermineMachineProcess;
 
-        EInjectResult operationResult = EInjectResult::InjectResultSuccess;
-
-        // Attempt to obtain the base address of the executable image of the new process.
-        operationResult = GetProcessImageBaseAddress(processHandle, &processBaseAddress);
-        if (EInjectResult::InjectResultSuccess != operationResult)
-            return operationResult;
-
-        // Attempt to obtain the entry point address of the new process.
-        operationResult = GetProcessEntryPointAddress(processHandle, processBaseAddress, &processEntryPoint);
-        if (EInjectResult::InjectResultSuccess != operationResult)
-            return operationResult;
-
-        // Allocate code and data areas in the target process.
-        // Code first, then data.
-        injectedCodeBase = VirtualAllocEx(processHandle, NULL, ((SIZE_T)kEffectiveInjectRegionSize * (SIZE_T)2), MEM_RESERVE | MEM_COMMIT, PAGE_NOACCESS);
-        injectedDataBase = (void*)((size_t)injectedCodeBase + kEffectiveInjectRegionSize);
-
-        if (NULL == injectedCodeBase)
-            return EInjectResult::InjectResultErrorVirtualAllocFailed;
-
-        // Set appropriate protection values onto the new areas individually.
+        if (machineProcess != machineHookshot)
         {
-            DWORD unusedOldProtect = 0;
+            // Architecture mismatch between Hookshot and target process.
+            // This is an error for the time being.
 
-            if (FALSE == VirtualProtectEx(processHandle, injectedCodeBase, kEffectiveInjectRegionSize, PAGE_EXECUTE_READ, &unusedOldProtect))
-                return EInjectResult::InjectResultErrorVirtualProtectFailed;
-
-            if (FALSE == VirtualProtectEx(processHandle, injectedDataBase, kEffectiveInjectRegionSize, PAGE_READWRITE, &unusedOldProtect))
-                return EInjectResult::InjectResultErrorVirtualProtectFailed;
+            return EInjectResult::InjectResultErrorArchitectureMismatch;
         }
-
-        // Inject code and data
+        else
         {
+            // Architecture match between Hookshot and the target process.
+            // Proceed to inject the target process directly.
+
+            const size_t allocationGranularity = GetSystemAllocationGranularity();
+            const size_t kEffectiveInjectRegionSize = (InjectInfo::kMaxInjectBinaryFileSize < allocationGranularity) ? allocationGranularity : InjectInfo::kMaxInjectBinaryFileSize;
+            void* processBaseAddress = NULL;
+            void* processEntryPoint = NULL;
+            void* injectedCodeBase = NULL;
+            void* injectedDataBase = NULL;
+
+            EInjectResult operationResult = EInjectResult::InjectResultSuccess;
+
+            // Attempt to obtain the base address of the executable image of the new process.
+            operationResult = GetProcessImageBaseAddress(processHandle, &processBaseAddress);
+            if (EInjectResult::InjectResultSuccess != operationResult)
+                return operationResult;
+
+            // Attempt to obtain the entry point address of the new process.
+            operationResult = GetProcessEntryPointAddress(processHandle, processBaseAddress, &processEntryPoint);
+            if (EInjectResult::InjectResultSuccess != operationResult)
+                return operationResult;
+
+            // Allocate code and data areas in the target process.
+            // Code first, then data.
+            injectedCodeBase = VirtualAllocEx(processHandle, NULL, ((SIZE_T)kEffectiveInjectRegionSize * (SIZE_T)2), MEM_RESERVE | MEM_COMMIT, PAGE_NOACCESS);
+            injectedDataBase = (void*)((size_t)injectedCodeBase + kEffectiveInjectRegionSize);
+
+            if (NULL == injectedCodeBase)
+                return EInjectResult::InjectResultErrorVirtualAllocFailed;
+
+            // Set appropriate protection values onto the new areas individually.
+            {
+                DWORD unusedOldProtect = 0;
+
+                if (FALSE == VirtualProtectEx(processHandle, injectedCodeBase, kEffectiveInjectRegionSize, PAGE_EXECUTE_READ, &unusedOldProtect))
+                    return EInjectResult::InjectResultErrorVirtualProtectFailed;
+
+                if (FALSE == VirtualProtectEx(processHandle, injectedDataBase, kEffectiveInjectRegionSize, PAGE_READWRITE, &unusedOldProtect))
+                    return EInjectResult::InjectResultErrorVirtualProtectFailed;
+            }
+
+            // Inject code and data
             CodeInjector injector(injectedCodeBase, injectedDataBase, processEntryPoint, kEffectiveInjectRegionSize, kEffectiveInjectRegionSize, processHandle, threadHandle);
             operationResult = injector.SetAndRun();
-        }
 
-        return operationResult;
+            return operationResult;
+        }
     }
 }

@@ -56,7 +56,7 @@ namespace Hookshot
         // Figure out the name of the module that is to be loaded.
         TCHAR moduleFilename[Globals::kPathBufferLength];
         
-        if (false == FillInjectCodeFilename(moduleFilename, _countof(moduleFilename)))
+        if (false == Strings::FillInjectBinaryFilename(moduleFilename, _countof(moduleFilename)))
         {
             initializationResult = EInjectResult::InjectResultErrorCannotGenerateInjectCodeFilename;
             return;
@@ -205,27 +205,5 @@ namespace Hookshot
 
         if (INVALID_HANDLE_VALUE != injectFileHandle)
             CloseHandle(injectFileHandle);
-    }
-
-
-    // -------- CLASS METHODS ---------------------------------------------- //
-    // See "Inject.h" for documentation.
-
-    bool InjectInfo::FillInjectCodeFilename(TCHAR* buf, const size_t numchars)
-    {
-        const size_t lengthBasePath = Globals::FillHookshotModuleBasePath(buf, numchars);
-        
-        if (0 == lengthBasePath)
-            return false;
-
-        if ((lengthBasePath + Strings::kLenInjectBinaryExtension) >= numchars)
-        {
-            SetLastError(ERROR_INSUFFICIENT_BUFFER);
-            return false;
-        }
-
-        _tcscpy_s(&buf[lengthBasePath], Strings::kLenInjectBinaryExtension, Strings::kStrInjectBinaryExtension);
-
-        return true;
     }
 }

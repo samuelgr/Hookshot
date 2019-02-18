@@ -143,14 +143,6 @@ namespace Hookshot
         InjectInfo(const InjectInfo&) = delete;
 
 
-    private:
-        // -------- CLASS METHODS ------------------------------------------ //
-
-        /// Generates the expected filename of the file containing the injected code that is to be loaded and places it into the specified buffer.
-        static bool FillInjectCodeFilename(TCHAR* buf, const size_t size);
-
-
-    public:
         // -------- INSTANCE METHODS --------------------------------------- //
 
         /// Provides read-only access to the correspondingly-named instance variable.

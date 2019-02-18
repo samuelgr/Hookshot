@@ -27,7 +27,7 @@ namespace Hookshot
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "Globals.h" for documentation.
 
-    size_t Globals::FillHookshotModuleBasePath(TCHAR* buf, const size_t numchars)
+    size_t Globals::FillHookshotModuleBasePath(TCHAR* const buf, const size_t numchars)
     {
         const DWORD length = GetModuleFileName(GetInstanceHandle(), buf, (DWORD)numchars);
 
@@ -52,6 +52,8 @@ namespace Hookshot
 
         return ((size_t)secondLastDot - (size_t)buf) / sizeof(buf[0]);
     }
+
+    // ---------
 
     HINSTANCE Globals::GetInstanceHandle(void)
     {

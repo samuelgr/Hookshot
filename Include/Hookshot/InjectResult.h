@@ -24,7 +24,9 @@ namespace Hookshot
         InjectResultFailure,                                        ///< Unknown error.
 
         // Issues creating the process
-        InjectResultErrorCreateProcess,                             ///< Call to `CreateProcess` failed.  `GetLastError` can be used to obtain more details.
+        InjectResultErrorCreateProcess,                             ///< Creation of the new process failed.
+        InjectResultErrorDetermineMachineProcess,                   ///< Determination of the machine type of the new process failed.
+        InjectResultErrorArchitectureMismatch,                      ///< New process cannot be injected due to an architecture mismatch with the running Hookshot binary.
 
         // Issues determining the base address of the process' executable image
         InjectResultErrorLoadNtDll,                                 ///< Attempt to dynamically load `ntdll.dll` failed.
