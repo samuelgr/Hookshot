@@ -37,12 +37,12 @@ namespace Hookshot
         uint64_t processHandle;                                     ///< Handle of the process to inject, as a 64-bit integer.  Must be valid for the instance of Hookshot that performs the injection.
         uint64_t threadHandle;                                      ///< Handle of the main thread in the process to inject, as a 64-bit integer.  Must be valid for the instance of Hookshot that performs the injection.
         
-        uint64_t unused1[(128 / sizeof(uint64_t)) - 2];             ///< Padding for two-cache-line alignment.
+        uint64_t unused1[(128 / sizeof(uint64_t)) - 2];             ///< Padding for 128-byte alignment.
 
         uint64_t injectionResult;                                   ///< EInjectionResult value, as a 64-bit integer.  Indicates the result of the injection attempt.
         uint64_t extendedInjectionResult;                           ///< Extended injection result, as a 64-bit integer.
 
-        uint64_t unused2[(128 / sizeof(uint64_t)) - 2];             ///< Padding for two-cache-line alignment.
+        uint64_t unused2[(128 / sizeof(uint64_t)) - 2];             ///< Padding for 128-byte alignment.
     };
 
     
@@ -136,9 +136,17 @@ namespace Hookshot
         if (NULL == sharedInfo)
             return false;
 
-        sharedInfo->injectionResult = (uint64_t)InjectProcess((HANDLE)sharedInfo->processHandle, (HANDLE)sharedInfo->threadHandle);
+        EInjectResult operationResult = VerifyMatchingProcessArchitecture((HANDLE)sharedInfo->processHandle);
+        
+        // If the target process architecture matches that of this running binary, attempt to perform injection.
+        // Otherwise it is an error, since this running binary was invoked to assist with target process injection.
+        if (EInjectResult::InjectResultSuccess == operationResult)
+            operationResult = InjectProcess((HANDLE)sharedInfo->processHandle, (HANDLE)sharedInfo->threadHandle);
+        
+        // Save operation results, clean up, and return.
+        sharedInfo->injectionResult = (uint64_t)operationResult;
         sharedInfo->extendedInjectionResult = (uint64_t)GetLastError();
-
+        
         CloseHandle((HANDLE)sharedInfo->processHandle);
         CloseHandle((HANDLE)sharedInfo->threadHandle);
         UnmapViewOfFile(sharedInfo);
@@ -366,7 +374,7 @@ namespace Hookshot
         // Let the new instance of Hookshot run and wait for it to finish.
         ResumeThread(processInfo.hThread);
         
-        if (WAIT_OBJECT_0 != WaitForSingleObject(processInfo.hProcess, 1000))
+        if (WAIT_OBJECT_0 != WaitForSingleObject(processInfo.hProcess, INFINITE))
         {
             TerminateProcess(processInfo.hProcess, (UINT)-1);
             return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
