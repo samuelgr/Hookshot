@@ -11,11 +11,13 @@
 
 #pragma once
 
+#include <cstdint>
+
 
 namespace Hookshot
 {
     /// Enumeration of possible error conditions that arise when attempting to create and inject a process.
-    enum EInjectResult : unsigned int
+    enum EInjectResult : uint32_t
     {
         // Success
         InjectResultSuccess = 0,                                    ///< All operations succeeded.
@@ -56,5 +58,10 @@ namespace Hookshot
         InjectResultErrorRunFailedSync,                             ///< Failed to synchronize with injected code due to an issue reading from or writing to injected process memory.
         InjectResultErrorRunFailedSuspendThread,                    ///< Failed to place the injected process back into a suspended state after running the injected code.
         InjectResultErrorUnsetFailed,                               ///< Failed to inject due to a failed attempt to return the trampoline region to its original content.
+
+        // Issues spawning a new instance of Hookshot due to an architecture mismatch.
+        InjectResultErrorCannotGenerateExecutableFilename,          ///< Failed to compute the name of the executable to spawn.
+        InjectResultErrorInterProcessCommunicationFailed,           ///< Failed to perform inter-process communication.
+        InjectResultErrorCreateHookshotProcessFailed,               ///< Failed to spawn a new Hookshot instance.
     };
 }

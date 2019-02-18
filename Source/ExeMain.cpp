@@ -37,12 +37,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PTSTR lpCmdLi
         return __LINE__;
     }
 
-    STARTUPINFO startupInfo;
-    PROCESS_INFORMATION processInfo;
-    
-    memset((void*)&startupInfo, 0, sizeof(startupInfo));
-    memset((void*)&processInfo, 0, sizeof(processInfo));
-
     if (Strings::kCharCmdlineIndicatorFileMappingHandle == __targv[1][0])
     {
         // A file mapping handle was specified.
@@ -58,16 +52,19 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PTSTR lpCmdLi
         HANDLE sharedMemoryHandle;
         TCHAR* parseEnd;
 
-        if constexpr (sizeof(HANDLE) == sizeof(unsigned long))
-            sharedMemoryHandle = (HANDLE)_tcstoul(&__targv[1][1], &parseEnd, 16);
-        else if constexpr (sizeof(HANDLE) == sizeof(unsigned long long))
-            sharedMemoryHandle = (HANDLE)_tcstoull(&__targv[1][1], &parseEnd, 16);
-        else
-            return __LINE__;
+#ifdef HOOKSHOT64
+        sharedMemoryHandle = (HANDLE)_tcstoull(&__targv[1][1], &parseEnd, 16);
+#else
+        sharedMemoryHandle = (HANDLE)_tcstoul(&__targv[1][1], &parseEnd, 16);
+#endif  
 
         if (_T('\0') != *parseEnd)
             return __LINE__;
         
+        if (false == ProcessInjector::OtherArchitecturePerformRequestedInjection(sharedMemoryHandle))
+            return __LINE__;
+
+        CloseHandle(sharedMemoryHandle);
         return 0;
     }
     else
@@ -75,6 +72,12 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PTSTR lpCmdLi
         // An executable was specified.
         // This is the normal situation, in which Hookshot is used to bootstrap an injection process.
         
+        STARTUPINFO startupInfo;
+        PROCESS_INFORMATION processInfo;
+
+        memset((void*)&startupInfo, 0, sizeof(startupInfo));
+        memset((void*)&processInfo, 0, sizeof(processInfo));
+
         const EInjectResult result = ProcessInjector::CreateInjectedProcess(NULL, __targv[1], NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
 
         switch (result)
