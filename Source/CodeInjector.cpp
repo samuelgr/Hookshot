@@ -258,8 +258,18 @@ namespace Hookshot
         if (false == injectSyncAdvance())
             return EInjectResult::InjectResultErrorRunFailedSync;
 
-        // All injection operations completed successfully.
-        return EInjectResult::InjectResultSuccess;
+        // Read from the injected process to determine the result of the injection attempt.
+        uint32_t injectionResult;
+        uint32_t extendedInjectionResult;
+
+        if (false == injectDataFieldRead(injectionResult, &injectionResult))
+            return EInjectResult::InjectResultErrorCannotReadStatus;
+
+        if (false == injectDataFieldRead(extendedInjectionResult, &extendedInjectionResult))
+            return EInjectResult::InjectResultErrorCannotReadStatus;
+
+        SetLastError((DWORD)extendedInjectionResult);
+        return (EInjectResult)injectionResult;
     }
 
     // --------

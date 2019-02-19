@@ -68,8 +68,12 @@ namespace Hookshot
         // Issues encountered while running injection code to initialize the injected process.
         InjectResultErrorCannotLocateRequiredFunctions,             ///< Failed to locate required functions in the address space of the injected process.
         InjectResultErrorCannotWriteRequiredFunctionLocations,      ///< Failed to write the locations of the required functions into the address space of the injected process.
+        InjectResultErrorCannotReadStatus,                          ///< Failed to read status information from the injected process.
         InjectResultErrorCannotLoadLibrary,                         ///< Failed to load the Hookshot library in the injected process.
         InjectResultErrorMalformedLibrary,                          ///< Loaded Hookshot library is malformed.
         InjectResultErrorLibraryInitFailed,                         ///< Loaded Hookshot library failed to initialize.
+
+        // Maximum value in this enumeration.
+        InjectResultMaximumValue                                    ///< Sentinel value, not used as an error code.
     };
 }

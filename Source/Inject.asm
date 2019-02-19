@@ -62,6 +62,14 @@ injectCodeBegin:
     mov SIZE_T PTR [ssp+(6*SIZEOF(SIZE_T))], sax
     sub scx, (injectTrampolineEnd-injectTrampolineStart)
     mov SIZE_T PTR [ssp+(7*SIZEOF(SIZE_T))], scx
+
+    ; Fix up the stack.
+    ; Ensure it is aligned on a 16-byte boundary.
+    mov sax, ssp
+    and sax, 15
+    add sax, (16-SIZEOF(SIZE_T))
+    sub ssp, sax
+    push sax
     
     ; Get the address of the data region.
     call $next
@@ -77,14 +85,37 @@ injectCodeBegin:
     ; Wait for it to finish.
     injectSync ssi, sdi, sbp
     
-    ;;;;;;;;;;
-    ; TODO
-    ;;;;;;;;;;
+    ; Load the library specified by the injecting process.
+    mov scx, (SInjectData PTR [sbp]).strLibraryName
+    mov sax, (SInjectData PTR [sbp]).funcLoadLibraryA
+    call1ParamStdCall sax
+    cmp sax, 0
+    je $errorLoadLibrary
 
-    ; All injection operations completed successfully.
+    ; Locate the initialization procedure.
+    mov scx, sax
+    mov sdx, (SInjectData PTR [sbp]).strProcName
+    mov sax, (SInjectData PTR [sbp]).funcGetProcAddress
+    call2ParamStdCall sax
+    cmp sax, 0
+    je $errorGetProcAddress
+
+    ; Invoke the initialization procedure.
+    ; TODO
+
+    ; Indicate success.
+    mov eax, (SInjectData PTR [sbp]).injectionResultCodeSuccess
+    mov (SInjectData PTR [sbp]).injectionResult, eax
+
+  $done:
+    ; All injection operations are done.
     ; Perform one final synchronization with the injecting process.
     injectSync ssi, sdi, sbp
     
+    ; Undo the stack alignment fixing operation.
+    pop sax
+    add ssp, sax
+
     ; Restore all general-purpose registers and return to the program's entry point.
     pop sbp
     pop sdi
@@ -94,6 +125,33 @@ injectCodeBegin:
     pop sbx
     pop sax
     ret
+  
+  $errorLoadLibrary:
+    ; Store the correct error codes and end the operation.
+    mov eax, (SInjectData PTR [sbp]).injectionResultCodeLoadLibraryFailed
+    mov (SInjectData PTR [sbp]).injectionResult, eax
+    mov sax, (SInjectData PTR [sbp]).funcGetLastError
+    call0ParamStdCall sax
+    mov (SInjectData PTR [sbp]).extendedInjectionResult, eax
+    jmp $done
+  
+  $errorGetProcAddress:
+    ; Store the correct error codes and end the operation.
+    mov eax, (SInjectData PTR [sbp]).injectionResultCodeGetProcAddressFailed
+    mov (SInjectData PTR [sbp]).injectionResult, eax
+    mov sax, (SInjectData PTR [sbp]).funcGetLastError
+    call0ParamStdCall sax
+    mov (SInjectData PTR [sbp]).extendedInjectionResult, eax
+    jmp $done
+  
+  $errorInitialization:
+    ; Store the correct error codes and end the operation.
+    mov eax, (SInjectData PTR [sbp]).injectionResultCodeInitializationFailed
+    mov (SInjectData PTR [sbp]).injectionResult, eax
+    mov sax, (SInjectData PTR [sbp]).funcGetLastError
+    call0ParamStdCall sax
+    mov (SInjectData PTR [sbp]).extendedInjectionResult, eax
+    jmp $done
 
 injectCodeEnd:
 kStrInjectCodeSectionName                   ENDS
