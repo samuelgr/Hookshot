@@ -34,7 +34,7 @@ namespace Hookshot
     {
         // Fields present in all versions of Hookshot
         DWORD magic;                                                ///< Magic value.
-        DWORD version;                                              ///< Version number of the binary file, corresponds to a Hookshot version number.
+        DWORD version;                                              ///< Version number.  Currently not used and must be 0.
 
         // Fields that may change from one version to the next.
         // These correspond to labels in the assembly-written code.
@@ -175,6 +175,14 @@ namespace Hookshot
 
             // Check the validity and version-correctness (once implemented) of the metadata section.
             if (kInjectionMetaMagicValue != sectionMeta->magic)
+            {
+                initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
+                return;
+            }
+
+            // Check the version code in the metadata section.
+            // Currently not used and must be zero.
+            if (0 != sectionMeta->version)
             {
                 initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
                 return;

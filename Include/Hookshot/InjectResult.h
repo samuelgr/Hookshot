@@ -46,6 +46,7 @@ namespace Hookshot
 
         // Issues actually injecting code or data into the target process.
         InjectResultErrorCannotGenerateInjectCodeFilename,          ///< Failed to compute the name of the file holding injected code.
+        InjectResultErrorCannotGenerateLibraryFilename,             ///< Failed to compute the name of the Hookshot library to inject.
         InjectResultErrorCannotLoadInjectCode,                      ///< Failed to load the file containing injection code.
         InjectResultErrorMalformedInjectCodeFile,                   ///< Failed to inject because the file containing inject code is malformed.
         InjectResultErrorInsufficientTrampolineSpace,               ///< Failed to inject due to insufficient space available for storing the old trampoline code.
@@ -63,5 +64,12 @@ namespace Hookshot
         InjectResultErrorCannotGenerateExecutableFilename,          ///< Failed to compute the name of the executable to spawn.
         InjectResultErrorInterProcessCommunicationFailed,           ///< Failed to perform inter-process communication.
         InjectResultErrorCreateHookshotProcessFailed,               ///< Failed to spawn a new Hookshot instance.
+
+        // Issues encountered while running injection code to initialize the injected process.
+        InjectResultErrorCannotLocateRequiredFunctions,             ///< Failed to locate required functions in the address space of the injected process.
+        InjectResultErrorCannotWriteRequiredFunctionLocations,      ///< Failed to write the locations of the required functions into the address space of the injected process.
+        InjectResultErrorCannotLoadLibrary,                         ///< Failed to load the Hookshot library in the injected process.
+        InjectResultErrorMalformedLibrary,                          ///< Loaded Hookshot library is malformed.
+        InjectResultErrorLibraryInitFailed,                         ///< Loaded Hookshot library failed to initialize.
     };
 }

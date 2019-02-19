@@ -116,6 +116,14 @@ namespace Hookshot
         /// Computes the number of bytes occupied by the trampoline code, which replaces the entry point code and causes execution of the injected code.
         /// @return Number of bytes occupied by the trampoline code.
         size_t GetTrampolineCodeSize(void) const;
+
+        /// Determines the location within the injected process' address space of the GetLastError, GetProcAddress, and LoadLibraryA functions.
+        /// These are required to be passed to the injected code so they may be invoked.
+        /// @param [out] addrGetLastError On success, filled with the address of GetLastError.
+        /// @param [out] addrGetProcAddress On success, filled with the address of GetProcAddress.
+        /// @param [out] addrLoadLibraryA On success, filled with the address of LoadLibraryA. 
+        /// @return `true` on success, `false` on failure.
+        bool LocateFunctions(void*& addrGetLastError, void*& addrGetProcAddress, void*& addrLoadLibraryA) const;
         
         /// Runs the injected process once the injected code has been set.
         /// @return Indictor of the result of the operation.

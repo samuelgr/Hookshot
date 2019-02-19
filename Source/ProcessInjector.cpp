@@ -19,6 +19,7 @@
 #include "Strings.h"
 
 #include <cstddef>
+#include <cstdio>
 #include <cstdint>
 #include <psapi.h>
 #include <winnt.h>

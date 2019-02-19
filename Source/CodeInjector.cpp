@@ -15,8 +15,10 @@
 #include "CodeInjector.h"
 #include "Inject.h"
 #include "InjectResult.h"
+#include "Strings.h"
 
 #include <cstddef>
+#include <psapi.h>
 
 
 namespace Hookshot
@@ -96,9 +98,122 @@ namespace Hookshot
 
     // --------
     
+    bool CodeInjector::LocateFunctions(void*& addrGetLastError, void*& addrGetProcAddress, void*& addrLoadLibraryA) const
+    {
+        HMODULE moduleGetLastError = NULL;
+        HMODULE moduleGetProcAddress = NULL;
+        HMODULE moduleLoadLibraryA = NULL;
+
+        TCHAR moduleFilenameGetLastError[Globals::kPathBufferLength];
+        TCHAR moduleFilenameGetProcAddress[Globals::kPathBufferLength];
+        TCHAR moduleFilenameLoadLibraryA[Globals::kPathBufferLength];
+        MODULEINFO moduleInfo;
+
+        // Get module handles for the desired functions in the current process.
+        // The same DLL will export them in the target process, but the base address might not be the same.
+        if (FALSE == GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)GetLastError, &moduleGetLastError))
+            return false;
+
+        if (FALSE == GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)GetProcAddress, &moduleGetProcAddress))
+            return false;
+
+        if (FALSE == GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)LoadLibraryA, &moduleLoadLibraryA))
+            return false;
+
+        // Compute the relative addresses of each desired function with respect to the base address of its associated DLL.
+        size_t offsetGetLastError = (size_t)-1;
+        size_t offsetGetProcAddress = (size_t)-1;
+        size_t offsetLoadLibraryA = (size_t)-1;
+        
+        if (FALSE == GetModuleInformation(GetCurrentProcess(), moduleGetLastError, &moduleInfo, sizeof(moduleInfo)))
+            return false;
+
+        offsetGetLastError = (size_t)GetLastError - (size_t)moduleInfo.lpBaseOfDll;
+
+        if ((moduleGetProcAddress != moduleGetLastError) && (FALSE == GetModuleInformation(GetCurrentProcess(), moduleGetProcAddress, &moduleInfo, sizeof(moduleInfo))))
+            return false;
+
+        offsetGetProcAddress = (size_t)GetProcAddress - (size_t)moduleInfo.lpBaseOfDll;
+
+        if ((moduleLoadLibraryA != moduleGetProcAddress) && (FALSE == GetModuleInformation(GetCurrentProcess(), moduleGetProcAddress, &moduleInfo, sizeof(moduleInfo))))
+            return false;
+
+        offsetLoadLibraryA = (size_t)LoadLibraryA - (size_t)moduleInfo.lpBaseOfDll;
+
+        // Compute the full path names for each module that offers the required functions.
+        if (0 == GetModuleFileName(moduleGetLastError, moduleFilenameGetLastError, _countof(moduleFilenameGetLastError)))
+            return false;
+
+        if (0 == GetModuleFileName(moduleGetProcAddress, moduleFilenameGetProcAddress, _countof(moduleFilenameGetProcAddress)))
+            return false;
+
+        if (0 == GetModuleFileName(moduleLoadLibraryA, moduleFilenameLoadLibraryA, _countof(moduleFilenameLoadLibraryA)))
+            return false;
+
+        // Enumerate all of the modules in the target process.
+        HMODULE loadedModules[128];
+        DWORD numLoadedModules = 0;
+
+        if (FALSE == EnumProcessModules(injectedProcess, loadedModules, sizeof(loadedModules), &numLoadedModules))
+            return false;
+
+        numLoadedModules /= sizeof(HMODULE);
+
+        // For each loaded module, see if its full name matches one of the desired modules and, if so, compute the address of the desired function.
+        addrGetLastError = NULL;
+        addrGetProcAddress = NULL;
+        addrLoadLibraryA = NULL;
+
+        for (DWORD modidx = 0; (modidx < numLoadedModules) && ((NULL == addrGetLastError) || (NULL == addrGetProcAddress) || (NULL == addrLoadLibraryA)); ++modidx)
+        {
+            const HMODULE loadedModule = loadedModules[modidx];
+            TCHAR loadedModuleName[Globals::kPathBufferLength];
+
+            if (0 == GetModuleFileNameEx(injectedProcess, loadedModule, loadedModuleName, _countof(loadedModuleName)))
+                return false;
+
+            if (NULL == addrGetLastError)
+            {
+                if (0 == _tcsncmp(moduleFilenameGetLastError, loadedModuleName, _countof(loadedModuleName)))
+                {
+                    if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
+                        return false;
+
+                    addrGetLastError = (void*)((size_t)moduleInfo.lpBaseOfDll + offsetGetLastError);
+                }
+            }
+
+            if (NULL == addrGetProcAddress)
+            {
+                if (0 == _tcsncmp(moduleFilenameGetProcAddress, loadedModuleName, _countof(loadedModuleName)))
+                {
+                    if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
+                        return false;
+
+                    addrGetProcAddress = (void*)((size_t)moduleInfo.lpBaseOfDll + offsetGetProcAddress);
+                }
+            }
+
+            if (NULL == addrLoadLibraryA)
+            {
+                if (0 == _tcsncmp(moduleFilenameLoadLibraryA, loadedModuleName, _countof(loadedModuleName)))
+                {
+                    if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
+                        return false;
+
+                    addrLoadLibraryA = (void*)((size_t)moduleInfo.lpBaseOfDll + offsetLoadLibraryA);
+                }
+            }
+        }
+
+        return ((NULL != addrGetLastError) && (NULL != addrGetProcAddress) && (NULL != addrLoadLibraryA));
+    }
+    
+    // --------
+
     EInjectResult CodeInjector::Run(void)
     {
-        injectSyncInit(injectedProcess, baseAddressData);
+        injectInit(injectedProcess, baseAddressData);
         
         // Allow the injected code to start running.
         if (1 != ResumeThread(injectedProcessMainThread))
@@ -107,10 +222,29 @@ namespace Hookshot
         // Synchronize with the injected code.
         if (false == injectSync())
             return EInjectResult::InjectResultErrorRunFailedSync;
+
+        // Fill in some values that the injected process needs to perform required operations.
+        {
+            void* addrGetLastError;
+            void* addrGetProcAddress;
+            void* addrLoadLibraryA;
+
+            if (true != LocateFunctions(addrGetLastError, addrGetProcAddress, addrLoadLibraryA))
+                return EInjectResult::InjectResultErrorCannotLocateRequiredFunctions;
+
+            if (false == injectDataFieldWrite(funcGetLastError, &addrGetLastError))
+                return EInjectResult::InjectResultErrorCannotWriteRequiredFunctionLocations;
+
+            if (false == injectDataFieldWrite(funcGetProcAddress, &addrGetProcAddress))
+                return EInjectResult::InjectResultErrorCannotWriteRequiredFunctionLocations;
+
+            if (false == injectDataFieldWrite(funcLoadLibraryA, &addrLoadLibraryA))
+                return EInjectResult::InjectResultErrorCannotWriteRequiredFunctionLocations;
+        }
         
-        //
-        // TODO - Implement functionality of the injected code.
-        //
+        // Synchronize with the injected code.
+        if (false == injectSync())
+            return EInjectResult::InjectResultErrorRunFailedSync;
         
         // Wait for the injected code to reach completion and synchronize with it.
         // Once the injected code reaches this point, put the thread to sleep and then allow it to advance.
@@ -167,9 +301,41 @@ namespace Hookshot
         // Initialize the data region.
         {
             SInjectData injectData;
-            memset((void*)&injectData, 0, sizeof(injectData));
+            char injectDataStrings[InjectInfo::kMaxInjectBinaryFileSize - sizeof(injectData)];
 
+            memset((void*)&injectData, 0, sizeof(injectData));
+            memset((void*)&injectDataStrings, 0, sizeof(injectDataStrings));
+
+            injectData.injectionResultCodeSuccess = EInjectResult::InjectResultSuccess;
+            injectData.injectionResultCodeLoadLibraryFailed = EInjectResult::InjectResultErrorCannotLoadLibrary;
+            injectData.injectionResultCodeGetProcAddressFailed = EInjectResult::InjectResultErrorMalformedLibrary;
+            injectData.injectionResultCodeInitializationFailed = EInjectResult::InjectResultErrorLibraryInitFailed;
+            injectData.injectionResult = EInjectResult::InjectResultFailure;
+
+            strcpy_s(injectDataStrings, Strings::kStrLibraryInitializationProcName);
+
+#ifdef UNICODE
+            {
+                wchar_t dynamicLibraryName[Globals::kPathBufferLength];
+
+                if (false == Strings::FillInjectDynamicLinkLibraryFilename(dynamicLibraryName, _countof(dynamicLibraryName)))
+                    return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
+
+                if (0 != wcstombs_s(NULL, &injectDataStrings[Strings::kLenLibraryInitializationProcName], sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 1, dynamicLibraryName, sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 2))
+                    return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
+            }
+#else
+            if (false == Strings::FillInjectDynamicLinkLibraryFilename(&injectDataStrings[Strings::kLenLibraryInitializationProcName], sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 1))
+                return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
+#endif
+
+            injectData.strLibraryName = (const char*)((size_t)baseAddressData + sizeof(injectData) + Strings::kLenLibraryInitializationProcName);
+            injectData.strProcName = (const char*)((size_t)baseAddressData + sizeof(injectData));
+            
             if ((FALSE == WriteProcessMemory(injectedProcess, baseAddressData, &injectData, sizeof(injectData), &numBytes)) || (sizeof(injectData) != numBytes))
+                EInjectResult::InjectResultErrorSetFailedWrite;
+
+            if ((FALSE == WriteProcessMemory(injectedProcess, (void*)((size_t)baseAddressData + sizeof(injectData)), injectDataStrings, sizeof(injectDataStrings), &numBytes)) || (sizeof(injectDataStrings) != numBytes))
                 EInjectResult::InjectResultErrorSetFailedWrite;
         }
         

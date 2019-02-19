@@ -72,6 +72,10 @@ injectCodeBegin:
     ; Initialize, then synchronize with the injecting process.
     injectSyncInit ssi, sdi
     injectSync ssi, sdi, sbp
+
+    ; Injecting process is filling in required structure values.
+    ; Wait for it to finish.
+    injectSync ssi, sdi, sbp
     
     ;;;;;;;;;;
     ; TODO

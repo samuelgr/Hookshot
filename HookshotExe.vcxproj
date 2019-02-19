@@ -174,7 +174,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <ConformanceMode>true</ConformanceMode>
       <AssemblerOutput>All</AssemblerOutput>
@@ -202,7 +202,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <ConformanceMode>true</ConformanceMode>
       <AssemblerOutput>All</AssemblerOutput>

@@ -29,6 +29,23 @@ kInjectionMetaMagicValue EQU 51525354h
 SInjectData STRUCT
     sync SIZE_T ?
     ALIGN 128
+    
+    injectionResultCodeSuccess DWORD ?
+    injectionResultCodeLoadLibraryFailed DWORD ?
+    injectionResultCodeGetProcAddressFailed DWORD ?
+    injectionResultCodeInitializationFailed DWORD ?
+    ALIGN 128
+
+    injectionResult DWORD ?
+    extendedInjectionResult DWORD ?
+    ALIGN 128
+
+    funcGetLastError SIZE_T ?
+    funcGetProcAddress SIZE_T ?
+    funcLoadLibraryA SIZE_T ?
+    strLibraryName SIZE_T ?
+    strProcName SIZE_T ?
+    ALIGN 128
 SInjectData ENDS
 
 ; Corresponds to the identically-named structured type in "Inject.cpp" and must be updated when any changes are made there.
@@ -37,8 +54,8 @@ SInjectMeta STRUCT
     magic DWORD ?
     version DWORD ?
 
-    offsetInjectTrampolineStart DWORD kInjectionMetaMagicValue
-    offsetInjectTrampolineAddressMarker DWORD 0
+    offsetInjectTrampolineStart DWORD ?
+    offsetInjectTrampolineAddressMarker DWORD ?
     offsetInjectTrampolineEnd DWORD ?
     offsetInjectCodeStart DWORD ?
     offsetInjectCodeBegin DWORD ?

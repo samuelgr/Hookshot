@@ -62,6 +62,10 @@ namespace Hookshot
 
     const size_t Strings::kLenInjectExecutableOtherArchitecture = _countof(kStrInjectExecutableOtherArchitecture);
 
+    const char Strings::kStrLibraryInitializationProcName[] = "HookshotInitialize";
+
+    const size_t Strings::kLenLibraryInitializationProcName = _countof(kStrLibraryInitializationProcName);
+
 
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "Strings.h" for documentation.

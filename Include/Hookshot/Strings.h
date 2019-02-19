@@ -62,6 +62,12 @@ namespace Hookshot
         /// Length of `kStrInjectExecutableOtherArchitecture` in character units, including terminating null character.
         static const size_t kLenInjectExecutableOtherArchitecture;
 
+        /// Function name of the initialization procedure exported by the Hookshot library that gets injected.
+        static const char kStrLibraryInitializationProcName[];
+
+        /// Length of `kStrLibraryInitializationProcName` in character units, including terminating null character.
+        static const size_t kLenLibraryInitializationProcName;
+
 
         // -------- CLASS METHODS ------------------------------------------ //
 
