@@ -62,7 +62,11 @@ namespace Hookshot
 
     const size_t Strings::kLenInjectExecutableOtherArchitecture = _countof(kStrInjectExecutableOtherArchitecture);
 
-    const char Strings::kStrLibraryInitializationProcName[] = "HookshotInitialize";
+#ifdef HOOKSHOT64
+    const char Strings::kStrLibraryInitializationProcName[] = "DllInit";
+#else
+    const char Strings::kStrLibraryInitializationProcName[] = "_DllInit@0";
+#endif
 
     const size_t Strings::kLenLibraryInitializationProcName = _countof(kStrLibraryInitializationProcName);
 

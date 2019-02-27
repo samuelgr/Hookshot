@@ -302,8 +302,9 @@ namespace Hookshot
                 return EInjectResult::InjectResultErrorVirtualProtectFailed;
         }
 
-        // Inject code and data
-        CodeInjector injector(injectedCodeBase, injectedDataBase, processEntryPoint, kEffectiveInjectRegionSize, kEffectiveInjectRegionSize, processHandle, threadHandle);
+        // Inject code and data.
+        // Only mark the code buffer as requiring cleanup because both code and data buffers are from the same single allocation.
+        CodeInjector injector(injectedCodeBase, injectedDataBase, true, false, processEntryPoint, kEffectiveInjectRegionSize, kEffectiveInjectRegionSize, processHandle, threadHandle);
         operationResult = injector.SetAndRun();
 
         return operationResult;

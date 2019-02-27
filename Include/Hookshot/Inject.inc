@@ -18,6 +18,8 @@ INCLUDE Preamble.inc
 
 ; --------- CONSTANTS ---------------------------------------------------------
 
+; Magic value that identifies the metadata section of a loaded binary file.
+; Corresponds to the identically-named constant in "Inject.cpp" and must be updated when changes are made there.
 kInjectionMetaMagicValue EQU 51525354h
 
 
@@ -45,6 +47,7 @@ SInjectData STRUCT
     funcLoadLibraryA SIZE_T ?
     strLibraryName SIZE_T ?
     strProcName SIZE_T ?
+    cleanupBaseAddress SIZE_T 5 DUP (?)
     ALIGN 128
 SInjectData ENDS
 
@@ -90,67 +93,6 @@ injectSync MACRO ssv1, ssv2, ssid
     add ssv1, 2
     add ssv2, 2
 ENDM
-
-
-IFDEF HOOKSHOT32
-; Invokes an __stdcall function that takes no parameters.
-; Function address must be placed in sfunc.
-; Return value, if any, is loaded into sax.
-call0ParamStdCall MACRO sfunc
-    call sfunc
-ENDM
-
-; Invokes an __stdcall function that takes one integer or pointer parameter.
-; Per the __stdcall convention, the argument must be placed onto the stack.
-; Parameter must be placed in scx, and the function address in sfunc.
-; Return value, if any, is loaded into sax.
-call1ParamStdCall MACRO sfunc
-    push scx
-    call sfunc
-ENDM
-
-; Invokes an __stdcall function that takes two integer or pointer parameters.
-; Per the __stdcall convention, the arguments must be placed onto the stack.
-; Parameters must be placed in scx and sdx, and the function address in sfunc.
-; Return value, if any, is loaded into sax.
-call2ParamStdCall MACRO sfunc
-    push sdx
-    push scx
-    call sfunc
-ENDM
-ENDIF
-
-IFDEF HOOKSHOT64
-; Invokes an __stdcall function that takes no parameters.
-; Per the x64 convention, a shadow space must be allocated in the stack for all four integer parameters.
-; Function address must be placed in sfunc.
-; Return value, if any, is loaded into sax.
-call0ParamStdCall MACRO sfunc
-    sub ssp, (4*SIZEOF(SIZE_T))
-    call sfunc
-    add ssp, (4*SIZEOF(SIZE_T))
-ENDM
-
-; Invokes an __stdcall function that takes one integer or pointer parameter.
-; Per the x64 convention, a shadow space must be allocated in the stack for all four integer parameters.
-; Parameter must be placed in scx, and the function address in sfunc.
-; Return value, if any, is loaded into sax.
-call1ParamStdCall MACRO sfunc
-    sub ssp, (4*SIZEOF(SIZE_T))
-    call sfunc
-    add ssp, (4*SIZEOF(SIZE_T))
-ENDM
-
-; Invokes an __stdcall function that takes two integer or pointer parameters.
-; Per the x64 convention, a shadow space must be allocated in the stack for all four integer parameters.
-; Parameters must be placed in scx and sdx, and the function address in sfunc.
-; Return value, if any, is loaded into sax.
-call2ParamStdCall MACRO sfunc
-    sub ssp, (4*SIZEOF(SIZE_T))
-    call sfunc
-    add ssp, (4*SIZEOF(SIZE_T))
-ENDM
-ENDIF
 
 
 ENDIF ; __HOOKSHOT_INJECT_INC

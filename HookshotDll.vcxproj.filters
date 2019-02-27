@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\DllMain.cpp">
+    <ClCompile Include="Source\DllEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\CodeInjector.cpp">
@@ -34,6 +34,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Strings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\InjectLanding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -70,5 +73,27 @@
     <ClInclude Include="Include\Hookshot\Strings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Hookshot\InjectLanding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Source\InjectLanding.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Include\Hookshot\InjectLanding.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Include\Hookshot\Functions.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Include\Hookshot\Preamble.inc">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Include\Hookshot\Registers.inc">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

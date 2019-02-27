@@ -9,6 +9,7 @@
 ;   Implementation of all code that gets injected into another process.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+INCLUDE Functions.inc
 INCLUDE Inject.inc
 INCLUDE Preamble.inc
 INCLUDE Registers.inc
@@ -16,6 +17,8 @@ INCLUDE Strings.inc
 
 
 kStrInjectCodeSectionName                   SEGMENT READ
+
+
 ; --------- TRAMPOLINE --------------------------------------------------------
 
 ; Injected to the entry point of a process.
@@ -65,11 +68,7 @@ injectCodeBegin:
 
     ; Fix up the stack.
     ; Ensure it is aligned on a 16-byte boundary.
-    mov sax, ssp
-    and sax, 15
-    add sax, (16-SIZEOF(SIZE_T))
-    sub ssp, sax
-    push sax
+    stackAlignPush
     
     ; Get the address of the data region.
     call $next
@@ -84,6 +83,9 @@ injectCodeBegin:
     ; Injecting process is filling in required structure values.
     ; Wait for it to finish.
     injectSync ssi, sdi, sbp
+    
+    ; Set up the stack for API calls.
+    stackStdCallShadowPush
     
     ; Load the library specified by the injecting process.
     mov scx, (SInjectData PTR [sbp]).strLibraryName
@@ -101,30 +103,23 @@ injectCodeBegin:
     je $errorGetProcAddress
 
     ; Invoke the initialization procedure.
-    ; TODO
-
+    call sax
+    cmp sax, 0
+    je $errorInitialization
+    
     ; Indicate success.
-    mov eax, (SInjectData PTR [sbp]).injectionResultCodeSuccess
-    mov (SInjectData PTR [sbp]).injectionResult, eax
+    mov ecx, (SInjectData PTR [sbp]).injectionResultCodeSuccess
+    mov (SInjectData PTR [sbp]).injectionResult, ecx
 
   $done:
     ; All injection operations are done.
     ; Perform one final synchronization with the injecting process.
+    ; If the injection process failed for any reason, then the injecting process will terminate this process before it passes this barrier.
     injectSync ssi, sdi, sbp
     
-    ; Undo the stack alignment fixing operation.
-    pop sax
-    add ssp, sax
-
-    ; Restore all general-purpose registers and return to the program's entry point.
-    pop sbp
-    pop sdi
-    pop ssi
-    pop sdx
-    pop scx
-    pop sbx
-    pop sax
-    ret
+    ; Transfer control to the injection library.
+    ; Control only gets to this point on successful injection.
+    jmp sax
   
   $errorLoadLibrary:
     ; Store the correct error codes and end the operation.
@@ -154,11 +149,17 @@ injectCodeBegin:
     jmp $done
 
 injectCodeEnd:
+
+
 kStrInjectCodeSectionName                   ENDS
 
 
 kStrInjectMetaSectionName                   SEGMENT READ
+
+
     SInjectMeta <kInjectionMetaMagicValue, 0, x1, x2, x3, x4, x5, x6>
+
+
 kStrInjectMetaSectionName                   ENDS
 
 

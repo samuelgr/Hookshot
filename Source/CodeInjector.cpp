@@ -26,7 +26,7 @@ namespace Hookshot
     // -------- CONSTRUCTION AND DESTRUCTION ------------------------------- //
     // See "CodeInjector.h" for documentation.
 
-    CodeInjector::CodeInjector(void* const baseAddressCode, void* const baseAddressData, void* const entryPoint, const size_t sizeCode, const size_t sizeData, const HANDLE injectedProcess, const HANDLE injectedProcessMainThread) : baseAddressCode(baseAddressCode), baseAddressData(baseAddressData), entryPoint(entryPoint), sizeCode(sizeCode), sizeData(sizeData), injectedProcess(injectedProcess), injectedProcessMainThread(injectedProcessMainThread), injectInfo()
+    CodeInjector::CodeInjector(void* const baseAddressCode, void* const baseAddressData, const bool cleanupCodeBuffer, const bool cleanupDataBuffer, void* const entryPoint, const size_t sizeCode, const size_t sizeData, const HANDLE injectedProcess, const HANDLE injectedProcessMainThread) : baseAddressCode(baseAddressCode), baseAddressData(baseAddressData), cleanupCodeBuffer(cleanupCodeBuffer), cleanupDataBuffer(cleanupDataBuffer), entryPoint(entryPoint), sizeCode(sizeCode), sizeData(sizeData), injectedProcess(injectedProcess), injectedProcessMainThread(injectedProcessMainThread), injectInfo()
     {
         // Nothing to do here.
     }
@@ -341,6 +341,12 @@ namespace Hookshot
 
             injectData.strLibraryName = (const char*)((size_t)baseAddressData + sizeof(injectData) + Strings::kLenLibraryInitializationProcName);
             injectData.strProcName = (const char*)((size_t)baseAddressData + sizeof(injectData));
+            
+            if (true == cleanupCodeBuffer)
+                injectData.cleanupBaseAddress[0] = baseAddressCode;
+                
+            if (true == cleanupDataBuffer)
+                injectData.cleanupBaseAddress[1] = baseAddressData;
             
             if ((FALSE == WriteProcessMemory(injectedProcess, baseAddressData, &injectData, sizeof(injectData), &numBytes)) || (sizeof(injectData) != numBytes))
                 EInjectResult::InjectResultErrorSetFailedWrite;

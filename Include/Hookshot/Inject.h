@@ -126,7 +126,8 @@ namespace Hookshot
         const void* funcLoadLibraryA;                                   ///< Address of the LoadLibraryA function in the injected process.
         const char* strLibraryName;                                     ///< Address of the first character of the string that represents the library name to load.
         const char* strProcName;                                        ///< Address of the first character of the string that represents the procedure name within the loaded library to invoke.
-        size_t unused5[(128 / sizeof(void*)) - 5];                      ///< Padding for 128-byte alignment.
+        void* cleanupBaseAddress[5];                                    ///< Base addresses of buffers that should be freed once the injection code loads and passes control to the Hookshot library.
+        size_t unused5[(128 / sizeof(size_t)) - 10];                    ///< Padding for 128-byte alignment.
     };
 
     /// Utility class for managing information about the structure of the assembly-written injected code.

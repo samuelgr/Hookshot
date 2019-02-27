@@ -5,17 +5,18 @@
  * Authored by Samuel Grossman
  * Copyright (c) 2019
  **************************************************************************//**
- * @file DllMain.cpp
- *   Entry point for the injected library.
+ * @file DllEntry.cpp
+ *   Entry points for the injected library.
  *****************************************************************************/
 
 #include "ApiWindows.h"
 #include "Globals.h"
+#include "InjectLanding.h"
 
 using namespace Hookshot;
 
 
-// -------- ENTRY POINT ---------------------------------------------------- //
+// -------- ENTRY POINT FUNCTIONS ------------------------------------------ //
 
 /// Performs library initialization and teardown functions.
 /// Invoked automatically by the operating system.
@@ -24,7 +25,7 @@ using namespace Hookshot;
 /// @param [in] fdwReason Specifies the event that caused this function to be invoked.
 /// @param [in] lpvReserved Reserved.
 /// @return `TRUE` if this function successfully initialized or uninitialized this library, `FALSE` otherwise.
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+extern "C" BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     switch (fdwReason)
     {
@@ -46,4 +47,15 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     }
 
     return TRUE;
+}
+
+/// Performs high-level initialization functions.
+/// Invoked by injection code.
+/// @return Address to which to jump to continue running the injected process, or `NULL` on failure.
+extern "C" __declspec(dllexport) void* APIENTRY DllInit(void)
+{
+    // TODO
+    // A more complete implementation is needed.
+    // For now, just allow the injection to proceed.
+    return (void*)InjectLanding;
 }

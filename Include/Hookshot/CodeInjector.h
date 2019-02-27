@@ -45,6 +45,12 @@ namespace Hookshot
         /// Base address of the data region of the injected process.
         void* const baseAddressData;
 
+        /// Specifies if the buffer identified as containing code needs to be cleaned up in the injected process once it is running.
+        const bool cleanupCodeBuffer;
+
+        /// Specifies if the buffer identified as containing data needs to be cleaned up in the injected process once it is running.
+        const bool cleanupDataBuffer;
+
         /// Entry point for the injected code.
         void* const entryPoint;
 
@@ -76,12 +82,14 @@ namespace Hookshot
         /// Initialization constructor. The only way to construct an object of this type.
         /// @param [in] baseAddressCode Base address of the code region of the injected process.
         /// @param [in] baseAddressData Base address of the data region of the injected process.
+        /// @param [in] cleanupCodeBuffer If true, the injected process will use `VirtualFree()` to free the memory starting at baseAddressCode.
+        /// @param [in] cleanupDataBuffer If true, the injected process will use `VirtualFree()` to free the memory starting at baseAddressData.
         /// @param [in] entryPoint Entry point for the injected code.
         /// @param [in] sizeCode Size of the code region, in bytes.
         /// @param [in] sizeData Size of the data region, in bytes.
         /// @param [in] injectedProcess Process handle of the injected process.
         /// @param [in] injectedProcessMainThread Main thread handle for the injected process.
-        CodeInjector(void* const baseAddressCode, void* const baseAddressData, void* const entryPoint, const size_t sizeCode, const size_t sizeData, const HANDLE injectedProcess, const HANDLE injectedProcessMainThread);
+        CodeInjector(void* const baseAddressCode, void* const baseAddressData, const bool cleanupCodeBuffer, const bool cleanupDataBuffer, void* const entryPoint, const size_t sizeCode, const size_t sizeData, const HANDLE injectedProcess, const HANDLE injectedProcessMainThread);
 
         /// Copy constructor. Should never be invoked.
         CodeInjector(const CodeInjector&) = delete;
