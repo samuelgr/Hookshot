@@ -12,6 +12,7 @@
 
 #include "ApiWindows.h"
 #include "Inject.h"
+#include "Message.h"
 
 #include <cstddef>
 
@@ -34,4 +35,15 @@ extern "C" void APIENTRY InjectLandingCleanup(const SInjectData* const injectDat
         if (NULL != cleanupBaseAddress[i])
             VirtualFree(cleanupBaseAddress[i], 0, MEM_RELEASE);
     }
+}
+
+// --------
+
+extern "C" void APIENTRY InjectLandingSetHooks(void)
+{
+#ifdef HOOKSHOT_DEBUG
+    // For debugging purposes emit a message indicating the current process ID to facilitate attaching a debugger.
+    if (FALSE == IsDebuggerPresent())
+        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_DEBUG_PID_FORMAT, GetProcessId(GetCurrentProcess()));
+#endif
 }

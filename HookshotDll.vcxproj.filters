@@ -76,6 +76,12 @@
     <ClInclude Include="Include\Hookshot\InjectLanding.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Resources\HookshotDll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\Hookshot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Source\InjectLanding.asm">

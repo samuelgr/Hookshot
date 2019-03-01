@@ -49,13 +49,13 @@ extern "C" BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpv
     return TRUE;
 }
 
-/// Performs high-level initialization functions.
-/// Invoked by injection code.
+/// Invoked by injection code to perform additional initialization functions, especially those not safe to perform in the main DLL entry point.
+/// Success or failure of this function determines the overall success or failure of the injection process.
+/// The injecting process is still waiting on this code to complete, so it should be as fast as possible to avoid undue delays.
 /// @return Address to which to jump to continue running the injected process, or `NULL` on failure.
 extern "C" __declspec(dllexport) void* APIENTRY DllInit(void)
 {
-    // TODO
-    // A more complete implementation is needed.
-    // For now, just allow the injection to proceed.
+    // Any additional initialization would take place here.
+    // Currently there is nothing to do, so just allow the injection to proceed.
     return (void*)InjectLanding;
 }

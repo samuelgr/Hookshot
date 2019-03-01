@@ -29,6 +29,9 @@ InjectLanding                               PROC PUBLIC
     ;  - a stack alignment fix operation has been performed
     ;  - shadow space has been allocated onto the stack to allow API functions to be called
     
+    ; Call the injection setup function to set up all hooks.
+    call0ParamStdCall InjectLandingSetHooks
+    
     ; Call the injection cleanup function to free all allocated memory for injection purposes.
     mov scx, sbp
     call1ParamStdCall InjectLandingCleanup

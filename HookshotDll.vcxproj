@@ -42,6 +42,8 @@
     <ClInclude Include="Include\Hookshot\Message.h" />
     <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Strings.h" />
+    <ClInclude Include="Resources\Hookshot.h" />
+    <ClInclude Include="Resources\HookshotDll.h" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Source\InjectLanding.asm" />

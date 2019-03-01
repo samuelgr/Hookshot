@@ -30,10 +30,14 @@ namespace Hookshot
 
 /// Entry point for the landing code.
 /// Written in assembly; actually a jump target, not a function.
-/// When all injection operations are complete, the injection code jumps to this address.
-/// It does not return, but rather transfers control to the actual entry point of the injected process.
+/// When this DLL has been loaded and initialized successfully, control transfers to this address.
+/// At the time that this occurs, this DLL assumes control of the injection and hook setup process, freeing the injecting process of all further responsibility.
+/// There is no return, but rather upon completion control is transferred to the actual entry point of the injected process.
 extern "C" void APIENTRY InjectLanding(void);
 
 /// Performs all necessary cleanup operations upon completion of the injection code.
 /// @param [in] injectData Data used during the injection process.
 extern "C" void APIENTRY InjectLandingCleanup(const Hookshot::SInjectData* const injectData);
+
+/// Performs all operations needed to read hook configuration information and set up hooks.
+extern "C" void APIENTRY InjectLandingSetHooks(void);
