@@ -12,6 +12,7 @@
 #include "ApiWindows.h"
 #include "Globals.h"
 #include "Message.h"
+#include "TemporaryBuffers.h"
 
 #include <cstdarg>
 #include <cstdio>
@@ -65,9 +66,9 @@ namespace Hookshot
         if (false == ShouldOutputMessageOfSeverity(severity))
             return;
 
-        TCHAR resourceStringBuf[kMessageBufferSize];
+        TemporaryBuffer<TCHAR> resourceStringBuf;
 
-        if (0 != LoadString(Globals::GetInstanceHandle(), resourceIdentifier, resourceStringBuf, _countof(resourceStringBuf)))
+        if (0 != LoadString(Globals::GetInstanceHandle(), resourceIdentifier, resourceStringBuf, resourceStringBuf.Count()))
             OutputInternal(severity, resourceStringBuf);
     }
 
@@ -78,9 +79,9 @@ namespace Hookshot
         if (false == ShouldOutputMessageOfSeverity(severity))
             return;
 
-        TCHAR resourceStringBuf[kMessageBufferSize];
+        TemporaryBuffer<TCHAR> resourceStringBuf;
 
-        if (0 != LoadString(Globals::GetInstanceHandle(), resourceIdentifier, resourceStringBuf, _countof(resourceStringBuf)))
+        if (0 != LoadString(Globals::GetInstanceHandle(), resourceIdentifier, resourceStringBuf, resourceStringBuf.Count()))
         {
             va_list args;
             va_start(args, resourceIdentifier);
@@ -97,9 +98,9 @@ namespace Hookshot
 
     void Message::OutputFormattedInternal(const EMessageSeverity severity, LPCTSTR format, va_list args)
     {
-        TCHAR messageBuf[kMessageBufferSize];
+        TemporaryBuffer<TCHAR> messageBuf;
 
-        _vstprintf_s(messageBuf, format, args);
+        _vstprintf_s(messageBuf, messageBuf.Count(), format, args);
         OutputInternal(severity, messageBuf);
     }
 
@@ -121,8 +122,8 @@ namespace Hookshot
 
     void Message::OutputInternalUsingDebugString(const EMessageSeverity severity, LPCTSTR message)
     {
-        TCHAR moduleBaseNameBuf[kMessageBufferSize];
-        GetModuleBaseName(GetCurrentProcess(), Globals::GetInstanceHandle(), moduleBaseNameBuf, _countof(moduleBaseNameBuf));
+        TemporaryBuffer<TCHAR> moduleBaseNameBuf;
+        GetModuleBaseName(GetCurrentProcess(), Globals::GetInstanceHandle(), moduleBaseNameBuf, moduleBaseNameBuf.Count());
 
         TCHAR messageStampSeverity;
         switch (severity)
@@ -144,8 +145,8 @@ namespace Hookshot
             break;
         }
 
-        TCHAR messageStampBuf[kMessageBufferSize];
-        _stprintf_s(messageStampBuf, _T("%s: [%c] "), moduleBaseNameBuf, messageStampSeverity);
+        TemporaryBuffer<TCHAR> messageStampBuf;
+        _stprintf_s(messageStampBuf, messageStampBuf.Count(), _T("%s: [%c] "), (TCHAR*)moduleBaseNameBuf, messageStampSeverity);
 
         OutputDebugString(messageStampBuf);
         OutputDebugString(message);
@@ -156,8 +157,8 @@ namespace Hookshot
 
     void Message::OutputInternalUsingMessageBox(const EMessageSeverity severity, LPCTSTR message)
     {
-        TCHAR productNameBuf[kMessageBufferSize];
-        if (0 == LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, productNameBuf, _countof(productNameBuf)))
+        TemporaryBuffer<TCHAR> productNameBuf;
+        if (0 == LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, (TCHAR*)productNameBuf, productNameBuf.Count()))
             productNameBuf[0] = _T('\0');
 
         UINT messageBoxType = 0;
