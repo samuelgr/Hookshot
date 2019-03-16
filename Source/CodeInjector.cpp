@@ -142,20 +142,20 @@ namespace Hookshot
         offsetLoadLibraryA = (size_t)LoadLibraryA - (size_t)moduleInfo.lpBaseOfDll;
 
         // Compute the full path names for each module that offers the required functions.
-        if (0 == GetModuleFileName(moduleGetLastError, moduleFilenameGetLastError, moduleFilenameGetLastError.count))
+        if (0 == GetModuleFileName(moduleGetLastError, moduleFilenameGetLastError, moduleFilenameGetLastError.Count()))
             return false;
 
-        if (0 == GetModuleFileName(moduleGetProcAddress, moduleFilenameGetProcAddress, moduleFilenameGetProcAddress.count))
+        if (0 == GetModuleFileName(moduleGetProcAddress, moduleFilenameGetProcAddress, moduleFilenameGetProcAddress.Count()))
             return false;
 
-        if (0 == GetModuleFileName(moduleLoadLibraryA, moduleFilenameLoadLibraryA, moduleFilenameLoadLibraryA.count))
+        if (0 == GetModuleFileName(moduleLoadLibraryA, moduleFilenameLoadLibraryA, moduleFilenameLoadLibraryA.Count()))
             return false;
 
         // Enumerate all of the modules in the target process.
         TemporaryBuffer<HMODULE> loadedModules;
         DWORD numLoadedModules = 0;
 
-        if (FALSE == EnumProcessModules(injectedProcess, loadedModules, loadedModules.size, &numLoadedModules))
+        if (FALSE == EnumProcessModules(injectedProcess, loadedModules, loadedModules.Size(), &numLoadedModules))
             return false;
 
         numLoadedModules /= sizeof(HMODULE);
@@ -170,12 +170,12 @@ namespace Hookshot
             const HMODULE loadedModule = loadedModules[modidx];
             TemporaryBuffer<TCHAR> loadedModuleName;
 
-            if (0 == GetModuleFileNameEx(injectedProcess, loadedModule, loadedModuleName, loadedModuleName.count))
+            if (0 == GetModuleFileNameEx(injectedProcess, loadedModule, loadedModuleName, loadedModuleName.Count()))
                 return false;
 
             if (NULL == addrGetLastError)
             {
-                if (0 == _tcsncmp(moduleFilenameGetLastError, loadedModuleName, loadedModuleName.count))
+                if (0 == _tcsncmp(moduleFilenameGetLastError, loadedModuleName, loadedModuleName.Count()))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -186,7 +186,7 @@ namespace Hookshot
 
             if (NULL == addrGetProcAddress)
             {
-                if (0 == _tcsncmp(moduleFilenameGetProcAddress, loadedModuleName, loadedModuleName.count))
+                if (0 == _tcsncmp(moduleFilenameGetProcAddress, loadedModuleName, loadedModuleName.Count()))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -197,7 +197,7 @@ namespace Hookshot
 
             if (NULL == addrLoadLibraryA)
             {
-                if (0 == _tcsncmp(moduleFilenameLoadLibraryA, loadedModuleName, loadedModuleName.count))
+                if (0 == _tcsncmp(moduleFilenameLoadLibraryA, loadedModuleName, loadedModuleName.Count()))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -329,7 +329,7 @@ namespace Hookshot
             {
                 TemporaryBuffer<wchar_t> dynamicLibraryName;
 
-                if (false == Strings::FillInjectDynamicLinkLibraryFilename(dynamicLibraryName, dynamicLibraryName.count))
+                if (false == Strings::FillInjectDynamicLinkLibraryFilename(dynamicLibraryName, dynamicLibraryName.Count()))
                     return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
 
                 if (0 != wcstombs_s(NULL, &injectDataStrings[Strings::kLenLibraryInitializationProcName], sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 1, dynamicLibraryName, sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 2))

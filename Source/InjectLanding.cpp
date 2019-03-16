@@ -13,8 +13,10 @@
 #include "ApiWindows.h"
 #include "Inject.h"
 #include "Message.h"
+#include "TemporaryBuffers.h"
 
 #include <cstddef>
+#include <psapi.h>
 
 using namespace Hookshot;
 
@@ -44,6 +46,11 @@ extern "C" void APIENTRY InjectLandingSetHooks(void)
 #ifdef HOOKSHOT_DEBUG
     // For debugging purposes emit a message indicating the current process ID to facilitate attaching a debugger.
     if (FALSE == IsDebuggerPresent())
-        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_DEBUG_PID_FORMAT, GetProcessId(GetCurrentProcess()));
+    {
+        TemporaryBuffer<TCHAR> moduleBaseName;
+        GetModuleBaseName(GetCurrentProcess(), NULL, moduleBaseName, moduleBaseName.Count());
+        
+        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_DEBUG_PID_FORMAT, (TCHAR*)moduleBaseName, GetProcessId(GetCurrentProcess()));
+    }
 #endif
 }

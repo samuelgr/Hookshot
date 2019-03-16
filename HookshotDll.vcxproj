@@ -196,6 +196,7 @@
     <MASM>
       <PreserveIdentifierCase>1</PreserveIdentifierCase>
       <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
+      <UseSafeExceptionHandlers>true</UseSafeExceptionHandlers>
     </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -222,7 +223,6 @@
       <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
-      <ModuleDefinitionFile>HookshotDll.def</ModuleDefinitionFile>
     </Link>
     <MASM />
     <MASM>
@@ -231,6 +231,7 @@
     <MASM>
       <PreserveIdentifierCase>1</PreserveIdentifierCase>
       <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
+      <UseSafeExceptionHandlers>true</UseSafeExceptionHandlers>
     </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -257,7 +258,6 @@
       <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
-      <ModuleDefinitionFile>HookshotDll.def</ModuleDefinitionFile>
     </Link>
     <MASM />
     <MASM>

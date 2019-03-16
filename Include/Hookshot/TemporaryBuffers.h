@@ -63,7 +63,7 @@ namespace Hookshot
 
         /// Retrieves the size of each allocated buffer.
         /// @return Size, in bytes, of each allocated buffer.
-        static inline unsigned int GetBufferSize(void)
+        constexpr static inline unsigned int GetBufferSize(void)
         {
             return (kBuffersTotalNumBytes / kBuffersCount);
         }
@@ -91,17 +91,11 @@ namespace Hookshot
         /// Pointer to the buffer space.
         T* const buffer;
 
-        /// Size of the buffer space, in bytes.
-        const unsigned int size;
 
-        /// Size of the buffer space, in T-sized elements.
-        const unsigned int count;
-
-        
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
         
         /// Default constructor.
-        inline TemporaryBuffer(void) : buffer((T*)TemporaryBuffers::Allocate()), size(TemporaryBuffers::GetBufferSize()), count(TemporaryBuffers::GetBufferSize() / sizeof(T))
+        inline TemporaryBuffer(void) : buffer((T*)TemporaryBuffers::Allocate())
         {
             // Nothing to do here.
         }
@@ -119,10 +113,27 @@ namespace Hookshot
         // -------- OPERATORS ---------------------------------------------- //
 
         /// Allows implicit conversion of a temporary buffer to the buffer pointer itself.
-        /// Enables drop-in replacement for functions that accept a buffer pointer.
+        /// Enables objects of this type to be used as if they were pointers to the underlying type.
         operator T*(void) const
         {
             return buffer;
+        }
+
+
+        // -------- INSTANCE METHODS --------------------------------------- //
+        
+        /// Retrieves the size of the buffer space, in number of elements of type T.
+        /// @return Size of the buffer, in T-sized elements.
+        constexpr inline unsigned int Count(void) const
+        {
+            return Size() / sizeof(T);
+        }
+        
+        /// Retrieves the size of the buffer space, in bytes.
+        /// @return Size of the buffer, in bytes.
+        constexpr inline unsigned int Size(void) const
+        {
+            return TemporaryBuffers::GetBufferSize();
         }
     };
 }

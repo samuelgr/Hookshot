@@ -57,7 +57,7 @@ namespace Hookshot
         // Figure out the name of the module that is to be loaded.
         TemporaryBuffer<TCHAR> moduleFilename;
         
-        if (false == Strings::FillInjectBinaryFilename(moduleFilename, moduleFilename.count))
+        if (false == Strings::FillInjectBinaryFilename(moduleFilename, moduleFilename.Count()))
         {
             initializationResult = EInjectResult::InjectResultErrorCannotGenerateInjectCodeFilename;
             return;

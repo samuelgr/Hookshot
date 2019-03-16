@@ -322,7 +322,7 @@ namespace Hookshot
         TemporaryBuffer<TCHAR> executableCommandLine;
         executableCommandLine[0] = _T('\"');
         
-        if (false == Strings::FillInjectExecutableOtherArchitectureFilename(&executableCommandLine[1], executableCommandLine.count))
+        if (false == Strings::FillInjectExecutableOtherArchitectureFilename(&executableCommandLine[1], executableCommandLine.Count()))
             return EInjectResult::InjectResultErrorCannotGenerateInjectCodeFilename;
 
         const size_t kExecutableFileNameLength = _tcslen(executableCommandLine) + 1;
