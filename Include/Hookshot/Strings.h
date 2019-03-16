@@ -69,6 +69,12 @@ namespace Hookshot
         static const size_t kLenLibraryInitializationProcName;
 
 
+        // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
+
+        /// Default constructor. Should never be invoked.
+        Strings(void) = delete;
+
+        
         // -------- CLASS METHODS ------------------------------------------ //
 
         /// Generates the expected filename for a Hookshot-related file, given the desired extension and extension length.

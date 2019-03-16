@@ -17,6 +17,7 @@
 #include "Message.h"
 #include "ProcessInjector.h"
 #include "Strings.h"
+#include "TemporaryBuffers.h"
 
 #include <cstddef>
 #include <cstdio>
@@ -318,10 +319,10 @@ namespace Hookshot
         // Hold both the application name and the command-line arguments, enclosing the application name in quotes.
         // At most the argument needs to represent a 64-bit integer in hexadecimal, so two characters per byte, plus a space, an indicator character and a null character.
         const size_t kExecutableArgumentMaxCount = 3 + (2 * sizeof(uint64_t));
-        TCHAR executableCommandLine[Globals::kPathBufferLength + kExecutableArgumentMaxCount + 2];
+        TemporaryBuffer<TCHAR> executableCommandLine;
         executableCommandLine[0] = _T('\"');
         
-        if (false == Strings::FillInjectExecutableOtherArchitectureFilename(&executableCommandLine[1], Globals::kPathBufferLength))
+        if (false == Strings::FillInjectExecutableOtherArchitectureFilename(&executableCommandLine[1], executableCommandLine.count))
             return EInjectResult::InjectResultErrorCannotGenerateInjectCodeFilename;
 
         const size_t kExecutableFileNameLength = _tcslen(executableCommandLine) + 1;

@@ -21,15 +21,6 @@ namespace Hookshot
     /// Not intended to be instantiated.
     class Globals
     {
-    public:
-        // -------- CONSTANTS ---------------------------------------------- //
-
-        /// Buffer size to use for temporarily holding path names.
-        /// Useful when determining the names of modules to load for various purposes.
-        /// Measured in characters, not bytes.
-        static const size_t kPathBufferLength = 2048;
-
-    
     private:
         // -------- CLASS VARIABLES ---------------------------------------- //
 

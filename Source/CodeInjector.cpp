@@ -16,6 +16,7 @@
 #include "Inject.h"
 #include "InjectResult.h"
 #include "Strings.h"
+#include "TemporaryBuffers.h"
 
 #include <cstddef>
 #include <psapi.h>
@@ -104,9 +105,9 @@ namespace Hookshot
         HMODULE moduleGetProcAddress = NULL;
         HMODULE moduleLoadLibraryA = NULL;
 
-        TCHAR moduleFilenameGetLastError[Globals::kPathBufferLength];
-        TCHAR moduleFilenameGetProcAddress[Globals::kPathBufferLength];
-        TCHAR moduleFilenameLoadLibraryA[Globals::kPathBufferLength];
+        TemporaryBuffer<TCHAR> moduleFilenameGetLastError;
+        TemporaryBuffer<TCHAR> moduleFilenameGetProcAddress;
+        TemporaryBuffer<TCHAR> moduleFilenameLoadLibraryA;
         MODULEINFO moduleInfo;
 
         // Get module handles for the desired functions in the current process.
@@ -141,20 +142,20 @@ namespace Hookshot
         offsetLoadLibraryA = (size_t)LoadLibraryA - (size_t)moduleInfo.lpBaseOfDll;
 
         // Compute the full path names for each module that offers the required functions.
-        if (0 == GetModuleFileName(moduleGetLastError, moduleFilenameGetLastError, _countof(moduleFilenameGetLastError)))
+        if (0 == GetModuleFileName(moduleGetLastError, moduleFilenameGetLastError, moduleFilenameGetLastError.count))
             return false;
 
-        if (0 == GetModuleFileName(moduleGetProcAddress, moduleFilenameGetProcAddress, _countof(moduleFilenameGetProcAddress)))
+        if (0 == GetModuleFileName(moduleGetProcAddress, moduleFilenameGetProcAddress, moduleFilenameGetProcAddress.count))
             return false;
 
-        if (0 == GetModuleFileName(moduleLoadLibraryA, moduleFilenameLoadLibraryA, _countof(moduleFilenameLoadLibraryA)))
+        if (0 == GetModuleFileName(moduleLoadLibraryA, moduleFilenameLoadLibraryA, moduleFilenameLoadLibraryA.count))
             return false;
 
         // Enumerate all of the modules in the target process.
-        HMODULE loadedModules[128];
+        TemporaryBuffer<HMODULE> loadedModules;
         DWORD numLoadedModules = 0;
 
-        if (FALSE == EnumProcessModules(injectedProcess, loadedModules, sizeof(loadedModules), &numLoadedModules))
+        if (FALSE == EnumProcessModules(injectedProcess, loadedModules, loadedModules.size, &numLoadedModules))
             return false;
 
         numLoadedModules /= sizeof(HMODULE);
@@ -167,14 +168,14 @@ namespace Hookshot
         for (DWORD modidx = 0; (modidx < numLoadedModules) && ((NULL == addrGetLastError) || (NULL == addrGetProcAddress) || (NULL == addrLoadLibraryA)); ++modidx)
         {
             const HMODULE loadedModule = loadedModules[modidx];
-            TCHAR loadedModuleName[Globals::kPathBufferLength];
+            TemporaryBuffer<TCHAR> loadedModuleName;
 
-            if (0 == GetModuleFileNameEx(injectedProcess, loadedModule, loadedModuleName, _countof(loadedModuleName)))
+            if (0 == GetModuleFileNameEx(injectedProcess, loadedModule, loadedModuleName, loadedModuleName.count))
                 return false;
 
             if (NULL == addrGetLastError)
             {
-                if (0 == _tcsncmp(moduleFilenameGetLastError, loadedModuleName, _countof(loadedModuleName)))
+                if (0 == _tcsncmp(moduleFilenameGetLastError, loadedModuleName, loadedModuleName.count))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -185,7 +186,7 @@ namespace Hookshot
 
             if (NULL == addrGetProcAddress)
             {
-                if (0 == _tcsncmp(moduleFilenameGetProcAddress, loadedModuleName, _countof(loadedModuleName)))
+                if (0 == _tcsncmp(moduleFilenameGetProcAddress, loadedModuleName, loadedModuleName.count))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -196,7 +197,7 @@ namespace Hookshot
 
             if (NULL == addrLoadLibraryA)
             {
-                if (0 == _tcsncmp(moduleFilenameLoadLibraryA, loadedModuleName, _countof(loadedModuleName)))
+                if (0 == _tcsncmp(moduleFilenameLoadLibraryA, loadedModuleName, loadedModuleName.count))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -326,9 +327,9 @@ namespace Hookshot
 
 #ifdef UNICODE
             {
-                wchar_t dynamicLibraryName[Globals::kPathBufferLength];
+                TemporaryBuffer<wchar_t> dynamicLibraryName;
 
-                if (false == Strings::FillInjectDynamicLinkLibraryFilename(dynamicLibraryName, _countof(dynamicLibraryName)))
+                if (false == Strings::FillInjectDynamicLinkLibraryFilename(dynamicLibraryName, dynamicLibraryName.count))
                     return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
 
                 if (0 != wcstombs_s(NULL, &injectDataStrings[Strings::kLenLibraryInitializationProcName], sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 1, dynamicLibraryName, sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 2))
@@ -342,11 +343,17 @@ namespace Hookshot
             injectData.strLibraryName = (const char*)((size_t)baseAddressData + sizeof(injectData) + Strings::kLenLibraryInitializationProcName);
             injectData.strProcName = (const char*)((size_t)baseAddressData + sizeof(injectData));
             
-            if (true == cleanupCodeBuffer)
-                injectData.cleanupBaseAddress[0] = baseAddressCode;
-                
-            if (true == cleanupDataBuffer)
-                injectData.cleanupBaseAddress[1] = baseAddressData;
+            // Figure out which addresses need to be cleaned up.
+            // These buffers will be freed once injection is complete.
+            {
+                unsigned int cleanupIndex = 0;
+
+                if (true == cleanupCodeBuffer)
+                    injectData.cleanupBaseAddress[cleanupIndex++] = baseAddressCode;
+
+                if (true == cleanupDataBuffer)
+                    injectData.cleanupBaseAddress[cleanupIndex++] = baseAddressData;
+            }
             
             if ((FALSE == WriteProcessMemory(injectedProcess, baseAddressData, &injectData, sizeof(injectData), &numBytes)) || (sizeof(injectData) != numBytes))
                 EInjectResult::InjectResultErrorSetFailedWrite;

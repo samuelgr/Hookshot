@@ -36,6 +36,9 @@
     <ClCompile Include="Source\Strings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\TemporaryBuffers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc">
@@ -74,6 +77,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resources\HookshotExe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Hookshot\TemporaryBuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

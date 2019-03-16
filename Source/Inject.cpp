@@ -14,6 +14,7 @@
 #include "Inject.h"
 #include "InjectResult.h"
 #include "Strings.h"
+#include "TemporaryBuffers.h"
 
 #include <cstddef>
 #include <cstring>
@@ -54,9 +55,9 @@ namespace Hookshot
     InjectInfo::InjectInfo(void) : injectTrampolineStart(NULL), injectTrampolineAddressMarker(NULL), injectTrampolineEnd(NULL), injectCodeStart(NULL), injectCodeBegin(NULL), injectCodeEnd(NULL), injectFileHandle(INVALID_HANDLE_VALUE), injectFileMappingHandle(INVALID_HANDLE_VALUE), injectFileBase(NULL), initializationResult(EInjectResult::InjectResultFailure)
     {
         // Figure out the name of the module that is to be loaded.
-        TCHAR moduleFilename[Globals::kPathBufferLength];
+        TemporaryBuffer<TCHAR> moduleFilename;
         
-        if (false == Strings::FillInjectBinaryFilename(moduleFilename, _countof(moduleFilename)))
+        if (false == Strings::FillInjectBinaryFilename(moduleFilename, moduleFilename.count))
         {
             initializationResult = EInjectResult::InjectResultErrorCannotGenerateInjectCodeFilename;
             return;
