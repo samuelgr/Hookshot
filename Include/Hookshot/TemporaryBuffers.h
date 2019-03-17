@@ -56,10 +56,24 @@ namespace Hookshot
         /// Attempts to allocate a new buffer.
         /// On failure, throws `NULL`.
         /// @return Pointer to the new temporary buffer.
-        static void* Allocate(void);
+        static inline void* Allocate(void)
+        {
+            if (GetNumAllocated() >= kBuffersCount)
+                throw NULL;
+
+            const auto indexToAllocate = numAllocated.fetch_add(1);
+
+            if (indexToAllocate >= kBuffersCount)
+                throw NULL;
+
+            return &buffers[GetBufferSize() * indexToAllocate];
+        }
 
         /// Frees the most-recently-allocated buffer.
-        static void Free(void);
+        static inline void Free(void)
+        {
+            numAllocated -= 1;
+        }
 
         /// Retrieves the size of each allocated buffer.
         /// @return Size, in bytes, of each allocated buffer.

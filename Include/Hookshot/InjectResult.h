@@ -44,7 +44,7 @@ namespace Hookshot
         InjectResultErrorVirtualAllocFailed,                        ///< Failed to allocate virtual memory for code and data in the target process.
         InjectResultErrorVirtualProtectFailed,                      ///< Failed to set protection values for code and data in the target process.
 
-        // Issues actually injecting code or data into the target process.
+        // Issues actually injecting code or data into the target process
         InjectResultErrorCannotGenerateInjectCodeFilename,          ///< Failed to compute the name of the file holding injected code.
         InjectResultErrorCannotGenerateLibraryFilename,             ///< Failed to compute the name of the Hookshot library to inject.
         InjectResultErrorCannotLoadInjectCode,                      ///< Failed to load the file containing injection code.
@@ -60,12 +60,12 @@ namespace Hookshot
         InjectResultErrorRunFailedSuspendThread,                    ///< Failed to place the injected process back into a suspended state after running the injected code.
         InjectResultErrorUnsetFailed,                               ///< Failed to inject due to a failed attempt to return the trampoline region to its original content.
 
-        // Issues spawning a new instance of Hookshot due to an architecture mismatch.
+        // Issues spawning a new instance of Hookshot due to an architecture mismatch
         InjectResultErrorCannotGenerateExecutableFilename,          ///< Failed to compute the name of the executable to spawn.
         InjectResultErrorInterProcessCommunicationFailed,           ///< Failed to perform inter-process communication.
         InjectResultErrorCreateHookshotProcessFailed,               ///< Failed to spawn a new Hookshot instance.
 
-        // Issues encountered while running injection code to initialize the injected process.
+        // Issues encountered while running injection code to initialize the injected process
         InjectResultErrorCannotLocateRequiredFunctions,             ///< Failed to locate required functions in the address space of the injected process.
         InjectResultErrorCannotWriteRequiredFunctionLocations,      ///< Failed to write the locations of the required functions into the address space of the injected process.
         InjectResultErrorCannotReadStatus,                          ///< Failed to read status information from the injected process.
@@ -73,7 +73,7 @@ namespace Hookshot
         InjectResultErrorMalformedLibrary,                          ///< Loaded Hookshot library is malformed.
         InjectResultErrorLibraryInitFailed,                         ///< Loaded Hookshot library failed to initialize.
 
-        // Maximum value in this enumeration.
+        // Maximum value in this enumeration
         InjectResultMaximumValue                                    ///< Sentinel value, not used as an error code.
     };
 }

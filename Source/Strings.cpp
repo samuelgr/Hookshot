@@ -70,6 +70,10 @@ namespace Hookshot
 
     const size_t Strings::kLenLibraryInitializationProcName = _countof(kStrLibraryInitializationProcName);
 
+    const TCHAR Strings::kStrCommonHookModuleBaseName[] = _T("Common");
+
+    const size_t Strings::kLenCommonHookModuleBaseName = _countof(kStrCommonHookModuleBaseName);
+
 
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "Strings.h" for documentation.

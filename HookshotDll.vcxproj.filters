@@ -88,6 +88,9 @@
     <ClInclude Include="Include\Hookshot\TemporaryBuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Hookshot\HookResult.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Source\InjectLanding.asm">

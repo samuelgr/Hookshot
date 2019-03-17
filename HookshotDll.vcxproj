@@ -37,6 +37,7 @@
     <ClInclude Include="Include\Hookshot\ApiWindows.h" />
     <ClInclude Include="Include\Hookshot\CodeInjector.h" />
     <ClInclude Include="Include\Hookshot\Globals.h" />
+    <ClInclude Include="Include\Hookshot\HookResult.h" />
     <ClInclude Include="Include\Hookshot\Inject.h" />
     <ClInclude Include="Include\Hookshot\InjectLanding.h" />
     <ClInclude Include="Include\Hookshot\InjectResult.h" />

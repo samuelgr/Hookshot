@@ -68,6 +68,12 @@ namespace Hookshot
         /// Length of `kStrLibraryInitializationProcName` in character units, including terminating null character.
         static const size_t kLenLibraryInitializationProcName;
 
+        /// Base name of the common directory-wide hook module.
+        static const TCHAR kStrCommonHookModuleBaseName[];
+
+        /// Length of `kStrCommonHookModuleBaseName` in character units, including terminating null character.
+        static const size_t kLenCommonHookModuleBaseName;
+
 
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 

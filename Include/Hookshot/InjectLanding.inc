@@ -19,11 +19,14 @@ __HOOKSHOT_INJECTLANDING_INC EQU 1
 
 IFDEF HOOKSHOT64
 EXTRN InjectLandingCleanup:PROC
+EXTRN InjectLandingHandleSetHooksResult:PROC
 EXTRN InjectLandingSetHooks:PROC
 ELSE
 InjectLanding TEXTEQU <_InjectLanding@0>
 EXTRN _InjectLandingCleanup@4:PROC
 InjectLandingCleanup TEXTEQU <_InjectLandingCleanup@4>
+EXTRN _InjectLandingHandleSetHooksResult@4:PROC
+InjectLandingHandleSetHooksResult TEXTEQU <_InjectLandingHandleSetHooksResult@4>
 EXTRN _InjectLandingSetHooks@0:PROC
 InjectLandingSetHooks TEXTEQU <_InjectLandingSetHooks@0>
 ENDIF
