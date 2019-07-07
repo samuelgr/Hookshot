@@ -101,7 +101,6 @@ extern "C" EHookResult APIENTRY InjectLandingSetHooks(void)
     }
 
     // Second, try a common file in the same directory as the executable.
-    //
     {
         TCHAR* const lastBackslash = _tcsrchr(hookModuleFileName, _T('\\'));
 
