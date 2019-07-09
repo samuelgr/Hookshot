@@ -16,7 +16,7 @@
 #include "InjectResult.h"
 #include "Message.h"
 #include "ProcessInjector.h"
-#include "Strings.h"
+#include "StringUtilities.h"
 #include "TemporaryBuffers.h"
 
 #include <cstddef>

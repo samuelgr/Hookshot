@@ -33,10 +33,10 @@
     <ClCompile Include="Source\ProcessInjector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Strings.cpp">
+    <ClCompile Include="Source\TemporaryBuffers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TemporaryBuffers.cpp">
+    <ClCompile Include="Source\StringUtilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,6 +80,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Hookshot\TemporaryBuffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Hookshot\StringUtilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

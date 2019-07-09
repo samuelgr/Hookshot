@@ -19,103 +19,81 @@
 
 namespace Hookshot
 {
-    /// Namespace for all constant string literals.
-    /// Includes some class utility methods for convenience.
-    struct Strings
+    namespace Strings
     {
         // -------- CONSTANTS ---------------------------------------------- //
-        
+
         /// Character that occurs at the start of a command-line argument to indicate it is a file mapping handle rather than an executable name.
-        static const TCHAR kCharCmdlineIndicatorFileMappingHandle;
-        
+        static constexpr TCHAR kCharCmdlineIndicatorFileMappingHandle = _T('|');
+
         /// Name of the section in the injection binary that contains injection code.
         /// PE header encodes section name strings in UTF-8, so each character must directly be specified as being one byte.
         /// Per PE header specs, maximum string length is 8 including terminating null character.
-        static const uint8_t kStrInjectCodeSectionName[];
+#ifdef HOOKSHOT64
+        static constexpr uint8_t kStrInjectCodeSectionName[] = "_CODE64";
+#else
+        static constexpr uint8_t kStrInjectCodeSectionName[] = "_CODE32";
+#endif
 
         /// Length of `kStrInjectCodeSectionName` in character units, including terminating null character.
-        static const size_t kLenInjectCodeSectionName;
+        static constexpr size_t kLenInjectCodeSectionName = _countof(kStrInjectCodeSectionName);
 
         /// Name of the section in the injection binary that contains injection code metadata.
         /// PE header encodes section name strings in UTF-8, so each character must directly be specified as being one byte.
         /// Per PE header specs, maximum string length is 8 including terminating null character.
-        static const uint8_t kStrInjectMetaSectionName[];
+#ifdef HOOKSHOT64
+        static constexpr uint8_t kStrInjectMetaSectionName[] = "_META64";
+#else
+        static constexpr uint8_t kStrInjectMetaSectionName[] = "_META32";
+#endif
 
         /// Length of `kStrInjectMetaSectionName` in character units, including terminating null character.
-        static const size_t kLenInjectMetaSectionName;
+        static constexpr size_t kLenInjectMetaSectionName = _countof(kStrInjectMetaSectionName);
 
         /// File extension of the binary containing injection code and metadata.
-        static const TCHAR kStrInjectBinaryExtension[];
+#ifdef HOOKSHOT64
+        static constexpr TCHAR kStrInjectBinaryExtension[] = _T(".64.bin");
+#else
+        static constexpr TCHAR kStrInjectBinaryExtension[] = _T(".32.bin");
+#endif
 
         /// Length of `kStrInjectBinaryExtension` in character units, including terminating null character.
-        static const size_t kLenInjectBinaryExtension;
+        static constexpr size_t kLenInjectBinaryExtension = _countof(kStrInjectBinaryExtension);
 
         /// File extension of the dynamic-link library to be loaded by the injected process.
-        static const TCHAR kStrInjectDynamicLinkLibraryExtension[];
+#ifdef HOOKSHOT64
+        static constexpr TCHAR kStrInjectDynamicLinkLibraryExtension[] = _T(".64.dll");
+#else
+        static constexpr TCHAR kStrInjectDynamicLinkLibraryExtension[] = _T(".32.dll");
+#endif
 
         /// Length of `kStrInjectDynamicLinkLibraryExtension` in character units, including terminating null character.
-        static const size_t kLenInjectDynamicLinkLibraryExtension;
+        static constexpr size_t kLenInjectDynamicLinkLibraryExtension = _countof(kStrInjectDynamicLinkLibraryExtension);
 
         /// File extension of the executable to spawn in the event of attempting to inject a process with mismatched architecture.
-        static const TCHAR kStrInjectExecutableOtherArchitecture[];
+#ifdef HOOKSHOT64
+        static constexpr TCHAR kStrInjectExecutableOtherArchitecture[] = _T(".32.exe");
+#else
+        static constexpr TCHAR kStrInjectExecutableOtherArchitecture[] = _T(".64.exe");
+#endif
 
         /// Length of `kStrInjectExecutableOtherArchitecture` in character units, including terminating null character.
-        static const size_t kLenInjectExecutableOtherArchitecture;
+        static constexpr size_t kLenInjectExecutableOtherArchitecture = _countof(kStrInjectExecutableOtherArchitecture);
 
         /// Function name of the initialization procedure exported by the Hookshot library that gets injected.
-        static const char kStrLibraryInitializationProcName[];
+#ifdef HOOKSHOT64
+        static constexpr char kStrLibraryInitializationProcName[] = "DllInit";
+#else
+        static constexpr char kStrLibraryInitializationProcName[] = "_DllInit@0";
+#endif
 
         /// Length of `kStrLibraryInitializationProcName` in character units, including terminating null character.
-        static const size_t kLenLibraryInitializationProcName;
+        static constexpr size_t kLenLibraryInitializationProcName = _countof(kStrLibraryInitializationProcName);
 
         /// Base name of the common directory-wide hook module.
-        static const TCHAR kStrCommonHookModuleBaseName[];
+        static constexpr TCHAR kStrCommonHookModuleBaseName[] = _T("Common");
 
         /// Length of `kStrCommonHookModuleBaseName` in character units, including terminating null character.
-        static const size_t kLenCommonHookModuleBaseName;
-
-
-        // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
-
-        /// Default constructor. Should never be invoked.
-        Strings(void) = delete;
-
-        
-        // -------- CLASS METHODS ------------------------------------------ //
-
-        /// Generates the expected filename for a Hookshot-related file, given the desired extension and extension length.
-        /// @param [out] buf Buffer to be filled with the filename.
-        /// @param [in] numchars Size of the buffer, in character units.
-        /// @param [in] extension String containing the extension to append to the Hookshot base name.
-        /// @param [in] extlen Length of the supplied extension.
-        /// @return `true` on success, `false` on failure.
-        static bool FillCompleteFilename(TCHAR* const buf, const size_t numchars, const TCHAR* const extension, const size_t extlen);
-        
-        /// Generates the expected filename of the file containing the injected code that is to be loaded and places it into the specified buffer.
-        /// @param [out] buf Buffer to be filled with the filename.
-        /// @param [in] numchars Size of the buffer, in character units.
-        /// @return `true` on success, `false` on failure.
-        static inline bool FillInjectBinaryFilename(TCHAR* const buf, const size_t numchars)
-        {
-            return FillCompleteFilename(buf, numchars, kStrInjectBinaryExtension, kLenInjectBinaryExtension);
-        }
-
-        /// Generates the expected filename of the dynamic-link library to be loaded by the injected process and places it into the specified buffer.
-        /// @param [out] buf Buffer to be filled with the filename.
-        /// @param [in] numchars Size of the buffer, in character units.
-        /// @return `true` on success, `false` on failure.
-        static inline bool FillInjectDynamicLinkLibraryFilename(TCHAR* const buf, const size_t numchars)
-        {
-            return FillCompleteFilename(buf, numchars, kStrInjectDynamicLinkLibraryExtension, kLenInjectDynamicLinkLibraryExtension);
-        }
-
-        /// Generates the expected filename of the executable to spawn in the event of attempting to inject a process with mismatched architecture and places it into the specified buffer.
-        /// @param [out] buf Buffer to be filled with the filename.
-        /// @param [in] numchars Size of the buffer, in character units.
-        /// @return `true` on success, `false` on failure.
-        static inline bool FillInjectExecutableOtherArchitectureFilename(TCHAR* const buf, const size_t numchars)
-        {
-            return FillCompleteFilename(buf, numchars, kStrInjectExecutableOtherArchitecture, kLenInjectExecutableOtherArchitecture);
-        }
+        static constexpr size_t kLenCommonHookModuleBaseName = _countof(kStrCommonHookModuleBaseName);
     };
 }

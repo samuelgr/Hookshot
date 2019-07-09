@@ -15,7 +15,7 @@
 #include "CodeInjector.h"
 #include "Inject.h"
 #include "InjectResult.h"
-#include "Strings.h"
+#include "StringUtilities.h"
 #include "TemporaryBuffers.h"
 
 #include <cstddef>

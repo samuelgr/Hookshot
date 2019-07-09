@@ -26,7 +26,7 @@
     <ClCompile Include="Source\InjectLanding.cpp" />
     <ClCompile Include="Source\Message.cpp" />
     <ClCompile Include="Source\ProcessInjector.cpp" />
-    <ClCompile Include="Source\Strings.cpp" />
+    <ClCompile Include="Source\StringUtilities.cpp" />
     <ClCompile Include="Source\TemporaryBuffers.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -44,6 +44,7 @@
     <ClInclude Include="Include\Hookshot\Message.h" />
     <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Strings.h" />
+    <ClInclude Include="Include\Hookshot\StringUtilities.h" />
     <ClInclude Include="Include\Hookshot\TemporaryBuffers.h" />
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotDll.h" />
@@ -108,26 +109,26 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir>$(ProjectDir)Output\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir>$(ProjectDir)Output\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir>$(ProjectDir)Output\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
+    <OutDir>$(ProjectDir)Output\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
@@ -146,7 +147,7 @@
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(ProjectDir)Resources\$(SolutionName).h;$(ProjectDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <SupportJustMyCode>false</SupportJustMyCode>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -181,7 +182,7 @@
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(ProjectDir)Resources\$(SolutionName).h;$(ProjectDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <SupportJustMyCode>false</SupportJustMyCode>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -215,7 +216,7 @@
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(ProjectDir)Resources\$(SolutionName).h;$(ProjectDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -250,7 +251,7 @@
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(ProjectDir)Resources\$(SolutionName).h;$(ProjectDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
