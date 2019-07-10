@@ -29,10 +29,10 @@ namespace Hookshot
         // -------- CONSTANTS ---------------------------------------------- //
 
         /// Specifies the total size of all temporary buffers, in bytes.
-        static const unsigned int kBuffersTotalNumBytes = 8 * 1024 * 1024;
+        static constexpr unsigned int kBuffersTotalNumBytes = 8 * 1024 * 1024;
 
         /// Specifies the number of temporary buffers to create.
-        static const unsigned int kBuffersCount = 32;
+        static constexpr unsigned int kBuffersCount = 32;
 
 
     private:

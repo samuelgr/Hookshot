@@ -57,5 +57,21 @@ namespace Hookshot
         {
             return FillCompleteFilename(buf, numchars, kStrInjectExecutableOtherArchitecture, kLenInjectExecutableOtherArchitecture);
         }
+
+        /// Generates the expected filename of the executable-specific hook module.
+        /// Executable-specific hook module name = (executable directory)\(executable name).(base name of this DLL)
+        /// For example, 32-bit app C:\PathToExecutable\Executable.exe -> C:\PathToExecutable\Executable.exe.Hookshot.32.dll, using Hookshot's default filenames.
+        /// @param [out] buf Buffer to be filled with the filename.
+        /// @param [in] numchars Size of the buffer, in character units.
+        /// @return `true` on success, `false` on failure.
+        bool FillHookModuleFilenameUnique(TCHAR* const buf, const size_t numchars);
+
+        /// Generates the expected filename of the directory-common hook module.
+        /// Directory-common hook module name = (executable directory)\Common.(base name of this DLL)
+        /// For example, 32-bit app C:\PathToExecutable\Executable.exe -> C:\PathToExecutable\Common.Hookshot.32.dll, using Hookshot's default filenames.
+        /// @param [out] buf Buffer to be filled with the filename.
+        /// @param [in] numchars Size of the buffer, in character units.
+        /// @return `true` on success, `false` on failure.
+        bool FillHookModuleFilenameCommon(TCHAR* const buf, const size_t numchars);
     };
 }

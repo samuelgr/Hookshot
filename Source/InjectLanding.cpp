@@ -15,7 +15,7 @@
 #include "HookResult.h"
 #include "Inject.h"
 #include "Message.h"
-#include "Strings.h"
+#include "StringUtilities.h"
 #include "TemporaryBuffers.h"
 
 #include <cstddef>
@@ -74,6 +74,16 @@ static EHookResult InjectLandingLoadAndInitializeHookModule(const TCHAR* hookMod
     }
 }
 
+static void InjectLandingFillUniqueHookModuleName()
+{
+
+}
+
+static void InjectLandingFillCommonHookModuleName()
+{
+
+}
+
 
 // -------- FUNCTIONS ------------------------------------------------------ //
 // See "InjectLanding.h" for documentation.
@@ -108,49 +118,24 @@ extern "C" EHookResult APIENTRY InjectLandingSetHooks(void)
     }
 #endif
 
-    // Obtain the module base name for this library.
-    // This will be appended to both base names that need to be tried to figure out 
-    TemporaryBuffer<TCHAR> hookModuleExtension;
-    GetModuleBaseName(GetCurrentProcess(), Globals::GetInstanceHandle(), hookModuleExtension, hookModuleExtension.Count());
-    
-    // All attempts will be looking for files in the same directory as the executable.
+    // First, try the executable-specific hook module filename.
+    // Second, try the directory-common hook module filename.
+    // If both fail, there is no hook module to load.
+
     TemporaryBuffer<TCHAR> hookModuleFileName;
-    GetModuleFileName(NULL, hookModuleFileName, hookModuleFileName.Count());
 
-    // First, try the name of the executable plus the name of this module.
-    // This is in case executable-specific hooks exist.
-    if (0 != _tcscat_s(hookModuleFileName, hookModuleFileName.Count(), _T(".")))
-        return EHookResult::HookResultInsufficientMemoryFilenames;
-    
-    if (0 != _tcscat_s(hookModuleFileName, hookModuleFileName.Count(), hookModuleExtension))
-        return EHookResult::HookResultInsufficientMemoryFilenames;
-    
-    if (EHookResult::HookResultSuccess == InjectLandingLoadAndInitializeHookModule(hookModuleFileName))
-        return EHookResult::HookResultSuccess;
-
-    // Second, try a common file in the same directory as the executable.
-    {
-        TCHAR* const lastBackslash = _tcsrchr(hookModuleFileName, _T('\\'));
-
-        if (NULL == lastBackslash)
-            hookModuleFileName[0] = _T('\0');
-        else
-            lastBackslash[1] = _T('\0');
-    }
-
-    if (0 != _tcscat_s(hookModuleFileName, hookModuleFileName.Count(), Strings::kStrCommonHookModuleBaseName))
-        return EHookResult::HookResultInsufficientMemoryFilenames;
-
-    if (0 != _tcscat_s(hookModuleFileName, hookModuleFileName.Count(), _T(".")))
-        return EHookResult::HookResultInsufficientMemoryFilenames;
-
-    if (0 != _tcscat_s(hookModuleFileName, hookModuleFileName.Count(), hookModuleExtension))
+    if (false == Strings::FillHookModuleFilenameUnique(hookModuleFileName, hookModuleFileName.Count()))
         return EHookResult::HookResultInsufficientMemoryFilenames;
 
     if (EHookResult::HookResultSuccess == InjectLandingLoadAndInitializeHookModule(hookModuleFileName))
         return EHookResult::HookResultSuccess;
 
-    // No hook modules could be loaded.
+    if (false == Strings::FillHookModuleFilenameCommon(hookModuleFileName, hookModuleFileName.Count()))
+        return EHookResult::HookResultInsufficientMemoryFilenames;
+
+    if (EHookResult::HookResultSuccess == InjectLandingLoadAndInitializeHookModule(hookModuleFileName))
+        return EHookResult::HookResultSuccess;
+
     Message::OutputFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_NO_HOOK_MODULE);
     return EHookResult::HookResultFailure;
 }
