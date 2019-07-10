@@ -32,10 +32,6 @@ InjectLanding                               PROC PUBLIC
     ; Call the injection setup function to set up all hooks.
     call0ParamStdCall InjectLandingSetHooks
 
-    ; Call the injection result handling function.
-    mov scx, sax
-    call1ParamStdCall InjectLandingHandleSetHooksResult
-    
     ; Call the injection cleanup function to free all allocated memory for injection purposes.
     mov scx, sbp
     call1ParamStdCall InjectLandingCleanup

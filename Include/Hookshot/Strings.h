@@ -95,5 +95,15 @@ namespace Hookshot
 
         /// Length of `kStrCommonHookModuleBaseName` in character units, including terminating null character.
         static constexpr size_t kLenCommonHookModuleBaseName = _countof(kStrCommonHookModuleBaseName);
+
+        /// Function name of the hook library's exported initialization routine.
+#ifdef HOOKSHOT64
+        static constexpr char kStrHookLibraryInitFuncName[] = "HookshotMain";
+#else
+        static constexpr char kStrHookLibraryInitFuncName[] = "_HookshotMain@4";
+#endif
+
+        /// Length of `kStrHookLibraryInitFuncName` in character units, including terminating null character.
+        static constexpr size_t kLenHookLibraryInitFuncName = _countof(kStrHookLibraryInitFuncName);
     };
 }

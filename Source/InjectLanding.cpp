@@ -19,9 +19,60 @@
 #include "TemporaryBuffers.h"
 
 #include <cstddef>
+#include <hookshot.h>
 #include <psapi.h>
 
 using namespace Hookshot;
+
+
+// -------- INTERNAL TYPES ------------------------------------------------- //
+
+/// Function signature for the hook library initialization function.
+typedef int(APIENTRY* THookModuleInitProc)(IHookConfig*);
+
+
+// -------- INTERNAL FUNCTIONS --------------------------------------------- //
+
+/// Attempts to load and initialize the named hook module.
+/// @param [in] hookModuleFileName File name of the hook module to load and initialize.
+/// @return Indicator of the result of the interaction.
+static EHookResult InjectLandingLoadAndInitializeHookModule(const TCHAR* hookModuleFileName)
+{
+    const HMODULE hookModule = LoadLibrary(hookModuleFileName);
+    THookModuleInitProc initProc = NULL;
+    int initProcResult = 0;
+
+    if (NULL == hookModule)
+    {
+        const DWORD lastError = GetLastError();
+        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_CANNOT_LOAD_HOOK_MODULE_FORMAT, GetLastError(), (TCHAR*)hookModuleFileName);
+        SetLastError(lastError);
+        return EHookResult::HookResultCannotLoadHookModule;
+    }
+
+    initProc = (THookModuleInitProc)GetProcAddress(hookModule, Strings::kStrHookLibraryInitFuncName);
+
+    if (NULL == initProc)
+    {
+        const DWORD lastError = GetLastError();
+        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_MALFORMED_HOOKSHOT_MODULE_FORMAT, GetLastError(), (TCHAR*)hookModuleFileName);
+        SetLastError(lastError);
+        return EHookResult::HookResultMalformedHookModule;
+    }
+
+    initProcResult = initProc(NULL);
+    
+    if (0 == initProcResult)
+    {
+        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_INFO_HOOK_MODULE_SUCCESS_FORMAT, (TCHAR*)hookModuleFileName);
+        return EHookResult::HookResultSuccess;
+    }
+    else
+    {
+        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_HOOK_MODULE_FAILURE_FORMAT, initProcResult, (TCHAR*)hookModuleFileName);
+        return EHookResult::HookResultInitializationFailed;
+    }
+}
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
@@ -40,14 +91,6 @@ extern "C" void APIENTRY InjectLandingCleanup(const SInjectData* const injectDat
         if (NULL != cleanupBaseAddress[i])
             VirtualFree(cleanupBaseAddress[i], 0, MEM_RELEASE);
     }
-}
-
-// --------
-
-extern "C" void APIENTRY InjectLandingHandleSetHooksResult(EHookResult result)
-{
-    if (EHookResult::HookResultSuccess != result)
-        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_FAILED_SET_HOOKS_FORMAT, result, GetLastError());
 }
 
 // --------
@@ -82,23 +125,8 @@ extern "C" EHookResult APIENTRY InjectLandingSetHooks(void)
     if (0 != _tcscat_s(hookModuleFileName, hookModuleFileName.Count(), hookModuleExtension))
         return EHookResult::HookResultInsufficientMemoryFilenames;
     
-    // Attempt to load the module.
-    {
-        const HMODULE hookModule = LoadLibrary(hookModuleFileName);
-
-        if (NULL == hookModule)
-        {
-            const DWORD lastError = GetLastError();
-            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_CANNOT_LOAD_HOOK_MODULE_FORMAT, GetLastError(), (TCHAR*)hookModuleFileName);
-            SetLastError(lastError);
-        }
-        else
-        {
-            // Module loaded successfully.
-            // Do other stuff here.
-            return EHookResult::HookResultSuccess;
-        }
-    }
+    if (EHookResult::HookResultSuccess == InjectLandingLoadAndInitializeHookModule(hookModuleFileName))
+        return EHookResult::HookResultSuccess;
 
     // Second, try a common file in the same directory as the executable.
     {
@@ -119,25 +147,10 @@ extern "C" EHookResult APIENTRY InjectLandingSetHooks(void)
     if (0 != _tcscat_s(hookModuleFileName, hookModuleFileName.Count(), hookModuleExtension))
         return EHookResult::HookResultInsufficientMemoryFilenames;
 
-    // Attempt to load the module.
-    {
-        const HMODULE hookModule = LoadLibrary(hookModuleFileName);
+    if (EHookResult::HookResultSuccess == InjectLandingLoadAndInitializeHookModule(hookModuleFileName))
+        return EHookResult::HookResultSuccess;
 
-        if (NULL == hookModule)
-        {
-            const DWORD lastError = GetLastError();
-            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_CANNOT_LOAD_HOOK_MODULE_FORMAT, GetLastError(), (TCHAR*)hookModuleFileName);
-            SetLastError(lastError);
-        }
-        else
-        {
-            // Module loaded successfully.
-            // Do other stuff here.
-            return EHookResult::HookResultSuccess;
-        }
-    }
-
-    // At this point, both attempts have failed.
-    // No hooks file could be loaded.
-    return EHookResult::HookResultCannotLoadHookModule;
+    // No hook modules could be loaded.
+    Message::OutputFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_NO_HOOK_MODULE);
+    return EHookResult::HookResultFailure;
 }

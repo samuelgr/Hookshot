@@ -40,10 +40,6 @@ extern "C" void APIENTRY InjectLanding(void);
 /// @param [in] injectData Data used during the injection process.
 extern "C" void APIENTRY InjectLandingCleanup(const Hookshot::SInjectData* const injectData);
 
-/// Handles the result of an attempt to set up hooks.
-/// @param [in] result Code indicating the result of a hook setting operation.
-extern "C" void APIENTRY InjectLandingHandleSetHooksResult(Hookshot::EHookResult result);
-
 /// Performs all operations needed to read hook configuration information and set up hooks.
 /// @return Code indicating the result of the operation.
 extern "C" Hookshot::EHookResult APIENTRY InjectLandingSetHooks(void);

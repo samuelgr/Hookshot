@@ -94,6 +94,9 @@
     <ClInclude Include="Include\Hookshot\StringUtilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Hookshot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Source\InjectLanding.asm">

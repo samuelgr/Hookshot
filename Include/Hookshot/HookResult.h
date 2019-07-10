@@ -28,6 +28,8 @@ namespace Hookshot
         // Issues encountered while trying to load the modules that contain hooks
         HookResultInsufficientMemoryFilenames,                      ///< Insufficient buffer space is available to generate hook module filenames.
         HookResultCannotLoadHookModule,                             ///< Failed to load the module that contains hooks.
+        HookResultMalformedHookModule,                              ///< Hook module is malformed and cannot be used.
+        HookResultInitializationFailed,                             ///< Hook module failed to initialize and returned a non-zero code.
 
         // Maximum value in this enumeration.
         HookResultMaximumValue                                      ///< Sentinel value, not used as an error code.
