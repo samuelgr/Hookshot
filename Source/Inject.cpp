@@ -174,15 +174,13 @@ namespace Hookshot
                 return;
             }
 
-            // Check the validity and version-correctness (once implemented) of the metadata section.
+            // Check the validity and version-correctness of the metadata section.
             if (kInjectionMetaMagicValue != sectionMeta->magic)
             {
                 initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
                 return;
             }
 
-            // Check the version code in the metadata section.
-            // Currently not used and must be zero.
             if (0 != sectionMeta->version)
             {
                 initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;

@@ -39,49 +39,31 @@ typedef int(APIENTRY* THookModuleInitProc)(IHookConfig*);
 static EHookResult InjectLandingLoadAndInitializeHookModule(const TCHAR* hookModuleFileName)
 {
     const HMODULE hookModule = LoadLibrary(hookModuleFileName);
-    THookModuleInitProc initProc = NULL;
-    int initProcResult = 0;
 
     if (NULL == hookModule)
     {
-        const DWORD lastError = GetLastError();
         Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_CANNOT_LOAD_HOOK_MODULE_FORMAT, GetLastError(), (TCHAR*)hookModuleFileName);
-        SetLastError(lastError);
         return EHookResult::HookResultCannotLoadHookModule;
     }
 
-    initProc = (THookModuleInitProc)GetProcAddress(hookModule, Strings::kStrHookLibraryInitFuncName);
+    const THookModuleInitProc initProc = (THookModuleInitProc)GetProcAddress(hookModule, Strings::kStrHookLibraryInitFuncName);
 
     if (NULL == initProc)
     {
-        const DWORD lastError = GetLastError();
         Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_MALFORMED_HOOKSHOT_MODULE_FORMAT, GetLastError(), (TCHAR*)hookModuleFileName);
-        SetLastError(lastError);
         return EHookResult::HookResultMalformedHookModule;
     }
 
-    initProcResult = initProc(NULL);
-    
-    if (0 == initProcResult)
-    {
-        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_INFO_HOOK_MODULE_SUCCESS_FORMAT, (TCHAR*)hookModuleFileName);
-        return EHookResult::HookResultSuccess;
-    }
-    else
+    const int initProcResult = initProc(NULL);
+
+    if (0 != initProcResult)
     {
         Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_HOOK_MODULE_FAILURE_FORMAT, initProcResult, (TCHAR*)hookModuleFileName);
         return EHookResult::HookResultInitializationFailed;
     }
-}
 
-static void InjectLandingFillUniqueHookModuleName()
-{
-
-}
-
-static void InjectLandingFillCommonHookModuleName()
-{
-
+    Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_INFO_HOOK_MODULE_SUCCESS_FORMAT, (TCHAR*)hookModuleFileName);
+    return EHookResult::HookResultSuccess;
 }
 
 
@@ -90,12 +72,11 @@ static void InjectLandingFillCommonHookModuleName()
 
 extern "C" void APIENTRY InjectLandingCleanup(const SInjectData* const injectData)
 {
-    // Copy the array of addresses to free.
+    // Before cleaning up, set aside the array of addresses to free.
     // This is needed because freeing any one of these could invalidate the injectData pointer.
     void* cleanupBaseAddress[_countof(injectData->cleanupBaseAddress)];
     memcpy((void*)cleanupBaseAddress, (void*)injectData->cleanupBaseAddress, sizeof(cleanupBaseAddress));
-    
-    // Free all requested buffers.
+
     for (size_t i = 0; i < _countof(cleanupBaseAddress); ++i)
     {
         if (NULL != cleanupBaseAddress[i])
@@ -108,7 +89,6 @@ extern "C" void APIENTRY InjectLandingCleanup(const SInjectData* const injectDat
 extern "C" EHookResult APIENTRY InjectLandingSetHooks(void)
 {
 #ifdef HOOKSHOT_DEBUG
-    // For debugging purposes emit a message indicating the current process ID to facilitate attaching a debugger.
     if (FALSE == IsDebuggerPresent())
     {
         TemporaryBuffer<TCHAR> executableBaseName;
