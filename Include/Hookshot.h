@@ -14,11 +14,18 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <tchar.h>
+#include <string>
 
 
 namespace Hookshot
 {
+    /// String type used to identify functions and DLLs by name.
+#ifdef UNICODE
+    typedef std::wstring THookString;
+#else
+    typedef std::string THookString;
+#endif
+
     /// Opaque handle used to identify hooks.
     typedef int32_t THookID;
 
@@ -31,6 +38,9 @@ namespace Hookshot
     {
         // Success
         HookStatusSuccess = 0,                                      ///< Hook was installed successfully.
+
+        // General failure
+        HookStatusFailure,                                          ///< Hook has an unspecified problem.
 
         // Argument errors
         HookStatusOutOfRange,                                       ///< Argument provided (i.e. the hook handle) is out of range.
@@ -71,7 +81,7 @@ namespace Hookshot
         /// It is recommended that the hook library record hook identifiers in convenient locations to avoid the need to call this method.
         /// @param [in] dllName Name of the DLL that exports the function that was hooked.
         /// @param [in] exportFuncName Exported function name of the function that was hooked.
-        virtual THookID IdentifyHook(const TCHAR* const dllName, const TCHAR* const exportFuncName) = 0;
+        virtual THookID IdentifyHook(const THookString dllName, const THookString exportFuncName) = 0;
         
         /// Causes Hookshot to attempt to install a hook on the specified function.
         /// Once installed, the hook cannot be modified or deleted.
@@ -81,6 +91,6 @@ namespace Hookshot
         /// @param [in] dllName Name of the DLL that exports the function to be hooked.
         /// @param [in] exportFuncName Exported function name of the function to be hooked.
         /// @return Opaque handle used to identify the newly-installed hook, or a negative value to indicate an error.
-        virtual THookID SetHook(const TFunc hookFunc, const TCHAR* const dllName, const TCHAR* const exportFuncName) = 0;
+        virtual THookID SetHook(const TFunc hookFunc, const THookString dllName, const THookString exportFuncName) = 0;
     };
 }
