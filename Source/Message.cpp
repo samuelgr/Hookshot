@@ -23,16 +23,6 @@
 
 namespace Hookshot
 {
-    // -------- CLASS VARIABLES -------------------------------------------- //
-    // See "Message.h" for documentation.
-
-#if HOOKSHOT_DEBUG
-    const EMessageSeverity Message::kMinimumSeverityForOutput = EMessageSeverity::MessageSeverityInfo;
-#else
-    const EMessageSeverity Message::kMinimumSeverityForOutput = EMessageSeverity::MessageSeverityError;
-#endif
-
-
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "Message.h" for documentation.
 

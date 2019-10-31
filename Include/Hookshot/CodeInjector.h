@@ -33,7 +33,7 @@ namespace Hookshot
         // -------- CONSTANTS ---------------------------------------------- //
         
         /// Maximum number of bytes that the trampoline code is allowed to required.
-        static const unsigned int kMaxTrampolineCodeBytes = 128;
+        static constexpr unsigned int kMaxTrampolineCodeBytes = 128;
 
         
     private:

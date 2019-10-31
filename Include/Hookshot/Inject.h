@@ -140,7 +140,7 @@ namespace Hookshot
         // -------- CONSTANTS ---------------------------------------------- //
         
         /// Maximum size, in bytes, of the binary files that are loaded.
-        static const size_t kMaxInjectBinaryFileSize = 4096;
+        static constexpr size_t kMaxInjectBinaryFileSize = 4096;
 
 
     private:

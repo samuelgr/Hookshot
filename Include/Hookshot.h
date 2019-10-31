@@ -29,6 +29,9 @@ namespace Hookshot
     /// Opaque handle used to identify hooks.
     typedef int32_t THookID;
 
+    /// Invalid hook identifier.
+    static constexpr THookID kInvalidHookID = (THookID)-1;
+
     /// Address type for identifying the starting address of functions.
     /// Must be cast somehow before being invoked.
     typedef const void* TFunc;

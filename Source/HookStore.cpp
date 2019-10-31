@@ -44,12 +44,12 @@ namespace Hookshot
         TDllMap::iterator dllFunctionMap = mapDllNameToFunctionMap.find(dllName);
 
         if (mapDllNameToFunctionMap.end() == dllFunctionMap)
-            return -1;
+            return kInvalidHookID;
 
         TFunctionMap::iterator functionHookMap = dllFunctionMap->second.find(exportFuncName);
 
         if (dllFunctionMap->second.end() == functionHookMap)
-            return -2;
+            return kInvalidHookID;
 
         return functionHookMap->second;
     }
@@ -71,7 +71,7 @@ namespace Hookshot
         TFunctionMap::iterator functionHookMap = dllFunctionMap->second.find(exportFuncName);
 
         if (dllFunctionMap->second.end() != functionHookMap)
-            return -1;
+            return kInvalidHookID;
 
         dllFunctionMap->second.emplace(exportFuncName, 0);
         return 0;

@@ -32,15 +32,18 @@ namespace Hookshot
     /// All methods are class methods.
     class Message
     {
-    private:
-        // -------- CLASS VARIABLES ---------------------------------------- //
+    public:
+        // -------- CONSTANTS ---------------------------------------------- //
 
         /// Specifies the minimum severity required to output a message.
         /// Messages below this severity are ignored.
-        static const EMessageSeverity kMinimumSeverityForOutput;
+#if HOOKSHOT_DEBUG
+        static constexpr EMessageSeverity kMinimumSeverityForOutput = EMessageSeverity::MessageSeverityInfo;
+#else
+        static constexpr EMessageSeverity kMinimumSeverityForOutput = EMessageSeverity::MessageSeverityError;
+#endif
 
-        
-    public:
+
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
         /// Default constructor. Should never be invoked.

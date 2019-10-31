@@ -25,7 +25,7 @@ namespace Hookshot
     // -------- INTERNAL CONSTANTS ----------------------------------------- //
 
     /// Magic value that identifies the metadata section of a loaded binary file.
-    static const DWORD kInjectionMetaMagicValue = 0x51525354;
+    static constexpr DWORD kInjectionMetaMagicValue = 0x51525354;
 
 
     // -------- INTERNAL TYPES --------------------------------------------- //
