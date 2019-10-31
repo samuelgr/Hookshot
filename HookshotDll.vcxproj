@@ -29,6 +29,7 @@
     <ClCompile Include="Source\ProcessInjector.cpp" />
     <ClCompile Include="Source\StringUtilities.cpp" />
     <ClCompile Include="Source\TemporaryBuffers.cpp" />
+    <ClCompile Include="Source\Trampoline.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc" />
@@ -49,6 +50,7 @@
     <ClInclude Include="Include\Hookshot\Strings.h" />
     <ClInclude Include="Include\Hookshot\StringUtilities.h" />
     <ClInclude Include="Include\Hookshot\TemporaryBuffers.h" />
+    <ClInclude Include="Include\Hookshot\Trampoline.h" />
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotDll.h" />
   </ItemGroup>

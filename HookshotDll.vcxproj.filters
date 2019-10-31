@@ -45,6 +45,9 @@
     <ClCompile Include="Source\HookStore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Trampoline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc">
@@ -101,6 +104,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Hookshot\HookStore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Hookshot\Trampoline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
