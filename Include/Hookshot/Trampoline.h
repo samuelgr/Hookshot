@@ -18,6 +18,7 @@
 namespace Hookshot
 {
     /// Generates and holds trampoline code used to invoke the original functionality of a hooked function.
+    /// In order to be useful, the memory location where a Trampoline object is stored must have execute permission.
     class Trampoline
     {
     private:
@@ -26,6 +27,18 @@ namespace Hookshot
         /// Size of the trampoline, in bytes.
         /// Must be divisible by 16.
         static constexpr size_t kTrampolineSizeBytes = 32;
+
+        /// Size of the trampoline, in words.
+        static constexpr size_t kTrampolineSizeWords = kTrampolineSizeBytes / sizeof(uint16_t);
+
+        /// Size of the trampoline, in doublewords.
+        static constexpr size_t kTrampolineSizeDwords = kTrampolineSizeBytes / sizeof(uint32_t);
+
+        /// Size of the trampoline, in quadwords.
+        static constexpr size_t kTrampolineSizeQwords = kTrampolineSizeBytes / sizeof(uint64_t);
+
+        /// Size of the trampoline, in pointers.
+        static constexpr size_t kTrampolineSizePtrs = kTrampolineSizeBytes / sizeof(size_t);
 
         /// Initial value to be placed at the start of the trampoline code to indicate it is uninitialized.
         /// Consists of a "ud2" instruction followed by a two-byte "nop" instruction.
@@ -43,11 +56,11 @@ namespace Hookshot
         /// Large enough to hold the entire code region, and allows different access granularities.
         union UTrampolineCode
         {
-            uint8_t byte[kTrampolineSizeBytes / sizeof(uint8_t)];       ///< Byte-level access
-            uint16_t word[kTrampolineSizeBytes / sizeof(uint16_t)];     ///< Word-level access
-            uint32_t dword[kTrampolineSizeBytes / sizeof(uint32_t)];    ///< Doubleword-level access
-            uint64_t qword[kTrampolineSizeBytes / sizeof(uint64_t)];    ///< Quadword-level access
-            size_t ptr[kTrampolineSizeBytes / sizeof(size_t)];          ///< Pointer-sized access
+            uint8_t byte[kTrampolineSizeBytes];                         ///< Byte-level access
+            uint16_t word[kTrampolineSizeWords];                        ///< Word-level access
+            uint32_t dword[kTrampolineSizeDwords];                      ///< Doubleword-level access
+            uint64_t qword[kTrampolineSizeQwords];                      ///< Quadword-level access
+            size_t ptr[kTrampolineSizePtrs];                            ///< Pointer-sized access
         };
 
 

@@ -30,6 +30,7 @@
     <ClCompile Include="Source\StringUtilities.cpp" />
     <ClCompile Include="Source\TemporaryBuffers.cpp" />
     <ClCompile Include="Source\Trampoline.cpp" />
+    <ClCompile Include="Source\TrampolineStore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc" />
@@ -51,6 +52,7 @@
     <ClInclude Include="Include\Hookshot\StringUtilities.h" />
     <ClInclude Include="Include\Hookshot\TemporaryBuffers.h" />
     <ClInclude Include="Include\Hookshot\Trampoline.h" />
+    <ClInclude Include="Include\Hookshot\TrampolineStore.h" />
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotDll.h" />
   </ItemGroup>

@@ -18,7 +18,7 @@
 namespace Hookshot
 {
     // -------- INSTANCE METHODS --------------------------------------- //
-    // See "Hookshot.h" for documentation.
+    // See "Trampoline.h" for documentation.
 
     bool Trampoline::SetTarget(void* target)
     {

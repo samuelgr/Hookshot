@@ -51,7 +51,7 @@ extern "C" BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpv
 /// Performs Hookshot-specific initialization and must be exported from the DLL.
 /// Invoked by Hookshot immediately upon hook library load (i.e. after the library is initialized internally and `DllMain` has completed).
 /// Hook libraries should use this opportunity to set initial hooks and perform any other initialization unsafe to do in `DllMain`.
-/// The instance of #IHookConfig should also be saved because it is valid throughout the execution of the current process.
+/// The instance of #IHookConfig should also be saved because it is valid throughout the execution of the current process, and ownership transfers to the hook library.
 /// If initialization fails and a non-zero code is returned, Hookshot unloads and does not use this hook module.
 /// @param [in] hookConfig Hookshot configuration interface.  Refer to #IHookConfig documentation for more information.
 /// @return 0 on success, any other code on failure (not interpreted by Hookshot)

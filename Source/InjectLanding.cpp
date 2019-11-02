@@ -12,6 +12,7 @@
 
 #include "ApiWindows.h"
 #include "Globals.h"
+#include "HookStore.h"
 #include "HookResult.h"
 #include "Inject.h"
 #include "Message.h"
@@ -54,7 +55,7 @@ static EHookResult InjectLandingLoadAndInitializeHookModule(const TCHAR* hookMod
         return EHookResult::HookResultMalformedHookModule;
     }
 
-    const int initProcResult = initProc(NULL);
+    const int initProcResult = initProc(new HookStore());
 
     if (0 != initProcResult)
     {

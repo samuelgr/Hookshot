@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include "TrampolineStore.h"
+
 #include <concrt.h>
 #include <cstdint>
 #include <hookshot.h>
@@ -50,6 +52,10 @@ namespace Hookshot
         /// Each element is scoped at the level of a single DLL, mapping from function name to hook identifier.
         /// Elements may be inserted at the end as more DLLs are added, but they are never removed.
         std::vector<TFunctionMap> mapFunctionNameToHookID;
+
+        /// Trampoline storage.
+        /// Used internally to implement hooks.
+        TrampolineStore trampolines;
 
 
     public:

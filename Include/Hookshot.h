@@ -15,11 +15,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <tchar.h>
 
 
 namespace Hookshot
 {
     /// String type used to identify functions and DLLs by name.
+    /// Use TCHAR to _T("enclose string literals") for portability.
 #ifdef UNICODE
     typedef std::wstring THookString;
 #else
@@ -27,7 +29,7 @@ namespace Hookshot
 #endif
 
     /// Opaque handle used to identify hooks.
-    typedef int32_t THookID;
+    typedef int THookID;
 
     /// Invalid hook identifier.
     static constexpr THookID kInvalidHookID = (THookID)-1;
