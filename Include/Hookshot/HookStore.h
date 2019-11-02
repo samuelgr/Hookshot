@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "ApiWindows.h"
 #include "TrampolineStore.h"
 
 #include <concrt.h>
@@ -62,9 +63,19 @@ namespace Hookshot
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See "Hookshot.h" for documentation.
 
-        virtual EHookStatus GetHookStatus(const THookID hook);
         virtual TFunc GetOriginalFunctionForHook(const THookID hook);
         virtual THookID IdentifyHook(const THookString dllName, const THookString exportFuncName);
-        virtual THookID SetHook(const TFunc hookFunc, const THookString dllName, const THookString exportFuncName);
+        virtual THookID SetHook(const TFunc hookFunc, const THookString& dllName, const THookString& exportFuncName);
+
+
+    private:
+        // -------- HELPERS ------------------------------------------------ //
+        
+        /// Resolves the absolute path of the specified DLL, identified by a module handle.
+        /// No concurrency implications, but should be called when no locks are held.
+        /// @param [in] dllHandle Module handle of the DLL to resolve.
+        /// @param [out] dllAbsoluteName String into which to place the resolved name of the DLL.
+        /// @return `true` on success, `false` on failure.
+        static bool ResolveLoadedModuleName(HMODULE dllHandle, THookString& dllAbsoluteName);
     };
 }

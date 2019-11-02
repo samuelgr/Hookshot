@@ -152,6 +152,7 @@ namespace Hookshot
             return false;
 
         // Enumerate all of the modules in the target process.
+        // This approach is necessary because GetModuleHandle(Ex) cannot act on processes other than the calling process.
         TemporaryBuffer<HMODULE> loadedModules;
         DWORD numLoadedModules = 0;
 

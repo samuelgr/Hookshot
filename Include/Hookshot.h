@@ -31,30 +31,23 @@ namespace Hookshot
     /// Opaque handle used to identify hooks.
     typedef int THookID;
 
-    /// Invalid hook identifier.
-    static constexpr THookID kInvalidHookID = (THookID)-1;
-
     /// Address type for identifying the starting address of functions.
     /// Must be cast somehow before being invoked.
     typedef const void* TFunc;
 
-    /// Enumeration of possible hook statuses.
-    enum EHookStatus : uint32_t
+    /// Enumeration of possible errors when setting a hook.
+    /// These are the negative values returned in place of #THookID, where applicable.
+    enum EHookError : THookID
     {
-        // Success
-        HookStatusSuccess = 0,                                      ///< Hook was installed successfully.
-
-        // General failure
-        HookStatusFailure,                                          ///< Hook has an unspecified problem.
-
-        // Argument errors
-        HookStatusOutOfRange,                                       ///< Argument provided (i.e. the hook handle) is out of range.
-
-        // Other hook statuses
-        HookStatusLibraryNotYetLoaded,                              ///< Hook is present, but the associated DLL has not yet been loaded.
-
-        // Maximum value in this enumeration
-        HookStatusMaximumValue                                      ///< Sentinel value, not used as an error code.
+        HookErrorNotFound = -1,                                     ///< Requested hook could not be found.
+        HookErrorInitializationFailed = -2,                         ///< Internal initialization steps failed.
+        HookErrorLibraryNotLoaded = -3,                             ///< Cannot set a hook because the requested DLL is not loaded.
+        HookErrorAllocationFailed = -4,                             ///< Unable to allocate a new hook data structure.
+        HookErrorDuplicate = -5,                                    ///< Specified function is already hooked.
+        HookErrorResolveModuleName = -6,                            ///< Internal error resolving the absolute path for the specified DLL.
+        HookErrorResolveFunctionName = -7,                          ///< Internal error resolving the name of the requested exported function.
+        HookErrorFunctionNotExported = -8,                          ///< Cannot set a hook because the requested DLL does not export the requested function.
+        HookErrorMinimumValue = -9                                  ///< Sentinel value, not used as an error code.
     };
     
     /// Interface provided by Hookshot that the hook library can use to configure hooks.
@@ -65,20 +58,14 @@ namespace Hookshot
     {
     public:
         // -------- ABSTRACT INSTANCE METHODS ------------------------------ //
-
-        /// Checks the status of a hook that was previously installed.
-        /// Guaranteed not to serialize.
-        /// @param [in] hook Opaque handle that identifies the hook in question.
-        /// @return Indication of the status of the identified hook.
-        virtual EHookStatus GetHookStatus(const THookID hook) = 0;
         
         /// Retrieves and returns an address that, when invoked as a function, calls the original (i.e. un-hooked) version of the hooked function.
         /// This is useful for accessing the original behavior of the function being hooked.
         /// It is up to the caller to ensure that invocations to the returned address satisfy all calling convention and parameter type requirements of the original function.
         /// The returned address is not the original entry point of the hooked function but rather a trampoline address that Hookshot created when installing the hook.
-        /// Guaranteed not to serialize.
+        /// Concurrency-safe without any need for concurrency control mechanisms.
         /// @param [in] hook Opaque handle that identifies the hook in question.
-        /// @return Address that can be invoked to access the functionality of the original function, or `NULL` in the event of an error (invoke GetHookStatus for more information).
+        /// @return Address that can be invoked to access the functionality of the original function, or `NULL` in the event of an error.
         virtual TFunc GetOriginalFunctionForHook(const THookID hook) = 0;
 
         /// Looks up the handle of a previously-installed hook.
@@ -86,6 +73,7 @@ namespace Hookshot
         /// It is recommended that the hook library record hook identifiers in convenient locations to avoid the need to call this method.
         /// @param [in] dllName Name of the DLL that exports the function that was hooked.
         /// @param [in] exportFuncName Exported function name of the function that was hooked.
+        /// @return Opaque handle used to identify the hook, or a member of #EHookError to indicate an error.
         virtual THookID IdentifyHook(const THookString dllName, const THookString exportFuncName) = 0;
         
         /// Causes Hookshot to attempt to install a hook on the specified function.
@@ -95,7 +83,7 @@ namespace Hookshot
         /// @param [in] hookFunc Hook function that should be invoked instead of the original function.
         /// @param [in] dllName Name of the DLL that exports the function to be hooked.
         /// @param [in] exportFuncName Exported function name of the function to be hooked.
-        /// @return Opaque handle used to identify the newly-installed hook, or a negative value to indicate an error.
-        virtual THookID SetHook(const TFunc hookFunc, const THookString dllName, const THookString exportFuncName) = 0;
+        /// @return Opaque handle used to identify the newly-installed hook, or a member of #EHookError to indicate an error.
+        virtual THookID SetHook(const TFunc hookFunc, const THookString& dllName, const THookString& exportFuncName) = 0;
     };
 }
