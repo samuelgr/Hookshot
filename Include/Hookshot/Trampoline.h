@@ -45,10 +45,6 @@ namespace Hookshot
         /// The "ud2" ensures any attempt to execute will generate an error.
         static constexpr uint32_t kCodeUninitialized = 0x90660b0f;
 
-        /// Value to be placed at the start of the trampoline code to indicate an attempt to set it failed.
-        /// Consists of two back-to-back "ud2" instructions.
-        static constexpr uint32_t kCodeFailedSet = 0x0b0f0b0f;
-
 
         // -------- TYPE DEFINITIONS --------------------------------------- //
 
@@ -82,18 +78,11 @@ namespace Hookshot
 
         // -------- INSTANCE METHODS --------------------------------------- //
 
-        /// Specifies if this trampoline is initialized (i.e. an attempt to set the trampoline has been made).
-        /// @return `true` if so, `false` otherwise.
-        inline bool IsInitialized(void) const
-        {
-            return (kCodeUninitialized != code.dword[0]);
-        }
-
         /// Specifies if this trampoline is successfully set.
         /// @return `true` if so, `false` otherwise.
         inline bool IsSet(void) const
         {
-            return (IsInitialized() && (kCodeFailedSet != code.dword[0]));
+            return (kCodeUninitialized != code.dword[0]);
         }
 
         /// Resets this trampoline to its uninitialized state.

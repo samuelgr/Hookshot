@@ -17,7 +17,6 @@
 #include <concrt.h>
 #include <cstdint>
 #include <hookshot.h>
-#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -63,8 +62,8 @@ namespace Hookshot
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See "Hookshot.h" for documentation.
 
-        virtual TFunc GetOriginalFunctionForHook(const THookID hook);
-        virtual THookID IdentifyHook(const THookString dllName, const THookString exportFuncName);
+        virtual TFunc GetOriginalFunctionForHook(const THookID hook) const;
+        virtual THookID IdentifyHook(const THookString& dllName, const THookString& exportFuncName);
         virtual THookID SetHook(const TFunc hookFunc, const THookString& dllName, const THookString& exportFuncName);
 
 

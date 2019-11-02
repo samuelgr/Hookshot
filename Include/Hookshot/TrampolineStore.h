@@ -88,14 +88,14 @@ namespace Hookshot
 
         /// Retrieves the number of trampoline objects in this data structure.
         /// @return Number of trampolines allocated.
-        inline int Count(void)
+        inline int Count(void) const
         {
             return count;
         }
 
         /// Retrieves the number of free spaces for trampoline objects in this data structure.
         /// @return Remaining number of trampoline objects that can be allocated.
-        inline int FreeCount(void)
+        inline int FreeCount(void) const
         {
             return (kTrampolineStoreCount - count);
         }

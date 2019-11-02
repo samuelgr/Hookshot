@@ -23,7 +23,7 @@ namespace Hookshot
     bool Trampoline::SetTarget(void* target)
     {
         // TODO: implement this method for real.
-        code.dword[0] = kCodeFailedSet;
+        Reset();
         return false;
     }
 }
