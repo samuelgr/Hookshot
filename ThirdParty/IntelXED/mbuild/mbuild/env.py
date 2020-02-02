@@ -441,7 +441,7 @@ class env_t(object):
         self.env['hostname'] = platform.node()
         self.env['system'] = platform.system() # sort of like build_os
         # distro is the empty string on mac and windows
-        if util.check_python_version(2,6):
+        if False: #util.check_python_version(2,6):
             (distro, distro_ver, distro_id) = platform.linux_distribution()
         else:
             distro = ''
