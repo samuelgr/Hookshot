@@ -120,24 +120,32 @@
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
