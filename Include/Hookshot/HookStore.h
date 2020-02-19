@@ -62,9 +62,9 @@ namespace Hookshot
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See "Hookshot.h" for documentation.
 
-        virtual TFunc GetOriginalFunctionForHook(const THookID hook) const;
-        virtual THookID IdentifyHook(const THookString& dllName, const THookString& exportFuncName);
-        virtual THookID SetHook(const TFunc hookFunc, const THookString& dllName, const THookString& exportFuncName);
+        TFunc GetOriginalFunctionForHook(const THookID hook) const override;
+        THookID IdentifyHook(const THookString& dllName, const THookString& exportFuncName) override;
+        THookID SetHook(const TFunc hookFunc, const THookString& dllName, const THookString& exportFuncName) override;
 
 
     private:
