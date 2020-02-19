@@ -17,13 +17,26 @@
 
 namespace Hookshot
 {
-    // -------- INSTANCE METHODS --------------------------------------- //
+    // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
     // See "Trampoline.h" for documentation.
 
-    bool Trampoline::SetTarget(void* target)
+    Trampoline::Trampoline(void) : code()
     {
-        // TODO: implement this method for real.
-        Reset();
-        return false;
+        for (int i = 0; i < sizeof(kHookCodeDefault); ++i)
+            code.hook.byte[i] = kHookCodeDefault[i];
+
+        code.original.word[0] = kOriginalCodeDefault;
+    }
+
+
+    // -------- INSTANCE METHODS --------------------------------------- //
+    // See "Trampoline.h" for documentation.
+    
+    bool Trampoline::SetHookForTarget(TFunc hook, void* target)
+    {
+        // TODO: implement transplanting part of this method.
+
+        code.hook.ptr[_countof(code.hook.ptr) - 1] = ValueForHookAddress(hook);
+        return true;
     }
 }

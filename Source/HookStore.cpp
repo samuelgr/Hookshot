@@ -115,7 +115,7 @@ namespace Hookshot
         {
             hookID = functionHookMap->second;
 
-            if (trampolines[hookID].IsSet())
+            if (trampolines[hookID].IsTargetSet())
                 return EHookError::HookErrorDuplicate;
         }
         else
@@ -128,7 +128,7 @@ namespace Hookshot
             dllFunctionMap->second.emplace(exportFuncName, hookID);
         }
 
-        if (false == trampolines[hookID].SetTarget(exportFuncAddress))
+        if (false == trampolines[hookID].SetHookForTarget(hookFunc, exportFuncAddress))
             return EHookError::HookErrorSetFailed;
 
         return hookID;
