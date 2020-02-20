@@ -46,14 +46,14 @@ namespace Hookshot
         /// When the trampoline is set, the hook function address is filled in.
         static constexpr uint8_t kHookCodeDefault[kTrampolineSizeHookFunctionBytes] = {
 #ifdef HOOKSHOT64
-            0x66, 0x90,                                                     // nop
-            0xff, 0x25, 0x00, 0x00, 0x00, 0x00,                             // jmp QWORD PTR [rip]
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00                  // <absolute address of hook function>
+            0x66, 0x90,                                                 // nop
+            0xff, 0x25, 0x00, 0x00, 0x00, 0x00,                         // jmp QWORD PTR [rip]
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00              // <absolute address of hook function>
 #else
-            0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00,           // nop
-            0x66, 0x90,                                                     // nop
-            0xe9,                                                           // jmp rel32
-            0x00, 0x00, 0x00, 0x00                                          // <rel32 address of hook function>
+            0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00,       // nop
+            0x66, 0x90,                                                 // nop
+            0xe9,                                                       // jmp rel32
+            0x00, 0x00, 0x00, 0x00                                      // <rel32 address of hook function>
 #endif
         };
 

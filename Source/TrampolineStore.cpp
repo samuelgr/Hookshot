@@ -18,13 +18,15 @@
 
 namespace Hookshot
 {
-    // -------- INTERNAL CONSTANTS ------------------------------------- //
+    // -------- INTERNAL FUNCTIONS ------------------------------------- //
 
-    /// Allocation type specifier for the individual trampoline buffer spaces.
-    static constexpr DWORD kTrampolineAllocationType = MEM_RESERVE | MEM_COMMIT;
-
-    /// Allocation protection specifier for the individual trampoline buffer spaces.
-    static constexpr DWORD kTrampolineAllocationProtect = PAGE_EXECUTE_READWRITE;
+    /// Allocates a buffer suitable for holding Trampoline objects optionally using a specified base address.
+    /// @param [in] baseAddress Desired base address for the buffer.
+    /// @return Pointer to the allocated buffer, or `NULL` on failure.
+    static inline Trampoline* AllocateTrampolineBuffer(void* baseAddress = NULL)
+    {
+        return (Trampoline*)VirtualAlloc(baseAddress, TrampolineStore::kTrampolineStoreSizeBytes, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    }
 
     
     // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
@@ -32,15 +34,14 @@ namespace Hookshot
 
     TrampolineStore::TrampolineStore(void) : count(0), trampolines(NULL)
     {
-        trampolines = (Trampoline*)VirtualAlloc(NULL, kTrampolineStoreSizeBytes, kTrampolineAllocationType, kTrampolineAllocationProtect);
+        // Nothing to do here.
     }
 
     // --------
 
-    TrampolineStore::TrampolineStore(void* baseAddress) : count(0), trampolines(NULL)
+    TrampolineStore::TrampolineStore(void* baseAddress) : count(0), trampolines(AllocateTrampolineBuffer(baseAddress))
     {
-        void* const baseAddressRounded = (void*)((size_t)baseAddress & ~(kTrampolineStoreSizeBytes - 1));
-        trampolines = (Trampoline*)VirtualAlloc(baseAddressRounded, kTrampolineStoreSizeBytes, kTrampolineAllocationType, kTrampolineAllocationProtect);
+        // Nothing to do here.
     }
 
     // --------
@@ -49,6 +50,14 @@ namespace Hookshot
     {
         if (NULL != trampolines && 0 == Count())
             VirtualFree(trampolines, 0, MEM_RELEASE);
+    }
+
+    // --------
+    
+    TrampolineStore::TrampolineStore(TrampolineStore&& other) : count(other.count), trampolines(other.trampolines)
+    {
+        other.count = 0;
+        other.trampolines = NULL;
     }
 
 

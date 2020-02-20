@@ -18,20 +18,47 @@
 
 namespace Hookshot
 {
+    // -------- INTERNAL FUNCTIONS ------------------------------------- //
+
+#ifdef HOOKSHOT64
+    /// Determines the base address of the memory region associated with the target function.
+    /// @param [in] targetFunc Address of the target function that is being hooked.
+    /// @return Base address of the associated memory region, or NULL if it cannot be determined.
+    static void* BaseAddressForTargetFunc(const TFunc targetFunc)
+    {
+        // If the target function is part of a loaded module, the base address of the region is the base address of that module.
+        HMODULE moduleHandle;
+        if (0 != GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)targetFunc, &moduleHandle))
+            return (void*)moduleHandle;
+        
+        // If the target function is not part of a loaded module, the base address of the region needs to be queried.
+        MEMORY_BASIC_INFORMATION virtualMemoryInfo;
+        if (sizeof(virtualMemoryInfo) == VirtualQuery((LPCVOID)targetFunc, &virtualMemoryInfo, sizeof(virtualMemoryInfo)))
+            return virtualMemoryInfo.AllocationBase;
+
+        // At this point the base address cannot be determined.
+        return NULL;
+    }
+#endif
+
+
     // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
     // See "Hookshot.h" for documentation.
 
-    HookStore::HookStore(void) : lock(), hookMap(), trampolines()
-    {
 #ifdef HOOKSHOT64
+    HookStore::HookStore() : lock(), hookMap(), trampolines(), trampolineStoreMap()
+    {
         // In 64-bit mode, multiple TrampolineStore objects will be created in different parts of the address space.
         // Therefore, there is nothing to do at object construction time.
+    }
 #else
+    HookStore::HookStore(void) : lock(), hookMap(), trampolines()
+    {
         // In 32-bit mode, the entire address space can be accessed via rel32 displacements.
         // Therefore, it is sufficient just to create and use TrampolineStore objects in a centralized location.
         trampolines.emplace_back();
-#endif
     }
+#endif
 
     
     // -------- CONCRETE INSTANCE METHODS ------------------------------ //
@@ -83,9 +110,35 @@ namespace Hookshot
 #ifdef HOOKSHOT64
         // In 64-bit mode, trampolines are stored close to the target functions.
         // Therefore, it is necessary to identify the TrampolineStore object that is correct for the given target function address.
-        // TODO: implement this identification process and set the value of trampolineStoreIndex appropriately.
-        const size_t trampolineStoreIndex = 0;
-        return EHookError::HookErrorSetFailed;
+        // Because only one TrampolineStore object exists per base address, the number of allowed hooks per base address is limited.
+        void* const baseAddress = BaseAddressForTargetFunc(targetFunc);
+        if (NULL == baseAddress)
+            return EHookError::HookErrorInitializationFailed;
+
+        // If this is the first target function for the specified base address, attempt to place a TrampolineStore buffer.
+        // Do this by repeatedly moving backward in memory from the base address by the size of the TrampolineStore buffer until either too many attempts were made or a location is identified.
+        if (0 == trampolineStoreMap.count(baseAddress))
+        {
+            size_t proposedTrampolineStoreAddress = (size_t)baseAddress - TrampolineStore::kTrampolineStoreSizeBytes;
+
+            for (int i = 0; i < 100; ++i)
+            {
+                TrampolineStore newTrampolineStore((void*)proposedTrampolineStoreAddress);
+                if (true == newTrampolineStore.IsInitialized())
+                {
+                    trampolineStoreMap[baseAddress] = (int)trampolines.size();
+                    trampolines.push_back(std::move(newTrampolineStore));
+                    break;
+                }
+                
+                proposedTrampolineStoreAddress -= TrampolineStore::kTrampolineStoreSizeBytes;
+            }
+        }
+
+        if (0 == trampolineStoreMap.count(baseAddress))
+            return EHookError::HookErrorAllocationFailed;
+
+        const size_t trampolineStoreIndex = trampolineStoreMap.at(baseAddress);
 #else
         // In 32-bit mode, all trampolines are stored in a central location.
         // Therefore, it is sufficient to keep appending new TrampolineStore objects as existing ones fill up.

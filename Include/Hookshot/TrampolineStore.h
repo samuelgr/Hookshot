@@ -63,7 +63,7 @@ namespace Hookshot
         TrampolineStore(const TrampolineStore&) = delete;
 
         /// Move constructor.
-        TrampolineStore(TrampolineStore&&) = default;
+        TrampolineStore(TrampolineStore&& other);
 
 
         // -------- OPERATORS ---------------------------------------------- //
