@@ -52,8 +52,8 @@ def set_compiler_env_common(env):
                                           'otherwise': '',
                                           })
     
-    win_static_compile_dict = ( 'compiler', { 'ms': ( 'debug', { True: '/MTd', False: '/MT' }),
-                                              'icl': ( 'debug', { True: '/MTd', False: '/MT' }), 
+    win_static_compile_dict = ( 'compiler', { 'ms': ( 'debug', { True: '/MDd', False: '/MD' }),
+                                              'icl': ( 'debug', { True: '/MDd', False: '/MD' }), 
                                               'otherwise': '',
                                               })
 

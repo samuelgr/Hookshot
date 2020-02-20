@@ -31,6 +31,7 @@
     <ClCompile Include="Source\TemporaryBuffers.cpp" />
     <ClCompile Include="Source\Trampoline.cpp" />
     <ClCompile Include="Source\TrampolineStore.cpp" />
+    <ClCompile Include="Source\X86Instruction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc" />
@@ -53,6 +54,7 @@
     <ClInclude Include="Include\Hookshot\TemporaryBuffers.h" />
     <ClInclude Include="Include\Hookshot\Trampoline.h" />
     <ClInclude Include="Include\Hookshot\TrampolineStore.h" />
+    <ClInclude Include="Include\Hookshot\X86Instruction.h" />
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotDll.h" />
   </ItemGroup>
@@ -170,6 +172,7 @@
       <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
+      <AdditionalDependencies>xed.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <MASM />
     <MASM>
@@ -205,6 +208,7 @@
       <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
+      <AdditionalDependencies>xed.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <MASM />
     <MASM>
@@ -240,6 +244,7 @@
       <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
+      <AdditionalDependencies>xed.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <MASM />
     <MASM>
@@ -275,6 +280,7 @@
       <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
+      <AdditionalDependencies>xed.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <MASM />
     <MASM>

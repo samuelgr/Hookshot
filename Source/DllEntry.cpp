@@ -12,6 +12,7 @@
 #include "ApiWindows.h"
 #include "Globals.h"
 #include "InjectLanding.h"
+#include "X86Instruction.h"
 
 using namespace Hookshot;
 
@@ -55,7 +56,9 @@ extern "C" BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpv
 /// @return Address to which to jump to continue running the injected process, or `NULL` on failure.
 extern "C" __declspec(dllexport) void* APIENTRY DllInit(void)
 {
-    // Any additional initialization would take place here.
-    // Currently there is nothing to do, so just allow the injection to proceed.
+    // Perform additional initialization tasks.
+    X86Instruction::Initialize();
+
+    // Allow injection to proceed.
     return (void*)InjectLanding;
 }
