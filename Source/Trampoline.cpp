@@ -32,7 +32,7 @@ namespace Hookshot
     // -------- INSTANCE METHODS --------------------------------------- //
     // See "Trampoline.h" for documentation.
     
-    bool Trampoline::SetHookForTarget(TFunc hook, void* target)
+    bool Trampoline::SetHookForTarget(const TFunc hook, TFunc target)
     {
         // TODO: implement transplanting part of this method.
 

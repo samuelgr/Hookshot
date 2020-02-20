@@ -20,20 +20,12 @@
 
 namespace Hookshot
 {
-    /// String type used to identify functions and DLLs by name.
-    /// Use TCHAR to _T("enclose string literals") for portability.
-#ifdef UNICODE
-    typedef std::wstring THookString;
-#else
-    typedef std::string THookString;
-#endif
-
     /// Opaque handle used to identify hooks.
     typedef int THookID;
 
     /// Address type for identifying the starting address of functions.
     /// Must be cast somehow before being invoked.
-    typedef const void* TFunc;
+    typedef void* TFunc;
 
     /// Enumeration of possible errors when setting a hook.
     /// These are the negative values returned in place of #THookID, where applicable.
@@ -65,27 +57,21 @@ namespace Hookshot
         /// This is useful for accessing the original behavior of the function being hooked.
         /// It is up to the caller to ensure that invocations to the returned address satisfy all calling convention and parameter type requirements of the original function.
         /// The returned address is not the original entry point of the hooked function but rather a trampoline address that Hookshot created when installing the hook.
-        /// Fast and concurrency-safe.
         /// @param [in] hook Opaque handle that identifies the hook in question.
         /// @return Address that can be invoked to access the functionality of the original function, or `NULL` in the event of an error.
-        virtual TFunc GetOriginalFunctionForHook(const THookID hook) const = 0;
+        virtual const TFunc GetOriginalFunctionForHook(const THookID hook) = 0;
 
-        /// Looks up the handle of a previously-installed hook.
-        /// May be serialized with respect to other hook operations that also serialize and so should be called sparingly, if at all.
-        /// It is recommended that the hook library record hook identifiers in convenient locations to avoid the need to call this method.
-        /// @param [in] dllName Name of the DLL that exports the function that was hooked.
-        /// @param [in] exportFuncName Exported function name of the function that was hooked.
-        /// @return Opaque handle used to identify the hook, or a member of #EHookError to indicate an error.
-        virtual THookID IdentifyHook(const THookString& dllName, const THookString& exportFuncName) = 0;
+        /// Identifies the hook associated with the target function, if one is defined.
+        /// @param [in] targetFunc Address of the function that was previously hooked.
+        /// @return Opaque handle used to identify the previously-installed hook, or a member of #EHookError to indicate an error.
+        virtual THookID IdentifyHook(const TFunc targetFunc) = 0;
         
         /// Causes Hookshot to attempt to install a hook on the specified function.
         /// Once installed, the hook cannot be modified or deleted.
         /// The hook library can emulate modification or deletion by modifying the behavior of the supplied hook function based on runtime conditions.
-        /// May be serialized with respect to other hook operations that also serialize.
         /// @param [in] hookFunc Hook function that should be invoked instead of the original function.
-        /// @param [in] dllName Name of the DLL that exports the function to be hooked.
-        /// @param [in] exportFuncName Exported function name of the function to be hooked.
+        /// @param [in,out] targetFunc Address of the function that should be hooked.
         /// @return Opaque handle used to identify the newly-installed hook, or a member of #EHookError to indicate an error.
-        virtual THookID SetHook(const TFunc hookFunc, const THookString& dllName, const THookString& exportFuncName) = 0;
+        virtual THookID SetHook(const TFunc hookFunc, TFunc targetFunc) = 0;
     };
 }

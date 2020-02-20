@@ -18,136 +18,100 @@
 
 namespace Hookshot
 {
+    // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
+    // See "Hookshot.h" for documentation.
+
+    HookStore::HookStore(void) : lock(), hookMap(), trampolines()
+    {
+#ifdef HOOKSHOT64
+        // In 64-bit mode, multiple TrampolineStore objects will be created in different parts of the address space.
+        // Therefore, there is nothing to do at object construction time.
+#else
+        // In 32-bit mode, the entire address space can be accessed via rel32 displacements.
+        // Therefore, it is sufficient just to create and use TrampolineStore objects in a centralized location.
+        trampolines.emplace_back();
+#endif
+    }
+
+    
     // -------- CONCRETE INSTANCE METHODS ------------------------------ //
     // See "Hookshot.h" for documentation.
 
-    TFunc HookStore::GetOriginalFunctionForHook(const THookID hook) const
+    const TFunc HookStore::GetOriginalFunctionForHook(const THookID hook)
     {
-        if (hook < trampolines.Count())
-            return (TFunc)&trampolines[hook];
+        const int trampolineStoreIndex = hook / TrampolineStore::kTrampolineStoreCount;
+        const int trampolineIndex = hook % TrampolineStore::kTrampolineStoreCount;
 
-        return NULL;
+        concurrency::reader_writer_lock::scoped_lock_read guard(this->lock);
+        
+        if (trampolineStoreIndex < 0 || trampolineStoreIndex >= (int)trampolines.size())
+            return NULL;
+
+        if (trampolineIndex < 0 || trampolineIndex >= trampolines[trampolineStoreIndex].Count())
+            return NULL;
+
+        return trampolines[trampolineStoreIndex][trampolineIndex].GetOriginalTargetFunction();
     }
 
     // --------
 
-    THookID HookStore::IdentifyHook(const THookString& dllName, const THookString& exportFuncName)
+    THookID HookStore::IdentifyHook(const TFunc targetFunc)
     {
-        // Verify the DLL is loaded and retrieve its absolute path.
-        // DLL names could be provided as base name only and full path, but only full paths are stored to avoid aliasing.
-        HMODULE dllHandle = GetModuleHandle(dllName.c_str());
-        if (NULL == dllHandle)
-            return EHookError::HookErrorLibraryNotLoaded;
-
-        THookString dllAbsoluteName;
-        if (false == ResolveLoadedModuleName(dllHandle, dllAbsoluteName))
-            return EHookError::HookErrorResolveModuleName;
-
-        // Grab the lock as a reader and perform the lookup.
-        concurrency::reader_writer_lock::scoped_lock_read(this->lock);
-
-        TDllMap::const_iterator dllFunctionMap = mapDllNameToFunctionMap.find(dllName);
-
-        if (mapDllNameToFunctionMap.end() == dllFunctionMap)
-            return EHookError::HookErrorNotFound;
-
-        TFunctionMap::const_iterator functionHookMap = dllFunctionMap->second.find(exportFuncName);
-
-        if (dllFunctionMap->second.end() == functionHookMap)
-            return EHookError::HookErrorNotFound;
-
-        return functionHookMap->second;
-    }
-
-    // --------
-
-    THookID HookStore::SetHook(const TFunc hookFunc, const THookString& dllName, const THookString& exportFuncName)
-    {
-        if (NULL == hookFunc)
+        if (NULL == targetFunc)
             return EHookError::HookErrorInvalidArgument;
 
-        if (false == trampolines.IsInitialized())
+        concurrency::reader_writer_lock::scoped_lock_read guard(this->lock);
+
+        if (0 == hookMap.count(targetFunc))
+            return EHookError::HookErrorNotFound;
+
+        return hookMap.at(targetFunc);
+    }
+    
+    // --------
+
+    THookID HookStore::SetHook(const TFunc hookFunc, TFunc targetFunc)
+    {
+        if (NULL == hookFunc || NULL == targetFunc)
+            return EHookError::HookErrorInvalidArgument;
+        
+        if (EHookError::HookErrorNotFound != IdentifyHook(targetFunc))
+            return EHookError::HookErrorDuplicate;
+        
+        concurrency::reader_writer_lock::scoped_lock guard(this->lock);
+
+#ifdef HOOKSHOT64
+        // In 64-bit mode, trampolines are stored close to the target functions.
+        // Therefore, it is necessary to identify the TrampolineStore object that is correct for the given target function address.
+        // TODO: implement this identification process and set the value of trampolineStoreIndex appropriately.
+        const size_t trampolineStoreIndex = 0;
+        return EHookError::HookErrorSetFailed;
+#else
+        // In 32-bit mode, all trampolines are stored in a central location.
+        // Therefore, it is sufficient to keep appending new TrampolineStore objects as existing ones fill up.
+        if (0 == trampolines.back().FreeCount())
+            trampolines.emplace_back();
+
+        const size_t trampolineStoreIndex = trampolines.size() - 1;
+#endif
+        
+        TrampolineStore& trampolineStore = trampolines[trampolineStoreIndex];
+        if (false == trampolineStore.IsInitialized())
             return EHookError::HookErrorInitializationFailed;
 
-        // Verify the DLL is loaded and retrieve its absolute path.
-        // DLL names could be provided as base name only and full path, but only full paths are stored to avoid aliasing.
-        HMODULE dllHandle = GetModuleHandle(dllName.c_str());
-        if (NULL == dllHandle)
-            return EHookError::HookErrorLibraryNotLoaded;
-        
-        THookString dllAbsoluteName;
-        if (false == ResolveLoadedModuleName(dllHandle, dllAbsoluteName))
-            return EHookError::HookErrorResolveModuleName;
+        const int allocatedIndex = trampolineStore.Allocate();
+        if (allocatedIndex < 0)
+            return EHookError::HookErrorAllocationFailed;
 
-        // Retrieve the address of the exported function, which is used as the trampoline target.
-        // This also verifies that the requested DLL exports the requested function.
-#ifdef UNICODE
-        // In case of compilation in wide-character mode a conversion is needed because GetProcAddress does not support wide characters.
-        TemporaryBuffer<char> exportFuncNameStr;
-        if (0 != wcstombs_s(NULL, exportFuncNameStr, exportFuncNameStr.Size(), exportFuncName.c_str(), exportFuncName.length()))
-            return EHookError::HookErrorResolveFunctionName;
-#else
-        const char* const exportFuncNameStr = exportFuncName.c_str();
-#endif
-        void* exportFuncAddress = (void*)GetProcAddress(dllHandle, exportFuncNameStr);
-        if (NULL == exportFuncAddress)
-            return EHookError::HookErrorFunctionNotExported;
-
-        // Grab the lock as a writer and try to insert the new hook.
-        concurrency::reader_writer_lock::scoped_lock(this->lock);
-
-        TDllMap::iterator dllFunctionMap = mapDllNameToFunctionMap.find(dllAbsoluteName);
-
-        if (mapDllNameToFunctionMap.end() == dllFunctionMap)
+        if (false == trampolineStore[allocatedIndex].SetHookForTarget(hookFunc, targetFunc))
         {
-            mapFunctionNameToHookID.emplace_back();
-            dllFunctionMap = mapDllNameToFunctionMap.emplace(dllAbsoluteName, mapFunctionNameToHookID.back()).first;
-        }
-
-        TFunctionMap::iterator functionHookMap = dllFunctionMap->second.find(exportFuncName);
-        THookID hookID;
-
-        // Check for duplicates.
-        // If a mapping table entry exists but the trampoline is unset, it is safe to set it.
-        // If a mapping table entry exists and the trampoline is already set, fail because it cannot be changed.
-        // If no mapping table entry exists, one is created.
-        if (dllFunctionMap->second.end() != functionHookMap)
-        {
-            hookID = functionHookMap->second;
-
-            if (trampolines[hookID].IsTargetSet())
-                return EHookError::HookErrorDuplicate;
-        }
-        else
-        {
-            hookID = (THookID)trampolines.Allocate();
-
-            if (hookID < 0)
-                return EHookError::HookErrorAllocationFailed;
-
-            dllFunctionMap->second.emplace(exportFuncName, hookID);
-        }
-
-        if (false == trampolines[hookID].SetHookForTarget(hookFunc, exportFuncAddress))
+            trampolineStore.DeallocateIfNotSet();
             return EHookError::HookErrorSetFailed;
+        }
 
-        return hookID;
-    }
+        const THookID hookIdentifier = (THookID)(((trampolineStoreIndex) * TrampolineStore::kTrampolineStoreCount) + allocatedIndex);
+        hookMap[targetFunc] = hookIdentifier;
 
-
-    // -------- HELPERS ------------------------------------------------ //
-    // See "Hookshot.h" for documentation.
-
-    bool HookStore::ResolveLoadedModuleName(HMODULE dllHandle, THookString& dllAbsoluteName)
-    {
-        TemporaryBuffer<TCHAR> dllAbsoluteNameBuffer;
-        DWORD outputNumChars = GetModuleFileName(dllHandle, dllAbsoluteNameBuffer, (DWORD)dllAbsoluteNameBuffer.Count());
-
-        if ((((DWORD)dllAbsoluteNameBuffer.Count() == outputNumChars) && (GetLastError() == ERROR_INSUFFICIENT_BUFFER)) || (0 == outputNumChars))
-            return false;
-
-        dllAbsoluteName = dllAbsoluteNameBuffer;
-
-        return true;
+        return hookIdentifier;
     }
 }

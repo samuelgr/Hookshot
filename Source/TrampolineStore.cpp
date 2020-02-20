@@ -18,19 +18,36 @@
 
 namespace Hookshot
 {
+    // -------- INTERNAL CONSTANTS ------------------------------------- //
+
+    /// Allocation type specifier for the individual trampoline buffer spaces.
+    static constexpr DWORD kTrampolineAllocationType = MEM_RESERVE | MEM_COMMIT;
+
+    /// Allocation protection specifier for the individual trampoline buffer spaces.
+    static constexpr DWORD kTrampolineAllocationProtect = PAGE_EXECUTE_READWRITE;
+
+    
     // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
     // See "TrampolineStore.h" for documentation.
 
     TrampolineStore::TrampolineStore(void) : count(0), trampolines(NULL)
     {
-        trampolines = (Trampoline*)VirtualAlloc(NULL, kTrampolineStoreSizeBytes, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        trampolines = (Trampoline*)VirtualAlloc(NULL, kTrampolineStoreSizeBytes, kTrampolineAllocationType, kTrampolineAllocationProtect);
+    }
+
+    // --------
+
+    TrampolineStore::TrampolineStore(void* baseAddress) : count(0), trampolines(NULL)
+    {
+        void* const baseAddressRounded = (void*)((size_t)baseAddress & ~(kTrampolineStoreSizeBytes - 1));
+        trampolines = (Trampoline*)VirtualAlloc(baseAddressRounded, kTrampolineStoreSizeBytes, kTrampolineAllocationType, kTrampolineAllocationProtect);
     }
 
     // --------
 
     TrampolineStore::~TrampolineStore(void)
     {
-        if (NULL != trampolines)
+        if (NULL != trampolines && 0 == Count())
             VirtualFree(trampolines, 0, MEM_RELEASE);
     }
 
@@ -45,5 +62,16 @@ namespace Hookshot
 
         new (&trampolines[count]) Trampoline();
         return count++;
+    }
+
+    // --------
+
+    bool TrampolineStore::DeallocateIfNotSet(void)
+    {
+        if (trampolines[count - 1].IsTargetSet())
+            return false;
+
+        count -= 1;
+        return true;
     }
 }
