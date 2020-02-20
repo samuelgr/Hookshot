@@ -32,7 +32,7 @@ namespace Hookshot
     // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
     // See "TrampolineStore.h" for documentation.
 
-    TrampolineStore::TrampolineStore(void) : count(0), trampolines(NULL)
+    TrampolineStore::TrampolineStore(void) : count(0), trampolines(AllocateTrampolineBuffer())
     {
         // Nothing to do here.
     }
