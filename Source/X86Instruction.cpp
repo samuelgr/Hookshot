@@ -40,7 +40,7 @@ namespace Hookshot
     {
         xed_decoded_inst_t decoded_instruction;
 
-        for (int numBytes = 0; numBytes < maxLengthBytes && numBytes < kMaxInstructionLengthBytes; ++numBytes)
+        for (int numBytes = 0; (numBytes <= maxLengthBytes) && (numBytes <= kMaxInstructionLengthBytes); ++numBytes)
         {
             xed_decoded_inst_zero_set_mode(&decoded_instruction, &kXedMachineState);
             
