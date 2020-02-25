@@ -122,6 +122,23 @@ namespace Hookshot
 
     // --------
 
+    int X86Instruction::EncodeInstruction(void* const buf, const int maxLengthBytes) const
+    {
+        if (false == valid)
+            return false;
+        
+        xed_encoder_request_t toEncode = decodedInstruction;
+        xed_encoder_request_init_from_decode(&toEncode);
+
+        unsigned int encodedLength = 0;
+        if (XED_ERROR_NONE != xed_encode(&toEncode, (unsigned char*)buf, maxLengthBytes, &encodedLength))
+            return 0;
+
+        return (int)encodedLength;
+    }
+
+    // --------
+
     void* X86Instruction::GetAbsoluteMemoryReferenceTarget(void) const
     {
         const int64_t displacement = GetMemoryDisplacement();

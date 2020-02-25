@@ -151,6 +151,11 @@ namespace Hookshot
         /// @param [in] maxLengthBytes Maximum number of bytes to read from the instruction address.
         /// @return `true` on success, `false` on failure.
         bool DecodeInstruction(const void* const instruction, const int maxLengthBytes = kMaxInstructionLengthBytes);
+
+        /// Attempts to encode this instruction to the specified address, overwriting a number of bytes equal to the length of this instruction.
+        /// @param [out] buf Destination buffer.
+        /// @return Number of bytes written on success, 0 on failure.
+        int EncodeInstruction(void* const buf, const int maxLengthBytes = kMaxInstructionLengthBytes) const;
         
         /// If this instruction contains a position-dependent memory reference, computes and returns the absolute target address of said reference.
         /// @return Absolute target address, or `NULL` if either this instruction is invalid or no such memory reference exists.
