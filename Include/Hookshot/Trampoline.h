@@ -28,7 +28,7 @@ namespace Hookshot
     /// Non-const methods in this class are not thread-safe and require a form of external concurrency control if accessed from multiple threads.
     class Trampoline
     {
-    private:
+    public:
         // -------- CONSTANTS ---------------------------------------------- //
         
         /// Total size of the trampoline, in bytes.
@@ -41,28 +41,8 @@ namespace Hookshot
         /// Size, in bytes, of the portion of the trampoline that contains transplanted code for invoking the original function.
         static constexpr size_t kTrampolineSizeOriginalFunctionBytes = kTrampolineSizeBytes - kTrampolineSizeHookFunctionBytes;
 
-        /// Loaded into the hook region of the trampoline at initialization time.
-        /// Provides the needed preamble and allows room for the hook function address to be specified after-the-fact.
-        /// When the trampoline is set, the hook function address is filled in.
-        static constexpr uint8_t kHookCodeDefault[kTrampolineSizeHookFunctionBytes] = {
-#ifdef HOOKSHOT64
-            0x66, 0x90,                                                 // nop
-            0xff, 0x25, 0x00, 0x00, 0x00, 0x00,                         // jmp QWORD PTR [rip]
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00              // <absolute address of hook function>
-#else
-            0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00,       // nop
-            0x66, 0x90,                                                 // nop
-            0xe9,                                                       // jmp rel32
-            0x00, 0x00, 0x00, 0x00                                      // <rel32 address of hook function>
-#endif
-        };
 
-        /// Loaded into the original function region of the trampoline at initialization time.
-        /// This is the ud2 instruction, which acts as an "uninitialized poison" by causing the program to crash when executed.
-        /// When the trampoline is set, this region of the code is replaced by actual transplanted code.
-        static constexpr uint16_t kOriginalCodeDefault = 0x0b0f;
-
-
+    private:
         // -------- TYPE DEFINITIONS --------------------------------------- //
 
         /// Raw trampoline code type template.
@@ -121,10 +101,7 @@ namespace Hookshot
         
         /// Specifies if this trampoline has a target set.
         /// @return `true` if so, `false` otherwise.
-        inline bool IsTargetSet(void) const
-        {
-            return (kOriginalCodeDefault != code.original.word[0]);
-        }
+        bool IsTargetSet(void) const;
 
         /// Sets up this trampoline so that it hooks the specified target.
         /// Transplants code as needed at the specified target address so that the code in this trampoline is executed.
