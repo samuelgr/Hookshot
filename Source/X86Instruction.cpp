@@ -142,11 +142,11 @@ namespace Hookshot
     void* X86Instruction::GetAbsoluteMemoryReferenceTarget(void) const
     {
         const int64_t displacement = GetMemoryDisplacement();
-        if (INT64_MIN == displacement)
+        if (kInvalidMemoryDisplacement == displacement)
             return NULL;
 
         const int64_t base = (int64_t)((intptr_t)address) + (int64_t)GetLengthBytes();
-        return (void*)(base + displacement);
+        return (void*)((size_t)base + (size_t)displacement);
     }
 
     // --------
@@ -165,7 +165,7 @@ namespace Hookshot
     {
         const int64_t memoryDisplacementWidthBits = (int64_t)GetMemoryDisplacementWidthBits();
         if (0ll == memoryDisplacementWidthBits)
-            return 0ll;
+            return kInvalidMemoryDisplacement;
 
         return (1ll << (memoryDisplacementWidthBits - 1ll)) - 1ll;
     }
@@ -175,12 +175,12 @@ namespace Hookshot
     int64_t X86Instruction::GetMemoryDisplacement(void) const
     {
         if (false == valid)
-            return INT64_MIN;
+            return kInvalidMemoryDisplacement;
 
         switch (positionDependentMemoryReference.GetOperandLocation())
         {
         case PositionDependentMemoryReference::kReferenceDoesNotExist:
-            return INT64_MIN;
+            return kInvalidMemoryDisplacement;
 
         case PositionDependentMemoryReference::kReferenceIsRelativeBranchDisplacement:
             return (int64_t)xed_decoded_inst_get_branch_displacement(&decodedInstruction);
@@ -200,7 +200,7 @@ namespace Hookshot
         switch (positionDependentMemoryReference.GetOperandLocation())
         {
         case PositionDependentMemoryReference::kReferenceDoesNotExist:
-            return 0ll;
+            return 0;
 
         case PositionDependentMemoryReference::kReferenceIsRelativeBranchDisplacement:
             return (int64_t)xed_decoded_inst_get_branch_displacement_width_bits(&decodedInstruction);
@@ -216,13 +216,31 @@ namespace Hookshot
     {
         const int64_t memoryDisplacementWidthBits = (int64_t)GetMemoryDisplacementWidthBits();
         if (0ll == memoryDisplacementWidthBits)
-            return 0ll;
+            return kInvalidMemoryDisplacement;
 
         return INT64_MIN >> (64ll - memoryDisplacementWidthBits);
     }
 
     // --------
 
+    bool X86Instruction::IsTerminal(void) const
+    {
+        if (false == valid)
+            return false;
+
+        switch (xed_decoded_inst_get_category(&decodedInstruction))
+        {
+        case XED_CATEGORY_RET:
+        case XED_CATEGORY_UNCOND_BR:
+            return true;
+
+        default:
+            return false;
+        }
+    }
+
+    // --------
+    
     bool X86Instruction::SetMemoryDisplacement(const int64_t displacement)
     {
         if (false == CanSetMemoryDisplacementTo(displacement))
@@ -243,23 +261,5 @@ namespace Hookshot
         }
 
         return (GetMemoryDisplacement() == displacement);
-    }
-    
-    // --------
-
-    bool X86Instruction::TransfersControlUnconditionally(void) const
-    {
-        if (false == valid)
-            return false;
-
-        switch (xed_decoded_inst_get_category(&decodedInstruction))
-        {
-        case XED_CATEGORY_RET:
-        case XED_CATEGORY_UNCOND_BR:
-            return true;
-
-        default:
-            return false;
-        }
     }
 }

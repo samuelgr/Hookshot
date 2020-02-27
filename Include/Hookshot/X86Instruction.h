@@ -32,6 +32,9 @@ namespace Hookshot
         /// Taken from Intel documentation.
         static constexpr int kMaxInstructionLengthBytes = 15;
 
+        /// Value used to indicate an invalid memory displacement.
+        static constexpr int64_t kInvalidMemoryDisplacement = INT64_MIN;
+
 
     private:
         // -------- TYPE DEFINITIONS --------------------------------------- //
@@ -166,11 +169,11 @@ namespace Hookshot
         int GetLengthBytes(void) const;
         
         /// If this instruction contains a position-dependent memory reference, computes and returns the maximum allowed displacement that can be incorporated into this instruction.
-        /// @return Maximum displacement value, or 0 if either this instruction is invalid or no such memory reference exists.
+        /// @return Maximum displacement value, or #kInvalidMemoryDisplacement if either this instruction is invalid or no such memory reference exists.
         int64_t GetMaxMemoryDisplacement(void) const;
 
         /// If this instruction contains a position-dependent memory reference, determines the value of the displacement.
-        /// @return Actual displacement value, or `INT64_MIN` if either this instruction is invalid or no such memory reference exists.
+        /// @return Actual displacement value, or #kInvalidMemoryDisplacement if either this instruction is invalid or no such memory reference exists.
         int64_t GetMemoryDisplacement(void) const;
 
         /// If this instruction contains a position-dependent memory reference, determines the width in bits of the binary representation of the displacement value.
@@ -178,10 +181,10 @@ namespace Hookshot
         int GetMemoryDisplacementWidthBits(void) const;
 
         /// If this instruction contains a position-dependent memory reference, computes and returns the minimum allowed displacement that can be incorporated into this instruction.
-        /// @return Maximum displacement value, or 0 if either this instruction is invalid or no such memory reference exists.
+        /// @return Maximum displacement value, or #kInvalidMemoryDisplacement if either this instruction is invalid or no such memory reference exists.
         int64_t GetMinMemoryDisplacement(void) const;
 
-        /// Determines if this instruction makes a memory reference whose address depends on the instruction's position.
+        /// Determines if this instruction makes a memory reference whose address depends on this instruction's position.
         /// A memory reference for which this method returns `true` uses the value of the instruction pointer in computing the effective address.
         /// This could be because the instruction uses a relative branch displacement or, in 64-bit mode, RIP-relative addressing.
         /// @return `true` if so, `false` otherwise or if this instruction is invalid.
@@ -189,6 +192,19 @@ namespace Hookshot
         {
             return (PositionDependentMemoryReference::kReferenceDoesNotExist != positionDependentMemoryReference.GetOperandLocation());
         }
+        
+        /// Determines if this instruction makes a memory reference, in the form of a relative branch displacement, whose target depends on this instruction's position.
+        /// A memory reference for which this method returns `true` uses the value of the instruction pointer in computing the target of a possible jump.
+        /// An instruction for which this method returns `false` but #HasPositionDependentMemoryReference returns `true` uses its position-dependent memory reference to access instruction operand data.
+        /// @return `true` if so, `false` otherwise or if this instruction is invalid.
+        inline bool HasRelativeBranchDisplacement(void)
+        {
+            return (PositionDependentMemoryReference::kReferenceIsRelativeBranchDisplacement == positionDependentMemoryReference.GetOperandLocation());
+        }
+        
+        /// Determines if this instruction marks the end of a control flow (i.e. end of a function, unconditional jump to someplace else, etc.)
+        /// @return `true` if so, `false` otherwise or if this instruction is invalid.
+        bool IsTerminal(void) const;
         
         /// Specifies whether the instruction represented by this object is valid.
         /// If not, no other methods to obtain information about the instruction will produce valid results.
@@ -201,9 +217,5 @@ namespace Hookshot
         /// @param [in] displacement Displacement value to set.
         /// @return `true` on success, `false` on failure.
         bool SetMemoryDisplacement(const int64_t displacement);
-        
-        /// Determines if this instruction causes an unconditional jump, which has the effect of transferring control somewhere else.
-        /// @return `true` if so, `false` otherwise or if this instruction is invalid.
-        bool TransfersControlUnconditionally(void) const;
     };
 }
