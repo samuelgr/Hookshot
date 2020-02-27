@@ -86,6 +86,18 @@ namespace Hookshot
     }
 
 
+    // -------- CLASS METHODS ------------------------------------------ //
+    // See "X86Instruction.h" for documentation.
+
+    void X86Instruction::WriteJumpInstruction(uint8_t* const buf, const uint32_t displacement)
+    {
+        for (int i = 0; i < sizeof(kJumpInstructionPreamble); ++i)
+            buf[i] = kJumpInstructionPreamble[i];
+
+        *((uint32_t*)&buf[sizeof(kJumpInstructionPreamble)]) = displacement;
+    }
+
+
     // -------- INSTANCE METHODS --------------------------------------- //
     // See "X86Instruction.h" for documentation.
 
@@ -102,7 +114,7 @@ namespace Hookshot
 
     // --------
     
-    bool X86Instruction::DecodeInstruction(const void* const instruction, const int maxLengthBytes)
+    bool X86Instruction::DecodeInstruction(void* const instruction, const int maxLengthBytes)
     {
         xed_decoded_inst_zero_set_mode(&decodedInstruction, &kXedMachineState);
 

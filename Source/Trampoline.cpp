@@ -14,6 +14,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <vector>
 
 
 namespace Hookshot
@@ -22,52 +23,28 @@ namespace Hookshot
     
     /// Loaded into the hook region of the trampoline at initialization time.
     /// Provides the needed preamble and allows room for the hook function address to be specified after-the-fact.
-    /// When the trampoline is set, the hook function address is filled in.
-    static constexpr uint8_t kHookCodeDefault[Trampoline::kTrampolineSizeHookFunctionBytes] = {
+    /// When the trampoline is set, the hook function address is filled in after the code contained here.
+    static constexpr uint8_t kHookCodePreamble[] = {
 #ifdef HOOKSHOT64
             0x66, 0x90,                                                 // nop
             0xff, 0x25, 0x00, 0x00, 0x00, 0x00,                         // jmp QWORD PTR [rip]
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00              // <absolute address of hook function>
 #else
             0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00,       // nop
             0x66, 0x90,                                                 // nop
             0xe9,                                                       // jmp rel32
-            0x00, 0x00, 0x00, 0x00                                      // <rel32 address of hook function>
 #endif
     };
+    
+    // Used to verify that the amount of preamble code is just right.
+    // If too much, a pointer to the hook function will not fit into the allowed space of the hook code region.  To fix, increase the size of the hook region of the trampoline or decrease the size of the code.
+    // If too little, the code will not execute correctly because there will be a gap between the code and the pointer.  To fix, pad the hook code preamble with nop instructions.
+    static_assert(!(sizeof(kHookCodePreamble) + sizeof(void*) > Trampoline::kTrampolineSizeHookFunctionBytes), "Hook code preamble is too big.  Either increase the size of the hook region of the trampoline or decrease the size of the preamble code.");
+    static_assert(!(sizeof(kHookCodePreamble) + sizeof(void*) < Trampoline::kTrampolineSizeHookFunctionBytes), "Hook code preamble is too small.  Pad with nop instructions to increase the size.");
 
     /// Loaded into the original function region of the trampoline at initialization time.
     /// This is the ud2 instruction, which acts as an "uninitialized poison" by causing the program to crash when executed.
     /// When the trampoline is set, this region of the code is replaced by actual transplanted code.
     static constexpr uint16_t kOriginalCodeDefault = 0x0b0f;
-
-    /// Preamble for writing an unconditional jump instruction as part of setting a hook.
-    /// Represents the fixed opcode bytes that come before a relative 32-bit jump displacement.
-    /// Primarily used for overwriting bytes in the original function, but also used to handle short relative branches in transplanted instructions.
-    static constexpr uint8_t kTrampolineJumpPreamble[] = {
-        0xe9                                                            // jmp rel32
-    };
-
-    /// Total size of an unconditional jump instruction written as part of setting a hook.
-    /// Equal to the size of all preamble opcode bytes plus the size of a rel32 displacement.
-    static constexpr size_t kTrampolineJumpSize = sizeof(kTrampolineJumpPreamble) + sizeof(uint32_t);
-
-
-    // -------- INTERNAL FUNCTIONS ------------------------------------- //
-
-    
-    
-    /// Places a trampoline jump operation with the specified displacement at the specified location.
-    /// Supplied buffer must be large enough to hold #kTrampolineJumpSize bytes.
-    /// @param [out] buf Buffer to which the trampoline jump operation should be written.
-    /// @param [in] displacement 32-bit relative jump displacement.
-    static void WriteTrampolineJump(uint8_t* const buf, const uint32_t displacement)
-    {
-        for (int i = 0; i < sizeof(kTrampolineJumpPreamble); ++i)
-            buf[i] = kTrampolineJumpPreamble[i];
-
-        *((uint32_t*)&buf[sizeof(kTrampolineJumpPreamble)]) = displacement;
-    }
 
     
     // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
@@ -75,8 +52,8 @@ namespace Hookshot
 
     Trampoline::Trampoline(void) : code()
     {
-        for (int i = 0; i < sizeof(kHookCodeDefault); ++i)
-            code.hook.byte[i] = kHookCodeDefault[i];
+        for (int i = 0; i < sizeof(kHookCodePreamble); ++i)
+            code.hook.byte[i] = kHookCodePreamble[i];
 
         code.original.word[0] = kOriginalCodeDefault;
     }
@@ -94,8 +71,81 @@ namespace Hookshot
     
     bool Trampoline::SetHookForTarget(const TFunc hook, TFunc target)
     {
-        // TODO: implement transplanting part of this method.
+        // Easy part. Make the hook part of the trampoline actually target the hook function.
+        // This is done by placing the address (or displacement) of the hook function into the hook part of the trampoline at the last pointer-sized element.
         code.hook.ptr[_countof(code.hook.ptr) - 1] = ValueForHookAddress(hook);
-        return true;
+        
+        // Hard part. Transplanting code from the location of the original function into the original function part of the trampoline.  This is done in several sub-parts, and more details will be provided while executing each sub-part.
+        // First, read and decode instructions until either enough bytes worth of instructions are decoded to hold an unconditional jump or a terminal instruction is hit.  If the latter happens strictly before the former, then setting this hook failed due to there not being enough bytes of function to transplant.
+        // Second, iterate through all the decoded instructions and check for position-dependent memory references.  Update the displacements as needed for any such decoded instructions.  If that is not possible for even one instruction, then setting this hook failed.
+        // Third, encode the decoded instructions into this trampoline's original function region.  If needed (i.e. the last of the decoded instructions is non-terminal), append an unconditional jump instruction to the correct address within the original function.  This will be completed at the same time as the second sub-part.
+        // Fourth and final, overwrite the beginning of the original function with an unconditional jump to the hook region of this trampoline.  It is a good idea to suspend all other threads while doing this.
+
+        // First sub-part.
+        uint8_t* const originalFunctionBytes = (uint8_t*)target;
+        constexpr int numOriginalFunctionBytesNeeded = X86Instruction::kJumpInstructionLengthBytes;
+        int numOriginalFunctionBytes = 0;
+        std::vector<X86Instruction> originalInstructions;
+
+        while (numOriginalFunctionBytes < numOriginalFunctionBytesNeeded)
+        {
+            X86Instruction& decodedInstruction = originalInstructions.emplace_back();
+            decodedInstruction.DecodeInstruction(&originalFunctionBytes[numOriginalFunctionBytes]);
+
+            if (false == decodedInstruction.IsValid())
+                return false;
+
+            numOriginalFunctionBytes += decodedInstruction.GetLengthBytes();
+
+            if (decodedInstruction.IsTerminal())
+                break;
+        }
+
+        if (numOriginalFunctionBytes < numOriginalFunctionBytesNeeded)
+            return false;
+
+        // Second and third sub-parts.
+        int numTrampolineBytesWritten = 0;
+        int numExtraTrampolineBytesUsed = 0;
+
+        for (int i = 0; i < originalInstructions.size(); ++i)
+        {
+            const int numTrampolineBytesLeft = sizeof(code.original) - numTrampolineBytesWritten;
+            void* const nextTrampolineAddressToWrite = &code.original.byte[numTrampolineBytesWritten];
+            
+            // Second sub-part. Handle any position-dependent memory references.
+            if (originalInstructions[i].HasPositionDependentMemoryReference())
+            {
+                // TODO: if the displacement is so small that it fits within the transplanted code, then don't bother modifying it.
+                
+                // There are no changes to the length of the instruction, so the change to the displacement value is just the difference in its new and original locations in memory.
+                const intptr_t extraDisplacementToAdd = (intptr_t)originalInstructions[i].GetAddress() - (intptr_t)nextTrampolineAddressToWrite;
+                const intptr_t newDisplacementValue = (intptr_t)originalInstructions[i].GetMemoryDisplacement() + extraDisplacementToAdd;
+
+#ifdef HOOKSHOT64
+                // In 64-bit mode, it is necessary to verify that the new displacement value falls within the range of possible rel32 values.
+                // In 32-bit mode, this is not a problem because the entire address space is accessible via rel32.
+                if ((newDisplacementValue > (intptr_t)INT32_MAX) || (newDisplacementValue < (intptr_t)INT32_MIN))
+                    return false;
+#endif
+
+                // TODO: if the new displacement is too wide to fit into the original instruction, then handle it.
+
+                // TODO: write the new displacement value.
+            }
+
+            // Third sub-part. Re-encode the instruction.
+            int numEncodedBytes = originalInstructions[i].EncodeInstruction(nextTrampolineAddressToWrite, numTrampolineBytesLeft);
+
+            if (originalInstructions[i].GetLengthBytes() != numEncodedBytes)
+                return false;
+
+            numTrampolineBytesWritten += numEncodedBytes;
+        }
+
+        // Fourth sub-part.
+        // TODO
+
+        return false;
     }
 }

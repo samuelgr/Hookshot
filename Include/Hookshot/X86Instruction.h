@@ -32,6 +32,16 @@ namespace Hookshot
         /// Taken from Intel documentation.
         static constexpr int kMaxInstructionLengthBytes = 15;
 
+        /// Preamble for writing an unconditional jump instruction as in #WriteJumpInstruction.
+        /// Represents the fixed opcode bytes that come before a relative 32-bit jump displacement.
+        static constexpr uint8_t kJumpInstructionPreamble[] = {
+            0xe9                                                            // jmp rel32
+        };
+        
+        /// Length of an unconditional jump instruction, in bytes, as written by #WriteJumpInstruction.
+        /// Equal to the length of the binary preamble plus the size of a 32-bit displacement.
+        static constexpr int kJumpInstructionLengthBytes = sizeof(kJumpInstructionPreamble) + sizeof(uint32_t);
+
         /// Value used to indicate an invalid memory displacement.
         static constexpr int64_t kInvalidMemoryDisplacement = INT64_MIN;
 
@@ -116,7 +126,7 @@ namespace Hookshot
 
         /// Holds the original address of the represented instruction.
         /// Used to convert IP-relative operands to absolute addresses.
-        const void* address;
+        void* address;
         
         /// Specifies if the represented instruction is valid.
         bool valid;
@@ -140,6 +150,12 @@ namespace Hookshot
             xed_tables_init();
         }
 
+        /// Places a jump instruction with the specified displacement at the specified location.
+        /// Supplied buffer must be large enough to hold #kJumpInstructionLengthBytes bytes.
+        /// @param [out] buf Buffer to which the trampoline jump operation should be written.
+        /// @param [in] displacement 32-bit relative jump displacement.
+        static void WriteJumpInstruction(uint8_t* const buf, const uint32_t displacement);
+
 
         // -------- INSTANCE METHODS --------------------------------------- //
         
@@ -153,7 +169,7 @@ namespace Hookshot
         /// @param [in] instruction Address of the instruction to decode.
         /// @param [in] maxLengthBytes Maximum number of bytes to read from the instruction address.
         /// @return `true` on success, `false` on failure.
-        bool DecodeInstruction(const void* const instruction, const int maxLengthBytes = kMaxInstructionLengthBytes);
+        bool DecodeInstruction(void* const instruction, const int maxLengthBytes = kMaxInstructionLengthBytes);
 
         /// Attempts to encode this instruction to the specified address, overwriting a number of bytes equal to the length of this instruction.
         /// @param [out] buf Destination buffer.
@@ -163,6 +179,13 @@ namespace Hookshot
         /// If this instruction contains a position-dependent memory reference, computes and returns the absolute target address of said reference.
         /// @return Absolute target address, or `NULL` if either this instruction is invalid or no such memory reference exists.
         void* GetAbsoluteMemoryReferenceTarget(void) const;
+
+        /// Retrieves and returns the original location in memory of this instruction.
+        /// @return Original address of this instruction, or `NULL` if it is invalid.
+        inline void* GetAddress(void) const
+        {
+            return address;
+        }
         
         /// Retrieves and returns the number of bytes that represent the instruction in its encoded form.
         /// @return Number of bytes, or -1 if the instruction is invalid.

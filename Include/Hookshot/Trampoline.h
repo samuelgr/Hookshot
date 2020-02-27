@@ -32,13 +32,15 @@ namespace Hookshot
         // -------- CONSTANTS ---------------------------------------------- //
         
         /// Total size of the trampoline, in bytes.
-        /// Must be divisible by 32.
         static constexpr size_t kTrampolineSizeBytes = 64;
         
         /// Size, in bytes, of the portion of the trampoline that contains code for invoking the hook function.
+        /// Must be divisible by the size of a pointer.
         static constexpr size_t kTrampolineSizeHookFunctionBytes = kTrampolineSizeBytes / 4;
+        static_assert(0 == kTrampolineSizeHookFunctionBytes % sizeof(void*));
 
         /// Size, in bytes, of the portion of the trampoline that contains transplanted code for invoking the original function.
+        /// Must be large enough to hold whatever transplanted code might be required, although this is hard to determine at compile-time so make sure it is big enough.
         static constexpr size_t kTrampolineSizeOriginalFunctionBytes = kTrampolineSizeBytes - kTrampolineSizeHookFunctionBytes;
 
 
