@@ -10,6 +10,8 @@
  *****************************************************************************/
 
 #include "ApiWindows.h"
+#include "Message.h"
+#include "TemporaryBuffers.h"
 #include "Trampoline.h"
 #include "X86Instruction.h"
 
@@ -74,7 +76,10 @@ namespace Hookshot
     {
         // Sanity check.  Make sure the target is not too far away from this trampoline.
         if (false == X86Instruction::CanWriteJumpInstruction(target, &code.hook.byte[0]))
+        {
+            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_TRAMPOLINE_SET_FAILED_TOO_FAR_FORMAT, (long long)target);
             return false;
+        }
         
         // Easy part. Make the hook part of the trampoline actually target the hook function.
         // This is done by placing the address (or displacement) of the hook function into the hook part of the trampoline at the last pointer-sized element.
@@ -90,23 +95,48 @@ namespace Hookshot
         uint8_t* const originalFunctionBytes = (uint8_t*)target;
         constexpr int numOriginalFunctionBytesNeeded = X86Instruction::kJumpInstructionLengthBytes;
         int numOriginalFunctionBytes = 0;
+        int instructionIndex = 0;
         std::vector<X86Instruction> originalInstructions;
+
+        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_DECODE_START_FORMAT, (long long)target, numOriginalFunctionBytesNeeded);
 
         while (numOriginalFunctionBytes < numOriginalFunctionBytesNeeded)
         {
             X86Instruction& decodedInstruction = originalInstructions.emplace_back();
             decodedInstruction.DecodeInstruction(&originalFunctionBytes[numOriginalFunctionBytes]);
+            
             if (false == decodedInstruction.IsValid())
+            {
+                Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_DECODE_INSTRUCTION_INVALID_FORMAT, instructionIndex);
                 return false;
+            }
 
+            if (Message::WillOutputMessageOfSeverity(EMessageSeverity::MessageSeverityDebug))
+            {
+                TemporaryBuffer<TCHAR> disassembly;
+                if (true == decodedInstruction.PrintDisassembly(disassembly, disassembly.Count()))
+                    Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_DECODE_INSTRUCTION_FORMAT, instructionIndex, decodedInstruction.GetLengthBytes(), &disassembly[0]);
+                else
+                    Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_DECODE_INSTRUCTION_NODISASSEMBLE_FORMAT, instructionIndex, decodedInstruction.GetLengthBytes());
+
+                if (decodedInstruction.IsTerminal())
+                    Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_DECODE_INSTRUCTION_IS_TERMINAL_FORMAT, instructionIndex);
+            }
+            
             numOriginalFunctionBytes += decodedInstruction.GetLengthBytes();
+            instructionIndex += 1;
 
             if (decodedInstruction.IsTerminal())
                 break;
         }
 
         if (numOriginalFunctionBytes < numOriginalFunctionBytesNeeded)
+        {
+            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_DECODE_TOTAL_BYTES_INSUFFICIENT_FORMAT, numOriginalFunctionBytes, numOriginalFunctionBytesNeeded);
             return false;
+        }
+        else
+            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_DECODE_TOTAL_BYTES_SUFFICIENT_FORMAT, numOriginalFunctionBytes, numOriginalFunctionBytesNeeded);
 
         // Second and third sub-parts.
         int numTrampolineBytesWritten = 0;
@@ -121,6 +151,7 @@ namespace Hookshot
             if (originalInstructions[i].HasPositionDependentMemoryReference())
             {
                 const int64_t originalDisplacement = originalInstructions[i].GetMemoryDisplacement();
+                Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_ENCODE_HAS_POSITION_DEPENDENT_MEMORY_REFERENCE_FORMAT, i, (long long)originalDisplacement);
                 
                 // If the displacement is so small that it refers to another instruction that is also being transplanted, then there is no need to modify it.
                 // Note the need to check both forwards (positive) and backwards (negative) displacement directions.
@@ -131,19 +162,28 @@ namespace Hookshot
                 {
                     // There are no changes to the length of the instruction, so the change to the displacement value is just the difference in its new and original locations in memory.
                     const intptr_t newDisplacementValue = ((intptr_t)originalInstructions[i].GetAddress() - (intptr_t)nextTrampolineAddressToWrite) + (intptr_t)originalDisplacement;
+                    Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_ENCODE_DISPLACEMENT_NEW_VALUE_FORMAT, i, (long long)originalInstructions[i].GetAddress(), (long long)nextTrampolineAddressToWrite, (long long)newDisplacementValue);
 
 #ifdef HOOKSHOT64
                     // In 64-bit mode, it is necessary to verify that the new displacement value falls within the range of possible rel32 values.
                     // In 32-bit mode, this is not a problem because the entire address space is accessible via rel32.
                     if ((newDisplacementValue > (intptr_t)INT32_MAX) || (newDisplacementValue < (intptr_t)INT32_MIN))
+                    {
+                        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_ENCODE_DISPLACEMENT_OUT_OF_RANGE_FORMAT, i);
                         return false;
+                    }
 #endif
 
                     // TODO: if the new displacement is too wide to fit into the original instruction, then handle it.
 
                     if (false == originalInstructions[i].SetMemoryDisplacement((int64_t)newDisplacementValue))
+                    {
+                        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_ENCODE_DISPLACEMENT_FAILED_TO_SET_FORMAT, i);
                         return false;
+                    }
                 }
+                else
+                    Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_ENCODE_DISPLACEMENT_SMALL_ENOUGH_FORMAT, i);
             }
 
             // Third sub-part. Re-encode the instruction.

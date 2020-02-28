@@ -23,9 +23,23 @@ namespace Hookshot
      /// These are primarily used to assist with output formatting.
      enum EMessageSeverity
      {
-         MessageSeverityError = 0,                                  ///< Error. Causes a change in behavior if encountered, possibly leading to application termination.
-         MessageSeverityWarning = 1,                                ///< Warning. May cause a change in behavior but is not critical and will not terminate the application.
-         MessageSeverityInfo = 2,                                   ///< Informational. Useful status-related remarks for tracking application behavior.
+         MessageSeverityError,                                      ///< Error. Causes a change in behavior if encountered, possibly leading to application termination.
+         MessageSeverityWarning,                                    ///< Warning. May cause a change in behavior but is not critical and will not terminate the application.
+         MessageSeverityInfo,                                       ///< Informational. Useful status-related remarks for tracking application behavior.
+         MessageSeverityDebug,                                      ///< Debug. Only output in debug mode, and then only written to an attached debugger.
+     };
+
+     /// Enumerates all supported modes of outputting messages.
+     enum EMessageOutputMode
+     {
+         // Non-interactive output modes
+         MessageOutputModeDebugString,                              ///< Message is output using a debug string, which debuggers will display.
+
+         // Boundary value between non-interactive and interactive modes.
+         MessageOutputModeInteractiveBoundaryValue,                 ///< Not used as a value, but separates non-interactive output modes from interactive output modes.
+
+         // Interactive output modes
+         MessageOutputModeMessageBox,                               ///< Message is output using a message box.
      };
      
     /// Encapsulates all message-related functionality.
@@ -36,12 +50,16 @@ namespace Hookshot
         // -------- CONSTANTS ---------------------------------------------- //
 
         /// Specifies the minimum severity required to output a message.
-        /// Messages below this severity are ignored.
+        /// Messages below this severity (i.e. above the integer value that represents this severity) are ignored.
 #if HOOKSHOT_DEBUG
-        static constexpr EMessageSeverity kMinimumSeverityForOutput = EMessageSeverity::MessageSeverityInfo;
+        static constexpr EMessageSeverity kMinimumSeverityForOutput = EMessageSeverity::MessageSeverityDebug;
 #else
         static constexpr EMessageSeverity kMinimumSeverityForOutput = EMessageSeverity::MessageSeverityError;
 #endif
+
+        /// Specifies the maximum severity that requires a non-interactive mode of output be used.
+        /// Messages at this severity or lower will be skipped unless a non-intneractive output mode is being used.
+        static constexpr EMessageSeverity kMaximumSeverityToRequireNonInteractiveOutput = EMessageSeverity::MessageSeverityDebug;
 
 
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
@@ -76,10 +94,21 @@ namespace Hookshot
         /// @param [in] resourceIdentifier String resource identifier from which the message string, possibly with format specifiers, should be loaded.
         static void OutputFormattedFromResource(const EMessageSeverity severity, const unsigned int resourceIdentifier, ...);
 
+        /// Determines if a message of the specified severity will be output.
+        /// Compares the supplied severity level to the configured minimum severity level.
+        /// @param [in] severity Severity to test.
+        /// @return `true` if a message of the specified severity should be output, `false` otherwise.
+        static bool WillOutputMessageOfSeverity(const EMessageSeverity severity);
+
 
     private:
         // -------- HELPERS ------------------------------------------------ //
 
+        inline static bool IsOutputModeInteractive(const EMessageOutputMode outputMode)
+        {
+            return (outputMode > MessageOutputModeInteractiveBoundaryValue);
+        }
+        
         /// Formats and outputs some text of the given severity.
         /// @param [in] severity Severity of the message.
         /// @param [in] format Message string, possibly with format specifiers.
@@ -104,10 +133,8 @@ namespace Hookshot
         /// @param [in] message Message text.
         static void OutputInternalUsingMessageBox(const EMessageSeverity severity, LPCTSTR message);
 
-        /// Determines if a message of the specified severity should be output.
-        /// Compares the supplied severity level to the configured minimum severity level.
-        /// @param [in] severity Severity to test.
-        /// @return `true` if a message of the specified severity should be output, `false` otherwise.
-        static bool ShouldOutputMessageOfSeverity(const EMessageSeverity severity);
+        /// Determines the appropriate mode of output based on the current configuration.
+        /// @return Output mode to use.
+        static EMessageOutputMode SelectOutputMode(void);
     };
 }

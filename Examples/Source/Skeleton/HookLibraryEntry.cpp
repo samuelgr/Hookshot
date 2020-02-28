@@ -48,6 +48,11 @@ extern "C" BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpv
     return TRUE;
 }
 
+HANDLE APIENTRY HookGetCurrentProcess(void)
+{
+    return (HANDLE)-1;
+}
+
 /// Performs Hookshot-specific initialization and must be exported from the DLL.
 /// Invoked by Hookshot immediately upon hook library load (i.e. after the library is initialized internally and `DllMain` has completed).
 /// Hook libraries should use this opportunity to set initial hooks and perform any other initialization unsafe to do in `DllMain`.
@@ -57,5 +62,5 @@ extern "C" BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpv
 /// @return 0 on success, any other code on failure (not interpreted by Hookshot)
 extern "C" __declspec(dllexport) void APIENTRY HookshotMain(IHookConfig* hookConfig)
 {
-    
+    hookConfig->SetHook(HookGetCurrentProcess, GetCurrentProcess);
 }

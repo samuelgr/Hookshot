@@ -28,7 +28,7 @@ namespace Hookshot
 
     void Message::Output(const EMessageSeverity severity, LPCTSTR message)
     {
-        if (false == ShouldOutputMessageOfSeverity(severity))
+        if (false == WillOutputMessageOfSeverity(severity))
             return;
 
         OutputInternal(severity, message);
@@ -38,7 +38,7 @@ namespace Hookshot
 
     void Message::OutputFormatted(const EMessageSeverity severity, LPCTSTR format, ...)
     {
-        if (false == ShouldOutputMessageOfSeverity(severity))
+        if (false == WillOutputMessageOfSeverity(severity))
             return;
 
         va_list args;
@@ -53,7 +53,7 @@ namespace Hookshot
 
     void Message::OutputFromResource(const EMessageSeverity severity, const unsigned int resourceIdentifier)
     {
-        if (false == ShouldOutputMessageOfSeverity(severity))
+        if (false == WillOutputMessageOfSeverity(severity))
             return;
 
         TemporaryBuffer<TCHAR> resourceStringBuf;
@@ -66,7 +66,7 @@ namespace Hookshot
 
     void Message::OutputFormattedFromResource(const EMessageSeverity severity, const unsigned int resourceIdentifier, ...)
     {
-        if (false == ShouldOutputMessageOfSeverity(severity))
+        if (false == WillOutputMessageOfSeverity(severity))
             return;
 
         TemporaryBuffer<TCHAR> resourceStringBuf;
@@ -80,6 +80,21 @@ namespace Hookshot
 
             va_end(args);
         }
+    }
+
+    // --------
+
+    bool Message::WillOutputMessageOfSeverity(const EMessageSeverity severity)
+    {
+        if (severity <= kMinimumSeverityForOutput)
+        {
+            if ((severity >= kMaximumSeverityToRequireNonInteractiveOutput) && (true == IsOutputModeInteractive(SelectOutputMode())))
+                return false;
+            else
+                return true;
+        }
+        else
+            return false;
     }
 
 
@@ -98,13 +113,18 @@ namespace Hookshot
 
     void Message::OutputInternal(const EMessageSeverity severity, LPCTSTR message)
     {
-        if (IsDebuggerPresent())
+        switch (SelectOutputMode())
         {
+        case EMessageOutputMode::MessageOutputModeDebugString:
             OutputInternalUsingDebugString(severity, message);
-        }
-        else
-        {
+            break;
+
+        case EMessageOutputMode::MessageOutputModeMessageBox:
             OutputInternalUsingMessageBox(severity, message);
+            break;
+
+        default:
+            break;
         }
     }
 
@@ -128,6 +148,10 @@ namespace Hookshot
 
         case EMessageSeverity::MessageSeverityInfo:
             messageStampSeverity = _T('I');
+            break;
+
+        case EMessageSeverity::MessageSeverityDebug:
+            messageStampSeverity = _T('D');
             break;
 
         default:
@@ -177,8 +201,11 @@ namespace Hookshot
 
     // --------
 
-    bool Message::ShouldOutputMessageOfSeverity(const EMessageSeverity severity)
+    EMessageOutputMode Message::SelectOutputMode(void)
     {
-        return (severity <= kMinimumSeverityForOutput);
+        if (IsDebuggerPresent())
+            return EMessageOutputMode::MessageOutputModeDebugString;
+        else
+            return EMessageOutputMode::MessageOutputModeMessageBox;
     }
 }
