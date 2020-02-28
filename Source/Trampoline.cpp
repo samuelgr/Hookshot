@@ -74,8 +74,10 @@ namespace Hookshot
     
     bool Trampoline::SetHookForTarget(const TFunc hook, TFunc target)
     {
+        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_TRAMPOLINE_SET_HOOK_START_FORMAT, (long long)hook, (long long)target, (long long)&code.hook, (long long)&code.original);
+        
         // Sanity check.  Make sure the target is not too far away from this trampoline.
-        if (false == X86Instruction::CanWriteJumpInstruction(target, &code.hook.byte[0]))
+        if (false == X86Instruction::CanWriteJumpInstruction(target, &code.hook))
         {
             Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_TRAMPOLINE_SET_FAILED_TOO_FAR_FORMAT, (long long)target);
             return false;
@@ -190,8 +192,12 @@ namespace Hookshot
             int numEncodedBytes = originalInstructions[i].EncodeInstruction(nextTrampolineAddressToWrite, numTrampolineBytesLeft);
 
             if (originalInstructions[i].GetLengthBytes() != numEncodedBytes)
+            {
+                Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_ENCODE_FAILED_FORMAT, i, (long long)nextTrampolineAddressToWrite);
                 return false;
+            }
 
+            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_ENCODE_SUCCESSFUL_FORMAT, i, numEncodedBytes, (long long)nextTrampolineAddressToWrite);
             numTrampolineBytesWritten += numEncodedBytes;
         }
 
@@ -200,6 +206,7 @@ namespace Hookshot
         if (false == originalInstructions.back().IsTerminal())
         {
             const int numTrampolineBytesLeft = sizeof(code.original) - numTrampolineBytesWritten - numExtraTrampolineBytesUsed;
+            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_ENCODE_FINAL_NONTERMINAL_JUMP_FORMAT, (long long)&originalFunctionBytes[numOriginalFunctionBytes], numTrampolineBytesLeft);
             
             if (false == X86Instruction::WriteJumpInstruction(&code.original.byte[numTrampolineBytesWritten], numTrampolineBytesLeft, &originalFunctionBytes[numOriginalFunctionBytes]))
                 return false;
@@ -209,11 +216,13 @@ namespace Hookshot
 
         
         // Fourth sub-part.  Overwriting the original function might require playing with virtual memory permissions.
+        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_LAST_STEP_ATTEMPT_OVERWRITE_FORMAT, (long long)target, X86Instruction::kJumpInstructionLengthBytes, (long long)&code.hook, numOriginalFunctionBytes - X86Instruction::kJumpInstructionLengthBytes);
+
         DWORD originalProtection = 0;
         if (0 == VirtualProtect(&originalFunctionBytes[0], numOriginalFunctionBytes, PAGE_EXECUTE_READWRITE, &originalProtection))
             return false;
 
-        const bool writeJumpResult = X86Instruction::WriteJumpInstruction(&originalFunctionBytes[0], X86Instruction::kJumpInstructionLengthBytes, &code.hook.byte[0]);
+        const bool writeJumpResult = X86Instruction::WriteJumpInstruction(&originalFunctionBytes[0], X86Instruction::kJumpInstructionLengthBytes, &code.hook);
         if (true == writeJumpResult && numOriginalFunctionBytes > X86Instruction::kJumpInstructionLengthBytes)
             X86Instruction::FillWithNop(&originalFunctionBytes[X86Instruction::kJumpInstructionLengthBytes], numOriginalFunctionBytes - X86Instruction::kJumpInstructionLengthBytes);
 
