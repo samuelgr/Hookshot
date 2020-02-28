@@ -9,6 +9,7 @@
  *   Implementation of some functionality for individual trampolines.
  *****************************************************************************/
 
+#include "ApiWindows.h"
 #include "Trampoline.h"
 #include "X86Instruction.h"
 
@@ -71,6 +72,10 @@ namespace Hookshot
     
     bool Trampoline::SetHookForTarget(const TFunc hook, TFunc target)
     {
+        // Sanity check.  Make sure the target is not too far away from this trampoline.
+        if (false == X86Instruction::CanWriteJumpInstruction(target, &code.hook.byte[0]))
+            return false;
+        
         // Easy part. Make the hook part of the trampoline actually target the hook function.
         // This is done by placing the address (or displacement) of the hook function into the hook part of the trampoline at the last pointer-sized element.
         code.hook.ptr[_countof(code.hook.ptr) - 1] = ValueForHookAddress(hook);
@@ -91,7 +96,6 @@ namespace Hookshot
         {
             X86Instruction& decodedInstruction = originalInstructions.emplace_back();
             decodedInstruction.DecodeInstruction(&originalFunctionBytes[numOriginalFunctionBytes]);
-
             if (false == decodedInstruction.IsValid())
                 return false;
 
@@ -108,30 +112,38 @@ namespace Hookshot
         int numTrampolineBytesWritten = 0;
         int numExtraTrampolineBytesUsed = 0;
 
-        for (int i = 0; i < originalInstructions.size(); ++i)
+        for (int i = 0; i < (int)originalInstructions.size(); ++i)
         {
-            const int numTrampolineBytesLeft = sizeof(code.original) - numTrampolineBytesWritten;
+            const int numTrampolineBytesLeft = sizeof(code.original) - numTrampolineBytesWritten - numExtraTrampolineBytesUsed;
             void* const nextTrampolineAddressToWrite = &code.original.byte[numTrampolineBytesWritten];
             
             // Second sub-part. Handle any position-dependent memory references.
             if (originalInstructions[i].HasPositionDependentMemoryReference())
             {
-                // TODO: if the displacement is so small that it fits within the transplanted code, then don't bother modifying it.
+                const int64_t originalDisplacement = originalInstructions[i].GetMemoryDisplacement();
                 
-                // There are no changes to the length of the instruction, so the change to the displacement value is just the difference in its new and original locations in memory.
-                const intptr_t extraDisplacementToAdd = (intptr_t)originalInstructions[i].GetAddress() - (intptr_t)nextTrampolineAddressToWrite;
-                const intptr_t newDisplacementValue = (intptr_t)originalInstructions[i].GetMemoryDisplacement() + extraDisplacementToAdd;
+                // If the displacement is so small that it refers to another instruction that is also being transplanted, then there is no need to modify it.
+                // Note the need to check both forwards (positive) and backwards (negative) displacement directions.
+                const int64_t minForwardDisplacementNeedingModification = (int64_t)(numOriginalFunctionBytes - (numTrampolineBytesWritten + originalInstructions[i].GetLengthBytes()));
+                const int64_t minBackwardDisplacementNotNeedingMofification = (int64_t)(-1 * (numTrampolineBytesWritten + originalInstructions[i].GetLengthBytes()));
+
+                if (originalDisplacement >= minForwardDisplacementNeedingModification || originalDisplacement < minBackwardDisplacementNotNeedingMofification)
+                {
+                    // There are no changes to the length of the instruction, so the change to the displacement value is just the difference in its new and original locations in memory.
+                    const intptr_t newDisplacementValue = ((intptr_t)originalInstructions[i].GetAddress() - (intptr_t)nextTrampolineAddressToWrite) + (intptr_t)originalDisplacement;
 
 #ifdef HOOKSHOT64
-                // In 64-bit mode, it is necessary to verify that the new displacement value falls within the range of possible rel32 values.
-                // In 32-bit mode, this is not a problem because the entire address space is accessible via rel32.
-                if ((newDisplacementValue > (intptr_t)INT32_MAX) || (newDisplacementValue < (intptr_t)INT32_MIN))
-                    return false;
+                    // In 64-bit mode, it is necessary to verify that the new displacement value falls within the range of possible rel32 values.
+                    // In 32-bit mode, this is not a problem because the entire address space is accessible via rel32.
+                    if ((newDisplacementValue > (intptr_t)INT32_MAX) || (newDisplacementValue < (intptr_t)INT32_MIN))
+                        return false;
 #endif
 
-                // TODO: if the new displacement is too wide to fit into the original instruction, then handle it.
+                    // TODO: if the new displacement is too wide to fit into the original instruction, then handle it.
 
-                // TODO: write the new displacement value.
+                    if (false == originalInstructions[i].SetMemoryDisplacement((int64_t)newDisplacementValue))
+                        return false;
+                }
             }
 
             // Third sub-part. Re-encode the instruction.
@@ -143,9 +155,33 @@ namespace Hookshot
             numTrampolineBytesWritten += numEncodedBytes;
         }
 
-        // Fourth sub-part.
-        // TODO
+        // If the last transplanted instruction is terminal, then the entirety of the original function was transplanted, so there is no need to jump to an address in the original function.
+        // Otherwise, there are more instructions left in the original function, so make sure to jump to them after executing the trasnplanted instructions.
+        if (false == originalInstructions.back().IsTerminal())
+        {
+            const int numTrampolineBytesLeft = sizeof(code.original) - numTrampolineBytesWritten - numExtraTrampolineBytesUsed;
+            
+            if (false == X86Instruction::WriteJumpInstruction(&code.original.byte[numTrampolineBytesWritten], numTrampolineBytesLeft, &originalFunctionBytes[numOriginalFunctionBytes]))
+                return false;
+        }
 
-        return false;
+        FlushInstructionCache(GetCurrentProcess(), &code, sizeof(code));
+
+        
+        // Fourth sub-part.  Overwriting the original function might require playing with virtual memory permissions.
+        DWORD originalProtection = 0;
+        if (0 == VirtualProtect(&originalFunctionBytes[0], numOriginalFunctionBytes, PAGE_EXECUTE_READWRITE, &originalProtection))
+            return false;
+
+        const bool writeJumpResult = X86Instruction::WriteJumpInstruction(&originalFunctionBytes[0], X86Instruction::kJumpInstructionLengthBytes, &code.hook.byte[0]);
+        if (true == writeJumpResult && numOriginalFunctionBytes > X86Instruction::kJumpInstructionLengthBytes)
+            X86Instruction::FillWithNop(&originalFunctionBytes[X86Instruction::kJumpInstructionLengthBytes], numOriginalFunctionBytes - X86Instruction::kJumpInstructionLengthBytes);
+
+        DWORD unusedOriginalProtection = 0;
+        const bool restoreProtectionResult = (0 != VirtualProtect(&originalFunctionBytes[0], numOriginalFunctionBytes, originalProtection, &unusedOriginalProtection));
+        if (true == restoreProtectionResult)
+            FlushInstructionCache(GetCurrentProcess(), &originalFunctionBytes[0], (SIZE_T)numOriginalFunctionBytes);
+
+        return writeJumpResult && restoreProtectionResult;
     }
 }

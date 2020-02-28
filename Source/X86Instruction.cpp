@@ -89,12 +89,40 @@ namespace Hookshot
     // -------- CLASS METHODS ------------------------------------------ //
     // See "X86Instruction.h" for documentation.
 
-    void X86Instruction::WriteJumpInstruction(uint8_t* const buf, const uint32_t displacement)
+    bool X86Instruction::CanWriteJumpInstruction(const void* const from, const void* const to)
     {
-        for (int i = 0; i < sizeof(kJumpInstructionPreamble); ++i)
-            buf[i] = kJumpInstructionPreamble[i];
+        const int64_t displacement = (int64_t)to - ((int64_t)from + (int64_t)kJumpInstructionLengthBytes);
+        return (displacement <= INT32_MAX && displacement >= INT32_MIN);
+    }
 
-        *((uint32_t*)&buf[sizeof(kJumpInstructionPreamble)]) = displacement;
+    // --------
+
+    void X86Instruction::FillWithNop(void* const buf, const size_t numBytes)
+    {
+        uint8_t* const bufBytes = (uint8_t*)buf;
+
+        for (size_t i = 0; i < numBytes; ++i)
+            bufBytes[i] = kNopInstructionOpcode;
+    }
+
+    // --------
+    
+    bool X86Instruction::WriteJumpInstruction(void* const where, const int whereSizeBytes, const void* const to)
+    {
+        if (whereSizeBytes < kJumpInstructionLengthBytes)
+            return false;
+
+        if (false == CanWriteJumpInstruction(where, to))
+            return false;
+
+        uint8_t* const whereBytes = (uint8_t*)where;
+        const int64_t displacement = (int64_t)to - ((int64_t)where + (int64_t)kJumpInstructionLengthBytes);
+
+        for (int i = 0; i < sizeof(kJumpInstructionPreamble); ++i)
+            whereBytes[i] = kJumpInstructionPreamble[i];
+
+        *((int32_t*)&whereBytes[sizeof(kJumpInstructionPreamble)]) = (int32_t)displacement;
+        return true;
     }
 
 

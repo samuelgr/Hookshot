@@ -37,6 +37,9 @@ namespace Hookshot
         static constexpr uint8_t kJumpInstructionPreamble[] = {
             0xe9                                                            // jmp rel32
         };
+
+        /// Opcode for a nop instruction.
+        static constexpr uint8_t kNopInstructionOpcode = 0x90;
         
         /// Length of an unconditional jump instruction, in bytes, as written by #WriteJumpInstruction.
         /// Equal to the length of the binary preamble plus the size of a 32-bit displacement.
@@ -150,11 +153,24 @@ namespace Hookshot
             xed_tables_init();
         }
 
+        /// Determines if a jump instruction can be assembled from the specified location to the specified location.
+        /// @param [in] from Proposed address of the jump instruction itself.
+        /// @param [in] to Proposed target address of the jump instruction.
+        /// @return `true` if possible, `false` if not.
+        static bool CanWriteJumpInstruction(const void* const from, const void* const to);
+        
+        /// Fills the specified buffer with nop instructions.
+        /// @param [out] buf Buffer to which nop instructions should be written.
+        /// @param [in] numBytes Size of the buffer to fill, in bytes.
+        static void FillWithNop(void* const buf, const size_t numBytes);
+        
         /// Places a jump instruction with the specified displacement at the specified location.
         /// Supplied buffer must be large enough to hold #kJumpInstructionLengthBytes bytes.
-        /// @param [out] buf Buffer to which the trampoline jump operation should be written.
-        /// @param [in] displacement 32-bit relative jump displacement.
-        static void WriteJumpInstruction(uint8_t* const buf, const uint32_t displacement);
+        /// @param [out] where Buffer to which the trampoline jump operation should be written.
+        /// @param [in] whereSizeBytes Number of bytes available for writing the jump instruction.
+        /// @param [in] to Target address of the jump instruction.
+        /// @return `true` on success, `false` on failure due to the jump target being too far for a rel32 jump instruction.
+        static bool WriteJumpInstruction(void* const where, const int whereSizeBytes, const void* const to);
 
 
         // -------- INSTANCE METHODS --------------------------------------- //
