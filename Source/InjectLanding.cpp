@@ -29,7 +29,7 @@ using namespace Hookshot;
 // -------- INTERNAL TYPES ------------------------------------------------- //
 
 /// Function signature for the hook library initialization function.
-typedef int(APIENTRY* THookModuleInitProc)(IHookConfig*);
+typedef void(APIENTRY* THookModuleInitProc)(IHookConfig*);
 
 
 // -------- INTERNAL FUNCTIONS --------------------------------------------- //
@@ -39,6 +39,7 @@ typedef int(APIENTRY* THookModuleInitProc)(IHookConfig*);
 /// @return Indicator of the result of the interaction.
 static EHookResult InjectLandingLoadAndInitializeHookModule(const TCHAR* hookModuleFileName)
 {
+    Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_INFO_ATTEMPT_LOAD_HOOK_MODULE_FORMAT, (TCHAR*)hookModuleFileName);
     const HMODULE hookModule = LoadLibrary(hookModuleFileName);
 
     if (NULL == hookModule)
@@ -55,13 +56,7 @@ static EHookResult InjectLandingLoadAndInitializeHookModule(const TCHAR* hookMod
         return EHookResult::HookResultMalformedHookModule;
     }
 
-    const int initProcResult = initProc(new HookStore());
-
-    if (0 != initProcResult)
-    {
-        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_HOOK_MODULE_FAILURE_FORMAT, initProcResult, (TCHAR*)hookModuleFileName);
-        return EHookResult::HookResultInitializationFailed;
-    }
+    initProc(new HookStore());
 
     Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_INFO_HOOK_MODULE_SUCCESS_FORMAT, (TCHAR*)hookModuleFileName);
     return EHookResult::HookResultSuccess;

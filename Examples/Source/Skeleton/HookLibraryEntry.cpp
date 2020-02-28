@@ -55,7 +55,7 @@ extern "C" BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpv
 /// If initialization fails and a non-zero code is returned, Hookshot unloads and does not use this hook module.
 /// @param [in] hookConfig Hookshot configuration interface.  Refer to #IHookConfig documentation for more information.
 /// @return 0 on success, any other code on failure (not interpreted by Hookshot)
-extern "C" __declspec(dllexport) int APIENTRY HookshotMain(IHookConfig* hookConfig)
+extern "C" __declspec(dllexport) void APIENTRY HookshotMain(IHookConfig* hookConfig)
 {
-    return 0;
+    
 }
