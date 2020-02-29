@@ -72,7 +72,7 @@ namespace Hookshot
 
     // --------
     
-    bool Trampoline::SetHookForTarget(const TFunc hook, TFunc target)
+    bool Trampoline::SetHookForTarget(const void* hook, void* target)
     {
         Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_TRAMPOLINE_SET_HOOK_START_FORMAT, (long long)hook, (long long)target, (long long)&code.hook, (long long)&code.original);
         
@@ -231,6 +231,15 @@ namespace Hookshot
         if (true == restoreProtectionResult)
             FlushInstructionCache(GetCurrentProcess(), &originalFunctionBytes[0], (SIZE_T)numOriginalFunctionBytes);
 
-        return writeJumpResult && restoreProtectionResult;
+        if (writeJumpResult && restoreProtectionResult)
+        {
+            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_TRAMPOLINE_SET_HOOK_COMPLETE_FORMAT, (long long)hook, (long long)target);
+            return true;
+        }
+        else
+        {
+            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_TRAMPOLINE_SET_HOOK_FAILED_FORMAT, (long long)hook, (long long)target);
+            return false;
+        }
     }
 }

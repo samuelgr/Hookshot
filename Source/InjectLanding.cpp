@@ -13,8 +13,8 @@
 #include "ApiWindows.h"
 #include "Globals.h"
 #include "HookStore.h"
-#include "HookResult.h"
 #include "Inject.h"
+#include "InjectLanding.h"
 #include "Message.h"
 #include "StringUtilities.h"
 #include "TemporaryBuffers.h"
@@ -36,8 +36,8 @@ typedef void(APIENTRY* THookModuleInitProc)(IHookConfig*);
 
 /// Attempts to load and initialize the named hook module.
 /// @param [in] hookModuleFileName File name of the hook module to load and initialize.
-/// @return Indicator of the result of the interaction.
-static EHookResult InjectLandingLoadAndInitializeHookModule(const TCHAR* hookModuleFileName)
+/// @return `true` on success, `false` on failure.
+static bool InjectLandingLoadAndInitializeHookModule(const TCHAR* hookModuleFileName)
 {
     Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_INFO_ATTEMPT_LOAD_HOOK_MODULE_FORMAT, (TCHAR*)hookModuleFileName);
     const HMODULE hookModule = LoadLibrary(hookModuleFileName);
@@ -45,7 +45,7 @@ static EHookResult InjectLandingLoadAndInitializeHookModule(const TCHAR* hookMod
     if (NULL == hookModule)
     {
         Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_CANNOT_LOAD_HOOK_MODULE_FORMAT, GetLastError(), (TCHAR*)hookModuleFileName);
-        return EHookResult::HookResultCannotLoadHookModule;
+        return false;
     }
 
     const THookModuleInitProc initProc = (THookModuleInitProc)GetProcAddress(hookModule, Strings::kStrHookLibraryInitFuncName);
@@ -53,13 +53,13 @@ static EHookResult InjectLandingLoadAndInitializeHookModule(const TCHAR* hookMod
     if (NULL == initProc)
     {
         Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_MALFORMED_HOOKSHOT_MODULE_FORMAT, GetLastError(), (TCHAR*)hookModuleFileName);
-        return EHookResult::HookResultMalformedHookModule;
+        return false;
     }
 
     initProc(new HookStore());
 
     Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_INFO_HOOK_MODULE_SUCCESS_FORMAT, (TCHAR*)hookModuleFileName);
-    return EHookResult::HookResultSuccess;
+    return true;
 }
 
 
@@ -82,7 +82,7 @@ extern "C" void APIENTRY InjectLandingCleanup(const SInjectData* const injectDat
 
 // --------
 
-extern "C" EHookResult APIENTRY InjectLandingSetHooks(void)
+extern "C" void APIENTRY InjectLandingSetHooks(void)
 {
 #ifdef HOOKSHOT_DEBUG
     if (FALSE == IsDebuggerPresent())
@@ -101,17 +101,16 @@ extern "C" EHookResult APIENTRY InjectLandingSetHooks(void)
     TemporaryBuffer<TCHAR> hookModuleFileName;
 
     if (false == Strings::FillHookModuleFilenameUnique(hookModuleFileName, hookModuleFileName.Count()))
-        return EHookResult::HookResultInsufficientMemoryFilenames;
+        return;
 
-    if (EHookResult::HookResultSuccess == InjectLandingLoadAndInitializeHookModule(hookModuleFileName))
-        return EHookResult::HookResultSuccess;
+    if (true == InjectLandingLoadAndInitializeHookModule(hookModuleFileName))
+        return;
 
     if (false == Strings::FillHookModuleFilenameCommon(hookModuleFileName, hookModuleFileName.Count()))
-        return EHookResult::HookResultInsufficientMemoryFilenames;
+        return;
 
-    if (EHookResult::HookResultSuccess == InjectLandingLoadAndInitializeHookModule(hookModuleFileName))
-        return EHookResult::HookResultSuccess;
+    if (true == InjectLandingLoadAndInitializeHookModule(hookModuleFileName))
+        return;
 
     Message::OutputFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_NO_HOOK_MODULE);
-    return EHookResult::HookResultFailure;
 }

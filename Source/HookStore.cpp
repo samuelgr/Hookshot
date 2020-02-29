@@ -24,7 +24,7 @@ namespace Hookshot
     /// Determines the base address of the memory region associated with the target function.
     /// @param [in] targetFunc Address of the target function that is being hooked.
     /// @return Base address of the associated memory region, or NULL if it cannot be determined.
-    static void* BaseAddressForTargetFunc(const TFunc targetFunc)
+    static void* BaseAddressForTargetFunc(const void* targetFunc)
     {
         // If the target function is part of a loaded module, the base address of the region is the base address of that module.
         HMODULE moduleHandle;
@@ -64,7 +64,7 @@ namespace Hookshot
     // -------- CONCRETE INSTANCE METHODS ------------------------------ //
     // See "Hookshot.h" for documentation.
 
-    const TFunc HookStore::GetOriginalFunctionForHook(const THookID hook)
+    const void* HookStore::GetOriginalFunctionForHook(const THookID hook)
     {
         const int trampolineStoreIndex = hook / TrampolineStore::kTrampolineStoreCount;
         const int trampolineIndex = hook % TrampolineStore::kTrampolineStoreCount;
@@ -82,7 +82,7 @@ namespace Hookshot
 
     // --------
 
-    THookID HookStore::IdentifyHook(const TFunc targetFunc)
+    THookID HookStore::IdentifyHook(const void* targetFunc)
     {
         if (NULL == targetFunc)
             return EHookError::HookErrorInvalidArgument;
@@ -97,7 +97,7 @@ namespace Hookshot
     
     // --------
 
-    THookID HookStore::SetHook(const TFunc hookFunc, TFunc targetFunc)
+    THookID HookStore::SetHook(const void* hookFunc, void* targetFunc)
     {
         if (NULL == hookFunc || NULL == targetFunc)
             return EHookError::HookErrorInvalidArgument;

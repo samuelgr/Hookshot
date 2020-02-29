@@ -34,7 +34,7 @@ namespace Hookshot
         concurrency::reader_writer_lock lock;
 
         /// Maps from target function address to hook identifier.
-        std::unordered_map<TFunc, THookID> hookMap;
+        std::unordered_map<const void*, THookID> hookMap;
         
         /// Trampoline storage.
         /// Used internally to implement hooks.
@@ -62,8 +62,8 @@ namespace Hookshot
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See "Hookshot.h" for documentation.
 
-        const TFunc GetOriginalFunctionForHook(const THookID hook) override;
-        THookID IdentifyHook(const TFunc targetFunc) override;
-        THookID SetHook(const TFunc hookFunc, TFunc targetFunc) override;
+        const void* GetOriginalFunctionForHook(const THookID hook) override;
+        THookID IdentifyHook(const void* targetFunc) override;
+        THookID SetHook(const void* hookFunc, void* targetFunc) override;
     };
 }

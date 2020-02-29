@@ -13,18 +13,9 @@
 #pragma once
 
 #include "ApiWindows.h"
-#include "HookResult.h"
+#include "Inject.h"
 
 #include <cstddef>
-
-
-// -------- FORWARD DECLARATIONS ------------------------------------------- //
-// See definitions for documentation.
-
-namespace Hookshot
-{
-    struct SInjectData;
-}
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
@@ -41,5 +32,4 @@ extern "C" void APIENTRY InjectLanding(void);
 extern "C" void APIENTRY InjectLandingCleanup(const Hookshot::SInjectData* const injectData);
 
 /// Performs all operations needed to read hook configuration information and set up hooks.
-/// @return Code indicating the result of the operation.
-extern "C" Hookshot::EHookResult APIENTRY InjectLandingSetHooks(void);
+extern "C" void APIENTRY InjectLandingSetHooks(void);

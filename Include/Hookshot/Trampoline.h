@@ -88,7 +88,7 @@ namespace Hookshot
         /// Retrieves and returns the address of the hook function.
         /// Valid only if this object is already set, otherwise may return a garbage value.
         /// @return Address of the hook function.
-        inline const TFunc GetHookFunction(void) const
+        inline const void* GetHookFunction(void) const
         {
             return HookAddressForValue();
         }
@@ -96,7 +96,7 @@ namespace Hookshot
         /// Retrieves and returns the address that, when invoked, provides the original functionality of the target function.
         /// Valid only if this object is already set, otherwise may return a garbage value.
         /// @return Address that can be invoked to execute the original functionality of the target function.
-        inline const TFunc GetOriginalTargetFunction(void) const
+        inline const void* GetOriginalTargetFunction(void) const
         {
             return (void*)&code.original;
         }
@@ -112,7 +112,7 @@ namespace Hookshot
         /// @param [in] hook Address of the hook function to which this trampoline should transfer control whenever the target is invoked.
         /// @param [in,out] target Address of the function that should be hooked by this trampoline.
         /// @return `true` if successful, `false` otherwise.
-        bool SetHookForTarget(const TFunc hook, TFunc target);
+        bool SetHookForTarget(const void* hook, void* target);
 
 
     private:
@@ -132,7 +132,7 @@ namespace Hookshot
         
         /// Computes the address of the hook function, given the value stored in this trampoline.
         /// @return Address of the hook function.
-        inline const TFunc HookAddressForValue(void) const
+        inline const void* HookAddressForValue(void) const
         {
 #ifdef HOOKSHOT64
             // No transformation required in 64-bit mode because the address is an absolute jump target.
@@ -149,7 +149,7 @@ namespace Hookshot
         /// Depending on the architecture and instruction sequence contained in #kHookCodeDefault, the address may require transformation before insertion into the trampoline.
         /// @param [in] hook Address of the hook function.
         /// @return Transformed value of the hook function address, to be inserted into the trampoline.
-        inline size_t ValueForHookAddress(const TFunc hook) const
+        inline size_t ValueForHookAddress(const void* hook) const
         {
 #ifdef HOOKSHOT64
             // No transformation required in 64-bit mode because the value is an absolute jump target address.

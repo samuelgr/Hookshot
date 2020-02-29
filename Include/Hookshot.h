@@ -23,31 +23,36 @@ namespace Hookshot
     /// Opaque handle used to identify hooks.
     typedef int THookID;
 
-    /// Address type for identifying the starting address of functions.
-    /// Must be cast somehow before being invoked.
-    typedef void* TFunc;
-
     /// Enumeration of possible errors when setting a hook.
     /// These are the negative values returned in place of #THookID, where applicable.
     enum EHookError : THookID
     {
-        HookErrorInvalidArgument = -1,                              ///< An argument that was supplied is invalid.
-        HookErrorNotFound = -2,                                     ///< Requested hook could not be found.
-        HookErrorInitializationFailed = -3,                         ///< Internal initialization steps failed.
-        HookErrorLibraryNotLoaded = -4,                             ///< Cannot set a hook because the requested DLL is not loaded.
-        HookErrorAllocationFailed = -5,                             ///< Unable to allocate a new hook data structure.
-        HookErrorDuplicate = -6,                                    ///< Specified function is already hooked.
-        HookErrorResolveModuleName = -7,                            ///< Internal error resolving the absolute path for the specified DLL.
-        HookErrorResolveFunctionName = -8,                          ///< Internal error resolving the name of the requested exported function.
-        HookErrorFunctionNotExported = -9,                          ///< Cannot set a hook because the requested DLL does not export the requested function.
-        HookErrorSetFailed = -10,                                   ///< Trampoline failed to set the hook (debugging required).
-        HookErrorMinimumValue = -11                                 ///< Sentinel value, not used as an error code.
+        HookErrorMinimumValue = -100,                               ///< Lower sentinel value, not used as an error code.
+
+        HookErrorInvalidArgument,                                   ///< An argument that was supplied is invalid.
+        HookErrorNotFound,                                          ///< Requested hook could not be found.
+        HookErrorInitializationFailed,                              ///< Internal initialization steps failed.
+        HookErrorAllocationFailed,                                  ///< Unable to allocate a new hook data structure.
+        HookErrorDuplicate,                                         ///< Specified function is already hooked.
+        HookErrorSetFailed,                                         ///< Trampoline failed to set the hook (debugging required).
+
+        HookErrorMaximumValue                                       ///< Upper sentinel value, not used as an error code.
     };
+
+    /// Convenience function used to determine if a hook operation succeeded.
+    /// @param [in] result Hook identifier returned as the result of any #IHookConfig interface method call.
+    /// @return `true` if the identifier represents success, `false` otherwise.
+    inline bool SuccessfulResult(const THookID result)
+    {
+        return (result >= 0);
+    }
     
     /// Interface provided by Hookshot that the hook library can use to configure hooks.
     /// Hookshot creates an object that implements this interface and supplies it to the hook library during initialization.
     /// That instance remains valid throughout the execution of the application.
     /// Its methods can be called at any time and are completely concurrency-safe.
+    /// However, it is highly recommended that hook identifiers and original function pointers be obtained once and cached.
+    /// This is because the implementations of all interface methods very likely involve taking a lock.
     class IHookConfig
     {
     public:
@@ -59,19 +64,20 @@ namespace Hookshot
         /// The returned address is not the original entry point of the hooked function but rather a trampoline address that Hookshot created when installing the hook.
         /// @param [in] hook Opaque handle that identifies the hook in question.
         /// @return Address that can be invoked to access the functionality of the original function, or `NULL` in the event of an error.
-        virtual const TFunc GetOriginalFunctionForHook(const THookID hook) = 0;
+        virtual const void* GetOriginalFunctionForHook(const THookID hook) = 0;
 
         /// Identifies the hook associated with the target function, if one is defined.
         /// @param [in] targetFunc Address of the function that was previously hooked.
         /// @return Opaque handle used to identify the previously-installed hook, or a member of #EHookError to indicate an error.
-        virtual THookID IdentifyHook(const TFunc targetFunc) = 0;
+        virtual THookID IdentifyHook(const void* targetFunc) = 0;
         
         /// Causes Hookshot to attempt to install a hook on the specified function.
         /// Once installed, the hook cannot be modified or deleted.
         /// The hook library can emulate modification or deletion by modifying the behavior of the supplied hook function based on runtime conditions.
+        /// If the caller attempts to set a hook after the program is already initialized and running, then the caller is responsible for making sure no other threads are executing code at the target function address while the hook is being set.
         /// @param [in] hookFunc Hook function that should be invoked instead of the original function.
         /// @param [in,out] targetFunc Address of the function that should be hooked.
         /// @return Opaque handle used to identify the newly-installed hook, or a member of #EHookError to indicate an error.
-        virtual THookID SetHook(const TFunc hookFunc, TFunc targetFunc) = 0;
+        virtual THookID SetHook(const void* hookFunc, void* targetFunc) = 0;
     };
 }
