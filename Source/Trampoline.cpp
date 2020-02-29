@@ -194,6 +194,7 @@ namespace Hookshot
             if (originalInstructions[i].GetLengthBytes() != numEncodedBytes)
             {
                 Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_ENCODE_FAILED_FORMAT, i, (long long)nextTrampolineAddressToWrite);
+                code.original.word[0] = kOriginalCodeDefault;
                 return false;
             }
 
@@ -209,7 +210,10 @@ namespace Hookshot
             Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_ENCODE_FINAL_NONTERMINAL_JUMP_FORMAT, (long long)&originalFunctionBytes[numOriginalFunctionBytes], numTrampolineBytesLeft);
             
             if (false == X86Instruction::WriteJumpInstruction(&code.original.byte[numTrampolineBytesWritten], numTrampolineBytesLeft, &originalFunctionBytes[numOriginalFunctionBytes]))
+            {
+                code.original.word[0] = kOriginalCodeDefault;
                 return false;
+            }
         }
 
         FlushInstructionCache(GetCurrentProcess(), &code, sizeof(code));
@@ -220,7 +224,10 @@ namespace Hookshot
 
         DWORD originalProtection = 0;
         if (0 == VirtualProtect(&originalFunctionBytes[0], numOriginalFunctionBytes, PAGE_EXECUTE_READWRITE, &originalProtection))
+        {
+            code.original.word[0] = kOriginalCodeDefault;
             return false;
+        }
 
         const bool writeJumpResult = X86Instruction::WriteJumpInstruction(&originalFunctionBytes[0], X86Instruction::kJumpInstructionLengthBytes, &code.hook);
         if (true == writeJumpResult && numOriginalFunctionBytes > X86Instruction::kJumpInstructionLengthBytes)
@@ -239,6 +246,7 @@ namespace Hookshot
         else
         {
             Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_TRAMPOLINE_SET_HOOK_FAILED_FORMAT, (long long)hook, (long long)target);
+            code.original.word[0] = kOriginalCodeDefault;
             return false;
         }
     }

@@ -64,7 +64,7 @@ namespace Hookshot
         /// The returned address is not the original entry point of the hooked function but rather a trampoline address that Hookshot created when installing the hook.
         /// @param [in] hook Opaque handle that identifies the hook in question.
         /// @return Address that can be invoked to access the functionality of the original function, or `NULL` in the event of an error.
-        virtual const void* GetOriginalFunctionForHook(const THookID hook) = 0;
+        virtual const void* GetOriginalFunctionForHook(THookID hook) = 0;
 
         /// Identifies the hook associated with the target function, if one is defined.
         /// @param [in] targetFunc Address of the function that was previously hooked.

@@ -42,29 +42,24 @@ namespace Hookshot
 #endif
 
 
-    // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
-    // See "Hookshot.h" for documentation.
+    // -------- CLASS VARIABLES ---------------------------------------- //
+    // See "HookStore.h" for documentation.
+
+    concurrency::reader_writer_lock HookStore::lock;
+
+    std::unordered_map<const void*, THookID> HookStore::hookMap;
+
+    std::vector<TrampolineStore> HookStore::trampolines;
 
 #ifdef HOOKSHOT64
-    HookStore::HookStore() : lock(), hookMap(), trampolines(), trampolineStoreMap()
-    {
-        // In 64-bit mode, multiple TrampolineStore objects will be created in different parts of the address space.
-        // Therefore, there is nothing to do at object construction time.
-    }
-#else
-    HookStore::HookStore(void) : lock(), hookMap(), trampolines()
-    {
-        // In 32-bit mode, the entire address space can be accessed via rel32 displacements.
-        // Therefore, it is sufficient just to create and use TrampolineStore objects in a centralized location.
-        trampolines.emplace_back();
-    }
+    std::unordered_map<void*, int> HookStore::trampolineStoreMap;
 #endif
 
     
     // -------- CONCRETE INSTANCE METHODS ------------------------------ //
     // See "Hookshot.h" for documentation.
 
-    const void* HookStore::GetOriginalFunctionForHook(const THookID hook)
+    const void* HookStore::GetOriginalFunctionForHook(THookID hook)
     {
         const int trampolineStoreIndex = hook / TrampolineStore::kTrampolineStoreCount;
         const int trampolineIndex = hook % TrampolineStore::kTrampolineStoreCount;
@@ -142,6 +137,9 @@ namespace Hookshot
 #else
         // In 32-bit mode, all trampolines are stored in a central location.
         // Therefore, it is sufficient to keep appending new TrampolineStore objects as existing ones fill up.
+        if (0 == trampolines.size())
+            trampolines.emplace_back();
+
         if (0 == trampolines.back().FreeCount())
             trampolines.emplace_back();
 
