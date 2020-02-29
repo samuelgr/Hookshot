@@ -25,6 +25,7 @@
     <ClCompile Include="Source\HookStore.cpp" />
     <ClCompile Include="Source\Inject.cpp" />
     <ClCompile Include="Source\InjectLanding.cpp" />
+    <ClCompile Include="Source\LibraryInitialize.cpp" />
     <ClCompile Include="Source\Message.cpp" />
     <ClCompile Include="Source\ProcessInjector.cpp" />
     <ClCompile Include="Source\StringUtilities.cpp" />
@@ -46,6 +47,7 @@
     <ClInclude Include="Include\Hookshot\Inject.h" />
     <ClInclude Include="Include\Hookshot\InjectLanding.h" />
     <ClInclude Include="Include\Hookshot\InjectResult.h" />
+    <ClInclude Include="Include\Hookshot\LibraryInitialize.h" />
     <ClInclude Include="Include\Hookshot\Message.h" />
     <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Strings.h" />

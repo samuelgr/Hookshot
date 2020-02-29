@@ -104,7 +104,7 @@ namespace Hookshot
     private:
         // -------- HELPERS ------------------------------------------------ //
 
-        inline static bool IsOutputModeInteractive(const EMessageOutputMode outputMode)
+        static inline bool IsOutputModeInteractive(const EMessageOutputMode outputMode)
         {
             return (outputMode > MessageOutputModeInteractiveBoundaryValue);
         }

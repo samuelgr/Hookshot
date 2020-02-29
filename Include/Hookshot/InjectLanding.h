@@ -16,6 +16,13 @@
 #include "Inject.h"
 
 #include <cstddef>
+#include <hookshot.h>
+
+
+ // -------- TYPE DEFINITIONS ----------------------------------------------- //
+
+/// Function signature for the hook library initialization function.
+typedef void(APIENTRY* THookModuleInitProc)(Hookshot::IHookConfig*);
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //

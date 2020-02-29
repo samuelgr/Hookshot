@@ -12,9 +12,8 @@
 
 #include "ApiWindows.h"
 #include "Globals.h"
-#include "HookStore.h"
 #include "Inject.h"
-#include "InjectLanding.h"
+#include "LibraryInitialize.h"
 #include "Message.h"
 #include "StringUtilities.h"
 #include "TemporaryBuffers.h"
@@ -24,43 +23,6 @@
 #include <psapi.h>
 
 using namespace Hookshot;
-
-
-// -------- INTERNAL TYPES ------------------------------------------------- //
-
-/// Function signature for the hook library initialization function.
-typedef void(APIENTRY* THookModuleInitProc)(IHookConfig*);
-
-
-// -------- INTERNAL FUNCTIONS --------------------------------------------- //
-
-/// Attempts to load and initialize the named hook module.
-/// @param [in] hookModuleFileName File name of the hook module to load and initialize.
-/// @return `true` on success, `false` on failure.
-static bool InjectLandingLoadAndInitializeHookModule(const TCHAR* hookModuleFileName)
-{
-    Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_INFO_ATTEMPT_LOAD_HOOK_MODULE_FORMAT, (TCHAR*)hookModuleFileName);
-    const HMODULE hookModule = LoadLibrary(hookModuleFileName);
-
-    if (NULL == hookModule)
-    {
-        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_CANNOT_LOAD_HOOK_MODULE_FORMAT, GetLastError(), (TCHAR*)hookModuleFileName);
-        return false;
-    }
-
-    const THookModuleInitProc initProc = (THookModuleInitProc)GetProcAddress(hookModule, Strings::kStrHookLibraryInitFuncName);
-
-    if (NULL == initProc)
-    {
-        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_MALFORMED_HOOKSHOT_MODULE_FORMAT, GetLastError(), (TCHAR*)hookModuleFileName);
-        return false;
-    }
-
-    initProc(new HookStore());
-
-    Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_INFO_HOOK_MODULE_SUCCESS_FORMAT, (TCHAR*)hookModuleFileName);
-    return true;
-}
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
@@ -103,13 +65,13 @@ extern "C" void APIENTRY InjectLandingSetHooks(void)
     if (false == Strings::FillHookModuleFilenameUnique(hookModuleFileName, hookModuleFileName.Count()))
         return;
 
-    if (true == InjectLandingLoadAndInitializeHookModule(hookModuleFileName))
+    if (true == LibraryInitialize::LoadHookModule(hookModuleFileName))
         return;
 
     if (false == Strings::FillHookModuleFilenameCommon(hookModuleFileName, hookModuleFileName.Count()))
         return;
 
-    if (true == InjectLandingLoadAndInitializeHookModule(hookModuleFileName))
+    if (true == LibraryInitialize::LoadHookModule(hookModuleFileName))
         return;
 
     Message::OutputFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_NO_HOOK_MODULE);

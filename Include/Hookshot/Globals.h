@@ -24,7 +24,7 @@ namespace Hookshot
     private:
         // -------- CLASS VARIABLES ---------------------------------------- //
 
-        /// Handle of the instance that represents the running form of Xidi, be it the library or the test application.
+        /// Handle of the instance that represents the running form of Hookshot.
         static HINSTANCE gInstanceHandle;
 
 
@@ -47,11 +47,17 @@ namespace Hookshot
         
         /// Retrieves the handle of the instance that represents the current running form of Hookshot, be it the library or the bootstrap executable.
         /// @return Instance handle for the loaded module.
-        static HINSTANCE GetInstanceHandle(void);
+        static inline HINSTANCE GetInstanceHandle(void)
+        {
+            return gInstanceHandle;
+        }
 
         /// Sets the handle of the instance that represents the current running form of Hookshot, be it the library or the bootstrap executable.
         /// Intended to be called only once during initialization.
         /// @param [in] newInstanceHandle Instance handle to set.
-        static void SetInstanceHandle(HINSTANCE newInstanceHandle);
+        static inline void SetInstanceHandle(HINSTANCE newInstanceHandle)
+        {
+            gInstanceHandle = newInstanceHandle;
+        }
     };
 }

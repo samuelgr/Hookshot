@@ -12,7 +12,7 @@
 #include "ApiWindows.h"
 #include "Globals.h"
 #include "InjectLanding.h"
-#include "X86Instruction.h"
+#include "LibraryInitialize.h"
 
 using namespace Hookshot;
 
@@ -56,9 +56,14 @@ extern "C" BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpv
 /// @return Address to which to jump to continue running the injected process, or `NULL` on failure.
 extern "C" __declspec(dllexport) void* APIENTRY DllInit(void)
 {
-    // Perform additional initialization tasks.
-    X86Instruction::Initialize();
-
-    // Allow injection to proceed.
+    LibraryInitialize::CommonInitialization();
     return (void*)InjectLanding;
+}
+
+/// Intended to be invoked by programs that link with this library and load it directly, rather than via injection.
+/// Part of the external Hookshot API.  See "Hookshot.h" for documentation.
+extern "C" __declspec(dllexport) IHookConfig* APIENTRY HookshotLibraryInitialize(void)
+{
+    LibraryInitialize::CommonInitialization();
+    return LibraryInitialize::GetHookConfigInterface();
 }

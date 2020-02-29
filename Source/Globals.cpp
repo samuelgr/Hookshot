@@ -52,18 +52,4 @@ namespace Hookshot
 
         return ((size_t)secondLastDot - (size_t)buf) / sizeof(buf[0]);
     }
-
-    // ---------
-
-    HINSTANCE Globals::GetInstanceHandle(void)
-    {
-        return gInstanceHandle;
-    }
-
-    // ---------
-
-    void Globals::SetInstanceHandle(HINSTANCE newInstanceHandle)
-    {
-        gInstanceHandle = newInstanceHandle;
-    }
 }

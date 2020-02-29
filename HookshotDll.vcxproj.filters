@@ -54,6 +54,9 @@
     <ClCompile Include="Source\X86Instruction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\LibraryInitialize.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc">
@@ -100,9 +103,6 @@
     <ClInclude Include="Include\Hookshot\TemporaryBuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\HookResult.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Hookshot\StringUtilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -119,6 +119,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Hookshot\X86Instruction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Hookshot\LibraryInitialize.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

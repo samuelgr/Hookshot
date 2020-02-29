@@ -91,7 +91,7 @@ namespace Hookshot
         // First, read and decode instructions until either enough bytes worth of instructions are decoded to hold an unconditional jump or a terminal instruction is hit.  If the latter happens strictly before the former, then setting this hook failed due to there not being enough bytes of function to transplant.
         // Second, iterate through all the decoded instructions and check for position-dependent memory references.  Update the displacements as needed for any such decoded instructions.  If that is not possible for even one instruction, then setting this hook failed.
         // Third, encode the decoded instructions into this trampoline's original function region.  If needed (i.e. the last of the decoded instructions is non-terminal), append an unconditional jump instruction to the correct address within the original function.  This will be completed at the same time as the second sub-part.
-        // Fourth and final, overwrite the beginning of the original function with an unconditional jump to the hook region of this trampoline.  It is a good idea to suspend all other threads while doing this.
+        // Fourth and final, overwrite the beginning of the original function with an unconditional jump to the hook region of this trampoline.  This is where it is important other threads not be trying to execute code in the original function.
 
         // First sub-part.
         uint8_t* const originalFunctionBytes = (uint8_t*)target;
