@@ -36,7 +36,14 @@ namespace Hookshot
 
     void LibraryInitialize::CommonInitialization(void)
     {
-        X86Instruction::Initialize();
+        static bool isInitialized = false;
+        
+        if (false == isInitialized)
+        {
+            X86Instruction::Initialize();
+
+            isInitialized = true;
+        }
     }
 
     // --------

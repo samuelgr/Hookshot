@@ -10,7 +10,6 @@
  *   Receives control from injection code, cleans up, and runs the program.
  *****************************************************************************/
 
-#include "ApiWindows.h"
 #include "Globals.h"
 #include "Inject.h"
 #include "LibraryInitialize.h"
@@ -28,7 +27,7 @@ using namespace Hookshot;
 // -------- FUNCTIONS ------------------------------------------------------ //
 // See "InjectLanding.h" for documentation.
 
-extern "C" void APIENTRY InjectLandingCleanup(const SInjectData* const injectData)
+extern "C" void __stdcall InjectLandingCleanup(const SInjectData* const injectData)
 {
     // Before cleaning up, set aside the array of addresses to free.
     // This is needed because freeing any one of these could invalidate the injectData pointer.
@@ -44,7 +43,7 @@ extern "C" void APIENTRY InjectLandingCleanup(const SInjectData* const injectDat
 
 // --------
 
-extern "C" void APIENTRY InjectLandingSetHooks(void)
+extern "C" void __stdcall InjectLandingSetHooks(void)
 {
 #ifdef HOOKSHOT_DEBUG
     if (FALSE == IsDebuggerPresent())

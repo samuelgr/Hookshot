@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include "ApiWindows.h"
 #include "Inject.h"
 
 #include <cstddef>
@@ -22,7 +21,7 @@
  // -------- TYPE DEFINITIONS ----------------------------------------------- //
 
 /// Function signature for the hook library initialization function.
-typedef void(APIENTRY* THookModuleInitProc)(Hookshot::IHookConfig*);
+typedef void(__stdcall* THookModuleInitProc)(Hookshot::IHookConfig*);
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
@@ -32,11 +31,11 @@ typedef void(APIENTRY* THookModuleInitProc)(Hookshot::IHookConfig*);
 /// When this DLL has been loaded and initialized successfully, control transfers to this address.
 /// At the time that this occurs, this DLL assumes control of the injection and hook setup process, freeing the injecting process of all further responsibility.
 /// There is no return, but rather upon completion control is transferred to the actual entry point of the injected process.
-extern "C" void APIENTRY InjectLanding(void);
+extern "C" void __stdcall InjectLanding(void);
 
 /// Performs all necessary cleanup operations upon completion of the injection code.
 /// @param [in] injectData Data used during the injection process.
-extern "C" void APIENTRY InjectLandingCleanup(const Hookshot::SInjectData* const injectData);
+extern "C" void __stdcall InjectLandingCleanup(const Hookshot::SInjectData* const injectData);
 
 /// Performs all operations needed to read hook configuration information and set up hooks.
-extern "C" void APIENTRY InjectLandingSetHooks(void);
+extern "C" void __stdcall InjectLandingSetHooks(void);

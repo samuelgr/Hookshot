@@ -245,7 +245,7 @@ namespace Hookshot
         }
         else
         {
-            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_TRAMPOLINE_SET_HOOK_FAILED_FORMAT, (long long)hook, (long long)target);
+            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_SET_HOOK_FAILED_FORMAT, (long long)hook, (long long)target);
             code.original.word[0] = kOriginalCodeDefault;
             return false;
         }

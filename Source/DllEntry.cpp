@@ -26,7 +26,7 @@ using namespace Hookshot;
 /// @param [in] fdwReason Specifies the event that caused this function to be invoked.
 /// @param [in] lpvReserved Reserved.
 /// @return `TRUE` if this function successfully initialized or uninitialized this library, `FALSE` otherwise.
-extern "C" BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     switch (fdwReason)
     {
@@ -54,7 +54,7 @@ extern "C" BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpv
 /// Success or failure of this function determines the overall success or failure of the injection process.
 /// The injecting process is still waiting on this code to complete, so it should be as fast as possible to avoid undue delays.
 /// @return Address to which to jump to continue running the injected process, or `NULL` on failure.
-extern "C" __declspec(dllexport) void* APIENTRY DllInit(void)
+extern "C" __declspec(dllexport) void* __stdcall DllInit(void)
 {
     LibraryInitialize::CommonInitialization();
     return (void*)InjectLanding;
@@ -62,7 +62,7 @@ extern "C" __declspec(dllexport) void* APIENTRY DllInit(void)
 
 /// Intended to be invoked by programs that link with this library and load it directly, rather than via injection.
 /// Part of the external Hookshot API.  See "Hookshot.h" for documentation.
-extern "C" __declspec(dllexport) IHookConfig* APIENTRY HookshotLibraryInitialize(void)
+__declspec(dllexport) IHookConfig* __stdcall HookshotLibraryInitialize(void)
 {
     LibraryInitialize::CommonInitialization();
     return LibraryInitialize::GetHookConfigInterface();

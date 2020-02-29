@@ -18,83 +18,33 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\CodeInjector.cpp" />
-    <ClCompile Include="Source\DllEntry.cpp" />
-    <ClCompile Include="Source\Globals.cpp" />
-    <ClCompile Include="Source\HookStore.cpp" />
-    <ClCompile Include="Source\Inject.cpp" />
-    <ClCompile Include="Source\InjectLanding.cpp" />
-    <ClCompile Include="Source\LibraryInitialize.cpp" />
-    <ClCompile Include="Source\Message.cpp" />
-    <ClCompile Include="Source\ProcessInjector.cpp" />
-    <ClCompile Include="Source\StringUtilities.cpp" />
-    <ClCompile Include="Source\TemporaryBuffers.cpp" />
-    <ClCompile Include="Source\Trampoline.cpp" />
-    <ClCompile Include="Source\TrampolineStore.cpp" />
-    <ClCompile Include="Source\X86Instruction.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Resources\Hookshot.rc" />
-    <ResourceCompile Include="Resources\HookshotDll.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Include\Hookshot.h" />
-    <ClInclude Include="Include\Hookshot\ApiWindows.h" />
-    <ClInclude Include="Include\Hookshot\CodeInjector.h" />
-    <ClInclude Include="Include\Hookshot\Globals.h" />
-    <ClInclude Include="Include\Hookshot\HookStore.h" />
-    <ClInclude Include="Include\Hookshot\Inject.h" />
-    <ClInclude Include="Include\Hookshot\InjectLanding.h" />
-    <ClInclude Include="Include\Hookshot\InjectResult.h" />
-    <ClInclude Include="Include\Hookshot\LibraryInitialize.h" />
-    <ClInclude Include="Include\Hookshot\Message.h" />
-    <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
-    <ClInclude Include="Include\Hookshot\Strings.h" />
-    <ClInclude Include="Include\Hookshot\StringUtilities.h" />
-    <ClInclude Include="Include\Hookshot\TemporaryBuffers.h" />
-    <ClInclude Include="Include\Hookshot\Trampoline.h" />
-    <ClInclude Include="Include\Hookshot\TrampolineStore.h" />
-    <ClInclude Include="Include\Hookshot\X86Instruction.h" />
-    <ClInclude Include="Resources\Hookshot.h" />
-    <ClInclude Include="Resources\HookshotDll.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="Source\InjectLanding.asm" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Include\Hookshot\Functions.inc" />
-    <None Include="Include\Hookshot\InjectLanding.inc" />
-    <None Include="Include\Hookshot\Preamble.inc" />
-    <None Include="Include\Hookshot\Registers.inc" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{9167F194-FEF9-4225-9D1D-C634136CFACE}</ProjectGuid>
-    <RootNamespace>HookshotDll</RootNamespace>
+    <ProjectGuid>{E2206506-72CC-4D4D-A638-981055AB4678}</ProjectGuid>
+    <RootNamespace>HookshotTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -121,34 +71,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
-    <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName).$(PlatformArchitecture)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
-    <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName).$(PlatformArchitecture)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
-    <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName).$(PlatformArchitecture)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
-    <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\lib;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName).$(PlatformArchitecture)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -156,32 +98,25 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <AdditionalIncludeDirectories>Include</AdditionalIncludeDirectories>
       <OmitFramePointers>false</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT64;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AssemblerOutput>All</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <SupportJustMyCode>false</SupportJustMyCode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
-      <AdditionalDependencies>xed.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <MASM />
     <MASM>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
-    </MASM>
-    <MASM>
-      <PreserveIdentifierCase>1</PreserveIdentifierCase>
       <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
+      <PreserveIdentifierCase>1</PreserveIdentifierCase>
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
@@ -193,31 +128,24 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT32;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <AdditionalIncludeDirectories>Include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AssemblerOutput>All</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <SupportJustMyCode>false</SupportJustMyCode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
-      <AdditionalDependencies>xed.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <MASM />
     <MASM>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
-    </MASM>
-    <MASM>
-      <PreserveIdentifierCase>1</PreserveIdentifierCase>
       <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
+      <PreserveIdentifierCase>1</PreserveIdentifierCase>
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
@@ -231,32 +159,25 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>Include</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT32;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AssemblerOutput>All</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
-      <AdditionalDependencies>xed.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <MASM />
     <MASM>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
-    </MASM>
-    <MASM>
-      <PreserveIdentifierCase>1</PreserveIdentifierCase>
       <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
+      <PreserveIdentifierCase>1</PreserveIdentifierCase>
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
@@ -270,37 +191,38 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>Include</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT64;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AssemblerOutput>All</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <SubSystem>Windows</SubSystem>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(TargetExt).pgd</ProfileGuidedDatabase>
-      <AdditionalDependencies>xed.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <MASM />
     <MASM>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
-    </MASM>
-    <MASM>
-      <PreserveIdentifierCase>1</PreserveIdentifierCase>
       <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
+      <PreserveIdentifierCase>1</PreserveIdentifierCase>
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
     </MASM>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Tests\Harness.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="HookshotDll.vcxproj">
+      <Project>{9167f194-fef9-4225-9d1d-c634136cface}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />

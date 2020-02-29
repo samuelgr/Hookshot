@@ -41,7 +41,7 @@ namespace Hookshot
 
         // -------- CLASS METHODS ------------------------------------------ //
 
-        /// Performs common top-level initialization operations.
+        /// Performs common top-level initialization operations. Idempotent.
         /// Any initialization steps that must happen irrespective of how this library was loaded should go here.
         static void CommonInitialization(void);
         

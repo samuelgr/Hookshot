@@ -85,12 +85,12 @@ namespace Hookshot
 
 /// Convenient definition for the entry point of a Hookshot hook library.
 /// Parameter allows specifying the name of the function parameter of type #IHookConfig.
-#define HOOKSHOT_HOOK_LIBRARY_ENTRY(hc)     extern "C" __declspec(dllexport) void APIENTRY HookshotMain(Hookshot::IHookConfig* hc)
+#define HOOKSHOT_HOOK_LIBRARY_ENTRY(hc)     extern "C" __declspec(dllexport) void __stdcall HookshotMain(Hookshot::IHookConfig* hc)
 
 
 #ifdef HOOKSHOT_LINK_WITH_LIBRARY
 /// Hookshot initialization function to be used when linking directly with the Hookshot library instead of loading it through injection.
 /// Must be invoked to initialize the Hookshot library before any functionality is accessed.
 /// @return Hook configuration interface object, which remains owned by Hookshot, or `NULL` in the event Hookshot failed to initialize.
-extern "C" __declspec(dllimport) Hookshot::IHookConfig* APIENTRY HookshotLibraryInitialize(void);
+__declspec(dllimport) Hookshot::IHookConfig* __stdcall HookshotLibraryInitialize(void);
 #endif
