@@ -101,7 +101,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
-      <AdditionalIncludeDirectories>Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test</AdditionalIncludeDirectories>
       <OmitFramePointers>false</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
@@ -131,7 +131,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
-      <AdditionalIncludeDirectories>Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -160,7 +160,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
@@ -192,7 +192,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
@@ -216,12 +216,17 @@
     </MASM>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Tests\Harness.cpp" />
+    <ClCompile Include="Source\Test\Harness.cpp" />
+    <ClCompile Include="Source\Test\TestCase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="HookshotDll.vcxproj">
       <Project>{9167f194-fef9-4225-9d1d-c634136cface}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Include\Hookshot\Test\Harness.h" />
+    <ClInclude Include="Include\Hookshot\Test\TestCase.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
