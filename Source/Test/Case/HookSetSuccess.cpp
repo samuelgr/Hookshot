@@ -16,4 +16,4 @@
 // Each is implemented in a source file named identically to the test name.
 // See source files for documentation.
 
-HOOKSHOT_HOOK_SET_SUCCESSFUL_TEST(BasicFunction);
+HOOKSHOT_HOOK_SET_SUCCESS_TEST(BasicFunction);

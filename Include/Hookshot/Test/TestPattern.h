@@ -38,13 +38,13 @@ typedef size_t(__cdecl* THookshotTestFunc)(void);
 // -------- TEST PATTERN MACROS -------------------------------------------- //
 
 /// Encapsulates the logic that implements a Hookshot test in which a hook is set successfully, thus effectively replacing the original function with the hooked version.
-/// This test pattern verifies that Hookshot correcly returns a hook identifier that identifies the hook, sets the hook, and enables access to the original functionality even after setting the hook.
+/// This test pattern verifies that Hookshot correctly returns a hook identifier that identifies the hook, sets the hook, and enables access to the original functionality even after setting the hook.
 /// The test case name is the macro parameter. It relies on two functions being defined externally, name_Original and name_Hook.
 /// Whatever is the control flow, name_Original should return #kOriginalFunctionResult when executed correctly, and name_Hook should likewise return #kHookFunctionResult.
-#define HOOKSHOT_HOOK_SET_SUCCESSFUL_TEST(name)                                                                             \
+#define HOOKSHOT_HOOK_SET_SUCCESS_TEST(name)                                                                                \
     extern "C" size_t name##_Original(void);                                                                                \
     extern "C" size_t name##_Hook(void);                                                                                    \
-    HOOKSHOT_TEST_CASE(HookSetSuccessful_##name)                                                                            \
+    HOOKSHOT_TEST_CASE(HookSetSuccess_##name)                                                                               \
     {                                                                                                                       \
         const Hookshot::THookID hookId = hookConfig->SetHook(&name##_Original, &name##_Hook);                               \
                                                                                                                             \

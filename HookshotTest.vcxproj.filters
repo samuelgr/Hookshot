@@ -21,7 +21,7 @@
     <ClCompile Include="Source\Test\TestCase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Test\Case\HookSetSuccessful.cpp">
+    <ClCompile Include="Source\Test\Case\HookSetSuccess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -42,7 +42,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="Source\Test\Case\HookSetSuccessful\BasicFunction.asm">
+    <MASM Include="Source\Test\Case\HookSetSuccess\BasicFunction.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>
