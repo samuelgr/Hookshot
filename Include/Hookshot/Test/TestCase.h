@@ -12,6 +12,7 @@
 #pragma once
 
 #include <hookshot.h>
+#include <tchar.h>
 
 
 namespace HookshotTest
@@ -19,12 +20,19 @@ namespace HookshotTest
     /// Test case interface.
     class ITestCase
     {
+    private:
+        // -------- INSTANCE VARIABLES ------------------------------------- //
+
+        /// Test case name.
+        const TCHAR* const name;
+
+
     public:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
         /// Initialization constructor. Constructs a test case object with an associated test case name, and registers it with the harness.
         /// @param [in] name Test case name.
-        ITestCase(const char* name);
+        ITestCase(const TCHAR* const name);
 
 
         // -------- ABSTRACT INSTANCE METHODS ------------------------------ //
@@ -32,13 +40,13 @@ namespace HookshotTest
         /// Runs the test case represented by this object.
         /// @param [in] hookConfig Hookshot configuration interface object to use.
         /// @return Indication of the test result, via the appropriate test result macros.
-        virtual bool RunTest(Hookshot::IHookConfig* const hookConfig) = 0;
+        virtual bool RunTest(Hookshot::IHookConfig* const hookConfig) const = 0;
     };
 
     /// Concrete test case object template.
     /// Each test case created by #HOOKSHOT_TEST_CASE instantiates an object of this type with a different template parameter.
     /// @tparam kName Name of the test case.
-    template <const char* kName> class TestCase : public ITestCase
+    template <const TCHAR* kName> class TestCase : public ITestCase
     {
     public:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
@@ -53,7 +61,7 @@ namespace HookshotTest
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See above for documentation.
 
-        bool RunTest(Hookshot::IHookConfig* const hookConfig) override;
+        bool RunTest(Hookshot::IHookConfig* const hookConfig) const override;
     };
 }
 
@@ -72,7 +80,7 @@ namespace HookshotTest
 /// Automatically instantiates the proper test case object and registers it with the harness.
 /// Treat this macro as a function declaration; the test case is the function body.
 /// A variable called "hookConfig" is available for configuring Hookshot for test purposes.
-#define HOOKSHOT_TEST_CASE(name)                                                                \
-    constexpr char _kName##name[] = #name;                                                      \
-    HookshotTest::TestCase<_kName##name> _testCaseInstance_##name;                              \
-    bool HookshotTest::TestCase<_kName##name>::RunTest(Hookshot::IHookConfig* const hookConfig)
+#define HOOKSHOT_TEST_CASE(name)                                                                        \
+    constexpr TCHAR _kName##name[] = _T(#name);                                                         \
+    HookshotTest::TestCase<_kName##name> _testCaseInstance_##name;                                      \
+    bool HookshotTest::TestCase<_kName##name>::RunTest(Hookshot::IHookConfig* const hookConfig) const

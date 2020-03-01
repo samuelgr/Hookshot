@@ -33,7 +33,7 @@ namespace HookshotTest
     // -------- INSTANCE METHODS ------------------------------------------- //
     // See "Harness.h" for documentation.
 
-    void Harness::RegisterTestCaseInternal(ITestCase* const testCase, const char* const name)
+    void Harness::RegisterTestCaseInternal(ITestCase* const testCase, const TCHAR* const name)
     {
         if ((NULL != name) && ('\0' != name[0]) && (0 == testCases.count(name)))
             testCases[name] = testCase;
@@ -47,7 +47,7 @@ namespace HookshotTest
         
         for (auto testCaseIterator = testCases.begin(); testCaseIterator != testCases.end(); ++testCaseIterator)
         {
-            const std::string& name = testCaseIterator->first;
+            const auto& name = testCaseIterator->first;
             ITestCase* const testCase = testCaseIterator->second;
 
             if (false == testCase->RunTest(hookConfig))

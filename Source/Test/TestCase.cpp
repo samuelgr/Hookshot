@@ -18,7 +18,7 @@ namespace HookshotTest
     // -------- CONSTRUCTION AND DESTRUCTION ------------------------------- //
     // See "TestCase.h" for documentation.
 
-    ITestCase::ITestCase(const char* name)
+    ITestCase::ITestCase(const TCHAR* const name) : name(name)
     {
         Harness::RegisterTestCase(this, name);
     }

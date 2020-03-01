@@ -16,6 +16,7 @@
 #include <hookshot.h>
 #include <map>
 #include <string>
+#include <tchar.h>
 
 
 namespace HookshotTest
@@ -27,7 +28,16 @@ namespace HookshotTest
     private:
         // -------- INSTANCE VARIABLES ------------------------------------- //
 
+#ifdef UNICODE
+        /// Holds all registered test cases in alphabetical order.
+        /// This is the Unicode version.
+        std::map<std::wstring, ITestCase*> testCases;
+#else
+        /// Holds all registered test cases in alphabetical order.
+        /// This is the non-Unicode version.
         std::map<std::string, ITestCase*> testCases;
+#endif
+        
 
 
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
@@ -51,7 +61,7 @@ namespace HookshotTest
         /// Typically, registration happens automatically using the #HOOKSHOT_TEST_CASE macro, which is the recommended way of creating test cases.
         /// @param [in] testCase Test case object to register (appropriate instances are created automatically by the #HOOKSHOT_TEST_CASE macro).
         /// @param [in] name Name of the test case (the value of the parameter passed to the #HOOKSHOT_TEST_CASE macro).
-        static inline void RegisterTestCase(ITestCase* const testCase, const char* const name)
+        static inline void RegisterTestCase(ITestCase* const testCase, const TCHAR* const name)
         {
             GetInstance().RegisterTestCaseInternal(testCase, name);
         }
@@ -71,7 +81,7 @@ namespace HookshotTest
         /// Internal implementation of test case registration.
         /// @param [in] testCase Test case object to register.
         /// @param [in] name Name of the test case.
-        void RegisterTestCaseInternal(ITestCase* const testCase, const char* const name);
+        void RegisterTestCaseInternal(ITestCase* const testCase, const TCHAR* const name);
 
         /// Internal implementation of running all tests.
         /// @param [in] hookConfig Hookshot configuration interface object to send to test cases.
