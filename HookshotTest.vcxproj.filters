@@ -21,6 +21,9 @@
     <ClCompile Include="Source\Test\TestCase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Test\Case\BasicHookTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Hookshot\Test\Harness.h">

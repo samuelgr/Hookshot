@@ -75,10 +75,10 @@ namespace Hookshot
         /// Once installed, the hook cannot be modified or deleted.
         /// The hook library can emulate modification or deletion by modifying the behavior of the supplied hook function based on runtime conditions.
         /// If the caller attempts to set a hook after the program is already initialized and running, then the caller is responsible for making sure no other threads are executing code at the target function address while the hook is being set.
-        /// @param [in] hookFunc Hook function that should be invoked instead of the original function.
         /// @param [in,out] targetFunc Address of the function that should be hooked.
+        /// @param [in] hookFunc Hook function that should be invoked instead of the original function.
         /// @return Opaque handle used to identify the newly-installed hook, or a member of #EHookError to indicate an error.
-        virtual THookID SetHook(const void* hookFunc, void* targetFunc) = 0;
+        virtual THookID SetHook(void* targetFunc, const void* hookFunc) = 0;
     };
 }
 

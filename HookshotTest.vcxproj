@@ -216,6 +216,7 @@
     </MASM>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Test\Case\BasicHookTest.cpp" />
     <ClCompile Include="Source\Test\Harness.cpp" />
     <ClCompile Include="Source\Test\TestCase.cpp" />
   </ItemGroup>

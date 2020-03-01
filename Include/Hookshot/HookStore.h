@@ -56,6 +56,6 @@ namespace Hookshot
 
         const void* GetOriginalFunctionForHook(THookID hook) override;
         THookID IdentifyHook(const void* targetFunc) override;
-        THookID SetHook(const void* hookFunc, void* targetFunc) override;
+        THookID SetHook(void* targetFunc, const void* hookFunc) override;
     };
 }

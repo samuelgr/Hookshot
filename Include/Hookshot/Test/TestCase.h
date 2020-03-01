@@ -80,9 +80,8 @@ namespace HookshotTest
 }
 
 /// If creating test functions that serve either as either hook or target functions, mark them with this macro.
-/// Also make sure that each call to such functions use different parameter values.
-/// This is to ensure the optimizer does not optimize away the function calls, either by inlining or result caching, both of which are behaviors that will break the tests.
-#define HOOKSHOT_TEST_HELPER_FUNCTION       __declspec(noinline)
+/// Also, to avoid the optimizer optimizing away multiple calls, make sure that each call to such functions use different parameter values.
+#define HOOKSHOT_TEST_HELPER_FUNCTION       __declspec(noinline) static
 
 /// Exit from a test case and indicate a passing result.
 #define HOOKSHOT_TEST_PASSED                return true
@@ -90,11 +89,14 @@ namespace HookshotTest
 /// Exit from a test case and indicate a failing result.
 #define HOOKSHOT_TEST_FAILED                return false
 
+/// Exit from a test case and indicate a failing result if the expression is false.
+#define HOOKSHOT_TEST_ASSERT(expr)          do {if (!(expr)) {PrintFormatted(_T("%s:%d: Assertion failed: %s"), _T(__FILE__), __LINE__, _T(#expr)); return false;}} while(0)
+
 /// Recommended way of creating Hookshot test cases.  Just provide the test case name.
 /// Automatically instantiates the proper test case object and registers it with the harness.
 /// Treat this macro as a function declaration; the test case is the function body.
 /// A variable called "hookConfig" is available for configuring Hookshot for test purposes.
-#define HOOKSHOT_TEST_CASE(name)                                                                        \
-    constexpr TCHAR _kName##name[] = _T(#name);                                                         \
-    HookshotTest::TestCase<_kName##name> _testCaseInstance_##name;                                      \
-    bool HookshotTest::TestCase<_kName##name>::RunTest(Hookshot::IHookConfig* const hookConfig) const
+#define HOOKSHOT_TEST_CASE(name)                                                                                        \
+    static constexpr TCHAR kHookshotTestName__##name[] = _T(#name);                                                     \
+    HookshotTest::TestCase<kHookshotTestName__##name>  hookshotTestCaseInstance__##name;                                \
+    bool HookshotTest::TestCase<kHookshotTestName__##name>::RunTest(Hookshot::IHookConfig* const hookConfig) const
