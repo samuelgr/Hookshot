@@ -6,7 +6,7 @@
  * Copyright (c) 2019-2020
  **************************************************************************//**
  * @file HookSetSuccessful.cpp
- *   Test cases that follow the HOOK_SET_SUCCESS pattern.
+ *   Test cases that follow the HOOK_SET_FAIL pattern.
  *****************************************************************************/
 
 #include "TestPattern.h"
@@ -16,4 +16,4 @@
 // Each is implemented in a source file named identically to the test name.
 // See source files for documentation.
 
-HOOKSHOT_HOOK_SET_SUCCESS_TEST(BasicFunction);
+HOOKSHOT_HOOK_SET_FAIL_TEST(OneByteFunction);

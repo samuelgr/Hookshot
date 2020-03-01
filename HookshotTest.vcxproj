@@ -220,6 +220,7 @@
     </MASM>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Test\Case\HookSetFail.cpp" />
     <ClCompile Include="Source\Test\Case\HookSetSuccess.cpp" />
     <ClCompile Include="Source\Test\Harness.cpp" />
     <ClCompile Include="Source\Test\TestCase.cpp" />
@@ -235,6 +236,7 @@
     <ClInclude Include="Include\Hookshot\Test\TestPattern.h" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="Source\Test\Case\HookSetFail\OneByteFunction.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\BasicFunction.asm" />
   </ItemGroup>
   <ItemGroup>

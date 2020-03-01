@@ -14,6 +14,7 @@
 #include "TestCase.h"
 
 #include <cstddef>
+#include <hookshot.h>
 #include <tchar.h>
 
 
@@ -56,5 +57,20 @@ typedef size_t(__cdecl* THookshotTestFunc)(void);
                                                                                                                             \
         HOOKSHOT_TEST_ASSERT(nullptr != originalFunctionalityPtr);                                                          \
         HOOKSHOT_TEST_ASSERT(kOriginalFunctionResult == originalFunctionalityPtr());                                        \
+        HOOKSHOT_TEST_PASSED;                                                                                               \
+    }
+
+
+/// Encapsulates the logic that implements a Hookshot test in which a hook is not successfully set.
+/// This test pattern attempts to set a hook and verifies that Hookshot returns the appropriate error code.
+/// The test case name is the macro parameter. It relies on one function being defined externally, name_Test.
+/// Since no hooking actually takes place, and therefore the external function is never executed, its actual behavior is not important.
+#define HOOKSHOT_HOOK_SET_FAIL_TEST(name)                                                                                   \
+    extern "C" size_t name##_Test(void);                                                                                    \
+    HOOKSHOT_TEST_HELPER_FUNCTION size_t name##_Test_Hook(void) { return __LINE__; }                                        \
+    HOOKSHOT_TEST_CASE(HookSetFail_##name)                                                                                  \
+    {                                                                                                                       \
+        const Hookshot::THookID hookId = hookConfig->SetHook(&name##_Test, &name##_Test_Hook);                              \
+        HOOKSHOT_TEST_ASSERT(Hookshot::EHookError::HookErrorSetFailed == hookId);                                           \
         HOOKSHOT_TEST_PASSED;                                                                                               \
     }
