@@ -1,9 +1,9 @@
 /******************************************************************************
  * Hookshot
- *   General-purpose library for hooking API calls in spawned processes.
+ *   General-purpose library for injecting DLLs and hooking function calls.
  ******************************************************************************
  * Authored by Samuel Grossman
- * Copyright (c) 2019
+ * Copyright (c) 2019-2020
  **************************************************************************//**
  * @file StringUtilities.cpp
  *   Implementation of functions for manipulating Hookshot-specific strings.
