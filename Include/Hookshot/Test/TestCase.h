@@ -20,13 +20,6 @@ namespace HookshotTest
     /// Test case interface.
     class ITestCase
     {
-    private:
-        // -------- INSTANCE VARIABLES ------------------------------------- //
-
-        /// Test case name.
-        const TCHAR* const name;
-
-
     public:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
@@ -90,7 +83,7 @@ namespace HookshotTest
 #define HOOKSHOT_TEST_FAILED                return false
 
 /// Exit from a test case and indicate a failing result if the expression is false.
-#define HOOKSHOT_TEST_ASSERT(expr)          do {if (!(expr)) {PrintFormatted(_T("%s:%d: Assertion failed: %s"), _T(__FILE__), __LINE__, _T(#expr)); return false;}} while(0)
+#define HOOKSHOT_TEST_ASSERT(expr)          do {if (!(expr)) {PrintFormatted(_T("%s:%d: Assertion failed: %s"), _T(__FILE__), __LINE__, _T(#expr)); return false;}} while (0)
 
 /// Recommended way of creating Hookshot test cases.  Just provide the test case name.
 /// Automatically instantiates the proper test case object and registers it with the harness.

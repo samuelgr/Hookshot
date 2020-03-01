@@ -120,6 +120,7 @@
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
+      <IncludePaths>Include\$(SolutionName)\Test</IncludePaths>
     </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -150,6 +151,7 @@
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <UseSafeExceptionHandlers>true</UseSafeExceptionHandlers>
+      <IncludePaths>Include\$(SolutionName)\Test</IncludePaths>
     </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -182,6 +184,7 @@
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <UseSafeExceptionHandlers>true</UseSafeExceptionHandlers>
+      <IncludePaths>Include\$(SolutionName)\Test</IncludePaths>
     </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -213,10 +216,11 @@
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
+      <IncludePaths>Include\$(SolutionName)\Test</IncludePaths>
     </MASM>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Test\Case\BasicHookTest.cpp" />
+    <ClCompile Include="Source\Test\Case\HookSetSuccessful.cpp" />
     <ClCompile Include="Source\Test\Harness.cpp" />
     <ClCompile Include="Source\Test\TestCase.cpp" />
   </ItemGroup>
@@ -228,6 +232,13 @@
   <ItemGroup>
     <ClInclude Include="Include\Hookshot\Test\Harness.h" />
     <ClInclude Include="Include\Hookshot\Test\TestCase.h" />
+    <ClInclude Include="Include\Hookshot\Test\TestPattern.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Source\Test\Case\HookSetSuccessful\BasicFunction.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Include\Hookshot\Test\TestDefinitions.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

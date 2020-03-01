@@ -20,7 +20,7 @@ namespace HookshotTest
     // -------- CONSTRUCTION AND DESTRUCTION ------------------------------- //
     // See "TestCase.h" for documentation.
 
-    ITestCase::ITestCase(const TCHAR* const name) : name(name)
+    ITestCase::ITestCase(const TCHAR* const name)
     {
         Harness::RegisterTestCase(this, name);
     }
@@ -31,7 +31,7 @@ namespace HookshotTest
 
     void ITestCase::Print(const TCHAR* const str) const
     {
-        Harness::PrintFromTestCase(name, str);
+        Harness::PrintFromTestCase(this, str);
     }
 
     // --------
@@ -40,7 +40,7 @@ namespace HookshotTest
     {
         va_list args;
         va_start(args, format);
-        Harness::PrintVarArgFromTestCase(name, format, args);
+        Harness::PrintVarArgFromTestCase(this, format, args);
         va_end(args);
     }
 }

@@ -72,14 +72,14 @@ namespace HookshotTest
 
     // --------
 
-    void Harness::PrintFromTestCase(const TCHAR* const name, const TCHAR* const str)
+    void Harness::PrintFromTestCase(const ITestCase* const testCase, const TCHAR* const str)
     {
         Print(str);
     }
 
     // --------
 
-    void Harness::PrintVarArgFromTestCase(const TCHAR* const name, const TCHAR* const format, va_list args)
+    void Harness::PrintVarArgFromTestCase(const ITestCase* const testCase, const TCHAR* const format, va_list args)
     {
         PrintVarArg(format, args);
     }
@@ -88,7 +88,7 @@ namespace HookshotTest
     // -------- INSTANCE METHODS ------------------------------------------- //
     // See "Harness.h" for documentation.
 
-    void Harness::RegisterTestCaseInternal(ITestCase* const testCase, const TCHAR* const name)
+    void Harness::RegisterTestCaseInternal(const ITestCase* const testCase, const TCHAR* const name)
     {
         if ((NULL != name) && ('\0' != name[0]) && (0 == testCases.count(name)))
             testCases[name] = testCase;
@@ -120,7 +120,7 @@ namespace HookshotTest
         for (auto testCaseIterator = testCases.begin(); testCaseIterator != testCases.end(); ++testCaseIterator)
         {
             const auto& name = testCaseIterator->first;
-            ITestCase* const testCase = testCaseIterator->second;
+            const ITestCase* const testCase = testCaseIterator->second;
             
             PrintFormatted(_T("[ %-8s ] %s"), _T("RUN"), name.c_str());
             

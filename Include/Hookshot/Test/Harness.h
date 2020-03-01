@@ -32,11 +32,11 @@ namespace HookshotTest
 #ifdef UNICODE
         /// Holds all registered test cases in alphabetical order.
         /// This is the Unicode version.
-        std::map<std::wstring, ITestCase*> testCases;
+        std::map<std::wstring, const ITestCase*> testCases;
 #else
         /// Holds all registered test cases in alphabetical order.
         /// This is the non-Unicode version.
-        std::map<std::string, ITestCase*> testCases;
+        std::map<std::string, const ITestCase*> testCases;
 #endif
 
 
@@ -59,22 +59,22 @@ namespace HookshotTest
     public:
         /// Prints the specified message and appends a newline.
         /// For use inside a test case, but print requests should be through the appropriate #ITestCase methods.
-        /// @param [in] name Test case name.
+        /// @param [in] testCase Test case object.
         /// @param [in] str Message string.
-        static void PrintFromTestCase(const TCHAR* const name, const TCHAR* const str);
+        static void PrintFromTestCase(const ITestCase* const testCase, const TCHAR* const str);
 
         /// Formats and prints the specified message and appends a newline.
         /// For use inside a test case, but print requests should be through the appropriate #ITestCase methods.
-        /// @param [in] name Test case name.
+        /// @param [in] testCase Test case object.
         /// @param [in] format Message string, possibly with format specifiers.
         /// @param [in] args Variable argument list.
-        static void PrintVarArgFromTestCase(const TCHAR* const name, const TCHAR* const format, va_list args);
+        static void PrintVarArgFromTestCase(const ITestCase* const testCase, const TCHAR* const format, va_list args);
 
         /// Registers a test case to be run by the harness.
         /// Typically, registration happens automatically using the #HOOKSHOT_TEST_CASE macro, which is the recommended way of creating test cases.
         /// @param [in] testCase Test case object to register (appropriate instances are created automatically by the #HOOKSHOT_TEST_CASE macro).
         /// @param [in] name Name of the test case (the value of the parameter passed to the #HOOKSHOT_TEST_CASE macro).
-        static inline void RegisterTestCase(ITestCase* const testCase, const TCHAR* const name)
+        static inline void RegisterTestCase(const ITestCase* const testCase, const TCHAR* const name)
         {
             GetInstance().RegisterTestCaseInternal(testCase, name);
         }
@@ -94,7 +94,7 @@ namespace HookshotTest
         /// Internal implementation of test case registration.
         /// @param [in] testCase Test case object to register.
         /// @param [in] name Name of the test case.
-        void RegisterTestCaseInternal(ITestCase* const testCase, const TCHAR* const name);
+        void RegisterTestCaseInternal(const ITestCase* const testCase, const TCHAR* const name);
 
         /// Internal implementation of running all tests.
         /// @param [in] hookConfig Hookshot configuration interface object to send to test cases.

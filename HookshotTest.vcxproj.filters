@@ -21,7 +21,7 @@
     <ClCompile Include="Source\Test\TestCase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Test\Case\BasicHookTest.cpp">
+    <ClCompile Include="Source\Test\Case\HookSetSuccessful.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,5 +32,18 @@
     <ClInclude Include="Include\Hookshot\Test\TestCase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Hookshot\Test\TestPattern.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Include\Hookshot\Test\TestDefinitions.inc">
+      <Filter>Header Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Source\Test\Case\HookSetSuccessful\BasicFunction.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
