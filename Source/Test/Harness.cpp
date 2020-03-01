@@ -124,7 +124,7 @@ namespace HookshotTest
             
             PrintFormatted(_T("[ %-8s ] %s"), _T("RUN"), name.c_str());
             
-            const bool testCasePassed = testCase->RunTest(hookConfig);
+            const bool testCasePassed = testCase->Run(hookConfig);
             if (true != testCasePassed)
                 numFailingTests += 1;
 

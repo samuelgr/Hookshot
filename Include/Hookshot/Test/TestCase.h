@@ -54,7 +54,7 @@ namespace HookshotTest
         /// Implementations are generated when test cases are created using the #HOOKSHOT_TEST_CASE macro.
         /// @param [in] hookConfig Hookshot configuration interface object to use.
         /// @return Indication of the test result, via the appropriate test result macros.
-        virtual bool RunTest(Hookshot::IHookConfig* const hookConfig) const = 0;
+        virtual bool Run(Hookshot::IHookConfig* const hookConfig) const = 0;
     };
 
     /// Concrete test case object template.
@@ -75,7 +75,7 @@ namespace HookshotTest
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See above for documentation.
 
-        bool RunTest(Hookshot::IHookConfig* const hookConfig) const override;
+        bool Run(Hookshot::IHookConfig* const hookConfig) const override;
     };
 }
 
@@ -96,7 +96,7 @@ namespace HookshotTest
 /// Automatically instantiates the proper test case object and registers it with the harness.
 /// Treat this macro as a function declaration; the test case is the function body.
 /// A variable called "hookConfig" is available for configuring Hookshot for test purposes.
-#define HOOKSHOT_TEST_CASE(name)                                                                                        \
-    static constexpr TCHAR kHookshotTestName__##name[] = _T(#name);                                                     \
-    HookshotTest::TestCase<kHookshotTestName__##name>  hookshotTestCaseInstance__##name;                                \
-    bool HookshotTest::TestCase<kHookshotTestName__##name>::RunTest(Hookshot::IHookConfig* const hookConfig) const
+#define HOOKSHOT_TEST_CASE(name)                                                                                \
+    static constexpr TCHAR kHookshotTestName__##name[] = _T(#name);                                             \
+    HookshotTest::TestCase<kHookshotTestName__##name>  hookshotTestCaseInstance__##name;                        \
+    bool HookshotTest::TestCase<kHookshotTestName__##name>::Run(Hookshot::IHookConfig* const hookConfig) const
