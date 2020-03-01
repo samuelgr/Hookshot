@@ -13,6 +13,7 @@
 
 #include "TestCase.h"
 
+#include <cstdarg>
 #include <hookshot.h>
 #include <map>
 #include <string>
@@ -37,7 +38,6 @@ namespace HookshotTest
         /// This is the non-Unicode version.
         std::map<std::string, ITestCase*> testCases;
 #endif
-        
 
 
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
@@ -48,7 +48,7 @@ namespace HookshotTest
         /// Copy constructor. Should never be invoked.
         Harness(const Harness&) = delete;
 
-        
+
         // -------- CLASS METHODS ------------------------------------------ //
 
         /// Returns a reference to the singleton instance of this class.
@@ -57,6 +57,19 @@ namespace HookshotTest
         static Harness& GetInstance(void);
 
     public:
+        /// Prints the specified message and appends a newline.
+        /// For use inside a test case, but print requests should be through the appropriate #ITestCase methods.
+        /// @param [in] name Test case name.
+        /// @param [in] str Message string.
+        static void PrintFromTestCase(const TCHAR* const name, const TCHAR* const str);
+
+        /// Formats and prints the specified message and appends a newline.
+        /// For use inside a test case, but print requests should be through the appropriate #ITestCase methods.
+        /// @param [in] name Test case name.
+        /// @param [in] format Message string, possibly with format specifiers.
+        /// @param [in] args Variable argument list.
+        static void PrintVarArgFromTestCase(const TCHAR* const name, const TCHAR* const format, va_list args);
+
         /// Registers a test case to be run by the harness.
         /// Typically, registration happens automatically using the #HOOKSHOT_TEST_CASE macro, which is the recommended way of creating test cases.
         /// @param [in] testCase Test case object to register (appropriate instances are created automatically by the #HOOKSHOT_TEST_CASE macro).

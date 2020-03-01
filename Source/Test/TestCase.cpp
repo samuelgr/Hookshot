@@ -12,6 +12,8 @@
 #include "Harness.h"
 #include "TestCase.h"
 
+#include <cstdarg>
+
 
 namespace HookshotTest
 {
@@ -21,5 +23,24 @@ namespace HookshotTest
     ITestCase::ITestCase(const TCHAR* const name) : name(name)
     {
         Harness::RegisterTestCase(this, name);
+    }
+
+
+    // -------- INSTANCE METHODS ------------------------------------------- //
+    // See "TestCase.h" for documentation.
+
+    void ITestCase::Print(const TCHAR* const str) const
+    {
+        Harness::PrintFromTestCase(name, str);
+    }
+
+    // --------
+
+    void ITestCase::PrintFormatted(const TCHAR* const format, ...) const
+    {
+        va_list args;
+        va_start(args, format);
+        Harness::PrintVarArgFromTestCase(name, format, args);
+        va_end(args);
     }
 }

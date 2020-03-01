@@ -35,9 +35,23 @@ namespace HookshotTest
         ITestCase(const TCHAR* const name);
 
 
+        // -------- INSTANCE METHODS --------------------------------------- //
+
+        /// Prints the specified message and appends a newline.
+        /// Available to be called directly from the body of a test case.
+        /// @param [in] str Message string.
+        void Print(const TCHAR* const str) const;
+        
+        /// Formats and prints the specified message and appends a newline.
+        /// Available to be called directly from the body of a test case.
+        /// @param [in] format Message string, possibly with format specifiers.
+        void PrintFormatted(const TCHAR* const format, ...) const;
+
+        
         // -------- ABSTRACT INSTANCE METHODS ------------------------------ //
 
         /// Runs the test case represented by this object.
+        /// Implementations are generated when test cases are created using the #HOOKSHOT_TEST_CASE macro.
         /// @param [in] hookConfig Hookshot configuration interface object to use.
         /// @return Indication of the test result, via the appropriate test result macros.
         virtual bool RunTest(Hookshot::IHookConfig* const hookConfig) const = 0;
