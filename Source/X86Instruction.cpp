@@ -166,7 +166,7 @@ namespace Hookshot
     int X86Instruction::EncodeInstruction(void* const buf, const int maxLengthBytes) const
     {
         if (false == valid)
-            return false;
+            return 0;
         
         xed_encoder_request_t toEncode = decodedInstruction;
         xed_encoder_request_init_from_decode(&toEncode);

@@ -92,7 +92,7 @@ namespace Hookshot
     
     // --------
 
-    THookID HookStore::SetHook(const void* hookFunc, void* targetFunc)
+    THookID HookStore::SetHook(void* targetFunc, const void* hookFunc)
     {
         if (NULL == hookFunc || NULL == targetFunc)
             return EHookError::HookErrorInvalidArgument;

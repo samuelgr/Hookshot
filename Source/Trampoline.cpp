@@ -191,7 +191,7 @@ namespace Hookshot
             // Third sub-part. Re-encode the instruction.
             int numEncodedBytes = originalInstructions[i].EncodeInstruction(nextTrampolineAddressToWrite, numTrampolineBytesLeft);
 
-            if (originalInstructions[i].GetLengthBytes() != numEncodedBytes)
+            if (0 == numEncodedBytes)
             {
                 Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityDebug, IDS_HOOKSHOT_TRAMPOLINE_ENCODE_FAILED_FORMAT, i, (long long)nextTrampolineAddressToWrite);
                 code.original.word[0] = kOriginalCodeDefault;
