@@ -18,7 +18,7 @@ _TEXT                                       SEGMENT
 
 
 BEGIN_HOOKSHOT_TEST_FUNCTION                OneByteFunction_Test
-	ret
+    ret
 END_HOOKSHOT_TEST_FUNCTION                  OneByteFunction_Test
 
     ud2

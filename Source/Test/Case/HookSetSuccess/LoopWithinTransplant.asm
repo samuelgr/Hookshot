@@ -9,28 +9,27 @@
 INCLUDE TestDefinitions.inc
 
 
-; Tests the most basic and simpliest kind of functions Hookshot can encounter.
-; Both original and hook functions load constants into the return value register and immediately return.
-; Extra nop instructions are added to ensure the original function is long enough to hook.
+; Small loop that fits within the instruction transplant window, so no adjustment to the loop instruction's displacement is needed.
+; Hook function does nothing special for this test.
 
 
 _TEXT                                       SEGMENT
 
 
-BEGIN_HOOKSHOT_TEST_FUNCTION                BasicFunction_Original
-    mov sax, scx
-    nop
-    nop
-    nop
+BEGIN_HOOKSHOT_TEST_FUNCTION                LoopWithinTransplant_Original
+$begin:
+    inc edx
+    loop $begin
+    mov sax, sdx
     ret
-END_HOOKSHOT_TEST_FUNCTION                  BasicFunction_Original
+END_HOOKSHOT_TEST_FUNCTION                  LoopWithinTransplant_Original
 
 
-BEGIN_HOOKSHOT_TEST_FUNCTION                BasicFunction_Hook
+BEGIN_HOOKSHOT_TEST_FUNCTION                LoopWithinTransplant_Hook
     mov sax, scx
     shl sax, 1
     ret
-END_HOOKSHOT_TEST_FUNCTION                  BasicFunction_Hook
+END_HOOKSHOT_TEST_FUNCTION                  LoopWithinTransplant_Hook
 
 
 _TEXT                                       ENDS

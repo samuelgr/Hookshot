@@ -26,7 +26,7 @@ static constexpr size_t kOriginalFunctionResult = 1111111;
 
 /// Expected result of a call to a hooked version of a function.
 /// Test cases should compare the result received from what should be hook function invocation to this value.
-static constexpr size_t kHookFunctionResult = 2222222;
+static constexpr size_t kHookFunctionResult = (kOriginalFunctionResult << 1);
 
 
 // -------- TYPE DEFINITIONS ----------------------------------------------- //
@@ -51,12 +51,12 @@ typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
                                                                                                                             \
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookId));                                                           \
         HOOKSHOT_TEST_ASSERT(hookId == hookConfig->IdentifyHook(&name##_Original));                                         \
-        HOOKSHOT_TEST_ASSERT(kHookFunctionResult == name##_Original(0, 1));                                                 \
+        HOOKSHOT_TEST_ASSERT(kHookFunctionResult == name##_Original(kOriginalFunctionResult, 0));                           \
                                                                                                                             \
         THookshotTestFunc originalFunctionalityPtr = (THookshotTestFunc)hookConfig->GetOriginalFunctionForHook(hookId);     \
                                                                                                                             \
         HOOKSHOT_TEST_ASSERT(nullptr != originalFunctionalityPtr);                                                          \
-        HOOKSHOT_TEST_ASSERT(kOriginalFunctionResult == originalFunctionalityPtr(0, 1));                                    \
+        HOOKSHOT_TEST_ASSERT(kOriginalFunctionResult == originalFunctionalityPtr(kOriginalFunctionResult, 0));              \
         HOOKSHOT_TEST_PASSED;                                                                                               \
     }
 

@@ -51,5 +51,26 @@
     <MASM Include="Source\Test\Case\HookSetFail\OneByteFunction.asm">
       <Filter>Source Files</Filter>
     </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\JumpForwardRel32.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\JumpBackwardRel32.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\JumpBackwardRel8.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\JumpForwardRel8.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\LoopWithinTransplant.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\TransplantRelBrAtEdge.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\TransplantRelBrBeforeEdge.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
