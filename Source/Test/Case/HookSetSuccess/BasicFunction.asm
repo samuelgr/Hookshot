@@ -16,16 +16,16 @@ INCLUDE TestDefinitions.inc
 _TEXT                                       SEGMENT
 
 
-BasicFunction_Original                      PROC HOOKSHOT_TEST_HELPER_FUNCTION
+BEGIN_HOOKSHOT_TEST_FUNCTION                BasicFunction_Original
 	mov sax, kOriginalFunctionResult
 	ret
-BasicFunction_Original                      ENDP
+END_HOOKSHOT_TEST_FUNCTION                  BasicFunction_Original
 
 
-BasicFunction_Hook                          PROC HOOKSHOT_TEST_HELPER_FUNCTION
+BEGIN_HOOKSHOT_TEST_FUNCTION                BasicFunction_Hook
 	mov sax, kHookFunctionResult
 	ret
-BasicFunction_Hook                          ENDP
+END_HOOKSHOT_TEST_FUNCTION                  BasicFunction_Hook
 
 
 _TEXT                                       ENDS

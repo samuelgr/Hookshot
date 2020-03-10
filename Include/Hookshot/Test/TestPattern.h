@@ -33,7 +33,7 @@ static constexpr size_t kHookFunctionResult = 2222222;
 
 /// Signature of a Hookshot test function.
 /// Most, if not all, test functions are written in assembly.
-typedef size_t(__cdecl* THookshotTestFunc)(void);
+typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
 
 
 // -------- TEST PATTERN MACROS -------------------------------------------- //
@@ -43,20 +43,20 @@ typedef size_t(__cdecl* THookshotTestFunc)(void);
 /// The test case name is the macro parameter. It relies on two functions being defined externally, name_Original and name_Hook.
 /// Whatever is the control flow, name_Original should return #kOriginalFunctionResult when executed correctly, and name_Hook should likewise return #kHookFunctionResult.
 #define HOOKSHOT_HOOK_SET_SUCCESS_TEST(name)                                                                                \
-    extern "C" size_t name##_Original(void);                                                                                \
-    extern "C" size_t name##_Hook(void);                                                                                    \
+    extern "C" size_t __fastcall name##_Original(size_t scx, size_t sdx);                                                   \
+    extern "C" size_t __fastcall name##_Hook(size_t scx, size_t sdx);                                                       \
     HOOKSHOT_TEST_CASE(HookSetSuccess_##name)                                                                               \
     {                                                                                                                       \
         const Hookshot::THookID hookId = hookConfig->SetHook(&name##_Original, &name##_Hook);                               \
                                                                                                                             \
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookId));                                                           \
         HOOKSHOT_TEST_ASSERT(hookId == hookConfig->IdentifyHook(&name##_Original));                                         \
-        HOOKSHOT_TEST_ASSERT(kHookFunctionResult == name##_Original());                                                     \
+        HOOKSHOT_TEST_ASSERT(kHookFunctionResult == name##_Original(0, 1));                                                 \
                                                                                                                             \
         THookshotTestFunc originalFunctionalityPtr = (THookshotTestFunc)hookConfig->GetOriginalFunctionForHook(hookId);     \
                                                                                                                             \
         HOOKSHOT_TEST_ASSERT(nullptr != originalFunctionalityPtr);                                                          \
-        HOOKSHOT_TEST_ASSERT(kOriginalFunctionResult == originalFunctionalityPtr());                                        \
+        HOOKSHOT_TEST_ASSERT(kOriginalFunctionResult == originalFunctionalityPtr(0, 1));                                    \
         HOOKSHOT_TEST_PASSED;                                                                                               \
     }
 
@@ -66,7 +66,7 @@ typedef size_t(__cdecl* THookshotTestFunc)(void);
 /// The test case name is the macro parameter. It relies on one function being defined externally, name_Test.
 /// Since no hooking actually takes place, and therefore the external function is never executed, its actual behavior is not important.
 #define HOOKSHOT_HOOK_SET_FAIL_TEST(name)                                                                                   \
-    extern "C" size_t name##_Test(void);                                                                                    \
+    extern "C" size_t __fastcall name##_Test(size_t scx, size_t sdx);                                                       \
     HOOKSHOT_TEST_HELPER_FUNCTION size_t name##_Test_Hook(void) { return __LINE__; }                                        \
     HOOKSHOT_TEST_CASE(HookSetFail_##name)                                                                                  \
     {                                                                                                                       \

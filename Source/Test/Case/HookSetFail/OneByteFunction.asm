@@ -17,15 +17,15 @@ INCLUDE TestDefinitions.inc
 _TEXT                                       SEGMENT
 
 
-OneByteFunction_Test                        PROC HOOKSHOT_TEST_HELPER_FUNCTION
+BEGIN_HOOKSHOT_TEST_FUNCTION                OneByteFunction_Test
 	ret
-OneByteFunction_Test                        ENDP
+END_HOOKSHOT_TEST_FUNCTION                  OneByteFunction_Test
 
-    nop
-    nop
-    nop
-    nop
-    nop
+    ud2
+    ud2
+    ud2
+    ud2
+    ud2
 
 
 _TEXT                                       ENDS
