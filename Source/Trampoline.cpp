@@ -164,28 +164,50 @@ namespace Hookshot
                 {
                     // There are no changes to the length of the instruction, so the change to the displacement value is just the difference in its new and original locations in memory.
                     const intptr_t newDisplacementValue = ((intptr_t)originalInstructions[i].GetAddress() - (intptr_t)nextTrampolineAddressToWrite) + (intptr_t)originalDisplacement;
-                    Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Instruction %d - Transplanting from 0x%llx to 0x%llx, new displacement is 0x%llx."), i, (long long)originalInstructions[i].GetAddress(), (long long)nextTrampolineAddressToWrite, (long long)newDisplacementValue);
+                    Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Instruction %d - Transplanting from 0x%llx to 0x%llx, absolute target is 0x%llx, new displacement is 0x%llx."), i, (long long)originalInstructions[i].GetAddress(), (long long)nextTrampolineAddressToWrite, (long long)originalInstructions[i].GetAbsoluteMemoryReferenceTarget(), (long long)newDisplacementValue);
 
-#ifdef HOOKSHOT64
-                    // In 64-bit mode, it is necessary to verify that the new displacement value falls within the range of possible rel32 values.
-                    // In 32-bit mode, this is not a problem because the entire address space is accessible via rel32.
-                    if ((newDisplacementValue > (intptr_t)INT32_MAX) || (newDisplacementValue < (intptr_t)INT32_MIN))
-                    {
-                        Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Instruction %d - New displacement is out of range for rel32."), i);
-                        return false;
-                    }
-#endif
-
-                    // TODO: if the new displacement is too wide to fit into the original instruction, then handle it.
-
+                    // Try to replace the displacement in the original instruction. If this fails, perhaps using a 32-bit unconditional jump as an assist will help, especially if the original instruction uses an 8-bit or 16-bit relative displacement.
+                    // However, an assist like this is only possible if the original instruction has a relative branch displacement, not a position-relative data access displacement. Note that the latter case, RIP-relative addressing, is only supported in 64-bit mode.
                     if (false == originalInstructions[i].SetMemoryDisplacement((int64_t)newDisplacementValue))
                     {
-                        Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Instruction %d - Failed to set new displacement."), i);
-                        return false;
+                        if (true == originalInstructions[i].HasRelativeBranchDisplacement())
+                        {
+                            // The way a jump assist works is by allocating space at the end of the trampoline for an unconditional jump instruction that targets the same address targetted by the original instruction.
+                            // Variable numExtraTrampolineBytesUsed stores the number of such bytes already allocated at the end of the trampoline.
+                            // Then, replace the displacement in the original instruction with a displacement value that takes it to the jump assist instruction.
+                            // This solution works for any instruction that uses rel8 and rel16 branch displacements (such as loop, xbegin, etc.), not just conditional and unconditional jumps.
+
+                            numExtraTrampolineBytesUsed += X86Instruction::kJumpInstructionLengthBytes;
+
+                            void* const jumpAssistAddress = (void*)(((size_t)&code.original.byte[_countof(code.original.byte)]) - (size_t)numExtraTrampolineBytesUsed);
+                            void* const jumpAssistTargetAddress = originalInstructions[i].GetAbsoluteMemoryReferenceTarget();
+                            const intptr_t displacementValueToJumpAssist = (intptr_t)jumpAssistAddress - ((intptr_t)nextTrampolineAddressToWrite + (intptr_t)originalInstructions[i].GetLengthBytes());
+
+                            Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Instruction %d - Failed to set new displacement, but will attempt to use a jump assist (from=0x%llx, to=0x%llx, disp=0x%llx, target=0x%llx) instead."), i, (long long)nextTrampolineAddressToWrite, (long long)jumpAssistAddress, (long long)displacementValueToJumpAssist, (long long)jumpAssistTargetAddress);
+
+                            if (false == originalInstructions[i].SetMemoryDisplacement((int64_t)displacementValueToJumpAssist))
+                            {
+                                Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Instruction %d - Jump assist failed, unable to set original instruction displacement."), i, (long long)nextTrampolineAddressToWrite);
+                                return false;
+                            }
+
+                            if (false == X86Instruction::WriteJumpInstruction(jumpAssistAddress, X86Instruction::kJumpInstructionLengthBytes, jumpAssistTargetAddress))
+                            {
+                                Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Instruction %d - Jump assist failed, unable write jump assist instruction."), i);
+                                return false;
+                            }
+
+                            Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Instruction %d - Jump assist succeeded, encoded %d extra bytes at 0x%llx."), i, X86Instruction::kJumpInstructionLengthBytes, (long long)jumpAssistAddress);
+                        }
+                        else
+                        {
+                            Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Instruction %d - Failed to set new displacement, and cannot use a jump assist."), i);
+                            return false;
+                        }
                     }
                 }
                 else
-                    Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Instruction %d - Displacement is small enough, no modification required."), i);
+                    Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Instruction %d - Displacement is short enough, no modification required."), i);
             }
 
             // Third sub-part. Re-encode the instruction.
@@ -194,7 +216,6 @@ namespace Hookshot
             if (0 == numEncodedBytes)
             {
                 Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Instruction %d - Failed to encode at 0x%llx."), i, (long long)nextTrampolineAddressToWrite);
-                code.original.word[0] = kOriginalCodeDefault;
                 return false;
             }
 
@@ -211,7 +232,7 @@ namespace Hookshot
             
             if (false == X86Instruction::WriteJumpInstruction(&code.original.byte[numTrampolineBytesWritten], numTrampolineBytesLeft, &originalFunctionBytes[numOriginalFunctionBytes]))
             {
-                code.original.word[0] = kOriginalCodeDefault;
+                Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Failed to write terminal jump instruction."));
                 return false;
             }
         }
@@ -224,10 +245,7 @@ namespace Hookshot
 
         DWORD originalProtection = 0;
         if (0 == VirtualProtect(&originalFunctionBytes[0], numOriginalFunctionBytes, PAGE_EXECUTE_READWRITE, &originalProtection))
-        {
-            code.original.word[0] = kOriginalCodeDefault;
             return false;
-        }
 
         const bool writeJumpResult = X86Instruction::WriteJumpInstruction(&originalFunctionBytes[0], X86Instruction::kJumpInstructionLengthBytes, &code.hook);
         if (true == writeJumpResult && numOriginalFunctionBytes > X86Instruction::kJumpInstructionLengthBytes)
@@ -246,7 +264,6 @@ namespace Hookshot
         else
         {
             Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Failed to complete set hook request (hook=0x%llx, target=0x%llx)."), (long long)hook, (long long)target);
-            code.original.word[0] = kOriginalCodeDefault;
             return false;
         }
     }
