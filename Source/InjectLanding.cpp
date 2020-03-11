@@ -51,7 +51,7 @@ extern "C" void __stdcall InjectLandingSetHooks(void)
         TemporaryBuffer<TCHAR> executableBaseName;
         GetModuleBaseName(GetCurrentProcess(), NULL, executableBaseName, executableBaseName.Count());
         
-        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_DEBUG_PID_FORMAT, (TCHAR*)executableBaseName, GetProcessId(GetCurrentProcess()));
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Attach to \"%s\" (PID %d) to continue debugging."), (TCHAR*)executableBaseName, GetProcessId(GetCurrentProcess()));
     }
 #endif
 
@@ -73,5 +73,5 @@ extern "C" void __stdcall InjectLandingSetHooks(void)
     if (true == LibraryInitialize::LoadHookModule(hookModuleFileName))
         return;
 
-    Message::OutputFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_NO_HOOK_MODULE);
+    Message::Output(EMessageSeverity::MessageSeverityWarning, _T("No hook module is loaded. No hooks have been set for the current process."));
 }

@@ -49,39 +49,6 @@ namespace Hookshot
         va_end(args);
     }
 
-    // ---------
-
-    void Message::OutputFromResource(const EMessageSeverity severity, const unsigned int resourceIdentifier)
-    {
-        if (false == WillOutputMessageOfSeverity(severity))
-            return;
-
-        TemporaryBuffer<TCHAR> resourceStringBuf;
-
-        if (0 != LoadString(Globals::GetInstanceHandle(), resourceIdentifier, resourceStringBuf, resourceStringBuf.Count()))
-            OutputInternal(severity, resourceStringBuf);
-    }
-
-    // ---------
-
-    void Message::OutputFormattedFromResource(const EMessageSeverity severity, const unsigned int resourceIdentifier, ...)
-    {
-        if (false == WillOutputMessageOfSeverity(severity))
-            return;
-
-        TemporaryBuffer<TCHAR> resourceStringBuf;
-
-        if (0 != LoadString(Globals::GetInstanceHandle(), resourceIdentifier, resourceStringBuf, resourceStringBuf.Count()))
-        {
-            va_list args;
-            va_start(args, resourceIdentifier);
-
-            OutputFormattedInternal(severity, resourceStringBuf, args);
-
-            va_end(args);
-        }
-    }
-
     // --------
 
     bool Message::WillOutputMessageOfSeverity(const EMessageSeverity severity)

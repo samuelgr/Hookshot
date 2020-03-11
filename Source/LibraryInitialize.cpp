@@ -50,12 +50,12 @@ namespace Hookshot
 
     bool LibraryInitialize::LoadHookModule(const TCHAR* hookModuleFileName)
     {
-        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_INFO_ATTEMPT_LOAD_HOOK_MODULE_FORMAT, (TCHAR*)hookModuleFileName);
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Attempting to loaded hook module %s."), (TCHAR*)hookModuleFileName);
         const HMODULE hookModule = LoadLibrary(hookModuleFileName);
 
         if (NULL == hookModule)
         {
-            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_CANNOT_LOAD_HOOK_MODULE_FORMAT, GetLastError(), (TCHAR*)hookModuleFileName);
+            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, _T("System Error %d - Failed to load hook module %s."), GetLastError(), (TCHAR*)hookModuleFileName);
             return false;
         }
 
@@ -63,13 +63,13 @@ namespace Hookshot
 
         if (NULL == initProc)
         {
-            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityWarning, IDS_HOOKSHOT_WARN_MALFORMED_HOOKSHOT_MODULE_FORMAT, GetLastError(), (TCHAR*)hookModuleFileName);
+            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, _T("System Error %d - Failed to locate required procedure in hook module %s."), GetLastError(), (TCHAR*)hookModuleFileName);
             return false;
         }
 
         initProc(GetHookConfigInterface());
 
-        Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_INFO_HOOK_MODULE_SUCCESS_FORMAT, (TCHAR*)hookModuleFileName);
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Successfully loaded hook module %s."), (TCHAR*)hookModuleFileName);
         return true;
     }
 }

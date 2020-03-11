@@ -33,7 +33,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PTSTR lpCmdLi
     
     if (2 != __argc)
     {
-        Message::OutputFromResource(EMessageSeverity::MessageSeverityError, IDS_HOOKSHOT_EXE_ERROR_USAGE);
+        Message::Output(EMessageSeverity::MessageSeverityError, _T("This program requires exactly one argument that specifies command-line of the executable to run and inject."));
         return __LINE__;
     }
 
@@ -85,11 +85,11 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PTSTR lpCmdLi
         case EInjectResult::InjectResultSuccess:
             CloseHandle(processInfo.hProcess);
             CloseHandle(processInfo.hThread);
-            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityInfo, IDS_HOOKSHOT_SUCCESS_INJECT_FORMAT, __targv[1]);
+            Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Successfully injected %s."), __targv[1]);
             return 0;
 
         default:
-            Message::OutputFormattedFromResource(EMessageSeverity::MessageSeverityError, IDS_HOOKSHOT_ERROR_INJECT_FAILED_FORMAT, (int)result, (int)GetLastError(), __targv[1]);
+            Message::OutputFormatted(EMessageSeverity::MessageSeverityError, _T("EInjectResult %d.%d - Failed to inject %s."), (int)result, (int)GetLastError(), __targv[1]);
             return __LINE__;
         }
     }

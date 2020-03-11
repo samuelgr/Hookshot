@@ -82,18 +82,6 @@ namespace Hookshot
         /// @param [in] format Message string, possibly with format specifiers.
         static void OutputFormatted(const EMessageSeverity severity, LPCTSTR format, ...);
 
-        /// Outputs the specified message.
-        /// Requires both a severity and a resource identifier, which identifies the string resource that contains the message to be output.
-        /// @param [in] severity Severity of the message.
-        /// @param [in] resourceIdentifier String resource identifier from which the message text should be loaded.
-        static void OutputFromResource(const EMessageSeverity severity, const unsigned int resourceIdentifier);
-        
-        /// Formats and outputs the specified message.
-        /// Requires a severity, a resource identifier that corresponds to the format string, and values to be formatted.
-        /// @param [in] severity Severity of the message.
-        /// @param [in] resourceIdentifier String resource identifier from which the message string, possibly with format specifiers, should be loaded.
-        static void OutputFormattedFromResource(const EMessageSeverity severity, const unsigned int resourceIdentifier, ...);
-
         /// Determines if a message of the specified severity will be output.
         /// Compares the supplied severity level to the configured minimum severity level.
         /// @param [in] severity Severity to test.
