@@ -242,6 +242,7 @@
     <MASM Include="Source\Test\Case\HookSetSuccess\JumpBackwardRel8.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\JumpForwardRel32.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\JumpForwardRel8.asm" />
+    <MASM Include="Source\Test\Case\HookSetSuccess\LoopJumpAssist.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\LoopWithinTransplant.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\RelBrAtTransplantEdge.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\RelBrBeforeTransplantEdge.asm" />

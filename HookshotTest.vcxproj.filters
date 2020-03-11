@@ -75,5 +75,8 @@
     <MASM Include="Source\Test\Case\HookSetSuccess\TransactionalMemoryFallback.asm">
       <Filter>Source Files</Filter>
     </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\LoopJumpAssist.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
