@@ -19,8 +19,8 @@ INCLUDE TestDefinitions.inc
 _TEXT                                       SEGMENT
 
 
-    REPEAT 32
-        inc sax
+    REPEAT 25
+        inc eax
     ENDM
 
     ; If Hookshot does not get the rewritten rel8 branch displacement perfect, the IP will land in one of the two surrounding banks of inc instructions.
@@ -28,8 +28,8 @@ _TEXT                                       SEGMENT
 $return:
     ret
 
-    REPEAT 32
-        inc sax
+    REPEAT 25
+        inc eax
     ENDM
 
     jmp $return

@@ -24,8 +24,8 @@ BEGIN_HOOKSHOT_TEST_FUNCTION                JumpForwardRel8_Original
     nop
     jmp short $return
 
-    REPEAT 32
-        inc sax
+    REPEAT 20
+        inc eax
     ENDM
 
     ; If Hookshot does not get the rewritten rel8 branch displacement perfect, the IP will land in one of the two surrounding banks of inc instructions.
@@ -33,8 +33,8 @@ BEGIN_HOOKSHOT_TEST_FUNCTION                JumpForwardRel8_Original
 $return:
     ret
 
-    REPEAT 32
-        inc sax
+    REPEAT 20
+        inc eax
     ENDM
 
     jmp $return
