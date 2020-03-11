@@ -19,21 +19,21 @@ INCLUDE TestDefinitions.inc
 _TEXT                                       SEGMENT
 
 
-BEGIN_HOOKSHOT_TEST_FUNCTION                TransplantRelBrBeforeEdge_Original
+BEGIN_HOOKSHOT_TEST_FUNCTION                RelBrBeforeTransplantEdge_Original
     xor eax, eax
     je short $target
 $target:
     nop
     mov sax, scx
     ret
-END_HOOKSHOT_TEST_FUNCTION                  TransplantRelBrBeforeEdge_Original
+END_HOOKSHOT_TEST_FUNCTION                  RelBrBeforeTransplantEdge_Original
 
 
-BEGIN_HOOKSHOT_TEST_FUNCTION                TransplantRelBrBeforeEdge_Hook
+BEGIN_HOOKSHOT_TEST_FUNCTION                RelBrBeforeTransplantEdge_Hook
     mov sax, scx
     shl sax, 1
     ret
-END_HOOKSHOT_TEST_FUNCTION                  TransplantRelBrBeforeEdge_Hook
+END_HOOKSHOT_TEST_FUNCTION                  RelBrBeforeTransplantEdge_Hook
 
 
 _TEXT                                       ENDS

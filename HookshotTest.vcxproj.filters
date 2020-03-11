@@ -66,10 +66,13 @@
     <MASM Include="Source\Test\Case\HookSetSuccess\LoopWithinTransplant.asm">
       <Filter>Source Files</Filter>
     </MASM>
-    <MASM Include="Source\Test\Case\HookSetSuccess\TransplantRelBrAtEdge.asm">
+    <MASM Include="Source\Test\Case\HookSetSuccess\RelBrAtTransplantEdge.asm">
       <Filter>Source Files</Filter>
     </MASM>
-    <MASM Include="Source\Test\Case\HookSetSuccess\TransplantRelBrBeforeEdge.asm">
+    <MASM Include="Source\Test\Case\HookSetSuccess\RelBrBeforeTransplantEdge.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\TransactionalMemoryFallback.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>
