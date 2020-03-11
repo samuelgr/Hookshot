@@ -9,12 +9,13 @@
  *   Implementation of functionality for manipulating binary X86 instructions.
  *****************************************************************************/
 
-#include "TemporaryBuffers.h"
+#include "TemporaryBuffer.h"
 #include "X86Instruction.h"
 
 #include <climits>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 
 extern "C"
 {

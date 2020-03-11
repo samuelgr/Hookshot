@@ -29,7 +29,7 @@
     <ClCompile Include="Source\Message.cpp" />
     <ClCompile Include="Source\ProcessInjector.cpp" />
     <ClCompile Include="Source\StringUtilities.cpp" />
-    <ClCompile Include="Source\TemporaryBuffers.cpp" />
+    <ClCompile Include="Source\TemporaryBuffer.cpp" />
     <ClCompile Include="Source\Trampoline.cpp" />
     <ClCompile Include="Source\TrampolineStore.cpp" />
     <ClCompile Include="Source\X86Instruction.cpp" />
@@ -52,7 +52,7 @@
     <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Strings.h" />
     <ClInclude Include="Include\Hookshot\StringUtilities.h" />
-    <ClInclude Include="Include\Hookshot\TemporaryBuffers.h" />
+    <ClInclude Include="Include\Hookshot\TemporaryBuffer.h" />
     <ClInclude Include="Include\Hookshot\Trampoline.h" />
     <ClInclude Include="Include\Hookshot\TrampolineStore.h" />
     <ClInclude Include="Include\Hookshot\X86Instruction.h" />

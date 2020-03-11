@@ -11,7 +11,7 @@
 
 #include "ApiWindows.h"
 #include "HookStore.h"
-#include "TemporaryBuffers.h"
+#include "TemporaryBuffer.h"
 
 #include <concrt.h>
 

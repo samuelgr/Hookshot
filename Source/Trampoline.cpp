@@ -11,7 +11,7 @@
 
 #include "ApiWindows.h"
 #include "Message.h"
-#include "TemporaryBuffers.h"
+#include "TemporaryBuffer.h"
 #include "Trampoline.h"
 #include "X86Instruction.h"
 

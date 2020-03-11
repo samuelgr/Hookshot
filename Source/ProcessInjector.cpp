@@ -17,7 +17,7 @@
 #include "Message.h"
 #include "ProcessInjector.h"
 #include "StringUtilities.h"
-#include "TemporaryBuffers.h"
+#include "TemporaryBuffer.h"
 
 #include <cstddef>
 #include <cstdio>

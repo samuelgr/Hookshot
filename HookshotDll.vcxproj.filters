@@ -36,7 +36,7 @@
     <ClCompile Include="Source\InjectLanding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TemporaryBuffers.cpp">
+    <ClCompile Include="Source\TemporaryBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\StringUtilities.cpp">
@@ -100,7 +100,7 @@
     <ClInclude Include="Resources\Hookshot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\TemporaryBuffers.h">
+    <ClInclude Include="Include\Hookshot\TemporaryBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Hookshot\StringUtilities.h">

@@ -15,7 +15,7 @@
 #include "LibraryInitialize.h"
 #include "Message.h"
 #include "StringUtilities.h"
-#include "TemporaryBuffers.h"
+#include "TemporaryBuffer.h"
 
 #include <cstddef>
 #include <hookshot.h>

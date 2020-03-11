@@ -14,7 +14,7 @@
 #include "Inject.h"
 #include "InjectResult.h"
 #include "StringUtilities.h"
-#include "TemporaryBuffers.h"
+#include "TemporaryBuffer.h"
 
 #include <cstddef>
 #include <cstring>

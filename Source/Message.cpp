@@ -12,7 +12,7 @@
 #include "ApiWindows.h"
 #include "Globals.h"
 #include "Message.h"
-#include "TemporaryBuffers.h"
+#include "TemporaryBuffer.h"
 
 #include <cstdarg>
 #include <cstdio>
