@@ -27,6 +27,9 @@
     <ClCompile Include="Source\Test\Case\HookSetFail.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Test\CpuInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Hookshot\Test\Harness.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Hookshot\Test\TestPattern.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Hookshot\Test\CpuInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -126,17 +126,17 @@ namespace HookshotTest
             
             if (testCase->CanRun())
             {
-                PrintFormatted(_T("[ %-8s ] %s"), _T("RUN"), name.c_str());
+                PrintFormatted(_T("[ %-9s ] %s"), _T("RUN"), name.c_str());
 
                 const bool testCasePassed = testCase->Run(hookConfig);
                 if (true != testCasePassed)
                     numFailingTests += 1;
 
-                PrintFormatted(_T("[ %8s ] %s%s"), (true == testCasePassed ? _T("PASS") : _T("FAIL")), name.c_str(), (lastTestCase ? _T("") : _T("\n")));
+                PrintFormatted(_T("[ %9s ] %s%s"), (true == testCasePassed ? _T("PASS") : _T("FAIL")), name.c_str(), (lastTestCase ? _T("") : _T("\n")));
             }
             else
             {
-                PrintFormatted(_T("[ %-8s ] %s%s"), _T("SKIPPED"), name.c_str(), (lastTestCase ? _T("") : _T("\n")));
+                PrintFormatted(_T("[  %-8s ] %s%s"), _T("SKIPPED"), name.c_str(), (lastTestCase ? _T("") : _T("\n")));
                 numSkippedTests += 1;
             }
         }

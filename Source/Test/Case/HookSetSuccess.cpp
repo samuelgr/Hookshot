@@ -9,6 +9,7 @@
  *   Test cases that follow the HOOK_SET_SUCCESS pattern.
  *****************************************************************************/
 
+#include "CpuInfo.h"
 #include "TestPattern.h"
 
 
@@ -25,4 +26,6 @@ HOOKSHOT_HOOK_SET_SUCCESS_TEST(LoopJumpAssist);
 HOOKSHOT_HOOK_SET_SUCCESS_TEST(LoopWithinTransplant);
 HOOKSHOT_HOOK_SET_SUCCESS_TEST(RelBrAtTransplantEdge);
 HOOKSHOT_HOOK_SET_SUCCESS_TEST(RelBrBeforeTransplantEdge);
-HOOKSHOT_HOOK_SET_SUCCESS_TEST(TransactionalMemoryFallback);
+
+// These test cases require specific CPU feature flags.
+HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(TransactionalMemoryFallback, CpuInfo::FeatureFlags().rtm);
