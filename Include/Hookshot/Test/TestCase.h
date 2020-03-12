@@ -43,6 +43,11 @@ namespace HookshotTest
         
         // -------- ABSTRACT INSTANCE METHODS ------------------------------ //
 
+        /// Performs run-time checks to determine if the test case represented by this object can be run.
+        /// If not, it will be skipped.
+        virtual bool CanRun(void) const = 0;
+
+        
         /// Runs the test case represented by this object.
         /// Implementations are generated when test cases are created using the #HOOKSHOT_TEST_CASE macro.
         /// @param [in] hookConfig Hookshot configuration interface object to use.
@@ -68,6 +73,7 @@ namespace HookshotTest
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See above for documentation.
 
+        bool CanRun(void) const override;
         bool Run(Hookshot::IHookConfig* const hookConfig) const override;
     };
 }
@@ -85,11 +91,18 @@ namespace HookshotTest
 /// Exit from a test case and indicate a failing result if the expression is false.
 #define HOOKSHOT_TEST_ASSERT(expr)          do {if (!(expr)) {PrintFormatted(_T("%s:%d: Assertion failed: %s"), _T(__FILE__), __LINE__, _T(#expr)); return false;}} while (0)
 
-/// Recommended way of creating Hookshot test cases.  Just provide the test case name.
+/// Recommended way of creating Hookshot test cases that execute conditionally.
+/// Requires a test case name and a condition, which evaluates to a value of type bool.
+/// If the condition ends up being false, which can be determined at runtime, the test case is skipped.
 /// Automatically instantiates the proper test case object and registers it with the harness.
 /// Treat this macro as a function declaration; the test case is the function body.
 /// A variable called "hookConfig" is available for configuring Hookshot for test purposes.
-#define HOOKSHOT_TEST_CASE(name)                                                                                \
+#define HOOKSHOT_TEST_CASE_CONDITIONAL(name, cond)                                                              \
     static constexpr TCHAR kHookshotTestName__##name[] = _T(#name);                                             \
     HookshotTest::TestCase<kHookshotTestName__##name>  hookshotTestCaseInstance__##name;                        \
+    bool HookshotTest::TestCase<kHookshotTestName__##name>::CanRun(void) const { return (cond); }               \
     bool HookshotTest::TestCase<kHookshotTestName__##name>::Run(Hookshot::IHookConfig* const hookConfig) const
+
+/// Recommended way of creating Hookshot test cases that execute unconditionally.
+/// Just provide the test case name.
+#define HOOKSHOT_TEST_CASE(name)            HOOKSHOT_TEST_CASE_CONDITIONAL(name, true)

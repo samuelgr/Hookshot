@@ -42,10 +42,10 @@ typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
 /// This test pattern verifies that Hookshot correctly returns a hook identifier that identifies the hook, sets the hook, and enables access to the original functionality even after setting the hook.
 /// The test case name is the macro parameter. It relies on two functions being defined externally, name_Original and name_Hook.
 /// Whatever is the control flow, name_Original should return #kOriginalFunctionResult when executed correctly, and name_Hook should likewise return #kHookFunctionResult.
-#define HOOKSHOT_HOOK_SET_SUCCESS_TEST(name)                                                                                \
+#define HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(name, cond)                                                              \
     extern "C" size_t __fastcall name##_Original(size_t scx, size_t sdx);                                                   \
     extern "C" size_t __fastcall name##_Hook(size_t scx, size_t sdx);                                                       \
-    HOOKSHOT_TEST_CASE(HookSetSuccess_##name)                                                                               \
+    HOOKSHOT_TEST_CASE_CONDITIONAL(HookSetSuccess_##name, cond)                                                             \
     {                                                                                                                       \
         const Hookshot::THookID hookId = hookConfig->SetHook(&name##_Original, &name##_Hook);                               \
                                                                                                                             \
@@ -60,17 +60,22 @@ typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
         HOOKSHOT_TEST_PASSED;                                                                                               \
     }
 
+/// Convenience wrapper that unconditionally runs a test in which the expected result is the hook successfully being set.
+#define HOOKSHOT_HOOK_SET_SUCCESS_TEST(name)    HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(name, true)
 
 /// Encapsulates the logic that implements a Hookshot test in which a hook is not successfully set.
 /// This test pattern attempts to set a hook and verifies that Hookshot returns the appropriate error code.
 /// The test case name is the macro parameter. It relies on one function being defined externally, name_Test.
 /// Since no hooking actually takes place, and therefore the external function is never executed, its actual behavior is not important.
-#define HOOKSHOT_HOOK_SET_FAIL_TEST(name)                                                                                   \
+#define HOOKSHOT_HOOK_SET_FAIL_TEST_CONDITIONAL(name, cond)                                                                 \
     extern "C" size_t __fastcall name##_Test(size_t scx, size_t sdx);                                                       \
     HOOKSHOT_TEST_HELPER_FUNCTION size_t name##_Test_Hook(void) { return __LINE__; }                                        \
-    HOOKSHOT_TEST_CASE(HookSetFail_##name)                                                                                  \
+    HOOKSHOT_TEST_CASE_CONDITIONAL(HookSetFail_##name, cond)                                                                \
     {                                                                                                                       \
         const Hookshot::THookID hookId = hookConfig->SetHook(&name##_Test, &name##_Test_Hook);                              \
         HOOKSHOT_TEST_ASSERT(Hookshot::EHookError::HookErrorSetFailed == hookId);                                           \
         HOOKSHOT_TEST_PASSED;                                                                                               \
     }
+
+/// Convenience wrapper that unconditionally runs a test in which the expected result is the hook failing to be set.
+#define HOOKSHOT_HOOK_SET_FAIL_TEST(name)       HOOKSHOT_HOOK_SET_FAIL_TEST_CONDITIONAL(name, true)

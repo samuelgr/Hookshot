@@ -99,6 +99,7 @@ namespace HookshotTest
     int Harness::RunAllTestsInternal(Hookshot::IHookConfig* const hookConfig)
     {
         int numFailingTests = 0;
+        int numSkippedTests = 0;
         
         switch(testCases.size())
         {
@@ -119,33 +120,58 @@ namespace HookshotTest
         
         for (auto testCaseIterator = testCases.begin(); testCaseIterator != testCases.end(); ++testCaseIterator)
         {
+            const bool lastTestCase = (testCaseIterator == --testCases.end());
             const auto& name = testCaseIterator->first;
             const ITestCase* const testCase = testCaseIterator->second;
             
-            PrintFormatted(_T("[ %-8s ] %s"), _T("RUN"), name.c_str());
-            
-            const bool testCasePassed = testCase->Run(hookConfig);
-            if (true != testCasePassed)
-                numFailingTests += 1;
+            if (testCase->CanRun())
+            {
+                PrintFormatted(_T("[ %-8s ] %s"), _T("RUN"), name.c_str());
 
-            PrintFormatted(_T("[ %8s ] %s%s"), (true == testCasePassed ? _T("PASS") : _T("FAIL")), name.c_str(), (testCaseIterator == --testCases.end() ? _T("") : _T("\n")));
+                const bool testCasePassed = testCase->Run(hookConfig);
+                if (true != testCasePassed)
+                    numFailingTests += 1;
+
+                PrintFormatted(_T("[ %8s ] %s%s"), (true == testCasePassed ? _T("PASS") : _T("FAIL")), name.c_str(), (lastTestCase ? _T("") : _T("\n")));
+            }
+            else
+            {
+                PrintFormatted(_T("[ %-8s ] %s%s"), _T("SKIPPED"), name.c_str(), (lastTestCase ? _T("") : _T("\n")));
+                numSkippedTests += 1;
+            }
         }
 
         Print(_T("================================================================================"));
-        
-        switch (numFailingTests)
+
+        if (testCases.size() == numSkippedTests)
         {
-        case 0:
-            Print(_T("\nAll tests passed!\n"));
-            break;
+            Print(_T("All tests skipped.\n"));
+        }
+        else
+        {
+            switch (numFailingTests)
+            {
+            case 0:
+                if (numSkippedTests > 0)
+                    PrintFormatted(_T("\nAll tests passed (%d skipped)!\n"), numSkippedTests);
+                else
+                    Print(_T("\nAll tests passed!\n"));
+                break;
 
-        case 1:
-            Print(_T("\n1 test failed.\n"));
-            break;
+            case 1:
+                if (numSkippedTests > 0)
+                    PrintFormatted(_T("\n1 test failed (%d skipped).\n"), numSkippedTests);
+                else
+                    Print(_T("\n1 test failed.\n"));
+                break;
 
-        default:
-            PrintFormatted(_T("\n%d tests failed.\n"), numFailingTests);
-            break;
+            default:
+                if (numSkippedTests > 0)
+                    PrintFormatted(_T("\n%d tests failed (%d skipped).\n"), numFailingTests, numSkippedTests);
+                else
+                    PrintFormatted(_T("\n%d tests failed.\n"), numFailingTests);
+                break;
+            }
         }
 
         return numFailingTests;

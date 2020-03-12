@@ -22,7 +22,7 @@
 
 namespace HookshotTest
 {
-    /// Registers and runs all Hookshot tests.  Reports results.  Implemented as a singleton object.
+    /// Registers and runs all Hookshot tests. Reports results. Implemented as a singleton object.
     /// Test cases are run in alphabetical order by name, irrespective of the order in which they are registered.
     class Harness
     {
@@ -42,7 +42,7 @@ namespace HookshotTest
 
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
-        /// Default constructor.  Harnesses cannot be constructed externally.
+        /// Default constructor.  Objects cannot be constructed externally.
         Harness(void) = default;
 
         /// Copy constructor. Should never be invoked.
