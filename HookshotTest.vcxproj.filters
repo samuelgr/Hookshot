@@ -84,5 +84,14 @@
     <MASM Include="Source\Test\Case\HookSetSuccess\LoopJumpAssist.asm">
       <Filter>Source Files</Filter>
     </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\PositionRelativeAddressGeneration.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\PositionRelativeLoad.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="Source\Test\Case\HookSetFail\JumpForwardTooFar.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

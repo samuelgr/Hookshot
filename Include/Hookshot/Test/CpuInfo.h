@@ -57,6 +57,17 @@ namespace HookshotTest
             return GetInstance().FeatureFlagsInternal();
         }
 
+        /// Specifies if the processor is currently in 64-bit "long" mode.
+        /// @return `true` if so, `false` otherwise.
+        static inline constexpr bool Is64BitLongModeEnabled(void)
+        {
+#ifdef HOOKSHOT64
+            return true;
+#else
+            return false;
+#endif
+        }
+
 
     private:
         // -------- INSTANCE METHODS --------------------------------------- //

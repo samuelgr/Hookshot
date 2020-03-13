@@ -24,8 +24,8 @@ HOOKSHOT_HOOK_SET_SUCCESS_TEST(JumpBackwardRel32);
 HOOKSHOT_HOOK_SET_SUCCESS_TEST(JumpForwardRel32);
 HOOKSHOT_HOOK_SET_SUCCESS_TEST(LoopJumpAssist);
 HOOKSHOT_HOOK_SET_SUCCESS_TEST(LoopWithinTransplant);
+HOOKSHOT_HOOK_SET_SUCCESS_TEST(PositionRelativeAddressGeneration);
+HOOKSHOT_HOOK_SET_SUCCESS_TEST(PositionRelativeLoad);
 HOOKSHOT_HOOK_SET_SUCCESS_TEST(RelBrAtTransplantEdge);
 HOOKSHOT_HOOK_SET_SUCCESS_TEST(RelBrBeforeTransplantEdge);
-
-// These test cases require specific CPU feature flags.
 HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(TransactionalMemoryFallback, CpuInfo::FeatureFlags().rtm);
