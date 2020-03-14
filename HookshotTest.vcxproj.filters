@@ -30,6 +30,9 @@
     <ClCompile Include="Source\Test\CpuInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Test\Case\Custom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Hookshot\Test\Harness.h">

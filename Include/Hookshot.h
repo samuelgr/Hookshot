@@ -38,7 +38,7 @@ namespace Hookshot
 
         HookErrorMaximumValue                                       ///< Upper sentinel value, not used as an error code.
     };
-
+    
     /// Convenience function used to determine if a hook operation succeeded.
     /// @param [in] result Hook identifier returned as the result of any #IHookConfig interface method call.
     /// @return `true` if the identifier represents success, `false` otherwise.
@@ -46,7 +46,7 @@ namespace Hookshot
     {
         return (result >= 0);
     }
-    
+
     /// Interface provided by Hookshot that the hook library can use to configure hooks.
     /// Hookshot creates an object that implements this interface and supplies it to the hook library during initialization.
     /// That instance remains valid throughout the execution of the application.

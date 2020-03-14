@@ -41,6 +41,8 @@ typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
 /// Encapsulates the logic that implements a Hookshot test in which a hook is set successfully, thus effectively replacing the original function with the hooked version.
 /// This test pattern verifies that Hookshot correctly returns a hook identifier that identifies the hook, sets the hook, and enables access to the original functionality even after setting the hook.
 /// The test case name is the macro parameter. It relies on two functions being defined externally, name_Original and name_Hook.
+/// If written in C/C++, these functions should use C linkage and be declared using the function signature for #THookshotTestFunc.
+/// If written in assembly, refer to the assembly language definitions for more information on how to construct a test function easily.
 /// Whatever is the control flow, name_Original should return #kOriginalFunctionResult when executed correctly, and name_Hook should likewise return #kHookFunctionResult.
 #define HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(name, cond)                                                              \
     extern "C" size_t __fastcall name##_Original(size_t scx, size_t sdx);                                                   \
@@ -61,11 +63,13 @@ typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
     }
 
 /// Convenience wrapper that unconditionally runs a test in which the expected result is the hook successfully being set.
-#define HOOKSHOT_HOOK_SET_SUCCESS_TEST(name)    HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(name, true)
+#define HOOKSHOT_HOOK_SET_SUCCESS_TEST(name)                        HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(name, true)
 
 /// Encapsulates the logic that implements a Hookshot test in which a hook is not successfully set.
 /// This test pattern attempts to set a hook and verifies that Hookshot returns the appropriate error code.
 /// The test case name is the macro parameter. It relies on one function being defined externally, name_Test.
+/// If written in C/C++, this function should use C linkage and be declared using the function signature for #THookshotTestFunc.
+/// If written in assembly, refer to the assembly language definitions for more information on how to construct a test function easily.
 /// Since no hooking actually takes place, and therefore the external function is never executed, its actual behavior is not important.
 #define HOOKSHOT_HOOK_SET_FAIL_TEST_CONDITIONAL(name, cond)                                                                 \
     extern "C" size_t __fastcall name##_Test(size_t scx, size_t sdx);                                                       \
@@ -78,4 +82,11 @@ typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
     }
 
 /// Convenience wrapper that unconditionally runs a test in which the expected result is the hook failing to be set.
-#define HOOKSHOT_HOOK_SET_FAIL_TEST(name)       HOOKSHOT_HOOK_SET_FAIL_TEST_CONDITIONAL(name, true)
+#define HOOKSHOT_HOOK_SET_FAIL_TEST(name)                           HOOKSHOT_HOOK_SET_FAIL_TEST_CONDITIONAL(name, true)
+
+/// Encapsulates the logic that implements a completely custom Hookshot test.
+/// This particular macro just ensures a proper test case naming convention.
+#define HOOKSHOT_CUSTOM_TEST_CONDITIONAL(name, cond)                HOOKSHOT_TEST_CASE_CONDITIONAL(Custom_##name, cond)
+
+/// Convenience wrapper that unconditionally runs a custom test.
+#define HOOKSHOT_CUSTOM_TEST(name)                                  HOOKSHOT_CUSTOM_TEST_CONDITIONAL(name, true)

@@ -5,7 +5,7 @@
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2020
  **************************************************************************//**
- * @file HookSetSuccessful.cpp
+ * @file HookSetFail.cpp
  *   Test cases that follow the HOOK_SET_FAIL pattern.
  *****************************************************************************/
 
