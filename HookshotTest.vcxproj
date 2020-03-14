@@ -265,6 +265,7 @@
     <MASM Include="Source\Test\Case\HookSetSuccess\PositionRelativeLoad.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\RelBrAtTransplantEdge.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\RelBrBeforeTransplantEdge.asm" />
+    <MASM Include="Source\Test\Case\HookSetSuccess\CallSubroutine.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\TransactionalMemoryFallback.asm" />
   </ItemGroup>
   <ItemGroup>

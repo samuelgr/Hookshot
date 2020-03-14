@@ -17,9 +17,11 @@ _TEXT                                       SEGMENT
 
 
 BEGIN_HOOKSHOT_TEST_FUNCTION                InvalidInstruction_Test
-    REPEAT 16
+    REPEAT 31
         BYTE 0fh
     ENDM
+
+    ret
 END_HOOKSHOT_TEST_FUNCTION                  InvalidInstruction_Test
 
 

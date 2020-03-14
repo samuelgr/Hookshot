@@ -99,5 +99,8 @@
     <MASM Include="Source\Test\Case\HookSetFail\InvalidInstruction.asm">
       <Filter>Source Files</Filter>
     </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\CallSubroutine.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
