@@ -12,8 +12,9 @@
 #include "ApiWindows.h"
 #include "HookStore.h"
 #include "TemporaryBuffer.h"
+#include "X86Instruction.h"
 
-#include <concrt.h>
+#include <shared_mutex>
 
 
 namespace Hookshot
@@ -22,18 +23,18 @@ namespace Hookshot
 
 #ifdef HOOKSHOT64
     /// Determines the base address of the memory region associated with the target function.
-    /// @param [in] targetFunc Address of the target function that is being hooked.
+    /// @param [in] originalFunc Address of the target function that is being hooked.
     /// @return Base address of the associated memory region, or NULL if it cannot be determined.
-    static void* BaseAddressForTargetFunc(const void* targetFunc)
+    static void* BaseAddressFororiginalFunc(const void* originalFunc)
     {
         // If the target function is part of a loaded module, the base address of the region is the base address of that module.
         HMODULE moduleHandle;
-        if (0 != GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)targetFunc, &moduleHandle))
+        if (0 != GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)originalFunc, &moduleHandle))
             return (void*)moduleHandle;
         
         // If the target function is not part of a loaded module, the base address of the region needs to be queried.
         MEMORY_BASIC_INFORMATION virtualMemoryInfo;
-        if (sizeof(virtualMemoryInfo) == VirtualQuery((LPCVOID)targetFunc, &virtualMemoryInfo, sizeof(virtualMemoryInfo)))
+        if (sizeof(virtualMemoryInfo) == VirtualQuery((LPCVOID)originalFunc, &virtualMemoryInfo, sizeof(virtualMemoryInfo)))
             return virtualMemoryInfo.AllocationBase;
 
         // At this point the base address cannot be determined.
@@ -45,9 +46,9 @@ namespace Hookshot
     // -------- CLASS VARIABLES ---------------------------------------- //
     // See "HookStore.h" for documentation.
 
-    concurrency::reader_writer_lock HookStore::lock;
+    std::shared_mutex HookStore::hookStoreMutex;
 
-    std::unordered_map<const void*, THookID> HookStore::hookMap;
+    std::unordered_map<const void*, Trampoline*> HookStore::functionToTrampoline;
 
     std::vector<TrampolineStore> HookStore::trampolines;
 
@@ -59,56 +60,39 @@ namespace Hookshot
     // -------- CONCRETE INSTANCE METHODS ------------------------------ //
     // See "Hookshot.h" for documentation.
 
-    const void* HookStore::GetOriginalFunctionForHook(THookID hook)
+    const void* HookStore::GetOriginalFunction(void* func)
     {
-        const int trampolineStoreIndex = hook / TrampolineStore::kTrampolineStoreCount;
-        const int trampolineIndex = hook % TrampolineStore::kTrampolineStoreCount;
+        std::shared_lock<std::shared_mutex> lock(hookStoreMutex);
 
-        concurrency::reader_writer_lock::scoped_lock_read guard(this->lock);
-        
-        if (trampolineStoreIndex < 0 || trampolineStoreIndex >= (int)trampolines.size())
+        if (0 == functionToTrampoline.count(func))
             return NULL;
 
-        if (trampolineIndex < 0 || trampolineIndex >= trampolines[trampolineStoreIndex].Count())
-            return NULL;
-
-        return trampolines[trampolineStoreIndex][trampolineIndex].GetOriginalTargetFunction();
-    }
-
-    // --------
-
-    THookID HookStore::IdentifyHook(const void* targetFunc)
-    {
-        if (NULL == targetFunc)
-            return EHookError::HookErrorInvalidArgument;
-
-        concurrency::reader_writer_lock::scoped_lock_read guard(this->lock);
-
-        if (0 == hookMap.count(targetFunc))
-            return EHookError::HookErrorNotFound;
-
-        return hookMap.at(targetFunc);
+        return functionToTrampoline.at(func)->GetOriginalFunction();
     }
     
-    // --------
-
-    THookID HookStore::SetHook(void* targetFunc, const void* hookFunc)
+    EHookshotResult HookStore::SetHook(void* originalFunc, const void* hookFunc)
     {
-        if (NULL == hookFunc || NULL == targetFunc)
-            return EHookError::HookErrorInvalidArgument;
+        if (NULL == originalFunc || NULL == hookFunc)
+            return EHookshotResult::HookshotResultFailInvalidArgument;
+
+        if (((intptr_t)hookFunc >= (intptr_t)originalFunc) && ((intptr_t)hookFunc < (intptr_t)originalFunc + X86Instruction::kJumpInstructionLengthBytes))
+            return EHookshotResult::HookshotResultFailInvalidArgument;
         
-        if (EHookError::HookErrorNotFound != IdentifyHook(targetFunc))
-            return EHookError::HookErrorDuplicate;
-        
-        concurrency::reader_writer_lock::scoped_lock guard(this->lock);
+        // At this point, data structures will be consulted, so it is necessary to take a lock.
+        std::unique_lock<std::shared_mutex> lock(hookStoreMutex);
+
+        // Check for duplicates.
+        // If Hookshot has already set a hook that touches either the specified original or hook function, that is an error.
+        if (0 != functionToTrampoline.count(originalFunc) || 0 != functionToTrampoline.count(hookFunc))
+            return EHookshotResult::HookshotResultFailDuplicate;
 
 #ifdef HOOKSHOT64
         // In 64-bit mode, trampolines are stored close to the target functions.
         // Therefore, it is necessary to identify the TrampolineStore object that is correct for the given target function address.
         // Because only one TrampolineStore object exists per base address, the number of allowed hooks per base address is limited.
-        void* const baseAddress = BaseAddressForTargetFunc(targetFunc);
+        void* const baseAddress = BaseAddressFororiginalFunc(originalFunc);
         if (NULL == baseAddress)
-            return EHookError::HookErrorInitializationFailed;
+            return EHookshotResult::HookshotResultFailInternal;
 
         // If this is the first target function for the specified base address, attempt to place a TrampolineStore buffer.
         // Do this by repeatedly moving backward in memory from the base address by the size of the TrampolineStore buffer until either too many attempts were made or a location is identified.
@@ -131,7 +115,7 @@ namespace Hookshot
         }
 
         if (0 == trampolineStoreMap.count(baseAddress))
-            return EHookError::HookErrorAllocationFailed;
+            return EHookshotResult::HookshotResultFailAllocation;
 
         const size_t trampolineStoreIndex = trampolineStoreMap.at(baseAddress);
 #else
@@ -148,21 +132,21 @@ namespace Hookshot
         
         TrampolineStore& trampolineStore = trampolines[trampolineStoreIndex];
         if (false == trampolineStore.IsInitialized())
-            return EHookError::HookErrorInitializationFailed;
+            return EHookshotResult::HookshotResultFailInternal;
 
         const int allocatedIndex = trampolineStore.Allocate();
         if (allocatedIndex < 0)
-            return EHookError::HookErrorAllocationFailed;
+            return EHookshotResult::HookshotResultFailInternal;
 
-        if (false == trampolineStore[allocatedIndex].SetHookForTarget(hookFunc, targetFunc))
+        if (false == trampolineStore[allocatedIndex].SetHookForTarget(hookFunc, originalFunc))
         {
             trampolineStore.DeallocateIfNotSet();
-            return EHookError::HookErrorSetFailed;
+            return EHookshotResult::HookshotResultFailCannotSetHook;
         }
 
-        const THookID hookIdentifier = (THookID)(((trampolineStoreIndex) * TrampolineStore::kTrampolineStoreCount) + allocatedIndex);
-        hookMap[targetFunc] = hookIdentifier;
+        functionToTrampoline[originalFunc] = &trampolineStore[allocatedIndex];
+        functionToTrampoline[hookFunc] = &trampolineStore[allocatedIndex];
 
-        return hookIdentifier;
+        return EHookshotResult::HookshotResultSuccess;
     }
 }

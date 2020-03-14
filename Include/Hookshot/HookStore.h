@@ -12,11 +12,12 @@
 #pragma once
 
 #include "ApiWindows.h"
+#include "Trampoline.h"
 #include "TrampolineStore.h"
 
-#include <concrt.h>
 #include <cstdint>
 #include <hookshot.h>
+#include <shared_mutex>
 #include <unordered_map>
 #include <vector>
 
@@ -32,10 +33,10 @@ namespace Hookshot
         // -------- CLASS VARIABLES ---------------------------------------- //
 
         /// Enforces serialized access to all parts of the hook data structure.
-        static concurrency::reader_writer_lock lock;
+        static std::shared_mutex hookStoreMutex;
 
-        /// Maps from target function address to hook identifier.
-        static std::unordered_map<const void*, THookID> hookMap;
+        /// Maps from function address (either original or target) to trampoline address.
+        static std::unordered_map<const void*, Trampoline*> functionToTrampoline;
         
         /// Trampoline storage.
         /// Used internally to implement hooks.
@@ -54,8 +55,7 @@ namespace Hookshot
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See "Hookshot.h" for documentation.
 
-        const void* GetOriginalFunctionForHook(THookID hook) override;
-        THookID IdentifyHook(const void* targetFunc) override;
-        THookID SetHook(void* targetFunc, const void* hookFunc) override;
+        const void* GetOriginalFunction(void* func) override;
+        EHookshotResult SetHook(void* originalFunc, const void* hookFunc) override;
     };
 }

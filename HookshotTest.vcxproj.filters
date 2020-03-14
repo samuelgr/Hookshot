@@ -102,5 +102,11 @@
     <MASM Include="Source\Test\Case\HookSetSuccess\CallSubroutine.asm">
       <Filter>Source Files</Filter>
     </MASM>
+    <MASM Include="Source\Test\Case\HookSetFail\SelfHook.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="Source\Test\Case\HookSetFail\UnsafeSeparation.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

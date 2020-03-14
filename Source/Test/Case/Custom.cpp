@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <hookshot.h>
 #include <tchar.h>
 #include <windows.h>
 
@@ -54,6 +55,11 @@ namespace HookshotTest
 
     // -------- TEST CASES ------------------------------------------------- //
 
+    // TODO: SelfHook
+    // TODO: UnsafeSeparation
+    // TODO: NullPointerOriginal
+    // TODO: NullPointerHook
+    
     // Creates a hook chain going backwards.
     // Function B hooks function C (OK), then function A hooks function B (error).
     HOOKSHOT_CUSTOM_TEST(BackwardHookChain)
@@ -63,7 +69,7 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(funcC);
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookConfig->SetHook(funcB, funcC)));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EHookError::HookErrorDuplicate == hookConfig->SetHook(funcA, funcB));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EHookshotResult::HookshotResultFailDuplicate == hookConfig->SetHook(funcA, funcB));
 
         HOOKSHOT_TEST_PASSED;
     }
@@ -76,7 +82,7 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookConfig->SetHook(originalFunc, hookFunc)));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EHookError::HookErrorDuplicate == hookConfig->SetHook(originalFunc, hookFunc));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EHookshotResult::HookshotResultFailDuplicate == hookConfig->SetHook(originalFunc, hookFunc));
 
         HOOKSHOT_TEST_PASSED;
     }
@@ -90,7 +96,7 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(funcC);
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookConfig->SetHook(funcA, funcB)));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EHookError::HookErrorDuplicate == hookConfig->SetHook(funcB, funcC));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EHookshotResult::HookshotResultFailDuplicate == hookConfig->SetHook(funcB, funcC));
 
         HOOKSHOT_TEST_PASSED;
     }
@@ -103,7 +109,7 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(funcB);
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookConfig->SetHook(funcA, funcB)));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EHookError::HookErrorDuplicate == hookConfig->SetHook(funcB, funcA));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EHookshotResult::HookshotResultFailDuplicate == hookConfig->SetHook(funcB, funcA));
 
         HOOKSHOT_TEST_PASSED;
     }

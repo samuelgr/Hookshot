@@ -93,10 +93,10 @@ namespace Hookshot
             return HookAddressForValue();
         }
 
-        /// Retrieves and returns the address that, when invoked, provides the original functionality of the target function.
+        /// Retrieves and returns the address that, when invoked, provides the original functionality of the original function.
         /// Valid only if this object is already set, otherwise may return a garbage value.
         /// @return Address that can be invoked to execute the original functionality of the target function.
-        inline const void* GetOriginalTargetFunction(void) const
+        inline const void* GetOriginalFunction(void) const
         {
             return (void*)&code.original;
         }

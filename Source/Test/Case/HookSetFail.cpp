@@ -12,6 +12,8 @@
 #include "CpuInfo.h"
 #include "TestPattern.h"
 
+#include <hookshot.h>
+
 
 namespace HookshotTest
 {
@@ -19,7 +21,7 @@ namespace HookshotTest
     // Each is implemented in a source file named identically to the test name.
     // See source files for documentation.
 
-    HOOKSHOT_HOOK_SET_FAIL_TEST(InvalidInstruction);
-    HOOKSHOT_HOOK_SET_FAIL_TEST_CONDITIONAL(JumpForwardTooFar, CpuInfo::Is64BitLongModeEnabled());
-    HOOKSHOT_HOOK_SET_FAIL_TEST(OneByteFunction);
+    HOOKSHOT_HOOK_SET_FAIL_TEST(InvalidInstruction, Hookshot::EHookshotResult::HookshotResultFailCannotSetHook);
+    HOOKSHOT_HOOK_SET_FAIL_TEST_CONDITIONAL(JumpForwardTooFar, Hookshot::EHookshotResult::HookshotResultFailCannotSetHook, CpuInfo::Is64BitLongModeEnabled());
+    HOOKSHOT_HOOK_SET_FAIL_TEST(OneByteFunction, Hookshot::EHookshotResult::HookshotResultFailCannotSetHook);
 }
