@@ -250,6 +250,7 @@
     <ClInclude Include="Include\Hookshot\Test\TestPattern.h" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="Source\Test\Case\HookSetFail\InvalidInstruction.asm" />
     <MASM Include="Source\Test\Case\HookSetFail\JumpForwardTooFar.asm" />
     <MASM Include="Source\Test\Case\HookSetFail\OneByteFunction.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\BasicFunction.asm" />

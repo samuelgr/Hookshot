@@ -9,16 +9,18 @@
 INCLUDE TestDefinitions.inc
 
 
-; Tests Hookshot with a single-byte function.
-; Because this function consists of only a single byte, it is too short for Hookshot to hook successfully.
+; Tests Hookshot with a function containing an invalid x86 instruction.
+; Expected to fail due to inability to decode the invalid instruction.
 
 
 _TEXT                                       SEGMENT
 
 
-BEGIN_HOOKSHOT_TEST_FUNCTION                OneByteFunction_Test
-    ret
-END_HOOKSHOT_TEST_FUNCTION                  OneByteFunction_Test
+BEGIN_HOOKSHOT_TEST_FUNCTION                InvalidInstruction_Test
+    REPEAT 16
+        BYTE 0fh
+    ENDM
+END_HOOKSHOT_TEST_FUNCTION                  InvalidInstruction_Test
 
 
 _TEXT                                       ENDS

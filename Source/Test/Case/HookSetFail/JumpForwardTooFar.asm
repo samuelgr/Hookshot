@@ -24,12 +24,6 @@ BEGIN_HOOKSHOT_TEST_FUNCTION                JumpForwardTooFar_Test
     ret
 END_HOOKSHOT_TEST_FUNCTION                  JumpForwardTooFar_Test
 
-    ud2
-    ud2
-    ud2
-    ud2
-    ud2
-
 
 _TEXT                                       ENDS
 
