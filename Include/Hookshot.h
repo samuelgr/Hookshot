@@ -59,8 +59,6 @@ namespace Hookshot
     class IHookConfig
     {
     public:
-        // -------- ABSTRACT INSTANCE METHODS ------------------------------ //
-        
         /// Causes Hookshot to attempt to install a hook on the specified function.
         /// @param [in,out] originalFunc Address of the function that should be hooked.
         /// @param [in] hookFunc Hook function that should be invoked instead of the original function.
