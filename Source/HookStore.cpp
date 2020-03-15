@@ -23,26 +23,10 @@ namespace Hookshot
 {
     // -------- INTERNAL FUNCTIONS ------------------------------------- //
 
-    /// Determines if the specified hook is allowed to be set.
-    /// @param [in] originalFunc Address of the function that is being hooked.
-    /// @param [in] hookFunc Address of the hook function.
-    /// @return `true` if hooking the specified function is allowed, `false` if not.
-    static bool AllowedToSetHook(const void* originalFunc, const void* hookFunc)
-    {
-        // Hooking Hookshot itself is forbidden.
-        // If the original function is not in a module at all, clearly it is allowed.  If it is, verify that its associated module is not this Hookshot module.
-        HMODULE moduleHandle;
-        if (0 != GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)originalFunc, &moduleHandle) && Globals::GetInstanceHandle() == moduleHandle)
-            return false;
-
-        return true;
-    }
-
-#ifdef HOOKSHOT64
     /// Determines the base address of the memory region associated with the target function.
     /// @param [in] originalFunc Address of the function that is being hooked.
     /// @return Base address of the associated memory region, or NULL if it cannot be determined.
-    static void* BaseAddressFororiginalFunc(const void* originalFunc)
+    static void* BaseAddressForOriginalFunc(const void* originalFunc)
     {
         // If the target function is part of a loaded module, the base address of the region is the base address of that module.
         HMODULE moduleHandle;
@@ -57,7 +41,19 @@ namespace Hookshot
         // At this point the base address cannot be determined.
         return NULL;
     }
-#endif
+
+    /// Determines if the specified hook is allowed to be set.
+    /// @param [in] originalFunc Address of the function that is being hooked.
+    /// @param [in] hookFunc Address of the hook function.
+    /// @return `true` if hooking the specified function is allowed, `false` if not.
+    static bool IsSetHookAllowed(const void* originalFunc, const void* hookFunc)
+    {
+        // Hooking Hookshot itself is forbidden.
+        if (BaseAddressForOriginalFunc(originalFunc) == Globals::GetInstanceHandle())
+            return false;
+
+        return true;
+    }
 
     /// Redirects the flow of execution from the specified address to the specified address.
     /// Accomplishes this task by overwriting some bytes of the source function with a jump that targets the destination address.
@@ -113,7 +109,7 @@ namespace Hookshot
         if (NULL == originalFunc || NULL == hookFunc)
             return EHookshotResult::HookshotResultFailInvalidArgument;
 
-        if (false == AllowedToSetHook(originalFunc, hookFunc))
+        if (false == IsSetHookAllowed(originalFunc, hookFunc))
             return EHookshotResult::HookshotResultFailForbidden;
         
         if (((intptr_t)hookFunc >= (intptr_t)originalFunc) && ((intptr_t)hookFunc < (intptr_t)originalFunc + X86Instruction::kJumpInstructionLengthBytes))
@@ -131,7 +127,7 @@ namespace Hookshot
         // In 64-bit mode, trampolines are stored close to the target functions.
         // Therefore, it is necessary to identify the TrampolineStore object that is correct for the given target function address.
         // Because only one TrampolineStore object exists per base address, the number of allowed hooks per base address is limited.
-        void* const baseAddress = BaseAddressFororiginalFunc(originalFunc);
+        void* const baseAddress = BaseAddressForOriginalFunc(originalFunc);
         if (NULL == baseAddress)
             return EHookshotResult::HookshotResultFailInternal;
 
