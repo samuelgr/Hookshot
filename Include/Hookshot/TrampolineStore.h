@@ -98,10 +98,8 @@ namespace Hookshot
         /// @return Index of the newly-allocated trampoline object, or -1 in the event of a failure.
         int Allocate(void);
 
-        /// Attempts to deallocate the most recently-allocated trampoline object.
-        /// Will only succeed if the most recently-allocated trampoline object has not yet been set.
-        /// @return `true` on successful deallocation, `false` otherwise.
-        bool DeallocateIfNotSet(void);
+        /// Deallocates the most recently-allocated trampoline object.
+        void Deallocate(void);
 
         /// Retrieves the number of trampoline objects in this data structure.
         /// @return Number of trampolines allocated.

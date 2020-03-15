@@ -11,6 +11,7 @@
 
 #include "ApiWindows.h"
 #include "HookStore.h"
+#include "Message.h"
 #include "TemporaryBuffer.h"
 #include "X86Instruction.h"
 
@@ -41,6 +42,27 @@ namespace Hookshot
         return NULL;
     }
 #endif
+
+    /// Redirects the flow of execution from the specified address to the specified address.
+    /// Accomplishes this task by overwriting some bytes of the source function with a jump that targets the destination address.
+    /// @param [in,out] from Source function, part of which will be overwritten.
+    /// @param [in] to Destination function.
+    /// @return `true` on success, `false` on failure.
+    static inline bool RedirectExecution(void* from, const void* to)
+    {
+        DWORD originalProtection = 0;
+        if (0 == VirtualProtect(from, X86Instruction::kJumpInstructionLengthBytes, PAGE_EXECUTE_READWRITE, &originalProtection))
+            return false;
+
+        const bool writeJumpResult = X86Instruction::WriteJumpInstruction(from, X86Instruction::kJumpInstructionLengthBytes, to);
+
+        DWORD unusedOriginalProtection = 0;
+        const bool restoreProtectionResult = (0 != VirtualProtect(from, X86Instruction::kJumpInstructionLengthBytes, originalProtection, &unusedOriginalProtection));
+        if (true == restoreProtectionResult)
+            FlushInstructionCache(GetCurrentProcess(), from, (SIZE_T)X86Instruction::kJumpInstructionLengthBytes);
+
+        return (writeJumpResult && restoreProtectionResult);
+    }
 
 
     // -------- CLASS VARIABLES ---------------------------------------- //
@@ -136,11 +158,23 @@ namespace Hookshot
 
         const int allocatedIndex = trampolineStore.Allocate();
         if (allocatedIndex < 0)
-            return EHookshotResult::HookshotResultFailInternal;
+            return EHookshotResult::HookshotResultFailAllocation;
 
-        if (false == trampolineStore[allocatedIndex].SetHookForTarget(hookFunc, originalFunc))
+        Trampoline& trampoline = trampolineStore[allocatedIndex];
+        trampoline.SetHookFunction(hookFunc);
+        if (false == trampoline.SetOriginalFunction(originalFunc))
         {
-            trampolineStore.DeallocateIfNotSet();
+            Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Failed to set up a trampoline for original function at 0x%llx."), (long long)originalFunc);
+
+            trampolineStore.Deallocate();
+            return EHookshotResult::HookshotResultFailCannotSetHook;
+        }
+
+        if (false == RedirectExecution(originalFunc, trampoline.GetHookFunction()))
+        {
+            Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Failed to redirect execution from 0x%llx to 0x%llx."), (long long)originalFunc, (long long)trampoline.GetHookFunction());
+            
+            trampolineStore.Deallocate();
             return EHookshotResult::HookshotResultFailCannotSetHook;
         }
 

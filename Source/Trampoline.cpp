@@ -55,52 +55,58 @@ namespace Hookshot
 
     Trampoline::Trampoline(void) : code()
     {
-        for (int i = 0; i < sizeof(kHookCodePreamble); ++i)
-            code.hook.byte[i] = kHookCodePreamble[i];
-
-        code.original.word[0] = kOriginalCodeDefault;
+        Reset();
     }
 
 
     // -------- INSTANCE METHODS --------------------------------------- //
     // See "Trampoline.h" for documentation.
     
-    bool Trampoline::IsTargetSet(void) const
+    void Trampoline::Reset(void)
     {
-        return (kOriginalCodeDefault != code.original.word[0]);
+        for (int i = 0; i < sizeof(kHookCodePreamble); ++i)
+            code.hook.byte[i] = kHookCodePreamble[i];
+
+        for (int i = sizeof(kHookCodePreamble); i < sizeof(code.hook.byte); ++i)
+            code.hook.byte[i] = 0;
+
+        code.original.word[0] = kOriginalCodeDefault;
     }
 
     // --------
     
-    bool Trampoline::SetHookForTarget(const void* hook, void* target)
+    void Trampoline::SetHookFunction(const void* hookFunc)
     {
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Received set hook request (hook=0x%llx, target=0x%llx).  Will use trampoline (hook=0x%llx, original=0x%llx)."), (long long)hook, (long long)target, (long long)&code.hook, (long long)&code.original);
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Trampoline at 0x%llx is being set up with hook function 0x%llx."), (long long)this, (long long)hookFunc);
+        code.hook.ptr[_countof(code.hook.ptr) - 1] = ValueForHookAddress(hookFunc);
+    }
+
+    // --------
+    
+    bool Trampoline::SetOriginalFunction(const void* originalFunc)
+    {
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Trampoline at 0x%llx is being set up with original function 0x%llx."), (long long)this, (long long)originalFunc);
         
-        // Sanity check.  Make sure the target is not too far away from this trampoline.
-        if (false == X86Instruction::CanWriteJumpInstruction(target, &code.hook))
+        // Sanity check.  Make sure the original function is not too far away from this trampoline.
+        if (false == X86Instruction::CanWriteJumpInstruction(originalFunc, &code.hook))
         {
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, _T("Set hook failed for target %llx because it is too far from the trampoline."), (long long)target);
+            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, _T("Set hook failed for function %llx because it is too far from the trampoline."), (long long)originalFunc);
             return false;
         }
         
-        // Easy part. Make the hook part of the trampoline actually target the hook function.
-        // This is done by placing the address (or displacement) of the hook function into the hook part of the trampoline at the last pointer-sized element.
-        code.hook.ptr[_countof(code.hook.ptr) - 1] = ValueForHookAddress(hook);
-        
-        // Hard part. Transplanting code from the location of the original function into the original function part of the trampoline.  This is done in several sub-parts, and more details will be provided while executing each sub-part.
+        // This operation requires transplanting code from the location of the original function into the original function part of the trampoline.  This is done in several sub-parts, and more details will be provided while executing each sub-part.
         // First, read and decode instructions until either enough bytes worth of instructions are decoded to hold an unconditional jump or a terminal instruction is hit.  If the latter happens strictly before the former, then setting this hook failed due to there not being enough bytes of function to transplant.
         // Second, iterate through all the decoded instructions and check for position-dependent memory references.  Update the displacements as needed for any such decoded instructions.  If that is not possible for even one instruction, then setting this hook failed.
         // Third, encode the decoded instructions into this trampoline's original function region.  If needed (i.e. the last of the decoded instructions is non-terminal), append an unconditional jump instruction to the correct address within the original function.  This will be completed at the same time as the second sub-part.
-        // Fourth and final, overwrite the beginning of the original function with an unconditional jump to the hook region of this trampoline.  This is where it is important other threads not be trying to execute code in the original function.
 
         // First sub-part.
-        uint8_t* const originalFunctionBytes = (uint8_t*)target;
+        uint8_t* const originalFunctionBytes = (uint8_t*)originalFunc;
         constexpr int numOriginalFunctionBytesNeeded = X86Instruction::kJumpInstructionLengthBytes;
         int numOriginalFunctionBytes = 0;
         int instructionIndex = 0;
         std::vector<X86Instruction> originalInstructions;
 
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Starting to decode instructions at target 0x%llx, need %d bytes."), (long long)target, numOriginalFunctionBytesNeeded);
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Starting to decode instructions at 0x%llx, need %d bytes."), (long long)originalFunc, numOriginalFunctionBytesNeeded);
 
         while (numOriginalFunctionBytes < numOriginalFunctionBytesNeeded)
         {
@@ -239,32 +245,6 @@ namespace Hookshot
 
         FlushInstructionCache(GetCurrentProcess(), &code, sizeof(code));
 
-        
-        // Fourth sub-part.  Overwriting the original function might require playing with virtual memory permissions.
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Attempting to overwrite target 0x%llx with a %d-byte jmp to 0x%llx and %d byte(s) of nop as padding."), (long long)target, X86Instruction::kJumpInstructionLengthBytes, (long long)&code.hook, numOriginalFunctionBytes - X86Instruction::kJumpInstructionLengthBytes);
-
-        DWORD originalProtection = 0;
-        if (0 == VirtualProtect(&originalFunctionBytes[0], numOriginalFunctionBytes, PAGE_EXECUTE_READWRITE, &originalProtection))
-            return false;
-
-        const bool writeJumpResult = X86Instruction::WriteJumpInstruction(&originalFunctionBytes[0], X86Instruction::kJumpInstructionLengthBytes, &code.hook);
-        if (true == writeJumpResult && numOriginalFunctionBytes > X86Instruction::kJumpInstructionLengthBytes)
-            X86Instruction::FillWithNop(&originalFunctionBytes[X86Instruction::kJumpInstructionLengthBytes], numOriginalFunctionBytes - X86Instruction::kJumpInstructionLengthBytes);
-
-        DWORD unusedOriginalProtection = 0;
-        const bool restoreProtectionResult = (0 != VirtualProtect(&originalFunctionBytes[0], numOriginalFunctionBytes, originalProtection, &unusedOriginalProtection));
-        if (true == restoreProtectionResult)
-            FlushInstructionCache(GetCurrentProcess(), &originalFunctionBytes[0], (SIZE_T)numOriginalFunctionBytes);
-
-        if (writeJumpResult && restoreProtectionResult)
-        {
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Completed set hook request (hook=0x%llx, target=0x%llx)."), (long long)hook, (long long)target);
-            return true;
-        }
-        else
-        {
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, _T("Failed to complete set hook request (hook=0x%llx, target=0x%llx)."), (long long)hook, (long long)target);
-            return false;
-        }
+        return true;
     }
 }

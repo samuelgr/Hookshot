@@ -85,34 +85,35 @@ namespace Hookshot
 
         // -------- INSTANCE METHODS --------------------------------------- //
 
-        /// Retrieves and returns the address of the hook function.
+        /// Retrieves and returns the address that, when invoked, uses this trampoline to access the hook fuction.
         /// Valid only if this object is already set, otherwise may return a garbage value.
-        /// @return Address of the hook function.
+        /// @return Address that can be invoked to jump to the hook function.
         inline const void* GetHookFunction(void) const
         {
-            return HookAddressForValue();
+            return (void*)&code.hook;
         }
 
-        /// Retrieves and returns the address that, when invoked, provides the original functionality of the original function.
+        /// Retrieves and returns the address that, when invoked, uses the contents of this trampoline to access the functionality of the original function.
         /// Valid only if this object is already set, otherwise may return a garbage value.
-        /// @return Address that can be invoked to execute the original functionality of the target function.
+        /// @return Address that can be invoked to execute the original functionality of the original function.
         inline const void* GetOriginalFunction(void) const
         {
             return (void*)&code.original;
         }
-        
-        /// Specifies if this trampoline has a target set.
-        /// @return `true` if so, `false` otherwise.
-        bool IsTargetSet(void) const;
 
-        /// Sets up this trampoline so that it hooks the specified target.
-        /// Transplants code as needed at the specified target address so that the code in this trampoline is executed.
-        /// Provides functionality both to hook the specified target and to make the original functionality available.
-        /// On failure, the target function address is unmodified.
-        /// @param [in] hook Address of the hook function to which this trampoline should transfer control whenever the target is invoked.
-        /// @param [in,out] target Address of the function that should be hooked by this trampoline.
+        /// Resets this trampoline to its initial state.
+        /// Clears out any previously-set hook and original functions.
+        void Reset(void);
+
+        /// Sets the hook function to which this trampoline will redirect.
+        /// @param [in] hookFunc Hook function address.
+        void SetHookFunction(const void* hookFunc);
+
+        /// Sets the original function portion of this trampoline so that invoking it will have the effect of invoking the original function.
+        /// Transplants code as needed at the specified address so that there is enough space created there to write a jump instruction.
+        /// @param [in] originalFunc Original function address.
         /// @return `true` if successful, `false` otherwise.
-        bool SetHookForTarget(const void* hook, void* target);
+        bool SetOriginalFunction(const void* originalFunc);
 
 
     private:
@@ -128,21 +129,6 @@ namespace Hookshot
             // Known values: <absolute target address> = parameter, <instruction address after jmp> = parameter
             // Value needed: <displacement> = <absolute target address> - <instruction address after jmp>
             return (size_t)absoluteTarget - (size_t)addressAfterJmpInstruction;
-        }
-        
-        /// Computes the address of the hook function, given the value stored in this trampoline.
-        /// @return Address of the hook function.
-        inline const void* HookAddressForValue(void) const
-        {
-#ifdef HOOKSHOT64
-            // No transformation required in 64-bit mode because the address is an absolute jump target.
-            return (void*)code.hook.ptr[_countof(code.hook.ptr) - 1];
-#else
-            // Computation is required in 32-bit mode because the value is a rel32 jump displacement.
-            // Formula rel32: <absolute target address> = <instruction address after jmp> + <displacement>
-            // Known values: <instruction address after jmp> = byte address directly after code.hook, <displacement> = stored value
-            return (void*)((size_t)(&code.hook.ptr[_countof(code.hook.ptr)]) + code.hook.ptr[_countof(code.hook.ptr) - 1]);
-#endif
         }
         
         /// Computes the value to be inserted into the trampoline's hook address field.

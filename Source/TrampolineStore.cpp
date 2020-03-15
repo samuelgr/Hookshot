@@ -75,12 +75,8 @@ namespace Hookshot
 
     // --------
 
-    bool TrampolineStore::DeallocateIfNotSet(void)
+    void TrampolineStore::Deallocate(void)
     {
-        if (trampolines[count - 1].IsTargetSet())
-            return false;
-
         count -= 1;
-        return true;
     }
 }
