@@ -40,7 +40,7 @@ namespace Hookshot
             return FillCompleteFilename(buf, numchars, kStrInjectBinaryExtension, kLenInjectBinaryExtension);
         }
 
-        /// Generates the expected filename of the dynamic-link library to be loaded by the injected process and places it into the specified buffer.
+        /// Generates the expected filename of the dynamic-link library form of Hookshot and places it into the specified buffer.
         /// @param [out] buf Buffer to be filled with the filename.
         /// @param [in] numchars Size of the buffer, in character units.
         /// @return `true` on success, `false` on failure.
@@ -49,13 +49,22 @@ namespace Hookshot
             return FillCompleteFilename(buf, numchars, kStrInjectDynamicLinkLibraryExtension, kLenInjectDynamicLinkLibraryExtension);
         }
 
-        /// Generates the expected filename of the executable to spawn in the event of attempting to inject a process with mismatched architecture and places it into the specified buffer.
+        /// Generates the expected filename of the executable form of Hookshot and places it into the specified buffer.
+        /// @param [out] buf Buffer to be filled with the filename.
+        /// @param [in] numchars Size of the buffer, in character units.
+        /// @return `true` on success, `false` on failure.
+        inline bool FillInjectExecutableFilename(TCHAR* const buf, const size_t numchars)
+        {
+            return FillCompleteFilename(buf, numchars, kStrInjectExecutableExtension, kLenInjectExecutableExtension);
+        }
+
+        /// Generates the expected filename of the executable form of Hookshot targeting the opposite processor architecture and places it into the specified buffer.
         /// @param [out] buf Buffer to be filled with the filename.
         /// @param [in] numchars Size of the buffer, in character units.
         /// @return `true` on success, `false` on failure.
         inline bool FillInjectExecutableOtherArchitectureFilename(TCHAR* const buf, const size_t numchars)
         {
-            return FillCompleteFilename(buf, numchars, kStrInjectExecutableOtherArchitecture, kLenInjectExecutableOtherArchitecture);
+            return FillCompleteFilename(buf, numchars, kStrInjectExecutableExtensionOtherArchitecture, kLenInjectExecutableExtensionOtherArchitecture);
         }
 
         /// Generates the expected filename of the executable-specific hook module.

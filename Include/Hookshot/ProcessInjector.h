@@ -13,6 +13,7 @@
 
 #include "ApiWindows.h"
 #include "InjectResult.h"
+#include "RemoteProcessInjector.h"
 
 #include <cstddef>
 #include <winternl.h>
@@ -69,12 +70,17 @@ namespace Hookshot
         /// @return Indictor of the result of the operation.
         static EInjectResult CreateInjectedProcessW(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 
+        /// Attempts to inject a process with Hookshot code.
+        /// @param [in] processHandle Handle to the process to inject.
+        /// @param [in] threadHandle Handle to the main thread of the process to inject.
+        /// @return Indictor of the result of the operation.
+        static EInjectResult InjectProcess(const HANDLE processHandle, const HANDLE threadHandle);
+
         /// Injects a process created by another instance of Hookshot.
-        /// The architecture of that instance does not match the architecture of the target process, so it spawned this instance to match and requested that it perform an injection.
         /// Communication between instances occurs by means of shared memory using the handle passed in, including more detailed error information than is directly returned.
-        /// @param [in] sharedMemoryHandle Handle to the shared memory file mapping object.
+        /// @param [in,out] remoteInjectionData Data structure holding information exchanged between this Hookshot process and the Hookshot process that requested injection.
         /// @return `false` if an inter-process communication mechanism failed, `true` otherwise.
-        static bool OtherArchitecturePerformRequestedInjection(const HANDLE sharedMemoryHandle);
+        static bool PerformRequestedRemoteInjection(SRemoteProcessInjectionData* const remoteInjectionData);
 
 
     private:
@@ -107,18 +113,6 @@ namespace Hookshot
         /// @param [in] threadHandle Handle to the main thread of the newly-created process.
         /// @return Indictor of the result of the operation.
         static EInjectResult HandleInjectionResult(const EInjectResult result, const bool shouldKeepSuspended, const HANDLE processHandle, const HANDLE threadHandle);
-        
-        /// Attempts to inject a process with Hookshot code.
-        /// @param [in] processHandle Handle to the process to inject.
-        /// @param [in] threadHandle Handle to the main thread of the process to inject.
-        /// @return Indictor of the result of the operation.
-        static EInjectResult InjectProcess(const HANDLE processHandle, const HANDLE threadHandle);
-
-        /// Spawns an executable of a different architecture and uses IPC to request that it injects the specified process.
-        /// @param [in] processHandle Handle to the process to inject.
-        /// @param [in] threadHandle Handle to the main thread of the process to inject.
-        /// @return Indictor of the result of the operation.
-        static EInjectResult OtherArchitectureRequestInjection(const HANDLE processHandle, const HANDLE threadHandle);
 
         /// Verifies that the architecture of the target process matches the architecture of this running binary.
         /// @param [in] processHandle Handle to the process to check.

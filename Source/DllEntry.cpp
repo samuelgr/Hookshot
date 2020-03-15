@@ -54,7 +54,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvRe
 /// Success or failure of this function determines the overall success or failure of the injection process.
 /// The injecting process is still waiting on this code to complete, so it should be as fast as possible to avoid undue delays.
 /// @return Address to which to jump to continue running the injected process, or `NULL` on failure.
-extern "C" __declspec(dllexport) void* __stdcall DllInit(void)
+extern "C" __declspec(dllexport) void* __stdcall HookshotInjectInitialize(void)
 {
     LibraryInitialize::CommonInitialization();
     return (void*)InjectLanding;

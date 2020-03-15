@@ -19,15 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\CodeInjector.cpp" />
     <ClCompile Include="Source\DllEntry.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\HookStore.cpp" />
-    <ClCompile Include="Source\Inject.cpp" />
     <ClCompile Include="Source\InjectLanding.cpp" />
     <ClCompile Include="Source\LibraryInitialize.cpp" />
     <ClCompile Include="Source\Message.cpp" />
-    <ClCompile Include="Source\ProcessInjector.cpp" />
+    <ClCompile Include="Source\RemoteProcessInjector.cpp" />
     <ClCompile Include="Source\StringUtilities.cpp" />
     <ClCompile Include="Source\TemporaryBuffer.cpp" />
     <ClCompile Include="Source\Trampoline.cpp" />
@@ -41,15 +39,13 @@
   <ItemGroup>
     <ClInclude Include="Include\Hookshot.h" />
     <ClInclude Include="Include\Hookshot\ApiWindows.h" />
-    <ClInclude Include="Include\Hookshot\CodeInjector.h" />
     <ClInclude Include="Include\Hookshot\Globals.h" />
     <ClInclude Include="Include\Hookshot\HookStore.h" />
-    <ClInclude Include="Include\Hookshot\Inject.h" />
     <ClInclude Include="Include\Hookshot\InjectLanding.h" />
     <ClInclude Include="Include\Hookshot\InjectResult.h" />
     <ClInclude Include="Include\Hookshot\LibraryInitialize.h" />
     <ClInclude Include="Include\Hookshot\Message.h" />
-    <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
+    <ClInclude Include="Include\Hookshot\RemoteProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Strings.h" />
     <ClInclude Include="Include\Hookshot\StringUtilities.h" />
     <ClInclude Include="Include\Hookshot\TemporaryBuffer.h" />

@@ -60,7 +60,7 @@ namespace Hookshot
         /// Length of `kStrInjectBinaryExtension` in character units, including terminating null character.
         static constexpr size_t kLenInjectBinaryExtension = _countof(kStrInjectBinaryExtension);
 
-        /// File extension of the dynamic-link library to be loaded by the injected process.
+        /// File extension of the dynamic-link library form of Hookshot.
 #ifdef HOOKSHOT64
         static constexpr TCHAR kStrInjectDynamicLinkLibraryExtension[] = _T(".64.dll");
 #else
@@ -70,21 +70,31 @@ namespace Hookshot
         /// Length of `kStrInjectDynamicLinkLibraryExtension` in character units, including terminating null character.
         static constexpr size_t kLenInjectDynamicLinkLibraryExtension = _countof(kStrInjectDynamicLinkLibraryExtension);
 
-        /// File extension of the executable to spawn in the event of attempting to inject a process with mismatched architecture.
+        /// File extension of the executable form of Hookshot.
 #ifdef HOOKSHOT64
-        static constexpr TCHAR kStrInjectExecutableOtherArchitecture[] = _T(".32.exe");
+        static constexpr TCHAR kStrInjectExecutableExtension[] = _T(".64.exe");
 #else
-        static constexpr TCHAR kStrInjectExecutableOtherArchitecture[] = _T(".64.exe");
+        static constexpr TCHAR kStrInjectExecutableExtension[] = _T(".32.exe");
+#endif
+
+        /// Length of `kStrInjectDynamicLinkLibraryExtension` in character units, including terminating null character.
+        static constexpr size_t kLenInjectExecutableExtension = _countof(kStrInjectExecutableExtension);
+        
+        /// File extension of the executable form of Hookshot but targeting the opposite processor architecture.
+#ifdef HOOKSHOT64
+        static constexpr TCHAR kStrInjectExecutableExtensionOtherArchitecture[] = _T(".32.exe");
+#else
+        static constexpr TCHAR kStrInjectExecutableExtensionOtherArchitecture[] = _T(".64.exe");
 #endif
 
         /// Length of `kStrInjectExecutableOtherArchitecture` in character units, including terminating null character.
-        static constexpr size_t kLenInjectExecutableOtherArchitecture = _countof(kStrInjectExecutableOtherArchitecture);
+        static constexpr size_t kLenInjectExecutableExtensionOtherArchitecture = _countof(kStrInjectExecutableExtensionOtherArchitecture);
 
         /// Function name of the initialization procedure exported by the Hookshot library that gets injected.
 #ifdef HOOKSHOT64
-        static constexpr char kStrLibraryInitializationProcName[] = "DllInit";
+        static constexpr char kStrLibraryInitializationProcName[] = "HookshotInjectInitialize";
 #else
-        static constexpr char kStrLibraryInitializationProcName[] = "_DllInit@0";
+        static constexpr char kStrLibraryInitializationProcName[] = "_HookshotInjectInitialize@0";
 #endif
 
         /// Length of `kStrLibraryInitializationProcName` in character units, including terminating null character.

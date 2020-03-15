@@ -60,12 +60,17 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PTSTR lpCmdLi
 
         if (_T('\0') != *parseEnd)
             return __LINE__;
-        
-        if (false == ProcessInjector::OtherArchitecturePerformRequestedInjection(sharedMemoryHandle))
+
+        SRemoteProcessInjectionData* const remoteInjectionData = (SRemoteProcessInjectionData*)MapViewOfFile(sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+        if (NULL == remoteInjectionData)
             return __LINE__;
 
+        const bool remoteInjectionResult = ProcessInjector::PerformRequestedRemoteInjection(remoteInjectionData);
+
+        UnmapViewOfFile(remoteInjectionData);
         CloseHandle(sharedMemoryHandle);
-        return 0;
+
+        return (false == remoteInjectionResult ? __LINE__ : 0);
     }
     else
     {
