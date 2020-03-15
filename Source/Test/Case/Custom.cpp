@@ -36,9 +36,9 @@ namespace HookshotTest
     // -------- INTERNAL TYPES --------------------------------------------- //
 
     /// Pointer-to-function type for the #FunctionGenerator function template.
-    typedef int(* TGeneratedTestFunction)(void);
+    typedef int(*TGeneratedTestFunction)(void);
 
-    
+
     // -------- INTERNAL FUNCTIONS ----------------------------------------- //
 
     /// Not intended ever to be called, but can be used to generate original and hook functions.
@@ -55,11 +55,6 @@ namespace HookshotTest
 
     // -------- TEST CASES ------------------------------------------------- //
 
-    // TODO: SelfHook
-    // TODO: UnsafeSeparation
-    // TODO: NullPointerOriginal
-    // TODO: NullPointerHook
-    
     // Creates a hook chain going backwards.
     // Function B hooks function C (OK), then function A hooks function B (error).
     HOOKSHOT_CUSTOM_TEST(BackwardHookChain)
@@ -273,6 +268,50 @@ namespace HookshotTest
         CloseHandle(testData.syncEventPhase1);
         CloseHandle(testData.syncEventPhase2);
 
+        HOOKSHOT_TEST_PASSED;
+    }
+
+    // Hookshot is presented with two null pointers.
+    // Expected result is Hookshot rejects the input arguments as invalid.
+    HOOKSHOT_CUSTOM_TEST(NullPointerBoth)
+    {
+        HOOKSHOT_TEST_ASSERT(Hookshot::EHookshotResult::HookshotResultFailInvalidArgument == hookConfig->SetHook(NULL, NULL));
+        HOOKSHOT_TEST_PASSED;
+    }
+
+    // Hookshot is presented with a null pointer for the hook function.
+    // Expected result is Hookshot rejects the input arguments as invalid.
+    HOOKSHOT_CUSTOM_TEST(NullPointerHook)
+    {
+        GENERATE_AND_ASSIGN_FUNCTION(func);
+        HOOKSHOT_TEST_ASSERT(Hookshot::EHookshotResult::HookshotResultFailInvalidArgument == hookConfig->SetHook(func, NULL));
+        HOOKSHOT_TEST_PASSED;
+    }
+
+    // Hookshot is presented with a null pointer for the original function.
+    // Expected result is Hookshot rejects the input arguments as invalid.
+    HOOKSHOT_CUSTOM_TEST(NullPointerOriginal)
+    {
+        GENERATE_AND_ASSIGN_FUNCTION(func);
+        HOOKSHOT_TEST_ASSERT(Hookshot::EHookshotResult::HookshotResultFailInvalidArgument == hookConfig->SetHook(NULL, func));
+        HOOKSHOT_TEST_PASSED;
+    }
+
+    // Hookshot is presented with equal non-null pointers for both original and hook functions.
+    // Expected result is Hookshot rejects the input arguments as invalid.
+    HOOKSHOT_CUSTOM_TEST(SelfHook)
+    {
+        GENERATE_AND_ASSIGN_FUNCTION(func);
+        HOOKSHOT_TEST_ASSERT(Hookshot::EHookshotResult::HookshotResultFailInvalidArgument == hookConfig->SetHook(func, func));
+        HOOKSHOT_TEST_PASSED;
+    }
+
+    // Hookshot is presented with a valid original function but a hook function whose address is unsafely close to the original function.
+    // Expected result is Hookshot rejects the input arguments as invalid.
+    HOOKSHOT_CUSTOM_TEST(UnsafeSeparation)
+    {
+        GENERATE_AND_ASSIGN_FUNCTION(funcA);
+        HOOKSHOT_TEST_ASSERT(Hookshot::EHookshotResult::HookshotResultFailInvalidArgument == hookConfig->SetHook(funcA, (void*)((intptr_t)funcA + 1)));
         HOOKSHOT_TEST_PASSED;
     }
 }
