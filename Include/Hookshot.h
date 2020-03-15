@@ -67,18 +67,25 @@ namespace Hookshot
         /// @return Result of the operation.
         virtual EHookshotResult CreateHook(void* originalFunc, const void* hookFunc) = 0;
         
+        /// Disables the hook function associated with the specified hook.
+        /// On success, going forward all invocations of the original function will execute as if not hooked at all, and Hookshot no longer associates the hook function with the hook.
+        /// To re-enable the hook, use #ReplaceHookFunction and identify the hook by its original function address.
+        /// @param [in] originalOrHookFunc Address of either the original function or the current hook function (it does not matter which) currently associated with the hook.
+        /// @return Result of the operation.
+        virtual EHookshotResult DisableHookFunction(const void* originalOrHookFunc) = 0;
+
         /// Retrieves and returns an address that, when invoked as a function, calls the original (i.e. un-hooked) version of the hooked function.
         /// This is useful for accessing the original behavior of the function being hooked.
         /// It is up to the caller to ensure that invocations to the returned address satisfy all calling convention and parameter type requirements of the original function.
         /// The returned address is not the original entry point of the hooked function but rather a trampoline address that Hookshot created when installing the hook.
-        /// @param [in] func Address of either the original function or the hook function (it does not matter which) originally supplied to Hookshot when invoking #CreateHook.
+        /// @param [in] originalOrHookFunc Address of either the original function or the hook function (it does not matter which) currently associated with the hook.
         /// @return Address that can be invoked to access the functionality of the original function, or `NULL` in the event that a hook cannot be found matching the specified function.
         virtual const void* GetOriginalFunction(const void* originalOrHookFunc) = 0;
 
         /// Modifies an existing hook by replacing its hook function.
         /// The existing hook is identified either by the address of the original function or the address of the current hook function.
-        /// On success, Hookshot no longer knows about the current hook function.
-        /// @param [in] func Address of either the original function or the current hook function (it does not matter which) originally supplied to Hookshot when invoking #CreateHook.
+        /// On success, Hookshot associates the new hook function with the hook and forgets about the old hook function.
+        /// @param [in] originalOrHookFunc Address of either the original function or the hook function (it does not matter which) currently associated with the hook.
         /// @return Result of the operation.
         virtual EHookshotResult ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc) = 0;
     };

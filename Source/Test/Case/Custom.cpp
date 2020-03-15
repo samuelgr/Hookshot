@@ -82,6 +82,34 @@ namespace HookshotTest
         HOOKSHOT_TEST_PASSED;
     }
 
+    // Disables and re-enables a hook.
+    // Verifies that all operations are completed successfully and correctly.
+    HOOKSHOT_CUSTOM_TEST(DisableAndReEnableHook)
+    {
+        GENERATE_AND_ASSIGN_FUNCTION(originalFunc);
+        GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
+
+        const auto kOriginalFuncResult = originalFunc();
+        const auto kHookFuncResult = hookFunc();
+
+        HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookConfig->CreateHook(originalFunc, hookFunc)));
+        HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
+        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookConfig->GetOriginalFunction(originalFunc))());
+
+        HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookConfig->DisableHookFunction(hookFunc)));
+        HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookConfig->DisableHookFunction(originalFunc)));
+        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == originalFunc());
+        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookConfig->GetOriginalFunction(originalFunc))());
+        HOOKSHOT_TEST_ASSERT(NULL == hookConfig->GetOriginalFunction(hookFunc));
+        
+        HOOKSHOT_TEST_ASSERT(Hookshot::EHookshotResult::HookshotResultFailNotFound == hookConfig->ReplaceHookFunction(hookFunc, hookFunc));
+        HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookConfig->ReplaceHookFunction(originalFunc, hookFunc)));
+        HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
+        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookConfig->GetOriginalFunction(originalFunc))());
+
+        HOOKSHOT_TEST_PASSED;
+    }
+
     // Creates a hook chain going forwards.
     // Function A hooks function B (OK), then function B hooks function C (error).
     HOOKSHOT_CUSTOM_TEST(ForwardHookChain)

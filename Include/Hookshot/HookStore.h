@@ -59,6 +59,7 @@ namespace Hookshot
         // See "Hookshot.h" for documentation.
 
         EHookshotResult CreateHook(void* originalFunc, const void* hookFunc) override;
+        EHookshotResult DisableHookFunction(const void* originalOrHookFunc) override;
         const void* GetOriginalFunction(const void* originalOrHookFunc) override;
         EHookshotResult ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc) override;
     };

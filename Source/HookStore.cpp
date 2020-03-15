@@ -194,6 +194,13 @@ namespace Hookshot
     }
 
     // --------
+
+    EHookshotResult HookStore::DisableHookFunction(const void* originalOrHookFunc)
+    {
+        return ReplaceHookFunction(originalOrHookFunc, GetOriginalFunction(originalOrHookFunc));
+    }
+
+    // --------
     
     const void* HookStore::GetOriginalFunction(const void* originalOrHookFunc)
     {
