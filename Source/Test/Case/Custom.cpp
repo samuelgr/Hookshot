@@ -109,6 +109,15 @@ namespace HookshotTest
         HOOKSHOT_TEST_PASSED;
     }
 
+    // Attempts to hook a Hookshot function.
+    // Expected result is Hookshot rejects the operation as forbidden.
+    HOOKSHOT_CUSTOM_TEST(HookHookshot)
+    {
+        GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
+        HOOKSHOT_TEST_ASSERT(Hookshot::EHookshotResult::HookshotResultFailForbidden == hookConfig->SetHook(HookshotLibraryInitialize, hookFunc));
+        HOOKSHOT_TEST_PASSED;
+    }
+
     // Exercises Hookshot's concurrency control mechanisms by creating several threads and having them all set the same hooks.
     // Expect that exactly one hook-setting operation per original/hook pair will be reported successsful and, furthermore, function correctly.
 

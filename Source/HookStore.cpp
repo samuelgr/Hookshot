@@ -10,6 +10,7 @@
  *****************************************************************************/
 
 #include "ApiWindows.h"
+#include "Globals.h"
 #include "HookStore.h"
 #include "Message.h"
 #include "TemporaryBuffer.h"
@@ -22,9 +23,24 @@ namespace Hookshot
 {
     // -------- INTERNAL FUNCTIONS ------------------------------------- //
 
+    /// Determines if the specified hook is allowed to be set.
+    /// @param [in] originalFunc Address of the function that is being hooked.
+    /// @param [in] hookFunc Address of the hook function.
+    /// @return `true` if hooking the specified function is allowed, `false` if not.
+    static bool AllowedToSetHook(const void* originalFunc, const void* hookFunc)
+    {
+        // Hooking Hookshot itself is forbidden.
+        // If the original function is not in a module at all, clearly it is allowed.  If it is, verify that its associated module is not this Hookshot module.
+        HMODULE moduleHandle;
+        if (0 != GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)originalFunc, &moduleHandle) && Globals::GetInstanceHandle() == moduleHandle)
+            return false;
+
+        return true;
+    }
+
 #ifdef HOOKSHOT64
     /// Determines the base address of the memory region associated with the target function.
-    /// @param [in] originalFunc Address of the target function that is being hooked.
+    /// @param [in] originalFunc Address of the function that is being hooked.
     /// @return Base address of the associated memory region, or NULL if it cannot be determined.
     static void* BaseAddressFororiginalFunc(const void* originalFunc)
     {
@@ -97,6 +113,9 @@ namespace Hookshot
         if (NULL == originalFunc || NULL == hookFunc)
             return EHookshotResult::HookshotResultFailInvalidArgument;
 
+        if (false == AllowedToSetHook(originalFunc, hookFunc))
+            return EHookshotResult::HookshotResultFailForbidden;
+        
         if (((intptr_t)hookFunc >= (intptr_t)originalFunc) && ((intptr_t)hookFunc < (intptr_t)originalFunc + X86Instruction::kJumpInstructionLengthBytes))
             return EHookshotResult::HookshotResultFailInvalidArgument;
         

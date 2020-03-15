@@ -30,11 +30,12 @@ namespace Hookshot
         HookshotResultBoundaryValue,                                ///< Boundary value between success and failure, not used as an error code.
 
         // Failure codes.
+        HookshotResultFailAllocation,                               ///< Unable to allocate a new hook data structure.
+        HookshotResultFailCannotSetHook,                            ///< Failed to set the hook.
+        HookshotResultFailDuplicate,                                ///< Specified function is already hooked.
+        HookshotResultFailForbidden,                                ///< Hookshot is not allowed to perform the requested operation.
         HookshotResultFailInvalidArgument,                          ///< An argument that was supplied is invalid.
         HookshotResultFailInternal,                                 ///< Internal initialization steps failed.
-        HookshotResultFailAllocation,                               ///< Unable to allocate a new hook data structure.
-        HookshotResultFailDuplicate,                                ///< Specified function is already hooked.
-        HookshotResultFailCannotSetHook,                            ///< Failed to set the hook.
 
         // Upper sentinal.
         HookshotResultUpperBoundValue                               ///< Upper sentinel value, not used as an error code.
