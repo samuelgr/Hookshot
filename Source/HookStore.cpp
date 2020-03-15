@@ -42,12 +42,20 @@ namespace Hookshot
         return NULL;
     }
 
-    /// Determines if the specified hook is allowed to be set.
+    /// Checks the specified hook for validity and safety.
     /// @param [in] originalFunc Address of the function that is being hooked.
     /// @param [in] hookFunc Address of the hook function.
     /// @return `true` if hooking the specified function is allowed, `false` if not.
-    static bool IsSetHookAllowed(const void* originalFunc, const void* hookFunc)
+    static bool IsHookSpecValid(const void* originalFunc, const void* hookFunc)
     {
+        // Simple null pointer check.
+        if (NULL == originalFunc || NULL == hookFunc)
+            return false;
+
+        // Verify that the hook function is not located within the region of the original function that is guaranteed to be transplanted.
+        if (((intptr_t)hookFunc >= (intptr_t)originalFunc) && ((intptr_t)hookFunc < (intptr_t)originalFunc + X86Instruction::kJumpInstructionLengthBytes))
+            return false;
+        
         // Hooking Hookshot itself is forbidden.
         if (BaseAddressForOriginalFunc(originalFunc) == Globals::GetInstanceHandle())
             return false;
@@ -84,6 +92,8 @@ namespace Hookshot
 
     std::unordered_map<const void*, Trampoline*> HookStore::functionToTrampoline;
 
+    std::unordered_map<Trampoline*, const void*> HookStore::trampolineToOriginalFunction;
+
     std::vector<TrampolineStore> HookStore::trampolines;
 
 #ifdef HOOKSHOT64
@@ -94,28 +104,11 @@ namespace Hookshot
     // -------- CONCRETE INSTANCE METHODS ------------------------------ //
     // See "Hookshot.h" for documentation.
 
-    const void* HookStore::GetOriginalFunction(void* func)
+    EHookshotResult HookStore::CreateHook(void* originalFunc, const void* hookFunc)
     {
-        std::shared_lock<std::shared_mutex> lock(hookStoreMutex);
-
-        if (0 == functionToTrampoline.count(func))
-            return NULL;
-
-        return functionToTrampoline.at(func)->GetOriginalFunction();
-    }
-    
-    EHookshotResult HookStore::SetHook(void* originalFunc, const void* hookFunc)
-    {
-        if (NULL == originalFunc || NULL == hookFunc)
+        if (false == IsHookSpecValid(originalFunc, hookFunc))
             return EHookshotResult::HookshotResultFailInvalidArgument;
 
-        if (false == IsSetHookAllowed(originalFunc, hookFunc))
-            return EHookshotResult::HookshotResultFailForbidden;
-        
-        if (((intptr_t)hookFunc >= (intptr_t)originalFunc) && ((intptr_t)hookFunc < (intptr_t)originalFunc + X86Instruction::kJumpInstructionLengthBytes))
-            return EHookshotResult::HookshotResultFailInvalidArgument;
-        
-        // At this point, data structures will be consulted, so it is necessary to take a lock.
         std::unique_lock<std::shared_mutex> lock(hookStoreMutex);
 
         // Check for duplicates.
@@ -146,7 +139,7 @@ namespace Hookshot
                     trampolines.push_back(std::move(newTrampolineStore));
                     break;
                 }
-                
+
                 proposedTrampolineStoreAddress -= TrampolineStore::kTrampolineStoreSizeBytes;
             }
         }
@@ -166,7 +159,7 @@ namespace Hookshot
 
         const size_t trampolineStoreIndex = trampolines.size() - 1;
 #endif
-        
+
         TrampolineStore& trampolineStore = trampolines[trampolineStoreIndex];
         if (false == trampolineStore.IsInitialized())
             return EHookshotResult::HookshotResultFailInternal;
@@ -188,13 +181,66 @@ namespace Hookshot
         if (false == RedirectExecution(originalFunc, trampoline.GetHookFunction()))
         {
             Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Failed to redirect execution from 0x%llx to 0x%llx."), (long long)originalFunc, (long long)trampoline.GetHookFunction());
-            
+
             trampolineStore.Deallocate();
             return EHookshotResult::HookshotResultFailCannotSetHook;
         }
 
         functionToTrampoline[originalFunc] = &trampolineStore[allocatedIndex];
         functionToTrampoline[hookFunc] = &trampolineStore[allocatedIndex];
+        trampolineToOriginalFunction[&trampoline] = originalFunc;
+
+        return EHookshotResult::HookshotResultSuccess;
+    }
+
+    // --------
+    
+    const void* HookStore::GetOriginalFunction(const void* originalOrHookFunc)
+    {
+        std::shared_lock<std::shared_mutex> lock(hookStoreMutex);
+
+        if (0 == functionToTrampoline.count(originalOrHookFunc))
+            return NULL;
+
+        return functionToTrampoline.at(originalOrHookFunc)->GetOriginalFunction();
+    }
+
+    // --------
+
+    EHookshotResult HookStore::ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc)
+    {
+        std::unique_lock<std::shared_mutex> lock(hookStoreMutex);
+
+        // If this fails, the specified hook does not exist.
+        if (0 == functionToTrampoline.count(originalOrHookFunc))
+            return EHookshotResult::HookshotResultFailNotFound;
+
+        Trampoline* const trampoline = functionToTrampoline.at(originalOrHookFunc);
+
+        // If this fails, internal data structures are inconsistent.
+        if (0 == trampolineToOriginalFunction.count(trampoline))
+            return EHookshotResult::HookshotResultFailInternal;
+
+        const void* const originalFunc = trampolineToOriginalFunction.at(trampoline);
+        const void* const oldHookFunc = trampoline->GetHookTrampolineTarget();
+        if (oldHookFunc == newHookFunc)
+            return EHookshotResult::HookshotResultNoEffect;
+
+        // If this fails, internal data structures are inconsistent.
+        if (0 == functionToTrampoline.count(originalFunc) || 0 == functionToTrampoline.count(oldHookFunc))
+            return EHookshotResult::HookshotResultFailInternal;
+
+        // If this fails, the replacement hook function is already involved in a different hook.
+        if (0 != functionToTrampoline.count(newHookFunc))
+            return EHookshotResult::HookshotResultFailDuplicate;
+
+        // If this fails, the specified hook cannot be set.
+        if (false == IsHookSpecValid(originalFunc, newHookFunc))
+            return EHookshotResult::HookshotResultFailInvalidArgument;
+
+        trampoline->SetHookFunction(newHookFunc);
+        functionToTrampoline.erase(oldHookFunc);
+        functionToTrampoline[newHookFunc] = trampoline;
 
         return EHookshotResult::HookshotResultSuccess;
     }

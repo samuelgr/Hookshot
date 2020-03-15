@@ -37,6 +37,9 @@ namespace Hookshot
 
         /// Maps from function address (either original or target) to trampoline address.
         static std::unordered_map<const void*, Trampoline*> functionToTrampoline;
+
+        /// Maps from trampoline address to original function address.
+        static std::unordered_map<Trampoline*, const void*> trampolineToOriginalFunction;
         
         /// Trampoline storage.
         /// Used internally to implement hooks.
@@ -55,7 +58,8 @@ namespace Hookshot
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See "Hookshot.h" for documentation.
 
-        const void* GetOriginalFunction(void* func) override;
-        EHookshotResult SetHook(void* originalFunc, const void* hookFunc) override;
+        EHookshotResult CreateHook(void* originalFunc, const void* hookFunc) override;
+        const void* GetOriginalFunction(const void* originalOrHookFunc) override;
+        EHookshotResult ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc) override;
     };
 }

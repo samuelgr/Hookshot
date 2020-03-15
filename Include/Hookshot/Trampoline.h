@@ -93,6 +93,15 @@ namespace Hookshot
             return (void*)&code.hook;
         }
 
+        /// Retrieves and returns the address that this trampoline targets for its hook function.
+        /// This is the address originally supplied to #SetHookFunction.
+        /// Valid only if this object is already set, otherwise may return a garbage value.
+        /// @return Address of the hook function that this trampoline targets.
+        const void* GetHookTrampolineTarget(void) const
+        {
+            return HookAddressForValue();
+        }
+
         /// Retrieves and returns the address that, when invoked, uses the contents of this trampoline to access the functionality of the original function.
         /// Valid only if this object is already set, otherwise may return a garbage value.
         /// @return Address that can be invoked to execute the original functionality of the original function.
@@ -129,6 +138,21 @@ namespace Hookshot
             // Known values: <absolute target address> = parameter, <instruction address after jmp> = parameter
             // Value needed: <displacement> = <absolute target address> - <instruction address after jmp>
             return (size_t)absoluteTarget - (size_t)addressAfterJmpInstruction;
+        }
+
+        /// Computes the address of the hook function, given the value stored in this trampoline.
+        /// @return Address of the hook function.
+        inline const void* HookAddressForValue(void) const
+        {
+#ifdef HOOKSHOT64
+            // No transformation required in 64-bit mode because the address is an absolute jump target.
+            return (void*)code.hook.ptr[_countof(code.hook.ptr) - 1];
+#else
+            // Computation is required in 32-bit mode because the value is a rel32 jump displacement.
+            // Formula rel32: <absolute target address> = <instruction address after jmp> + <displacement>
+            // Known values: <instruction address after jmp> = byte address directly after code.hook, <displacement> = stored value
+            return (void*)((size_t)(&code.hook.ptr[_countof(code.hook.ptr)]) + code.hook.ptr[_countof(code.hook.ptr) - 1]);
+#endif
         }
         
         /// Computes the value to be inserted into the trampoline's hook address field.

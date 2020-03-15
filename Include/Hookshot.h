@@ -25,6 +25,7 @@ namespace Hookshot
     {
         // Success codes.
         HookshotResultSuccess,                                      ///< Operation was successful.
+        HookshotResultNoEffect,                                     ///< Operation did not generate an error but had no effect.
 
         // Boundary value between success and failure.
         HookshotResultBoundaryValue,                                ///< Boundary value between success and failure, not used as an error code.
@@ -33,9 +34,9 @@ namespace Hookshot
         HookshotResultFailAllocation,                               ///< Unable to allocate a new hook data structure.
         HookshotResultFailCannotSetHook,                            ///< Failed to set the hook.
         HookshotResultFailDuplicate,                                ///< Specified function is already hooked.
-        HookshotResultFailForbidden,                                ///< Hookshot is not allowed to perform the requested operation.
         HookshotResultFailInvalidArgument,                          ///< An argument that was supplied is invalid.
-        HookshotResultFailInternal,                                 ///< Internal initialization steps failed.
+        HookshotResultFailInternal,                                 ///< Internal error.
+        HookshotResultFailNotFound,                                 ///< Unable to find a hook using the supplied identification.
 
         // Upper sentinal.
         HookshotResultUpperBoundValue                               ///< Upper sentinel value, not used as an error code.
@@ -48,7 +49,7 @@ namespace Hookshot
     {
         return (result < EHookshotResult::HookshotResultBoundaryValue);
     }
-
+    
     /// Interface provided by Hookshot that the hook library can use to configure hooks.
     /// Hookshot creates an object that implements this interface and supplies it to the hook library during initialization.
     /// That instance remains valid throughout the execution of the application.
@@ -60,19 +61,26 @@ namespace Hookshot
     public:
         // -------- ABSTRACT INSTANCE METHODS ------------------------------ //
         
-        /// Retrieves and returns an address that, when invoked as a function, calls the original (i.e. un-hooked) version of the hooked function.
-        /// This is useful for accessing the original behavior of the function being hooked.
-        /// It is up to the caller to ensure that invocations to the returned address satisfy all calling convention and parameter type requirements of the original function.
-        /// The returned address is not the original entry point of the hooked function but rather a trampoline address that Hookshot created when installing the hook.
-        /// @param [in] func Address of either the original function or the hook function (it does not matter which) originally supplied to Hookshot when invoking #SetHook.
-        /// @return Address that can be invoked to access the functionality of the original function, or `NULL` in the event that a hook cannot be found matching the specified function.
-        virtual const void* GetOriginalFunction(void* func) = 0;
-        
         /// Causes Hookshot to attempt to install a hook on the specified function.
         /// @param [in,out] originalFunc Address of the function that should be hooked.
         /// @param [in] hookFunc Hook function that should be invoked instead of the original function.
         /// @return Result of the operation.
-        virtual EHookshotResult SetHook(void* originalFunc, const void* hookFunc) = 0;
+        virtual EHookshotResult CreateHook(void* originalFunc, const void* hookFunc) = 0;
+        
+        /// Retrieves and returns an address that, when invoked as a function, calls the original (i.e. un-hooked) version of the hooked function.
+        /// This is useful for accessing the original behavior of the function being hooked.
+        /// It is up to the caller to ensure that invocations to the returned address satisfy all calling convention and parameter type requirements of the original function.
+        /// The returned address is not the original entry point of the hooked function but rather a trampoline address that Hookshot created when installing the hook.
+        /// @param [in] func Address of either the original function or the hook function (it does not matter which) originally supplied to Hookshot when invoking #CreateHook.
+        /// @return Address that can be invoked to access the functionality of the original function, or `NULL` in the event that a hook cannot be found matching the specified function.
+        virtual const void* GetOriginalFunction(const void* originalOrHookFunc) = 0;
+
+        /// Modifies an existing hook by replacing its hook function.
+        /// The existing hook is identified either by the address of the original function or the address of the current hook function.
+        /// On success, Hookshot no longer knows about the current hook function.
+        /// @param [in] func Address of either the original function or the current hook function (it does not matter which) originally supplied to Hookshot when invoking #CreateHook.
+        /// @return Result of the operation.
+        virtual EHookshotResult ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc) = 0;
     };
 }
 

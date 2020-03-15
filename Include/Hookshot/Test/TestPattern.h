@@ -49,7 +49,7 @@ typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
     extern "C" size_t __fastcall name##_Hook(size_t scx, size_t sdx);                                                       \
     HOOKSHOT_TEST_CASE_CONDITIONAL(HookSetSuccess_##name, cond)                                                             \
     {                                                                                                                       \
-        HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookConfig->SetHook(&name##_Original, &name##_Hook)));              \
+        HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookConfig->CreateHook(&name##_Original, &name##_Hook)));           \
         HOOKSHOT_TEST_ASSERT(kHookFunctionResult == name##_Original(kOriginalFunctionResult, 0));                           \
                                                                                                                             \
         THookshotTestFunc originalFuncPtr = (THookshotTestFunc)hookConfig->GetOriginalFunction(&name##_Hook);               \
@@ -74,7 +74,7 @@ typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
     HOOKSHOT_TEST_HELPER_FUNCTION size_t name##_Test_Hook(void) { return __LINE__; }                                        \
     HOOKSHOT_TEST_CASE_CONDITIONAL(HookSetFail_##name, cond)                                                                \
     {                                                                                                                       \
-        HOOKSHOT_TEST_ASSERT(result == hookConfig->SetHook(&name##_Test, &name##_Test_Hook));                               \
+        HOOKSHOT_TEST_ASSERT(result == hookConfig->CreateHook(&name##_Test, &name##_Test_Hook));                            \
         HOOKSHOT_TEST_PASSED;                                                                                               \
     }
 

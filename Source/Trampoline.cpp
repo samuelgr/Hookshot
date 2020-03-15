@@ -79,6 +79,7 @@ namespace Hookshot
     {
         Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Trampoline at 0x%llx is being set up with hook function 0x%llx."), (long long)this, (long long)hookFunc);
         code.hook.ptr[_countof(code.hook.ptr) - 1] = ValueForHookAddress(hookFunc);
+        FlushInstructionCache(GetCurrentProcess(), &code.hook, sizeof(code.hook));
     }
 
     // --------
@@ -243,8 +244,7 @@ namespace Hookshot
             }
         }
 
-        FlushInstructionCache(GetCurrentProcess(), &code, sizeof(code));
-
+        FlushInstructionCache(GetCurrentProcess(), &code.original, sizeof(code.original));
         return true;
     }
 }
