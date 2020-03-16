@@ -318,6 +318,7 @@ namespace Hookshot
             memset((void*)&injectData, 0, sizeof(injectData));
             memset((void*)&injectDataStrings, 0, sizeof(injectDataStrings));
 
+            injectData.isDebuggerAttached = (0 == IsDebuggerPresent() ? 0 : 1);
             injectData.injectionResultCodeSuccess = EInjectResult::InjectResultSuccess;
             injectData.injectionResultCodeLoadLibraryFailed = EInjectResult::InjectResultErrorCannotLoadLibrary;
             injectData.injectionResultCodeGetProcAddressFailed = EInjectResult::InjectResultErrorMalformedLibrary;

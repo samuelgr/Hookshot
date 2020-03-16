@@ -109,7 +109,8 @@ namespace Hookshot
     struct SInjectData
     {
         size_t sync;                                                    ///< Synchronization flag between injecting and injected processes.
-        size_t unused1[(128 / sizeof(size_t)) - 1];                     ///< Padding for 128-byte alignment.
+        size_t isDebuggerAttached;                                      ///< Flag that specifies if a debugger is attached to the Hookshot executable performing the injection. Used to enable some debugging features in the Hookshot library.
+        size_t unused1[(128 / sizeof(size_t)) - 2];                     ///< Padding for 128-byte alignment.
 
         uint32_t injectionResultCodeSuccess;                            ///< Result code to use to indicate success.
         uint32_t injectionResultCodeLoadLibraryFailed;                  ///< Result code to use to indicate that a LoadLibrary operation failed.  Set by the injecting process.

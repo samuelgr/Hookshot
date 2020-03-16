@@ -53,7 +53,7 @@ namespace Hookshot
 
     bool Message::WillOutputMessageOfSeverity(const EMessageSeverity severity)
     {
-        if (severity <= kMinimumSeverityForOutput)
+        if ((severity < EMessageSeverity::MessageSeverityForcedBoundaryValue) || (severity <= kMinimumSeverityForOutput))
         {
             if ((severity >= kMaximumSeverityToRequireNonInteractiveOutput) && (true == IsOutputModeInteractive(SelectOutputMode())))
                 return false;
@@ -105,14 +105,17 @@ namespace Hookshot
         TCHAR messageStampSeverity;
         switch (severity)
         {
+        case EMessageSeverity::MessageSeverityForcedError:
         case EMessageSeverity::MessageSeverityError:
             messageStampSeverity = _T('E');
             break;
 
+        case EMessageSeverity::MessageSeverityForcedWarning:
         case EMessageSeverity::MessageSeverityWarning:
             messageStampSeverity = _T('W');
             break;
 
+        case EMessageSeverity::MessageSeverityForcedInfo:
         case EMessageSeverity::MessageSeverityInfo:
             messageStampSeverity = _T('I');
             break;
@@ -146,20 +149,23 @@ namespace Hookshot
 
         switch (severity)
         {
+        case EMessageSeverity::MessageSeverityForcedError:
         case EMessageSeverity::MessageSeverityError:
             messageBoxType = MB_ICONERROR;
             break;
 
+        case EMessageSeverity::MessageSeverityForcedWarning:
         case EMessageSeverity::MessageSeverityWarning:
             messageBoxType = MB_ICONWARNING;
             break;
 
+        case EMessageSeverity::MessageSeverityForcedInfo:
         case EMessageSeverity::MessageSeverityInfo:
             messageBoxType = MB_ICONINFORMATION;
             break;
 
         default:
-            messageBoxType = MB_ICONQUESTION;
+            messageBoxType = MB_OK;
             break;
         }
 

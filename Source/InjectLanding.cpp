@@ -45,15 +45,13 @@ extern "C" void __stdcall InjectLandingCleanup(const SInjectData* const injectDa
 
 extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const injectData)
 {
-#ifdef HOOKSHOT_DEBUG
-    if (FALSE == IsDebuggerPresent())
+    if ((0 != injectData->isDebuggerAttached) && (0 == IsDebuggerPresent()))
     {
         TemporaryBuffer<TCHAR> executableBaseName;
         GetModuleBaseName(GetCurrentProcess(), NULL, executableBaseName, executableBaseName.Count());
         
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("Attach to \"%s\" (PID %d) to continue debugging."), (TCHAR*)executableBaseName, GetProcessId(GetCurrentProcess()));
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityForcedInfo, _T("Attach to \"%s\" (PID %d) to continue debugging."), (TCHAR*)executableBaseName, GetProcessId(GetCurrentProcess()));
     }
-#endif
 
     // First, try the executable-specific hook module filename.
     // Second, try the directory-common hook module filename.

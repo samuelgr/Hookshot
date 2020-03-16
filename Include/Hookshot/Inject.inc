@@ -30,6 +30,7 @@ kInjectionMetaMagicValue EQU 51525354h
 ; See "Inject.h" for documentation.
 SInjectData STRUCT
     sync SIZE_T ?
+    isDebuggerAttached SIZE_T ?
     ALIGN 128
     
     injectionResultCodeSuccess DWORD ?

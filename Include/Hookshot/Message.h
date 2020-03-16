@@ -23,6 +23,15 @@ namespace Hookshot
      /// These are primarily used to assist with output formatting.
      enum EMessageSeverity
      {
+         // Forced output.
+         MessageSeverityForcedError,                                ///< Error, always output.
+         MessageSeverityForcedWarning,                              ///< Warning, always output.
+         MessageSeverityForcedInfo,                                 ///< Informational, always output.
+
+         // Boundary value between forced and optional output.
+         MessageSeverityForcedBoundaryValue,                        ///< Not used as a value, but separates forced output from optional output.
+
+         // Optional output.
          MessageSeverityError,                                      ///< Error. Causes a change in behavior if encountered, possibly leading to application termination.
          MessageSeverityWarning,                                    ///< Warning. May cause a change in behavior but is not critical and will not terminate the application.
          MessageSeverityInfo,                                       ///< Informational. Useful status-related remarks for tracking application behavior.
