@@ -50,16 +50,6 @@ namespace Hookshot
         /// Length of `kStrInjectMetaSectionName` in character units, including terminating null character.
         static constexpr size_t kLenInjectMetaSectionName = _countof(kStrInjectMetaSectionName);
 
-        /// File extension of the binary containing injection code and metadata.
-#ifdef HOOKSHOT64
-        static constexpr TCHAR kStrInjectBinaryExtension[] = _T(".64.bin");
-#else
-        static constexpr TCHAR kStrInjectBinaryExtension[] = _T(".32.bin");
-#endif
-
-        /// Length of `kStrInjectBinaryExtension` in character units, including terminating null character.
-        static constexpr size_t kLenInjectBinaryExtension = _countof(kStrInjectBinaryExtension);
-
         /// File extension of the dynamic-link library form of Hookshot.
 #ifdef HOOKSHOT64
         static constexpr TCHAR kStrInjectDynamicLinkLibraryExtension[] = _T(".64.dll");

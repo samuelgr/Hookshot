@@ -32,12 +32,12 @@ namespace Hookshot
         if (true == switchArchitecture)
         {
             if (false == Strings::FillInjectExecutableOtherArchitectureFilename(&executableCommandLine[1], executableCommandLine.Count()))
-                return EInjectResult::InjectResultErrorCannotGenerateInjectCodeFilename;
+                return EInjectResult::InjectResultErrorCannotGenerateExecutableFilename;
         }
         else
         {
             if (false == Strings::FillInjectExecutableFilename(&executableCommandLine[1], executableCommandLine.Count()))
-                return EInjectResult::InjectResultErrorCannotGenerateInjectCodeFilename;
+                return EInjectResult::InjectResultErrorCannotGenerateExecutableFilename;
         }
 
         const size_t kExecutableFileNameLength = _tcslen(executableCommandLine) + 1;

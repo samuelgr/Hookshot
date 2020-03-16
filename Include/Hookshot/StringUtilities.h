@@ -30,15 +30,6 @@ namespace Hookshot
         /// @param [in] extlen Length of the supplied extension.
         /// @return `true` on success, `false` on failure.
         bool FillCompleteFilename(TCHAR* const buf, const size_t numchars, const TCHAR* const extension, const size_t extlen);
-        
-        /// Generates the expected filename of the file containing the injected code that is to be loaded and places it into the specified buffer.
-        /// @param [out] buf Buffer to be filled with the filename.
-        /// @param [in] numchars Size of the buffer, in character units.
-        /// @return `true` on success, `false` on failure.
-        inline bool FillInjectBinaryFilename(TCHAR* const buf, const size_t numchars)
-        {
-            return FillCompleteFilename(buf, numchars, kStrInjectBinaryExtension, kLenInjectBinaryExtension);
-        }
 
         /// Generates the expected filename of the dynamic-link library form of Hookshot and places it into the specified buffer.
         /// @param [out] buf Buffer to be filled with the filename.

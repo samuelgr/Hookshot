@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by HookshotExe.rc
 //
+#define IDR_HOOKSHOT_INJECT_CODE        100
 #define IDS_HOOKSHOT_VERSION_NAME       101
 
 // Next default values for new objects

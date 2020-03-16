@@ -48,6 +48,17 @@
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotExe.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="HookshotBin.vcxproj">
+      <Project>{27d7f05e-e694-4395-b3f7-c29fda024883}</Project>
+    </ProjectReference>
+    <ProjectReference Include="HookshotDll.vcxproj">
+      <Project>{9167f194-fef9-4225-9d1d-c634136cface}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{253DE136-4F3B-4504-AED7-DE7CE821A02F}</ProjectGuid>
@@ -145,6 +156,10 @@
     </Link>
     <MASM />
     <MASM />
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HOOKSHOT32;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -172,6 +187,10 @@
     </Link>
     <MASM />
     <MASM />
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HOOKSHOT64;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -200,6 +219,10 @@
     </Link>
     <MASM />
     <MASM />
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HOOKSHOT32;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -228,6 +251,10 @@
     </Link>
     <MASM />
     <MASM />
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(OutDir)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>HOOKSHOT64;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

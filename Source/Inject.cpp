@@ -49,64 +49,69 @@ namespace Hookshot
     };
 
 
+    // -------- INTERNAL FUNCTIONS ----------------------------------------- //
+
+    /// Obtains access to the binary data that contains the injection code.
+    /// @param [out] baseAddress On success, filled with the base address of the injection code.
+    /// @param [out] sizeBytes On success, filled with the size in bytes of the injection code.
+    /// @return `true` on success, `false` on failure.
+    static bool LoadInjectCodeBinary(void** baseAddress, size_t* sizeBytes)
+    {
+        static void* injectCodeBinaryBaseAddress = NULL;
+        static size_t injectCodeBinarySizeBytes = 0;
+
+        if (NULL == injectCodeBinaryBaseAddress)
+        {
+            const HRSRC resourceInfoBlock = FindResource(Globals::GetInstanceHandle(), MAKEINTRESOURCE(IDR_HOOKSHOT_INJECT_CODE), RT_RCDATA);
+            if (NULL == resourceInfoBlock)
+                return false;
+
+            const HGLOBAL resourceHandle = LoadResource(Globals::GetInstanceHandle(), resourceInfoBlock);
+            if (NULL == resourceHandle)
+                return false;
+
+            void* const resourceBaseAddress = LockResource(resourceHandle);
+            if (NULL == resourceBaseAddress)
+                return false;
+
+            size_t resourceSizeBytes = (size_t)SizeofResource(Globals::GetInstanceHandle(), resourceInfoBlock);
+            if (0 == resourceSizeBytes)
+                return false;
+
+            injectCodeBinaryBaseAddress = resourceBaseAddress;
+            injectCodeBinarySizeBytes = resourceSizeBytes;
+        }
+
+        *baseAddress = injectCodeBinaryBaseAddress;
+        *sizeBytes = injectCodeBinarySizeBytes;
+        return true;
+    }
+
+
     // -------- CONSTRUCTION AND DESTRUCTION ------------------------------- //
     // See "Inject.h" for documentation.
 
-    InjectInfo::InjectInfo(void) : injectTrampolineStart(NULL), injectTrampolineAddressMarker(NULL), injectTrampolineEnd(NULL), injectCodeStart(NULL), injectCodeBegin(NULL), injectCodeEnd(NULL), injectFileHandle(INVALID_HANDLE_VALUE), injectFileMappingHandle(INVALID_HANDLE_VALUE), injectFileBase(NULL), initializationResult(EInjectResult::InjectResultFailure)
+    InjectInfo::InjectInfo(void) : injectTrampolineStart(NULL), injectTrampolineAddressMarker(NULL), injectTrampolineEnd(NULL), injectCodeStart(NULL), injectCodeBegin(NULL), injectCodeEnd(NULL), initializationResult(EInjectResult::InjectResultFailure)
     {
-        // Figure out the name of the module that is to be loaded.
-        TemporaryBuffer<TCHAR> moduleFilename;
-        
-        if (false == Strings::FillInjectBinaryFilename(moduleFilename, moduleFilename.Count()))
-        {
-            initializationResult = EInjectResult::InjectResultErrorCannotGenerateInjectCodeFilename;
-            return;
-        }
+        void* injectBinaryBase = NULL;
+        size_t injectBinarySizeBytes = 0;
 
-        // Attempt to open the module as a normal file.
-        injectFileHandle = CreateFile(moduleFilename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        
-        if ((NULL == injectFileHandle) || (INVALID_HANDLE_VALUE == injectFileHandle))
-        {
-            injectFileHandle = INVALID_HANDLE_VALUE;
-            initializationResult = EInjectResult::InjectResultErrorCannotLoadInjectCode;
-            return;
-        }
-
-        // Verify the file size of the module.
-        {
-            LARGE_INTEGER fileSize;
-
-            if ((FALSE == GetFileSizeEx(injectFileHandle, &fileSize)) || ((LONGLONG)kMaxInjectBinaryFileSize < fileSize.QuadPart))
-            {
-                initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
-                return;
-            }
-        }
-
-        // Attempt to create a file mapping for the just-opened module file.
-        injectFileMappingHandle = CreateFileMapping(injectFileHandle, NULL, PAGE_READONLY, 0, 0, NULL);
-        
-        if ((NULL == injectFileMappingHandle) || (INVALID_HANDLE_VALUE == injectFileMappingHandle))
-        {
-            injectFileMappingHandle = INVALID_HANDLE_VALUE;
-            initializationResult = EInjectResult::InjectResultErrorCannotLoadInjectCode;
-            return;
-        }
-
-        // Attempt to map the module file into memory.
-        injectFileBase = MapViewOfFile(injectFileMappingHandle, FILE_MAP_READ, 0, 0, 0);
-
-        if (NULL == injectFileBase)
+        if (false == LoadInjectCodeBinary(&injectBinaryBase, &injectBinarySizeBytes))
         {
             initializationResult = EInjectResult::InjectResultErrorCannotLoadInjectCode;
             return;
         }
+        
+        if (kMaxInjectBinaryFileSize < injectBinarySizeBytes)
+        {
+            initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
+            return;
+        }
 
-        // Parse the mapped file and fill pointer values.
+        // Parse the injection binary and fill pointer values.
         {
             // Verify a valid DOS header.
-            const IMAGE_DOS_HEADER* const dosHeader = (IMAGE_DOS_HEADER*)injectFileBase;
+            const IMAGE_DOS_HEADER* const dosHeader = (IMAGE_DOS_HEADER*)injectBinaryBase;
             
             if (IMAGE_DOS_SIGNATURE != dosHeader->e_magic)
             {
@@ -152,7 +157,7 @@ namespace Hookshot
                             return;
                         }
 
-                        sectionCode = (void*)((size_t)injectFileBase + (size_t)sectionHeader[secidx].PointerToRawData);
+                        sectionCode = (void*)((size_t)injectBinaryBase + (size_t)sectionHeader[secidx].PointerToRawData);
                     }
                     else if (0 == memcmp((void*)Strings::kStrInjectMetaSectionName, (void*)&sectionHeader[secidx].Name, Strings::kLenInjectMetaSectionName * sizeof(Strings::kStrInjectMetaSectionName[0])))
                     {
@@ -162,7 +167,7 @@ namespace Hookshot
                             return;
                         }
 
-                        sectionMeta = (SInjectMeta*)((size_t)injectFileBase + (size_t)sectionHeader[secidx].PointerToRawData);
+                        sectionMeta = (SInjectMeta*)((size_t)injectBinaryBase + (size_t)sectionHeader[secidx].PointerToRawData);
                     }
                 }
             }
@@ -198,19 +203,5 @@ namespace Hookshot
             // All operations completed successfully.
             initializationResult = EInjectResult::InjectResultSuccess;
         }
-    }
-
-    // --------
-
-    InjectInfo::~InjectInfo(void)
-    {
-        if (NULL != injectFileBase)
-            UnmapViewOfFile(injectFileBase);
-
-        if (INVALID_HANDLE_VALUE != injectFileMappingHandle)
-            CloseHandle(injectFileMappingHandle);
-
-        if (INVALID_HANDLE_VALUE != injectFileHandle)
-            CloseHandle(injectFileHandle);
     }
 }

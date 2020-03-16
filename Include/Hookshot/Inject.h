@@ -166,15 +166,6 @@ namespace Hookshot
         /// End of the main code block.
         void* injectCodeEnd;
 
-        /// Handle to the file that corresponds to the file containing injected code.
-        HANDLE injectFileHandle;
-
-        /// Handle to the file mapping object that is created when the file that contains injected code is mapped into memory.
-        HANDLE injectFileMappingHandle;
-
-        /// Base address of the mapped injected code file once it is mapped into memory.
-        void* injectFileBase;
-
         /// Indicator of the result of the initialization of this object.
         EInjectResult initializationResult;
 
@@ -184,9 +175,6 @@ namespace Hookshot
 
         /// Default constructor.
         InjectInfo(void);
-
-        /// Default destructor.
-        ~InjectInfo(void);
 
         /// Copy constructor. Should never be invoked.
         InjectInfo(const InjectInfo&) = delete;

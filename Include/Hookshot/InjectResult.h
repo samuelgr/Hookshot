@@ -45,7 +45,6 @@ namespace Hookshot
         InjectResultErrorVirtualProtectFailed,                      ///< Failed to set protection values for code and data in the target process.
 
         // Issues actually injecting code or data into the target process
-        InjectResultErrorCannotGenerateInjectCodeFilename,          ///< Failed to compute the name of the file holding injected code.
         InjectResultErrorCannotGenerateLibraryFilename,             ///< Failed to compute the name of the Hookshot library to inject.
         InjectResultErrorCannotLoadInjectCode,                      ///< Failed to load the file containing injection code.
         InjectResultErrorMalformedInjectCodeFile,                   ///< Failed to inject because the file containing inject code is malformed.
