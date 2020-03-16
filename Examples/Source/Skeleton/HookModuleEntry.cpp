@@ -5,8 +5,8 @@
  * Authored by Samuel Grossman
  * Copyright (c) 2019
  **************************************************************************//**
- * @file HookLibraryEntry.cpp
- *   Part of the Skeleton hook library example.
+ * @file HookModuleEntry.cpp
+ *   Part of the Skeleton hook module example.
  *   Implementation of all entry-point-related functionality.
  *****************************************************************************/
 
@@ -49,10 +49,10 @@ extern "C" BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpv
 
 /// Performs Hookshot-specific initialization and must be exported from the DLL.
 /// Invoked by Hookshot immediately upon hook library load (i.e. after the library is initialized internally and `DllMain` has completed).
-/// Hook libraries should use this opportunity to set initial hooks and perform any other initialization unsafe to do in `DllMain`.
+/// Hook modules should use this opportunity to set initial hooks and perform any other initialization unsafe to do in `DllMain`.
 /// The instance of #IHookConfig should also be saved because it is valid throughout the execution of the current process, although Hookshot retains ownership over it.
 /// @param [in] hookConfig Hookshot configuration interface, which remains at all times owned by Hookshot itself.  Refer to #IHookConfig documentation for more information.
-HOOKSHOT_HOOK_LIBRARY_ENTRY(hookConfig)
+HOOKSHOT_HOOK_MODULE_ENTRY(hookConfig)
 {
     // Code goes here.
     // It can do anything, including interact with Hookshot via the hookConfig parameter.

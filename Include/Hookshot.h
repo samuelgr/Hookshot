@@ -7,7 +7,7 @@
  **************************************************************************//**
  * @file Hookshot.h
  *   Public interface for interacting with Hookshot to configure hooks.
- *   Intended to be included externally by hook libraries.
+ *   Intended to be included by hook modules.
  *****************************************************************************/
 
 #pragma once
@@ -50,8 +50,8 @@ namespace Hookshot
         return (result < EHookshotResult::HookshotResultBoundaryValue);
     }
     
-    /// Interface provided by Hookshot that the hook library can use to configure hooks.
-    /// Hookshot creates an object that implements this interface and supplies it to the hook library during initialization.
+    /// Interface provided by Hookshot that the hook module can use to configure hooks.
+    /// Hookshot creates an object that implements this interface and supplies it to the hook module during initialization.
     /// That instance remains valid throughout the execution of the application.
     /// Its methods can be called at any time and are completely concurrency-safe.
     /// However, it is highly recommended that hook identifiers and original function pointers be obtained once and cached.
@@ -90,14 +90,15 @@ namespace Hookshot
 }
 
 
-/// Convenient definition for the entry point of a Hookshot hook library.
-/// Parameter allows specifying the name of the function parameter of type #IHookConfig.
-#define HOOKSHOT_HOOK_LIBRARY_ENTRY(hc)     extern "C" __declspec(dllexport) void __stdcall HookshotMain(Hookshot::IHookConfig* hc)
-
-
+// If building a hook module, create a hook module entry point and do not define this preprocessor symbol.
+// Otherwise, define this preprocessor symbol to build a library or executable that depends on the Hookshot library.
 #ifdef HOOKSHOT_LINK_WITH_LIBRARY
 /// Hookshot initialization function to be used when linking directly with the Hookshot library instead of loading it through injection.
 /// Must be invoked to initialize the Hookshot library before any functionality is accessed.
 /// @return Hook configuration interface object, which remains owned by Hookshot, or `NULL` in the event Hookshot failed to initialize.
 __declspec(dllimport) Hookshot::IHookConfig* __stdcall HookshotLibraryInitialize(void);
+#else
+/// Convenient definition for the entry point of a Hookshot hook module.
+/// Parameter allows specifying the name of the function parameter of type #IHookConfig.
+#define HOOKSHOT_HOOK_MODULE_ENTRY(hc)      extern "C" __declspec(dllexport) void __stdcall HookshotMain(Hookshot::IHookConfig* hc)
 #endif

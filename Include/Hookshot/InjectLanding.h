@@ -20,7 +20,7 @@
 
  // -------- TYPE DEFINITIONS ----------------------------------------------- //
 
-/// Function signature for the hook library initialization function.
+/// Function signature for the hook module initialization function.
 typedef void(__stdcall* THookModuleInitProc)(Hookshot::IHookConfig*);
 
 
@@ -37,5 +37,5 @@ extern "C" void __stdcall InjectLanding(void);
 /// @param [in] injectData Data used during the injection process.
 extern "C" void __stdcall InjectLandingCleanup(const Hookshot::SInjectData* const injectData);
 
-/// Performs all operations needed to read hook configuration information and set up hooks.
-extern "C" void __stdcall InjectLandingSetHooks(void);
+/// Performs all operations needed to read hook configuration information and load hook modules.
+extern "C" void __stdcall InjectLandingLoadHookModules(const Hookshot::SInjectData* const injectData);

@@ -43,7 +43,7 @@ extern "C" void __stdcall InjectLandingCleanup(const SInjectData* const injectDa
 
 // --------
 
-extern "C" void __stdcall InjectLandingSetHooks(void)
+extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const injectData)
 {
 #ifdef HOOKSHOT_DEBUG
     if (FALSE == IsDebuggerPresent())

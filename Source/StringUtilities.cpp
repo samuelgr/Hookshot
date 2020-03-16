@@ -48,15 +48,12 @@ namespace Hookshot
 
         bool FillHookModuleFilenameUnique(TCHAR* const buf, const size_t numchars)
         {
-            TemporaryBuffer<TCHAR> thisModuleName;
-            GetModuleBaseName(GetCurrentProcess(), Globals::GetInstanceHandle(), thisModuleName, thisModuleName.Count());
-
             GetModuleFileName(NULL, buf, (DWORD)numchars);
             
             if (0 != _tcscat_s(buf, numchars, _T(".")))
                 return false;
 
-            if (0 != _tcscat_s(buf, numchars, thisModuleName))
+            if (0 != _tcscat_s(buf, numchars, kStrHookModuleSuffix))
                 return false;
             
             return true;
@@ -66,9 +63,6 @@ namespace Hookshot
 
         bool FillHookModuleFilenameCommon(TCHAR* const buf, const size_t numchars)
         {
-            TemporaryBuffer<TCHAR> thisModuleName;
-            GetModuleBaseName(GetCurrentProcess(), Globals::GetInstanceHandle(), thisModuleName, thisModuleName.Count());
-
             GetModuleFileName(NULL, buf, (DWORD)numchars);
             
             {
@@ -86,7 +80,7 @@ namespace Hookshot
             if (0 != _tcscat_s(buf, numchars, _T(".")))
                 return false;
 
-            if (0 != _tcscat_s(buf, numchars, thisModuleName))
+            if (0 != _tcscat_s(buf, numchars, kStrHookModuleSuffix))
                 return false;
             
             return true;
