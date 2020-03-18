@@ -54,10 +54,10 @@ namespace Hookshot
 
     // --------
     
-    TrampolineStore::TrampolineStore(TrampolineStore&& other) : count(other.count), trampolines(other.trampolines)
+    TrampolineStore::TrampolineStore(TrampolineStore&& other)
     {
-        other.count = 0;
-        other.trampolines = NULL;
+        std::swap(count, other.count);
+        std::swap(trampolines, other.trampolines);
     }
 
 
