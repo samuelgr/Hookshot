@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Configuration.cpp" />
     <ClCompile Include="Source\DllEntry.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\HookStore.cpp" />
@@ -38,7 +39,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Hookshot.h" />
+    <ClInclude Include="Include\Hookshot\UnicodeTypes.h" />
     <ClInclude Include="Include\Hookshot\ApiWindows.h" />
+    <ClInclude Include="Include\Hookshot\Configuration.h" />
     <ClInclude Include="Include\Hookshot\Globals.h" />
     <ClInclude Include="Include\Hookshot\HookStore.h" />
     <ClInclude Include="Include\Hookshot\InjectLanding.h" />

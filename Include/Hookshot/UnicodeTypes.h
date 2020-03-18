@@ -5,17 +5,26 @@
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2020
  **************************************************************************//**
- * @file ApiWindows.h
- *   Common header file for the correct version of the Windows API.
+ * @file ApiUnicode.h
+ *   Common definitions and helpers for adapting between Unicode encodings.
  *****************************************************************************/
 
 #pragma once
 
+#include <string>
+#include <string_view>
 
-// -------- WINDOWS API ---------------------------------------------------- //
 
-#define NOMINMAX
+// Type aliases for various standard string types.
+// Underlying type depends on the selected underlying character representation.
+#ifdef UNICODE
 
-#include <sdkddkver.h>
-#include <tchar.h>
-#include <windows.h>
+typedef std::wstring TStdString;
+typedef std::wstring_view TStdStringView;
+
+#else
+
+typedef std::string TSStdtring;
+typedef std::string_view TSStdtringView;
+
+#endif
