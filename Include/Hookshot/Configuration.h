@@ -345,7 +345,7 @@ namespace Configuration
             const Name& name;                                           ///< Reference to the object that holds all values for the identified configuration setting.
 
             /// Initialization constructor. Initializes both references.
-            inline SSectionNamePair(TStdStringView section, const Name& name) : section(section), name(name)
+            inline constexpr SSectionNamePair(TStdStringView section, const Name& name) : section(section), name(name)
             {
                 // Nothing to do here.
             }

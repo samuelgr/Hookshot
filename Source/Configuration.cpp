@@ -468,7 +468,7 @@ namespace Configuration
                     {
                     case EValueType::Error:
                         Message::OutputFormatted(EMessageSeverity::MessageSeverityError, _T("%s:%d - Configuration setting \"%s\" is invalid."), configFileName, configLineNumber, name.c_str());
-                        break;
+                        return NULL;
 
                     case EValueType::Integer:
                         {
@@ -555,6 +555,8 @@ namespace Configuration
 
         return configurationSettings;
     }
+
+    // --------
 
     ESectionAction ConfigurationFileReader::ActionForSection(TStdStringView section)
     {

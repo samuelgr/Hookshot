@@ -22,6 +22,7 @@
     <ClCompile Include="Source\Configuration.cpp" />
     <ClCompile Include="Source\DllEntry.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
+    <ClCompile Include="Source\HookshotConfiguration.cpp" />
     <ClCompile Include="Source\HookStore.cpp" />
     <ClCompile Include="Source\InjectLanding.cpp" />
     <ClCompile Include="Source\LibraryInitialize.cpp" />
@@ -39,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Hookshot.h" />
+    <ClInclude Include="Include\Hookshot\HookshotConfiguration.h" />
     <ClInclude Include="Include\Hookshot\UnicodeTypes.h" />
     <ClInclude Include="Include\Hookshot\ApiWindows.h" />
     <ClInclude Include="Include\Hookshot\Configuration.h" />
