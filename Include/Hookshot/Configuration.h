@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <deque>
+#include <list>
 #include <map>
 #include <memory>
 #include <tchar.h>
@@ -57,6 +58,7 @@ namespace Configuration
     /// Fourth-level object used to represent a single configuration value for a particular configuration setting.
     class Value
     {
+    private:
         // -------- TYPE DEFINITIONS --------------------------------------- //
 
         /// View type used for retrieving and returning integer-typed values.
@@ -69,7 +71,6 @@ namespace Configuration
         typedef TStdStringView TStringView;
 
 
-    private:
         // -------- INSTANCE VARIABLES ------------------------------------- //
 
         /// Indicates the value type.
@@ -210,17 +211,13 @@ namespace Configuration
     /// Third-level object used to represent a single configuration setting within one section of a configuration file.
     class Name
     {
-    public:
+    private:
         // -------- TYPE DEFINITIONS --------------------------------------- //
 
         /// Alias for the underlying data structure used to store per-setting configuration values.
         typedef std::deque<Value> TValues;
 
-        /// Alias for iterators that immutably iterate over per-setting configuration values.
-        typedef TValues::const_iterator TValueIterator;
 
-
-    private:
         // -------- INSTANCE VARIABLES ------------------------------------- //
 
         /// Holds all values for each configuration setting, one element per value.
@@ -265,17 +262,13 @@ namespace Configuration
     /// Second-level object used to represent an entire section of a configuration file.
     class Section
     {
-    public:
+    private:
         // -------- TYPE DEFINITIONS --------------------------------------- //
 
         /// Alias for the underlying data structure used to store per-section configuration settings.
         typedef std::map<TStdString, Name, std::less<>> TNames;
 
-        /// Alias for iterators over per-section configuration settings.
-        typedef TNames::const_iterator TNameIterator;
 
-
-    private:
         // -------- INSTANCE VARIABLES ------------------------------------- //
 
         /// Holds configuration data within each section, one element per configuration setting.
@@ -337,14 +330,31 @@ namespace Configuration
     /// Top-level object used to represent all configuration data read from a configuration file.
     class Configuration
     {
-    public:
+    private:
         // -------- TYPE DEFINITIONS --------------------------------------- //
 
         /// Alias for the underlying data structure used to store top-level configuration section data.
         typedef std::map<TStdString, Section, std::less<>> TSections;
 
 
-    private:
+        /// Holds an individual section and name pair.
+        /// Used when responding to queries for all settings of a given name across all sections.
+        struct SSectionNamePair
+        {
+            TStdStringView section;                                     ///< Name of the section that holds the identified configuration setting.
+            const Name& name;                                           ///< Reference to the object that holds all values for the identified configuration setting.
+
+            /// Initialization constructor. Initializes both references.
+            inline SSectionNamePair(TStdStringView section, const Name& name) : section(section), name(name)
+            {
+                // Nothing to do here.
+            }
+        };
+
+        /// Alias for the data structure used to respond to queries for all settings of a given name across all sections.
+        typedef std::list<SSectionNamePair> TSectionNamePairList;
+
+
         // -------- INSTANCE VARIABLES ------------------------------------- //
 
         /// Holds configuration data at the level of entire sections, one element per section.
@@ -401,6 +411,25 @@ namespace Configuration
         inline const TSections& Sections(void) const
         {
             return sections;
+        }
+
+        /// Searches all sections in the configuration for settings identified by the specified name.
+        /// For each, identifies both the section (by name) and the configuration setting (by the object that holds its values).
+        /// Places all such pairs into a container and returns the container.
+        /// If there are no matches, returns an empty container.
+        /// @param [in] name Name of the configuration setting for which to search.
+        /// @return Container holding the results.
+        inline std::unique_ptr<TSectionNamePairList> SectionsWithName(TStdStringView name) const
+        {
+            std::unique_ptr<TSectionNamePairList> sectionsWithName = std::make_unique<TSectionNamePairList>();
+
+            for (auto& section : sections)
+            {
+                if (section.second.NameExists(name))
+                    sectionsWithName->emplace_back(section.first, section.second.Name(name));
+            }
+
+            return sectionsWithName;
         }
     };
 
