@@ -556,35 +556,35 @@ namespace Configuration
         return configurationSettings;
     }
 
-    ESectionAction ConfigurationFileReader::ActionForSection(const TStdString& section)
+    ESectionAction ConfigurationFileReader::ActionForSection(TStdStringView section)
     {
         return ESectionAction::Read;
     }
 
     // --------
 
-    bool ConfigurationFileReader::CheckValue(const TStdString& section, const TStdString& name, const TIntegerValue& value)
+    bool ConfigurationFileReader::CheckValue(TStdStringView section, TStdStringView name, const TIntegerValue& value)
     {
         return true;
     }
 
     // --------
 
-    bool ConfigurationFileReader::CheckValue(const TStdString& section, const TStdString& name, const TBooleanValue& value)
+    bool ConfigurationFileReader::CheckValue(TStdStringView section, TStdStringView name, const TBooleanValue& value)
     {
         return true;
     }
 
     // --------
 
-    bool ConfigurationFileReader::CheckValue(const TStdString& section, const TStdString& name, const TStringValue& value)
+    bool ConfigurationFileReader::CheckValue(TStdStringView section, TStdStringView name, const TStringValue& value)
     {
         return true;
     }
 
     // --------
     
-    EValueType ConfigurationFileReader::TypeForValue(const TStdString& section, const TStdString& name)
+    EValueType ConfigurationFileReader::TypeForValue(TStdStringView section, TStdStringView name)
     {
         return EValueType::String;
     }
