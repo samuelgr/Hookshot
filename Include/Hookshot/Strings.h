@@ -52,33 +52,33 @@ namespace Hookshot
 
         /// File extension of the dynamic-link library form of Hookshot.
 #ifdef HOOKSHOT64
-        static constexpr TCHAR kStrInjectDynamicLinkLibraryExtension[] = _T(".64.dll");
+        static constexpr TCHAR kStrHookshotDynamicLinkLibraryExtension[] = _T(".64.dll");
 #else
-        static constexpr TCHAR kStrInjectDynamicLinkLibraryExtension[] = _T(".32.dll");
+        static constexpr TCHAR kStrHookshotDynamicLinkLibraryExtension[] = _T(".32.dll");
 #endif
 
-        /// Length of `kStrInjectDynamicLinkLibraryExtension` in character units, including terminating null character.
-        static constexpr size_t kLenInjectDynamicLinkLibraryExtension = _countof(kStrInjectDynamicLinkLibraryExtension);
+        /// Length of `kStrHookshotDynamicLinkLibraryExtension` in character units, including terminating null character.
+        static constexpr size_t kLenHookshotDynamicLinkLibraryExtension = _countof(kStrHookshotDynamicLinkLibraryExtension);
 
         /// File extension of the executable form of Hookshot.
 #ifdef HOOKSHOT64
-        static constexpr TCHAR kStrInjectExecutableExtension[] = _T(".64.exe");
+        static constexpr TCHAR kStrHookshotExecutableExtension[] = _T(".64.exe");
 #else
-        static constexpr TCHAR kStrInjectExecutableExtension[] = _T(".32.exe");
+        static constexpr TCHAR kStrHookshotExecutableExtension[] = _T(".32.exe");
 #endif
 
-        /// Length of `kStrInjectExecutableExtension` in character units, including terminating null character.
-        static constexpr size_t kLenInjectExecutableExtension = _countof(kStrInjectExecutableExtension);
+        /// Length of `kStrHookshotExecutableExtension` in character units, including terminating null character.
+        static constexpr size_t kLenHookshotExecutableExtension = _countof(kStrHookshotExecutableExtension);
         
         /// File extension of the executable form of Hookshot but targeting the opposite processor architecture.
 #ifdef HOOKSHOT64
-        static constexpr TCHAR kStrInjectExecutableExtensionOtherArchitecture[] = _T(".32.exe");
+        static constexpr TCHAR kStrHookshotExecutableExtensionOtherArchitecture[] = _T(".32.exe");
 #else
-        static constexpr TCHAR kStrInjectExecutableExtensionOtherArchitecture[] = _T(".64.exe");
+        static constexpr TCHAR kStrHookshotExecutableExtensionOtherArchitecture[] = _T(".64.exe");
 #endif
 
-        /// Length of `kStrInjectExecutableOtherArchitecture` in character units, including terminating null character.
-        static constexpr size_t kLenInjectExecutableExtensionOtherArchitecture = _countof(kStrInjectExecutableExtensionOtherArchitecture);
+        /// Length of `kStrHookshotExecutableOtherArchitecture` in character units, including terminating null character.
+        static constexpr size_t kLenHookshotExecutableExtensionOtherArchitecture = _countof(kStrHookshotExecutableExtensionOtherArchitecture);
 
         /// File suffix for all hook modules.
 #ifdef HOOKSHOT64
@@ -99,12 +99,6 @@ namespace Hookshot
 
         /// Length of `kStrLibraryInitializationProcName` in character units, including terminating null character.
         static constexpr size_t kLenLibraryInitializationProcName = _countof(kStrLibraryInitializationProcName);
-
-        /// Base name of the common directory-wide hook module.
-        static constexpr TCHAR kStrCommonHookModuleBaseName[] = _T("Common");
-
-        /// Length of `kStrCommonHookModuleBaseName` in character units, including terminating null character.
-        static constexpr size_t kLenCommonHookModuleBaseName = _countof(kStrCommonHookModuleBaseName);
 
         /// Function name of the hook module's exported initialization routine.
 #ifdef HOOKSHOT64

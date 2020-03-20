@@ -31,12 +31,12 @@ namespace Hookshot
 
         if (true == switchArchitecture)
         {
-            if (false == Strings::FillInjectExecutableOtherArchitectureFilename(&executableCommandLine[1], executableCommandLine.Count()))
+            if (false == Strings::FillHookshotExecutableOtherArchitectureFilename(&executableCommandLine[1], executableCommandLine.Count()))
                 return EInjectResult::InjectResultErrorCannotGenerateExecutableFilename;
         }
         else
         {
-            if (false == Strings::FillInjectExecutableFilename(&executableCommandLine[1], executableCommandLine.Count()))
+            if (false == Strings::FillHookshotExecutableFilename(&executableCommandLine[1], executableCommandLine.Count()))
                 return EInjectResult::InjectResultErrorCannotGenerateExecutableFilename;
         }
 

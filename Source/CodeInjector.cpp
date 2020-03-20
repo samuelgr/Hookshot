@@ -331,14 +331,14 @@ namespace Hookshot
             {
                 TemporaryBuffer<wchar_t> dynamicLibraryName;
 
-                if (false == Strings::FillInjectDynamicLinkLibraryFilename(dynamicLibraryName, dynamicLibraryName.Count()))
+                if (false == Strings::FillHookshotDynamicLinkLibraryFilename(dynamicLibraryName, dynamicLibraryName.Count()))
                     return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
 
                 if (0 != wcstombs_s(NULL, &injectDataStrings[Strings::kLenLibraryInitializationProcName], sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 1, dynamicLibraryName, sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 2))
                     return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
             }
 #else
-            if (false == Strings::FillInjectDynamicLinkLibraryFilename(&injectDataStrings[Strings::kLenLibraryInitializationProcName], sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 1))
+            if (false == Strings::FillHookshotDynamicLinkLibraryFilename(&injectDataStrings[Strings::kLenLibraryInitializationProcName], sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 1))
                 return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
 #endif
 

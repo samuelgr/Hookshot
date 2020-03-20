@@ -23,12 +23,68 @@ namespace Hookshot
 {
     namespace Strings
     {
-        // -------- FUNCTIONS ---------------------------------------------- //
-        // See "StringUtilities.h" for documentation.
-        
-        bool FillCompleteFilename(TCHAR* const buf, const size_t numchars, const TCHAR* const extension, const size_t extlen)
+        // -------- INTERNAL FUNCTIONS ------------------------------------- //
+
+        /// Fills the directory name of the currently-running executable (not necessarily Hookshot), including trailing backslash.
+        /// If there is no backslash contained in the path retrieved for said executable, sets the buffer to the empty string.
+        /// @param [out] buf Buffer to be filled with the directory name.
+        /// @param [in] numchars Size of the buffer, in character units.
+        /// @return `true` on success, `false` on failure.
+        static bool FillExecutableDirectoryName(TCHAR* const buf, const size_t numchars)
         {
-            const size_t lengthBasePath = Globals::FillHookshotModuleBasePath(buf, numchars);
+            if ((GetModuleFileName(NULL, buf, (DWORD)numchars) == numchars) && (ERROR_INSUFFICIENT_BUFFER == GetLastError()))
+                return false;
+
+            TCHAR* const lastBackslash = _tcsrchr(buf, _T('\\'));
+
+            if (NULL == lastBackslash)
+                buf[0] = _T('\0');
+            else
+                lastBackslash[1] = _T('\0');
+
+            return true;
+        }
+
+        /// Fills the specified buffer with the fully-qualified path of the current running form of Hookshot, minus the extension.
+        /// This is useful for determining the correct path of the next module to load.
+        /// @param [in,out] buf Buffer to be filled.
+        /// @param [in] numchars Size of the buffer, in character units.
+        /// @return Number of characters written to the buffer (not including the terminal `NULL` character, which is always written), or 0 in the event of an error.
+        static size_t FillHookshotModuleBasePath(TCHAR* const buf, const size_t numchars)
+        {
+            const DWORD length = GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)numchars);
+
+            if (0 == length || (numchars == length && ERROR_INSUFFICIENT_BUFFER == GetLastError()))
+                return 0;
+
+            // Hookshot module filenames are expected to end with a double-extension, the first specifying the platform and the second the actual file type.
+            // Therefore, look for the last two dot characters and truncate them.
+            TCHAR* const lastDot = _tcsrchr(buf, _T('.'));
+
+            if (NULL == lastDot)
+                return 0;
+
+            *lastDot = _T('\0');
+
+            TCHAR* const secondLastDot = _tcsrchr(buf, _T('.'));
+
+            if (NULL == secondLastDot)
+                return 0;
+
+            *secondLastDot = _T('\0');
+
+            return ((size_t)secondLastDot - (size_t)buf) / sizeof(buf[0]);
+        }
+        
+        /// Generates the expected filename for a Hookshot-related file, given the desired extension and extension length.
+        /// @param [out] buf Buffer to be filled with the filename.
+        /// @param [in] numchars Size of the buffer, in character units.
+        /// @param [in] extension String containing the extension to append to the Hookshot base name.
+        /// @param [in] extlen Length of the supplied extension.
+        /// @return `true` on success, `false` on failure.
+        static bool FillHookshotFilename(TCHAR* const buf, const size_t numchars, const TCHAR* const extension, const size_t extlen)
+        {
+            const size_t lengthBasePath = FillHookshotModuleBasePath(buf, numchars);
 
             if (0 == lengthBasePath)
                 return false;
@@ -44,20 +100,15 @@ namespace Hookshot
             return true;
         }
 
-        // --------
+
+        
+        // -------- FUNCTIONS ---------------------------------------------- //
+        // See "StringUtilities.h" for documentation.
 
         bool FillHookModuleFilename(const TCHAR* const moduleName, TCHAR* const buf, const size_t numchars)
         {
-            GetModuleFileName(NULL, buf, (DWORD)numchars);
-
-            {
-                TCHAR* const lastBackslash = _tcsrchr(buf, _T('\\'));
-
-                if (NULL == lastBackslash)
-                    buf[0] = _T('\0');
-                else
-                    lastBackslash[1] = _T('\0');
-            }
+            if (false == FillExecutableDirectoryName(buf, numchars))
+                return false;
 
             if (0 != _tcscat_s(buf, numchars, moduleName))
                 return false;
@@ -90,18 +141,10 @@ namespace Hookshot
 
         bool FillHookModuleFilenameCommon(TCHAR* const buf, const size_t numchars)
         {
-            GetModuleFileName(NULL, buf, (DWORD)numchars);
-            
-            {
-                TCHAR* const lastBackslash = _tcsrchr(buf, _T('\\'));
+            if (false == FillExecutableDirectoryName(buf, numchars))
+                return false;
 
-                if (NULL == lastBackslash)
-                    buf[0] = _T('\0');
-                else
-                    lastBackslash[1] = _T('\0');
-            }
-
-            if (0 != _tcscat_s(buf, numchars, kStrCommonHookModuleBaseName))
+            if (0 != _tcscat_s(buf, numchars, _T("Common")))
                 return false;
 
             if (0 != _tcscat_s(buf, numchars, _T(".")))
@@ -111,6 +154,27 @@ namespace Hookshot
                 return false;
             
             return true;
+        }
+
+        // --------
+
+        bool FillHookshotDynamicLinkLibraryFilename(TCHAR* const buf, const size_t numchars)
+        {
+            return FillHookshotFilename(buf, numchars, kStrHookshotDynamicLinkLibraryExtension, kLenHookshotDynamicLinkLibraryExtension);
+        }
+
+        // --------
+
+        bool FillHookshotExecutableFilename(TCHAR* const buf, const size_t numchars)
+        {
+            return FillHookshotFilename(buf, numchars, kStrHookshotExecutableExtension, kLenHookshotExecutableExtension);
+        }
+
+        // --------
+
+        bool FillHookshotExecutableOtherArchitectureFilename(TCHAR* const buf, const size_t numchars)
+        {
+            return FillHookshotFilename(buf, numchars, kStrHookshotExecutableExtensionOtherArchitecture, kLenHookshotExecutableExtensionOtherArchitecture);
         }
     }
 }
