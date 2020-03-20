@@ -34,7 +34,7 @@ namespace Hookshot
     // -------- CONCRETE INSTANCE METHODS ---------------------------------- //
     // See "Configuration.h" for documentation.
 
-    Configuration::ESectionAction HookshotConfiguration::ActionForSection(TStdStringView section)
+    Configuration::ESectionAction HookshotConfigurationReader::ActionForSection(TStdStringView section)
     {
         if (kSectionCommon == section)
             return Configuration::ESectionAction::Read;
@@ -44,7 +44,7 @@ namespace Hookshot
 
     // --------
 
-    bool HookshotConfiguration::CheckValue(TStdStringView section, TStdStringView name, const Configuration::TIntegerValue& value)
+    bool HookshotConfigurationReader::CheckValue(TStdStringView section, TStdStringView name, const Configuration::TIntegerValue& value)
     {
         // No integer values are currently supported.
         return false;
@@ -52,7 +52,7 @@ namespace Hookshot
 
     // --------
 
-    bool HookshotConfiguration::CheckValue(TStdStringView section, TStdStringView name, const Configuration::TBooleanValue& value)
+    bool HookshotConfigurationReader::CheckValue(TStdStringView section, TStdStringView name, const Configuration::TBooleanValue& value)
     {
         // No Boolean values are currently supported.
         return false;
@@ -60,14 +60,14 @@ namespace Hookshot
 
     // --------
 
-    bool HookshotConfiguration::CheckValue(TStdStringView section, TStdStringView name, const Configuration::TStringValue& value)
+    bool HookshotConfigurationReader::CheckValue(TStdStringView section, TStdStringView name, const Configuration::TStringValue& value)
     {
         return true;
     }
 
     // --------
 
-    Configuration::EValueType HookshotConfiguration::TypeForValue(TStdStringView section, TStdStringView name)
+    Configuration::EValueType HookshotConfigurationReader::TypeForValue(TStdStringView section, TStdStringView name)
     {
         const auto kNameAndValueType = kNamesAndValueTypes.find(name);
 

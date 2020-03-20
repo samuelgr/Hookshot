@@ -46,11 +46,11 @@ namespace Hookshot
         }
 
         /// Fills the specified buffer with the fully-qualified path of the current running form of Hookshot, minus the extension.
-        /// This is useful for determining the correct path of the next module to load.
+        /// This is useful for determining the correct path of the next file or module to load.
         /// @param [in,out] buf Buffer to be filled.
         /// @param [in] numchars Size of the buffer, in character units.
         /// @return Number of characters written to the buffer (not including the terminal `NULL` character, which is always written), or 0 in the event of an error.
-        static size_t FillHookshotModuleBasePath(TCHAR* const buf, const size_t numchars)
+        static size_t FillHookshotBasePath(TCHAR* const buf, const size_t numchars)
         {
             const DWORD length = GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)numchars);
 
@@ -84,7 +84,7 @@ namespace Hookshot
         /// @return `true` on success, `false` on failure.
         static bool FillHookshotFilename(TCHAR* const buf, const size_t numchars, const TCHAR* const extension, const size_t extlen)
         {
-            const size_t lengthBasePath = FillHookshotModuleBasePath(buf, numchars);
+            const size_t lengthBasePath = FillHookshotBasePath(buf, numchars);
 
             if (0 == lengthBasePath)
                 return false;
@@ -113,10 +113,7 @@ namespace Hookshot
             if (0 != _tcscat_s(buf, numchars, moduleName))
                 return false;
 
-            if (0 != _tcscat_s(buf, numchars, _T(".")))
-                return false;
-
-            if (0 != _tcscat_s(buf, numchars, kStrHookModuleSuffix))
+            if (0 != _tcscat_s(buf, numchars, kStrHookModuleExtension))
                 return false;
 
             return true;
@@ -127,11 +124,8 @@ namespace Hookshot
         bool FillHookModuleFilenameUnique(TCHAR* const buf, const size_t numchars)
         {
             GetModuleFileName(NULL, buf, (DWORD)numchars);
-            
-            if (0 != _tcscat_s(buf, numchars, _T(".")))
-                return false;
 
-            if (0 != _tcscat_s(buf, numchars, kStrHookModuleSuffix))
+            if (0 != _tcscat_s(buf, numchars, kStrHookModuleExtension))
                 return false;
             
             return true;
@@ -147,12 +141,35 @@ namespace Hookshot
             if (0 != _tcscat_s(buf, numchars, _T("Common")))
                 return false;
 
-            if (0 != _tcscat_s(buf, numchars, _T(".")))
-                return false;
-
-            if (0 != _tcscat_s(buf, numchars, kStrHookModuleSuffix))
+            if (0 != _tcscat_s(buf, numchars, kStrHookModuleExtension))
                 return false;
             
+            return true;
+        }
+
+        // --------
+
+        bool FillHookshotConfigurationFilename(TCHAR* const buf, const size_t numchars)
+        {
+            if (false == FillExecutableDirectoryName(buf, numchars))
+                return false;
+
+            TemporaryBuffer<TCHAR> hookshotBasePath;
+            if (0 == FillHookshotBasePath(hookshotBasePath, hookshotBasePath.Count()))
+                return false;
+
+            TCHAR* hookshotBaseName = _tcsrchr(hookshotBasePath, _T('\\'));
+            if (NULL == hookshotBaseName)
+                hookshotBaseName = hookshotBasePath;
+            else
+                hookshotBaseName += 1;
+
+            if (0 != _tcscat_s(buf, numchars, hookshotBaseName))
+                return false;
+
+            if (0 != _tcscat_s(buf, numchars, kStrHookshotConfigurationFileExtension))
+                return false;
+
             return true;
         }
 

@@ -16,7 +16,7 @@
 
 namespace Hookshot
 {
-    class HookshotConfiguration : public Configuration::ConfigurationFileReaderBase
+    class HookshotConfigurationReader : public Configuration::ConfigurationFileReader
     {
     protected:
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //

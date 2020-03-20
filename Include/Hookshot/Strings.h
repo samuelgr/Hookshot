@@ -79,15 +79,21 @@ namespace Hookshot
         /// Length of `kStrHookshotExecutableOtherArchitecture` in character units, including terminating null character.
         static constexpr size_t kLenHookshotExecutableExtensionOtherArchitecture = _countof(kStrHookshotExecutableExtensionOtherArchitecture);
 
-        /// File suffix for all hook modules.
+        /// File extension for a Hookshot configuration file.
+        static constexpr TCHAR kStrHookshotConfigurationFileExtension[] = _T(".ini");
+
+        /// Length of `kStrHookshotConfigurationFileExtension` in character units, including terminating null character.
+        static constexpr size_t kLenHookshotConfigurationFileExtension = _countof(kStrHookshotConfigurationFileExtension);
+
+        /// File extension for all hook modules.
 #ifdef HOOKSHOT64
-        static constexpr TCHAR kStrHookModuleSuffix[] = _T("HookModule.64.dll");
+        static constexpr TCHAR kStrHookModuleExtension[] = _T(".HookModule.64.dll");
 #else
-        static constexpr TCHAR kStrHookModuleSuffix[] = _T("HookModule.32.dll");
+        static constexpr TCHAR kStrHookModuleExtension[] = _T(".HookModule.32.dll");
 #endif
 
-        /// Length of `kStrHookModuleSuffix` in character units, including terminating null character.
-        static constexpr size_t kLenHookModuleSuffix = _countof(kStrHookModuleSuffix);
+        /// Length of `kStrHookModuleExtension` in character units, including terminating null character.
+        static constexpr size_t kLenHookModuleExtension = _countof(kStrHookModuleExtension);
 
         /// Function name of the initialization procedure exported by the Hookshot library that gets injected.
 #ifdef HOOKSHOT64
@@ -136,6 +142,14 @@ namespace Hookshot
         /// @return `true` on success, `false` on failure.
         bool FillHookModuleFilenameCommon(TCHAR* const buf, const size_t numchars);
 
+        /// Generates the expected filename of a Hookshot configuration file.
+        /// Hookshot configuration filename = (executable directory)\(base name of this Hookshot DLL).ini
+        /// For example, C:\PathToExecutable\Executable.exe -> C:\PathToExecutable\Hookshot.ini, using Hookshot's default filenames.
+        /// @param [out] buf Buffer to be filled with the filename.
+        /// @param [in] numchars Size of the buffer, in character units.
+        /// @return `true` on success, `false` on failure.
+        bool FillHookshotConfigurationFilename(TCHAR* const buf, const size_t numchars);
+        
         /// Generates the expected filename of the dynamic-link library form of Hookshot and places it into the specified buffer.
         /// @param [out] buf Buffer to be filled with the filename.
         /// @param [in] numchars Size of the buffer, in character units.
