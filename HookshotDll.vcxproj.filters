@@ -30,7 +30,7 @@
     <ClCompile Include="Source\TemporaryBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\StringUtilities.cpp">
+    <ClCompile Include="Source\Strings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\HookStore.cpp">
@@ -92,9 +92,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Hookshot\TemporaryBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Hookshot\StringUtilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Hookshot.h">

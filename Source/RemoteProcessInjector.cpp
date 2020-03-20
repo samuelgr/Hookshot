@@ -11,7 +11,7 @@
 
 #include "ApiWindows.h"
 #include "RemoteProcessInjector.h"
-#include "StringUtilities.h"
+#include "Strings.h"
 #include "TemporaryBuffer.h"
 
 

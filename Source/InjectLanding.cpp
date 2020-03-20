@@ -14,7 +14,7 @@
 #include "Inject.h"
 #include "LibraryInitialize.h"
 #include "Message.h"
-#include "StringUtilities.h"
+#include "Strings.h"
 #include "TemporaryBuffer.h"
 
 #include <cstddef>

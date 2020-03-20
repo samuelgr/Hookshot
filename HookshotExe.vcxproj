@@ -26,7 +26,7 @@
     <ClCompile Include="Source\Message.cpp" />
     <ClCompile Include="Source\ProcessInjector.cpp" />
     <ClCompile Include="Source\RemoteProcessInjector.cpp" />
-    <ClCompile Include="Source\StringUtilities.cpp" />
+    <ClCompile Include="Source\Strings.cpp" />
     <ClCompile Include="Source\TemporaryBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -43,7 +43,6 @@
     <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\RemoteProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Strings.h" />
-    <ClInclude Include="Include\Hookshot\StringUtilities.h" />
     <ClInclude Include="Include\Hookshot\TemporaryBuffer.h" />
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotExe.h" />

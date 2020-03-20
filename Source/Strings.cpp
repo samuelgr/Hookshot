@@ -5,7 +5,7 @@
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2020
  **************************************************************************//**
- * @file StringUtilities.cpp
+ * @file Strings.cpp
  *   Implementation of functions for manipulating Hookshot-specific strings.
  *****************************************************************************/
 
@@ -103,7 +103,7 @@ namespace Hookshot
 
         
         // -------- FUNCTIONS ---------------------------------------------- //
-        // See "StringUtilities.h" for documentation.
+        // See "Strings.h" for documentation.
 
         bool FillHookModuleFilename(const TCHAR* const moduleName, TCHAR* const buf, const size_t numchars)
         {

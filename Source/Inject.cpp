@@ -13,7 +13,7 @@
 #include "Globals.h"
 #include "Inject.h"
 #include "InjectResult.h"
-#include "StringUtilities.h"
+#include "Strings.h"
 #include "TemporaryBuffer.h"
 
 #include <cstddef>
