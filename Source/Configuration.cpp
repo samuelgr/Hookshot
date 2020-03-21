@@ -497,7 +497,11 @@ namespace Hookshot
                                 return false;
                             }
 
-                            configToFill.Insert(thisSection, name, intValue);
+                            if (false == configToFill.Insert(thisSection, name, intValue))
+                            {
+                                FormatString(readErrorMessage, _T("%s:%d - Value \"%s\" for configuration setting \"%s\" is duplicated."), configFileName.data(), configLineNumber, value.c_str(), name.c_str());
+                                return false;
+                            }
                         }
                         break;
 
@@ -517,7 +521,11 @@ namespace Hookshot
                                 return false;
                             }
 
-                            configToFill.Insert(thisSection, name, boolValue);
+                            if (false == configToFill.Insert(thisSection, name, boolValue))
+                            {
+                                FormatString(readErrorMessage, _T("%s:%d - Value \"%s\" for configuration setting \"%s\" is duplicated."), configFileName.data(), configLineNumber, value.c_str(), name.c_str());
+                                return false;
+                            }
                         }
                         break;
 
@@ -527,7 +535,12 @@ namespace Hookshot
                                 FormatString(readErrorMessage, _T("%s:%d - Configuration setting \"%s\" with value \"%s\" is invalid."), configFileName.data(), configLineNumber, name.c_str(), value.c_str());
                                 return false;
                             }
-                            configToFill.Insert(thisSection, name, value);
+                            
+                            if (false == configToFill.Insert(thisSection, name, value))
+                            {
+                                FormatString(readErrorMessage, _T("%s:%d - Value \"%s\" for configuration setting \"%s\" is duplicated."), configFileName.data(), configLineNumber, value.c_str(), name.c_str());
+                                return false;
+                            }
                             break;
 
                         default:

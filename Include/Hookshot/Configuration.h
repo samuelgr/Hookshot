@@ -16,10 +16,10 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <deque>
 #include <list>
 #include <map>
 #include <memory>
+#include <set>
 #include <tchar.h>
 
 
@@ -175,6 +175,37 @@ namespace Hookshot
             }
 
 
+            // -------- OPERATORS ---------------------------------------------- //
+
+            /// Allows less-than comparison to support many standard containers that use this type of comparison for sorting.
+            /// @param [in] rhs Right-hand side of the binary operator.
+            /// @return `true` if this object (lhs) is less than the other object (rhs), `false` otherwise.
+            inline bool operator<(const Value& rhs) const
+            {
+                if (type < rhs.type)
+                    return true;
+                else if (type > rhs.type)
+                    return false;
+                else
+                {
+                    switch (type)
+                    {
+                    case EValueType::Integer:
+                        return (intValue < rhs.intValue);
+
+                    case EValueType::Boolean:
+                        return (boolValue < rhs.boolValue);
+
+                    case EValueType::String:
+                        return (stringValue < rhs.stringValue);
+
+                    default:
+                        return false;
+                    }
+                }
+            }
+
+
             // -------- INSTANCE METHODS ----------------------------------- //
 
             /// Retrieves and returns the type of the stored value.
@@ -217,7 +248,7 @@ namespace Hookshot
             // -------- TYPE DEFINITIONS ----------------------------------- //
 
             /// Alias for the underlying data structure used to store per-setting configuration values.
-            typedef std::deque<Value> TValues;
+            typedef std::set<Value> TValues;
 
 
             // -------- INSTANCE VARIABLES --------------------------------- //
@@ -230,19 +261,13 @@ namespace Hookshot
             // -------- INSTANCE METHODS ----------------------------------- //
 
             /// Stores a new value for the configuration setting represented by this object.
+            /// Will fail if the value already exists.
             /// @tparam ValueType Type of value to insert.
             /// @param [in] value Value to insert.
-            template <typename ValueType> void Insert(const ValueType& value)
+            /// @return `true` on success, `false` on failure.
+            template <typename ValueType> bool Insert(const ValueType& value)
             {
-                values.emplace_back(value);
-            }
-
-            /// Allows read-only access to individual values by index, with bounds-checking.
-            /// @param [in] index Index of the value to retrieve.
-            /// @return Reference to the desired value.
-            inline const Value& ValueByIndex(const int index) const
-            {
-                return values.at(index);
+                return values.emplace(value).second;
             }
 
             /// Retrieves the number of values present for the configuration setting represented by this object.
@@ -281,10 +306,12 @@ namespace Hookshot
             // -------- INSTANCE METHODS ----------------------------------- //
 
             /// Stores a new value for the specified configuration setting in the section represented by this object.
+            /// Will fail if the value already exists.
             /// @tparam ValueType Type of value to insert.
             /// @param [in] name Name of the configuration setting into which to insert the value.
             /// @param [in] value Value to insert.
-            template <typename ValueType> void Insert(TStdStringView name, const ValueType& value)
+            /// @return `true` on success, `false` on failure.
+            template <typename ValueType> bool Insert(TStdStringView name, const ValueType& value)
             {
                 auto nameIterator = names.find(name);
 
@@ -294,7 +321,7 @@ namespace Hookshot
                     nameIterator = names.find(name);
                 }
 
-                nameIterator->second.Insert(value);
+                return nameIterator->second.Insert(value);
             }
 
             /// Allows read-only access to individual configuration settings by name, with bounds checking.
@@ -381,11 +408,13 @@ namespace Hookshot
             }
             
             /// Stores a new value for the specified configuration setting in the specified section.
+            /// Will fail if the value already exists.
             /// @tparam ValueType Type of value to insert.
             /// @param [in] section Section into which to insert the configuration setting.
             /// @param [in] name Name of the configuration setting into which to insert the value.
             /// @param [in] value Value to insert.
-            template <typename ValueType> void Insert(TStdStringView section, TStdStringView name, const ValueType& value)
+            /// @return `true` on success, `false` on failure.
+            template <typename ValueType> bool Insert(TStdStringView section, TStdStringView name, const ValueType& value)
             {
                 auto sectionIterator = sections.find(section);
 
@@ -395,7 +424,7 @@ namespace Hookshot
                     sectionIterator = sections.find(section);
                 }
 
-                sectionIterator->second.Insert(name, value);
+                return sectionIterator->second.Insert(name, value);
             }
 
             /// Allows read-only access to individual sections by name, with bounds checking.
