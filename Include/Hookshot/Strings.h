@@ -115,9 +115,34 @@ namespace Hookshot
         /// Length of `kStrHookLibraryInitFuncName` in character units, including terminating null character.
         static constexpr size_t kLenHookLibraryInitFuncName = _countof(kStrHookLibraryInitFuncName);
 
+        /// Configuration file section name for directory-wide settings.
+        static constexpr TCHAR kStrConfigFileSectionCommon[] = _T("Common");
+
+        /// Length of `kStrConfigFileSectionCommon` in character units, including terminating null character.
+        static constexpr size_t kLenConfigFileSectionCommon = _countof(kStrConfigFileSectionCommon);
+
+        /// Configuration file setting name for specifying a hook module to load.
+        static constexpr TCHAR kStrConfigFileNameHookModule[] = _T("HookModule");
+
+        /// Length of `kStrConfigFileNameHookModule` in character units, including terminating null character.
+        static constexpr size_t kLenConfigFileNameHookModule = _countof(kStrConfigFileNameHookModule);
+
 
         // -------- FUNCTIONS ---------------------------------------------- //
 
+        /// Fills the base name of the currently-running executable (not necessarily Hookshot).
+        /// @param [out] buf Buffer to be filled with the directory name.
+        /// @param [in] numchars Size of the buffer, in character units.
+        /// @return `true` on success, `false` on failure.
+        bool FillExecutableBaseName(TCHAR* const buf, const size_t numchars);
+
+        /// Fills the directory name of the currently-running executable (not necessarily Hookshot), including trailing backslash.
+        /// If there is no backslash contained in the path retrieved for said executable, sets the buffer to the empty string.
+        /// @param [out] buf Buffer to be filled with the directory name.
+        /// @param [in] numchars Size of the buffer, in character units.
+        /// @return `true` on success, `false` on failure.
+        bool FillExecutableDirectoryName(TCHAR* const buf, const size_t numchars);
+        
         /// Generates the expected filename of a hook module of the specified name.
         /// Hook module filename = (executable directory)\(hook module name).(hook module suffix)
         /// @param [in] moduleName Hook module name to use when generating the filename.

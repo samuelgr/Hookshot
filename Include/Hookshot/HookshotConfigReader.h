@@ -5,20 +5,22 @@
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2020
  **************************************************************************//**
- * @file HookshotConfiguration.h
- *   Declaration of Hookshot-specific configuration functionality.
+ * @file HookshotConfigReader.h
+ *   Declaration of Hookshot-specific configuration reading functionality.
  *****************************************************************************/
 
 #pragma once
 
 #include "Configuration.h"
 
+#include <unordered_map>
+
 
 namespace Hookshot
 {
-    class HookshotConfigurationReader : public Configuration::ConfigurationFileReader
+    class HookshotConfigReader : public Configuration::ConfigurationFileReader
     {
-    protected:
+    private:
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See "Configuration.h" for documentation.
 
@@ -26,6 +28,7 @@ namespace Hookshot
         bool CheckValue(TStdStringView section, TStdStringView name, const Configuration::TIntegerValue& value) override;
         bool CheckValue(TStdStringView section, TStdStringView name, const Configuration::TBooleanValue& value) override;
         bool CheckValue(TStdStringView section, TStdStringView name, const Configuration::TStringValue& value) override;
+        void PrepareForRead(void) override;
         Configuration::EValueType TypeForValue(TStdStringView section, TStdStringView name) override;
     };
 }

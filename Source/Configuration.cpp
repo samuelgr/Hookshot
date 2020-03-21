@@ -399,7 +399,7 @@ namespace Hookshot
         // -------- INSTANCE METHODS --------------------------------------- //
         // See "Configuration.h" for documentation.
 
-        std::unique_ptr<Configuration> ConfigurationFileReader::ReadConfigurationFile(TStdStringView configFileName)
+        bool ConfigurationFileReader::ReadConfigurationFile(TStdStringView configFileName, ConfigurationData& configToFill)
         {
             FileHandle configFileHandle;
             _tfopen_s(&configFileHandle, configFileName.data(), _T("r"));
@@ -407,19 +407,19 @@ namespace Hookshot
             if (NULL == configFileHandle)
             {
                 FormatString(readErrorMessage, _T("%s - Unable to open configuration file."), configFileName.data());
-                return NULL;
+                return false;
             }
+
+            PrepareForRead();
 
             // Parse the configuration file, one line at a time.
             std::unordered_set<TStdString> seenSections;
-            TStdString thisSection = _T("");
+            TStdString thisSection = ConfigurationData::kSectionNameGlobal.data();
 
             int configLineNumber = 1;
             TemporaryBuffer<TCHAR> configLineBuffer;
             int configLineLength = ReadAndTrimLine(configFileHandle, configLineBuffer, configLineBuffer.Count());
             bool skipValueLines = false;
-
-            std::unique_ptr<Configuration> configurationSettings = std::make_unique<Configuration>();
 
             while (configLineLength >= 0)
             {
@@ -427,7 +427,7 @@ namespace Hookshot
                 {
                 case ELineClassification::Error:
                     FormatString(readErrorMessage, _T("%s:%d - Unable to parse line."), configFileName.data(), configLineNumber);
-                    return NULL;
+                    return false;
 
                 case ELineClassification::Ignore:
                     break;
@@ -440,7 +440,7 @@ namespace Hookshot
                     if (0 != seenSections.count(section))
                     {
                         FormatString(readErrorMessage, _T("%s:%d - Section \"%s\" is duplicated."), configFileName.data(), configLineNumber, section.c_str());
-                        return NULL;
+                        return false;
                     }
 
                     const ESectionAction sectionAction = ActionForSection(section);
@@ -448,7 +448,7 @@ namespace Hookshot
                     {
                     case ESectionAction::Error:
                         FormatString(readErrorMessage, _T("%s:%d - Section \"%s\" is invalid."), configFileName.data(), configLineNumber, section.c_str());
-                        return NULL;
+                        return false;
 
                     case ESectionAction::Read:
                         thisSection = std::move(section);
@@ -462,7 +462,7 @@ namespace Hookshot
 
                     default:
                         FormatString(readErrorMessage, _T("%s:%d - Internal error while processing section name."), configFileName.data(), configLineNumber);
-                        return NULL;
+                        return false;
                     }
                 }
                 break;
@@ -470,12 +470,6 @@ namespace Hookshot
                 case ELineClassification::Value:
                     if (false == skipValueLines)
                     {
-                        if (0 == thisSection.size())
-                        {
-                            FormatString(readErrorMessage, _T("%s:%d - Value cannot appear outside of a section."), configFileName.data(), configLineNumber);
-                            return NULL;
-                        }
-
                         TStdString name;
                         TStringValue value;
                         ParseNameAndValue(configLineBuffer, name, value);
@@ -485,7 +479,7 @@ namespace Hookshot
                         {
                         case EValueType::Error:
                             FormatString(readErrorMessage, _T("%s:%d - Configuration setting \"%s\" is invalid."), configFileName.data(), configLineNumber, name.c_str());
-                            return NULL;
+                            return false;
 
                         case EValueType::Integer:
                         {
@@ -494,16 +488,16 @@ namespace Hookshot
                             if (false == ParseInteger(value, &intValue))
                             {
                                 FormatString(readErrorMessage, _T("%s:%d - Value \"%s\" is not a valid integer."), configFileName.data(), configLineNumber, value.c_str());
-                                return NULL;
+                                return false;
                             }
 
                             if (false == CheckValue(thisSection, name, intValue))
                             {
                                 FormatString(readErrorMessage, _T("%s:%d - Configuration setting \"%s\" with value \"%s\" is invalid."), configFileName.data(), configLineNumber, name.c_str(), value.c_str());
-                                return NULL;
+                                return false;
                             }
 
-                            configurationSettings->Insert(thisSection, name, intValue);
+                            configToFill.Insert(thisSection, name, intValue);
                         }
                         break;
 
@@ -514,16 +508,16 @@ namespace Hookshot
                             if (false == ParseBoolean(value, &boolValue))
                             {
                                 FormatString(readErrorMessage, _T("%s:%d - Value \"%s\" is not a valid Boolean."), configFileName.data(), configLineNumber, value.c_str());
-                                return NULL;
+                                return false;
                             }
 
                             if (false == CheckValue(thisSection, name, boolValue))
                             {
                                 FormatString(readErrorMessage, _T("%s:%d - Configuration setting \"%s\" with value \"%s\" is invalid."), configFileName.data(), configLineNumber, name.c_str(), value.c_str());
-                                return NULL;
+                                return false;
                             }
 
-                            configurationSettings->Insert(thisSection, name, boolValue);
+                            configToFill.Insert(thisSection, name, boolValue);
                         }
                         break;
 
@@ -531,21 +525,21 @@ namespace Hookshot
                             if (false == CheckValue(thisSection, name, value))
                             {
                                 FormatString(readErrorMessage, _T("%s:%d - Configuration setting \"%s\" with value \"%s\" is invalid."), configFileName.data(), configLineNumber, name.c_str(), value.c_str());
-                                return NULL;
+                                return false;
                             }
-                            configurationSettings->Insert(thisSection, name, value);
+                            configToFill.Insert(thisSection, name, value);
                             break;
 
                         default:
                             FormatString(readErrorMessage, _T("%s:%d - Internal error while processing configuration setting."), configFileName.data(), configLineNumber);
-                            return NULL;
+                            return false;
                         }
                     }
                     break;
 
                 default:
                     FormatString(readErrorMessage, _T("%s:%d - Internal error while processing line."), configFileName.data(), configLineNumber);
-                    return NULL;
+                    return false;
                 }
 
                 configLineLength = ReadAndTrimLine(configFileHandle, configLineBuffer, configLineBuffer.Count());
@@ -560,52 +554,26 @@ namespace Hookshot
                 if (ferror(configFileHandle))
                 {
                     FormatString(readErrorMessage, _T("%s - I/O error while reading."), configFileName.data(), configLineNumber);
-                    return NULL;
+                    return false;
 
                 }
                 else if (configLineLength < 0)
                 {
                     FormatString(readErrorMessage, _T("%s:%d - Line is too long."), configFileName.data(), configLineNumber);
-                    return NULL;
+                    return false;
                 }
             }
 
-            return configurationSettings;
-        }
-
-        // --------
-
-        ESectionAction BasicConfigurationFileReader::ActionForSection(TStdStringView section)
-        {
-            return ESectionAction::Read;
-        }
-
-        // --------
-
-        bool BasicConfigurationFileReader::CheckValue(TStdStringView section, TStdStringView name, const TIntegerValue& value)
-        {
             return true;
         }
 
-        // --------
+        
+        // -------- CONCRETE INSTANCE METHODS ------------------------------ //
+        // See "Configuration.h" for documentation.
 
-        bool BasicConfigurationFileReader::CheckValue(TStdStringView section, TStdStringView name, const TBooleanValue& value)
+        void ConfigurationFileReader::PrepareForRead(void)
         {
-            return true;
-        }
-
-        // --------
-
-        bool BasicConfigurationFileReader::CheckValue(TStdStringView section, TStdStringView name, const TStringValue& value)
-        {
-            return true;
-        }
-
-        // --------
-
-        EValueType BasicConfigurationFileReader::TypeForValue(TStdStringView section, TStdStringView name)
-        {
-            return EValueType::String;
+            // Nothing to do here.
         }
     }
 }

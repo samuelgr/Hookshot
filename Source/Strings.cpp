@@ -25,26 +25,6 @@ namespace Hookshot
     {
         // -------- INTERNAL FUNCTIONS ------------------------------------- //
 
-        /// Fills the directory name of the currently-running executable (not necessarily Hookshot), including trailing backslash.
-        /// If there is no backslash contained in the path retrieved for said executable, sets the buffer to the empty string.
-        /// @param [out] buf Buffer to be filled with the directory name.
-        /// @param [in] numchars Size of the buffer, in character units.
-        /// @return `true` on success, `false` on failure.
-        static bool FillExecutableDirectoryName(TCHAR* const buf, const size_t numchars)
-        {
-            if ((GetModuleFileName(NULL, buf, (DWORD)numchars) == numchars) && (ERROR_INSUFFICIENT_BUFFER == GetLastError()))
-                return false;
-
-            TCHAR* const lastBackslash = _tcsrchr(buf, _T('\\'));
-
-            if (NULL == lastBackslash)
-                buf[0] = _T('\0');
-            else
-                lastBackslash[1] = _T('\0');
-
-            return true;
-        }
-
         /// Fills the specified buffer with the fully-qualified path of the current running form of Hookshot, minus the extension.
         /// This is useful for determining the correct path of the next file or module to load.
         /// @param [in,out] buf Buffer to be filled.
@@ -105,6 +85,40 @@ namespace Hookshot
         // -------- FUNCTIONS ---------------------------------------------- //
         // See "Strings.h" for documentation.
 
+        bool FillExecutableBaseName(TCHAR* const buf, const size_t numchars)
+        {
+            TemporaryBuffer<TCHAR> executablePath;
+            if ((GetModuleFileName(NULL, executablePath, (DWORD)executablePath.Count()) == executablePath.Count()) && (ERROR_INSUFFICIENT_BUFFER == GetLastError()))
+                return false;
+
+            TCHAR* executableBaseName = _tcsrchr(executablePath, _T('\\'));
+            if (NULL == executableBaseName)
+                executableBaseName = executablePath;
+            else
+                executableBaseName += 1;
+
+            return (0 == _tcscpy_s(buf, numchars, executableBaseName));
+        }
+
+        // --------
+
+        bool FillExecutableDirectoryName(TCHAR* const buf, const size_t numchars)
+        {
+            if ((GetModuleFileName(NULL, buf, (DWORD)numchars) == numchars) && (ERROR_INSUFFICIENT_BUFFER == GetLastError()))
+                return false;
+
+            TCHAR* const lastBackslash = _tcsrchr(buf, _T('\\'));
+
+            if (NULL == lastBackslash)
+                buf[0] = _T('\0');
+            else
+                lastBackslash[1] = _T('\0');
+
+            return true;
+        }
+
+        // --------
+        
         bool FillHookModuleFilename(const TCHAR* const moduleName, TCHAR* const buf, const size_t numchars)
         {
             if (false == FillExecutableDirectoryName(buf, numchars))

@@ -54,7 +54,7 @@
     <ClCompile Include="Source\Configuration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\HookshotConfiguration.cpp">
+    <ClCompile Include="Source\HookshotConfigReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -121,7 +121,7 @@
     <ClInclude Include="Include\Hookshot\UnicodeTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\HookshotConfiguration.h">
+    <ClInclude Include="Include\Hookshot\HookshotConfigReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -20,6 +20,7 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <tchar.h>
 
 
 namespace Hookshot
@@ -329,8 +330,15 @@ namespace Hookshot
         };
 
         /// Top-level object used to represent all configuration data read from a configuration file.
-        class Configuration
+        class ConfigurationData
         {
+        public:
+            // -------- CONSTANTS ------------------------------------------ //
+
+            /// Section name for all settings that appear at global scope (i.e. outside of a section).
+            static constexpr TStdStringView kSectionNameGlobal = _T("");
+
+
         private:
             // -------- TYPE DEFINITIONS ----------------------------------- //
 
@@ -365,6 +373,13 @@ namespace Hookshot
         public:
             // -------- INSTANCE METHODS ----------------------------------- //
 
+            /// Clears the contents of this object.
+            /// After clearing, all references to its contents (such as via data structures returned by querying it) are invalid.
+            inline void Clear(void)
+            {
+                sections.clear();
+            }
+            
             /// Stores a new value for the specified configuration setting in the specified section.
             /// @tparam ValueType Type of value to insert.
             /// @param [in] section Section into which to insert the configuration setting.
@@ -456,21 +471,22 @@ namespace Hookshot
             // -------- INSTANCE METHODS ----------------------------------- //
 
             /// Retrieves and returns the error message that arose during the last unsuccessful attempt at reading a configuration file.
-            /// The error message is valid if #ReadConfigurationFile returns `NULL`.
-            /// @return Error message from last unsuccessful parse attempt.
+            /// The error message is valid if #ReadConfigurationFile returns `false`.
+            /// @return Error message from last unsuccessful read attempt.
             inline TStdStringView GetReadErrorMessage(void)
             {
                 return readErrorMessage;
             }
 
-            /// Reads and parses a configuration file, storing the settings in a newly-allocated #Configuration object that is owned by the caller.
+            /// Reads and parses a configuration file, storing the settings in the supplied configuration object.
             /// Intended to be invoked externally. Subclasses should not override this method.
             /// @param [in] configFileName Name of the configuration file to read.
-            /// @return Pointer to the object that holds the settings, or `NULL` on failure.
-            std::unique_ptr<Configuration> ReadConfigurationFile(TStdStringView configFileName);
+            /// @param [out] configToFill Configuration object to fill with configuration data (contents are only valid if this method succeeds).
+            /// @return `true` on success, `false` on failure.
+            bool ReadConfigurationFile(TStdStringView configFileName, ConfigurationData& configToFill);
 
 
-        protected:
+        private:
             // -------- ABSTRACT INSTANCE METHODS -------------------------- //
 
             /// Specifies the action to take when a given section is encountered in a configuration file.
@@ -502,7 +518,7 @@ namespace Hookshot
             /// @param [in] value Value of the configuration setting, as read and parsed from the configuration file.
             /// @return `true` if the submitted value was acceptable (according to whatever arbitrary characteristics the subclass wishes), `false` otherwise.
             virtual bool CheckValue(TStdStringView section, TStdStringView name, const TStringValue& value) = 0;
-
+            
             /// Specifies the type of the value for the given configuration setting.
             /// In lines that are of the form "name = value" parameters identify both the enclosing section and the name part.
             /// Subclasses should override this method.
@@ -511,21 +527,96 @@ namespace Hookshot
             /// @param [in] name Name of the configuration setting (the left part of the example line given above).
             /// @return Type to associate with the value (the right part of the example line given above), which can be an error if the particular configuration setting is not supported.
             virtual EValueType TypeForValue(TStdStringView section, TStdStringView name) = 0;
-        };
 
-        /// Basic reference implementation of a configuration file reader.
-        /// All values are accepted and parsed as strings, and multiple values for each configuration setting are supported.
-        class BasicConfigurationFileReader : public ConfigurationFileReader
-        {
-        protected:
+
             // -------- CONCRETE INSTANCE METHODS -------------------------- //
-            // See above for documentation.
-
-            ESectionAction ActionForSection(TStdStringView section) override;
-            bool CheckValue(TStdStringView section, TStdStringView name, const TIntegerValue& value) override;
-            bool CheckValue(TStdStringView section, TStdStringView name, const TBooleanValue& value) override;
-            bool CheckValue(TStdStringView section, TStdStringView name, const TStringValue& value) override;
-            EValueType TypeForValue(TStdStringView section, TStdStringView name) override;
+            
+            /// Invoked at the start of a configuration file read operation.
+            /// Subclasses are given the opportunity to initialize or reset any stored state, as needed.
+            /// Overriding this method is optional, as a default implementation exists that does nothing.
+            virtual void PrepareForRead(void);
         };
+        
+        /// Convenience wrapper object that combines a reader with a configuration data object and presents both with a unified interface.
+        class Configuration
+        {
+        private:
+            // -------- INSTANCE VARIABLES --------------------------------- //
+
+            /// Reader object used to dictate how a configuration file is read.
+            std::unique_ptr<ConfigurationFileReader> reader;
+
+            /// Configuration data object used to hold configuration data read from the configuration file.
+            ConfigurationData configData;
+
+            /// Holds the result of the last attempt at reading a configuration file.
+            bool settingsReadSuccessfully;
+
+
+        public:
+            // -------- CONSTRUCTION AND DESTRUCTION ----------------------- //
+
+            /// Initialization constructor. Requires a reader at construction time.
+            inline Configuration(std::unique_ptr<ConfigurationFileReader> reader) : reader(std::move(reader))
+            {
+                // Nothing to do here.
+            }
+            
+            /// Copy constructor. Should never be invoked.
+            Configuration(const Configuration& other) = delete;
+
+            // -------- INSTANCE METHODS ----------------------------------- //
+
+            /// Determines if the contents of the object that holds all of Hookshot's configuration settings are valid.
+            /// If a previous attempt to read the Hookshot configuration file failed, 
+            /// @return `true` if the contents are valid, `false` otherwise.
+            inline bool IsDataValid(void)
+            {
+                return settingsReadSuccessfully;
+            }
+
+            /// Retrieves and returns a reference to the object that holds all of Hookshot's configuration settings.
+            /// @return Configuration settings object.
+            inline const ConfigurationData& GetData(void)
+            {
+                return configData;
+            }
+            
+            /// Retrieves and returns the error message that arose during the last unsuccessful attempt at reading a configuration file.
+            /// The error message is valid as long as #IsDataValid returns `false`.
+            /// @return Error message from last unsuccessful read attempt.
+            inline TStdStringView GetReadErrorMessage(void)
+            {
+                return reader->GetReadErrorMessage();
+            }
+
+            /// Reads and parses a configuration file, storing the settings in this object.
+            /// After this method returns, use #IsDataValid and #GetData to retrieve configuration settings.
+            /// In the event of a read error, #GetReadErrorMessage can be used to obtain a string describing the read error that occurred.
+            /// @param [in] configFileName Name of the configuration file to read.
+            inline void ReadConfigurationFile(TStdStringView configFileName)
+            {
+                settingsReadSuccessfully = reader->ReadConfigurationFile(configFileName, configData);
+            }
+        };
+
+        /// Type alias for a suggested format for storing the supported layout of a section within a configuration file.
+        /// Useful for pre-determining what is allowed to appear within one section of a configuration file.
+        typedef std::map<TStdStringView, EValueType, std::less<>> TConfigurationFileSectionLayout;
+
+        /// Type alias for a suggested format for storing the supported layout of a configuration file.
+        /// Useful for pre-determining what is allowed to appear within a configuration file.
+        typedef std::map<TStdStringView, TConfigurationFileSectionLayout, std::less<>> TConfigurationFileLayout;
     }
 }
+
+
+// -------- MACROS --------------------------------------------------------- //
+
+/// Convenience wrapper around initializer list syntax for defining a configuration file section in a layout object of type #TConfigurationFileLayout.
+/// Specify a section name followed by a series of setting name and value type pairs.
+#define ConfigurationFileLayoutSection(section, ...)                    { (section), {__VA_ARGS__} }
+
+/// Convenience wrapper around initializer list syntax for defining a setting name and value type pair.
+/// Intended for use within the initializer for a configuration file section layout.
+#define ConfigurationFileLayoutNameAndValueType(name, valueType)        { (name), (valueType) }
