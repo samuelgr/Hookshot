@@ -19,8 +19,8 @@
 #include <cstdio>
 #include <psapi.h>
 #include <shlobj.h>
-#include <string>
 #include <sstream>
+#include <string>
 
 
 namespace Hookshot
@@ -84,25 +84,25 @@ namespace Hookshot
             }
 
             // Output the log file header.
-            static constexpr std::wstring_view kLogHeaderSeparator = L"---------------------------------------------";
+            static constexpr wchar_t kLogHeaderSeparator[] = L"---------------------------------------------";
 
             TemporaryBuffer<wchar_t> hookshotProductName;
             if (0 == LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, hookshotProductName, hookshotProductName.Count()))
                 hookshotProductName[0] = L'\0';
 
-            fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator.data());
+            fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator);
             fwprintf_s(logFileHandle, L"%s Log\n", (wchar_t*)hookshotProductName);
-            fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator.data());
+            fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator);
             fwprintf_s(logFileHandle, L"Method:    %s\n", Globals::GetHookshotLoadMethodString().data());
             fwprintf_s(logFileHandle, L"Program:   %s\n", Strings::kStrExecutableCompleteFilename.data());
             fwprintf_s(logFileHandle, L"PID:       %d\n", GetProcessId(GetCurrentProcess()));
-            fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator.data());
+            fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator);
         }
     }
 
     // --------
 
-    void Message::Output(const EMessageSeverity severity, LPCWSTR message)
+    void Message::Output(const EMessageSeverity severity, const wchar_t* message)
     {
         if (false == WillOutputMessageOfSeverity(severity))
             return;
@@ -112,7 +112,7 @@ namespace Hookshot
 
     // ---------
 
-    void Message::OutputFormatted(const EMessageSeverity severity, LPCWSTR format, ...)
+    void Message::OutputFormatted(const EMessageSeverity severity, const wchar_t* format, ...)
     {
         if (false == WillOutputMessageOfSeverity(severity))
             return;
@@ -129,6 +129,11 @@ namespace Hookshot
 
     bool Message::WillOutputMessageOfSeverity(const EMessageSeverity severity)
     {
+        // Messages of all severities are output unconditionally if a debugger is present.
+        // #SelectOutputModes takes care of selecting the appropriate modes, given the message severity.
+        if (IsDebuggerPresent())
+            return true;
+        
         if ((severity < EMessageSeverity::MessageSeverityForcedInteractiveBoundaryValue) || (severity <= minimumSeverityForOutput))
         {
             // Counter-intuitive: severity *values* increase as severity *levels* decrease.
@@ -158,7 +163,7 @@ namespace Hookshot
     // -------- HELPERS ---------------------------------------------------- //
     // See "Message.h" for documentation.
 
-    void Message::OutputFormattedInternal(const EMessageSeverity severity, LPCWSTR format, va_list args)
+    void Message::OutputFormattedInternal(const EMessageSeverity severity, const wchar_t* format, va_list args)
     {
         TemporaryBuffer<wchar_t> messageBuf;
 
@@ -168,7 +173,7 @@ namespace Hookshot
 
     // --------
 
-    void Message::OutputInternal(const EMessageSeverity severity, LPCWSTR message)
+    void Message::OutputInternal(const EMessageSeverity severity, const wchar_t* message)
     {
         EMessageOutputMode outputModes[EMessageOutputMode::MessageOutputModeUpperBoundValue];
         const int numOutputModes = SelectOutputModes(severity, outputModes);
@@ -197,24 +202,24 @@ namespace Hookshot
 
     // --------
 
-    void Message::OutputInternalUsingDebugString(const EMessageSeverity severity, LPCWSTR message)
+    void Message::OutputInternalUsingDebugString(const EMessageSeverity severity, const wchar_t* message)
     {
-        TemporaryBuffer<wchar_t> moduleBaseNameBuf;
-        GetModuleBaseName(GetCurrentProcess(), Globals::GetInstanceHandle(), moduleBaseNameBuf, moduleBaseNameBuf.Count());
+        std::wstringstream outputString;
 
-        const wchar_t messageStampSeverity = StampCharacterForSeverity(severity);
+        // First compose the output string stamp.
+        // Desired format is "(base name of this form of Hookshot): [(severity)]"
+        outputString << Strings::kStrHookshotBaseName << L": [" << StampCharacterForSeverity(severity) << L"] ";
 
-        TemporaryBuffer<wchar_t> messageStampBuf;
-        swprintf_s(messageStampBuf, messageStampBuf.Count(), L"%s: [%c] ", (wchar_t*)moduleBaseNameBuf, messageStampSeverity);
+        // Append the message itself.
+        outputString << message << L"\n";
 
-        OutputDebugString(messageStampBuf);
-        OutputDebugString(message);
-        OutputDebugString(L"\n");
+        // Output to the debugger.
+        OutputDebugString(outputString.str().c_str());
     }
 
     // --------
 
-    void Message::OutputInternalUsingLogFile(const EMessageSeverity severity, LPCWSTR message)
+    void Message::OutputInternalUsingLogFile(const EMessageSeverity severity, const wchar_t* message)
     {
         std::wstringstream outputString;
         
@@ -243,7 +248,7 @@ namespace Hookshot
 
     // --------
     
-    void Message::OutputInternalUsingMessageBox(const EMessageSeverity severity, LPCWSTR message)
+    void Message::OutputInternalUsingMessageBox(const EMessageSeverity severity, const wchar_t* message)
     {
         TemporaryBuffer<wchar_t> productNameBuf;
         if (0 == LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, (wchar_t*)productNameBuf, productNameBuf.Count()))
@@ -284,17 +289,31 @@ namespace Hookshot
         
         if (IsSeverityForcedInteractive(severity))
         {
+            // If the severity level is forced interactive, then the only output mode is interactive.
+            // Therefore, an interactive message box is the only output mode used.
+
             selectedOutputModes[numOutputModes++] = EMessageOutputMode::MessageOutputModeMessageBox;
         }
         else if (IsDebuggerPresent())
         {
+            // If a debugger is present, #WillOutputMessageOfSeverity will always return `true`.
+            // The goal is tn ensure that debug strings are sent for all messages irrespective of severity (assuming they are not forced interactive).
+            // For other configured output modes, it is necessary to filter based on severity.
+
             selectedOutputModes[numOutputModes++] = EMessageOutputMode::MessageOutputModeDebugString;
 
-            if (IsLogFileEnabled())
-                selectedOutputModes[numOutputModes++] = EMessageOutputMode::MessageOutputLogFile;
+            if (severity <= minimumSeverityForOutput)
+            {
+                if (IsLogFileEnabled())
+                    selectedOutputModes[numOutputModes++] = EMessageOutputMode::MessageOutputLogFile;
+            }
         }
         else
         {
+            // Since a debugger is not present, #WillOutputMessageOfSeverity has already validated that the severity of the message justifies outputting it.
+            // It is therefore sufficient just to pick appropriate output modes depending on message subsystem configuration.
+            // Prefer a log file if enabled, otherwise display an interactive message box.
+
             if (IsLogFileEnabled())
                 selectedOutputModes[numOutputModes++] = EMessageOutputMode::MessageOutputLogFile;
             else

@@ -91,6 +91,21 @@ namespace Hookshot
         /// For Hookshot's library form, this will be the name of the executable that loaded it or into which it was injected.
         extern const std::wstring_view kStrExecutableCompleteFilename;
 
+        /// Base name for the currently-running form of Hookshot.
+        /// For Hookshot's executable form, this will be the same as #kStrExecutableBaseName.
+        /// For Hookshot's library form, this will be the name of the library.
+        extern const std::wstring_view kStrHookshotBaseName;
+
+        /// Directory name for the currently-running form of Hookshot.
+        /// For Hookshot's executable form, this will be the same as #kStrExecutableDirectoryName.
+        /// For Hookshot's library form, this will be the name of the library.
+        extern const std::wstring_view kStrHookshotDirectoryName;
+
+        /// Complete path and filename of the currently-running form of Hookshot.
+        /// For Hookshot's executable form, this will be the same as #kStrExecutableCompleteFilename.
+        /// For Hookshot's library form, this will be the name of the library.
+        extern const std::wstring_view kStrHookshotCompleteFilename;
+        
         /// Expected filename of a Hookshot configuration file.
         /// Hookshot configuration filename = (executable directory)\(base name of this form of Hookshot).ini
         extern const std::wstring_view kStrHookshotConfigurationFilename;

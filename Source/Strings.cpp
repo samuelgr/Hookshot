@@ -66,26 +66,10 @@ namespace Hookshot
 
         // -------- INTERNAL FUNCTIONS ------------------------------------- //
 
-        /// Generates the directory name of the current running form of Hookshot, including the trailing backslash if available.
-        /// For example: "C:\Directory\Program\Hookshot.32.dll" -> "C:\Directory\Program\"
-        static std::wstring GetHookshotDirectory(void)
-        {
-            TemporaryBuffer<wchar_t> buf;
-            GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
-
-            wchar_t* const lastBackslash = wcsrchr(buf, L'\\');
-            if (NULL == lastBackslash)
-                buf[0] = L'\0';
-            else
-                lastBackslash[1] = L'\0';
-
-            return (std::wstring(buf));
-        }
-
         /// Generates the base name of the current running form of Hookshot, minus the extension.
         /// For example: "C:\Directory\Program\Hookshot.32.dll" -> "Hookshot"
-        /// @return Base name.
-        static std::wstring GetHookshotBaseName(void)
+        /// @return Base name without extension.
+        static std::wstring GetHookshotBaseNameWithoutExtension(void)
         {
             TemporaryBuffer<wchar_t> buf;
             GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
@@ -119,7 +103,7 @@ namespace Hookshot
         /// This is useful for determining the correct path of the next file or module to load.
         /// For example: "C:\Directory\Program\Hookshot.32.dll" -> "C:\Directory\Program\Hookshot"
         /// @return Fully-qualified base path.
-        static std::wstring GetHookshotBasePath(void)
+        static std::wstring GetHookshotCompleteFilenameWithoutExtension(void)
         {
             TemporaryBuffer<wchar_t> buf;
             GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
@@ -185,11 +169,53 @@ namespace Hookshot
             return (std::wstring(buf));
         }
 
+        /// Generates the value for #kStrHookshotBaseName; see documentation of this run-time constant for more information.
+        /// @return Corresponding run-time constant value.
+        static std::wstring GetHookshotBaseName(void)
+        {
+            TemporaryBuffer<wchar_t> buf;
+            GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
+
+            wchar_t* hookshotBaseName = wcsrchr(buf, L'\\');
+            if (NULL == hookshotBaseName)
+                hookshotBaseName = buf;
+            else
+                hookshotBaseName += 1;
+
+            return (std::wstring(hookshotBaseName));
+        }
+        
+        /// Generates the value for #kStrHookshotDirectoryName; see documentation of this run-time constant for more information.
+        /// @return Corresponding run-time constant value.
+        static std::wstring GetHookshotDirectoryName(void)
+        {
+            TemporaryBuffer<wchar_t> buf;
+            GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
+
+            wchar_t* const lastBackslash = wcsrchr(buf, L'\\');
+            if (NULL == lastBackslash)
+                buf[0] = L'\0';
+            else
+                lastBackslash[1] = L'\0';
+
+            return (std::wstring(buf));
+        }
+
+        /// Generates the value for #kStrHookshotCompleteFilename; see documentation of this run-time constant for more information.
+        /// @return Corresponding run-time constant value.
+        static std::wstring GetHookshotCompleteFilename(void)
+        {
+            TemporaryBuffer<wchar_t> buf;
+            GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
+
+            return (std::wstring(buf));
+        }
+        
         /// Generates the value for #kStrHookshotConfigurationFilename; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetHookshotConfigurationFilename(void)
         {
-            return GetExecutableDirectoryName() + GetHookshotBaseName() + kStrHookshotConfigurationFileExtension.data();
+            return GetExecutableDirectoryName() + GetHookshotBaseNameWithoutExtension() + kStrHookshotConfigurationFileExtension.data();
         }
 
         /// Generates the value for #kStrHookshotLogFilename; see documentation of this run-time constant for more information.
@@ -207,7 +233,7 @@ namespace Hookshot
                 CoTaskMemFree(knownFolderPath);
             }
 
-            logFilename << GetHookshotBaseName() << L'_' << GetExecutableBaseName() << L'_' << GetProcessId(GetCurrentProcess()) << kStrHookshotLogFileExtension;
+            logFilename << GetHookshotBaseNameWithoutExtension() << L'_' << GetExecutableBaseName() << L'_' << GetProcessId(GetCurrentProcess()) << kStrHookshotLogFileExtension;
 
             return logFilename.str();
         }
@@ -216,21 +242,21 @@ namespace Hookshot
         /// @return coorresponding run-time constant value.
         static std::wstring GetHookshotDynamicLinkLibraryFilename(void)
         {
-            return GetHookshotBasePath() + kStrHookshotDynamicLinkLibraryExtension.data();
+            return GetHookshotCompleteFilenameWithoutExtension() + kStrHookshotDynamicLinkLibraryExtension.data();
         }
 
         /// Generates the value for #kStrHookshotExecutableFilename; see documentation of this run-time constant for more information.
         /// @return coorresponding run-time constant value.
         static std::wstring GetHookshotExecutableFilename(void)
         {
-            return GetHookshotBasePath() + kStrHookshotExecutableExtension.data();
+            return GetHookshotCompleteFilenameWithoutExtension() + kStrHookshotExecutableExtension.data();
         }
 
         /// Generates the value for #kStrHookshotExecutableOtherArchitectureFilename; see documentation of this run-time constant for more information.
         /// @return coorresponding run-time constant value.
         static std::wstring GetHookshotExecutableOtherArchitectureFilename(void)
         {
-            return GetHookshotBasePath() + kStrHookshotExecutableOtherArchitectureExtension.data();
+            return GetHookshotCompleteFilenameWithoutExtension() + kStrHookshotExecutableOtherArchitectureExtension.data();
         }
 
 
@@ -242,6 +268,12 @@ namespace Hookshot
         static const std::wstring kStrExecutableDirectoryNameImpl(GetExecutableDirectoryName());
 
         static const std::wstring kStrExecutableCompleteFilenameImpl(GetExecutableCompleteFilename());
+
+        static const std::wstring kStrHookshotBaseNameImpl(GetHookshotBaseName());
+
+        static const std::wstring kStrHookshotDirectoryNameImpl(GetHookshotDirectoryName());
+
+        static const std::wstring kStrHookshotCompleteFilenameImpl(GetHookshotCompleteFilename());
 
         static const std::wstring kStrHookshotConfigurationFilenameImpl(GetHookshotConfigurationFilename());
 
@@ -262,6 +294,12 @@ namespace Hookshot
         extern const std::wstring_view kStrExecutableDirectoryName(kStrExecutableDirectoryNameImpl);
 
         extern const std::wstring_view kStrExecutableCompleteFilename(kStrExecutableCompleteFilenameImpl);
+
+        extern const std::wstring_view kStrHookshotBaseName(kStrHookshotBaseNameImpl);
+
+        extern const std::wstring_view kStrHookshotDirectoryName(kStrHookshotDirectoryNameImpl);
+
+        extern const std::wstring_view kStrHookshotCompleteFilename(kStrHookshotCompleteFilenameImpl);
 
         extern const std::wstring_view kStrHookshotConfigurationFilename(kStrHookshotConfigurationFilenameImpl);
 

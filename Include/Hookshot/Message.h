@@ -11,8 +11,6 @@
 
 #pragma once
 
-#include "ApiWindows.h"
-
 #include <cstdarg>
 #include <cstddef>
 #include <cstdio>
@@ -97,13 +95,13 @@ namespace Hookshot
         /// Requires both a severity and a message string.
         /// @param [in] severity Severity of the message.
         /// @param [in] message Message text.
-        static void Output(const EMessageSeverity severity, LPCWSTR message);
+        static void Output(const EMessageSeverity severity, const wchar_t* message);
         
         /// Formats and outputs the specified message.
         /// Requires a severity, a message string with standard format specifiers, and values to be formatted.
         /// @param [in] severity Severity of the message.
         /// @param [in] format Message string, possibly with format specifiers.
-        static void OutputFormatted(const EMessageSeverity severity, LPCWSTR format, ...);
+        static void OutputFormatted(const EMessageSeverity severity, const wchar_t* format, ...);
 
         /// Sets the minimum message severity required for a message to be output.
         /// Ineffective if the input is invalid.
@@ -149,31 +147,31 @@ namespace Hookshot
         /// @param [in] severity Severity of the message.
         /// @param [in] format Message string, possibly with format specifiers.
         /// @param [in] args Variable-length list of arguments to be used for any format specifiers in the message string.
-        static void OutputFormattedInternal(const EMessageSeverity severity, LPCWSTR format, va_list args);
+        static void OutputFormattedInternal(const EMessageSeverity severity, const wchar_t* format, va_list args);
 
         /// Outputs the specified message.
         /// Requires both a severity and a message string.
         /// @param [in] severity Severity of the message.
         /// @param [in] message Message text.
-        static void OutputInternal(const EMessageSeverity severity, LPCWSTR message);
+        static void OutputInternal(const EMessageSeverity severity, const wchar_t* message);
         
         /// Outputs the specified message using a debug string.
         /// Requires both a severity and a message string.
         /// @param [in] severity Severity of the message.
         /// @param [in] message Message text.
-        static void OutputInternalUsingDebugString(const EMessageSeverity severity, LPCWSTR message);
+        static void OutputInternalUsingDebugString(const EMessageSeverity severity, const wchar_t* message);
 
         /// Outputs the specified message to the log file.
         /// Requires both a severity and a message string.
         /// @param [in] severity Severity of the message.
         /// @param [in] message Message text.
-        static void OutputInternalUsingLogFile(const EMessageSeverity severity, LPCWSTR message);
+        static void OutputInternalUsingLogFile(const EMessageSeverity severity, const wchar_t* message);
 
         /// Outputs the specified message using a graphical message box.
         /// Requires both a severity and a message string.
         /// @param [in] severity Severity of the message.
         /// @param [in] message Message text.
-        static void OutputInternalUsingMessageBox(const EMessageSeverity severity, LPCWSTR message);
+        static void OutputInternalUsingMessageBox(const EMessageSeverity severity, const wchar_t* message);
 
         /// Determines the appropriate modes of output based on the current configuration and message severity.
         /// @param [in] severity Severity of the message for which an output mode is being chosen.
