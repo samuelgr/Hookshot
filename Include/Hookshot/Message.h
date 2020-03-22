@@ -22,17 +22,17 @@ namespace Hookshot
 {
      /// Enumerates all supported severity levels for messages.
      /// These are primarily used to assist with output formatting.
-     enum class EMessageSeverity
+     enum EMessageSeverity
      {
-         // Forced output.
-         MessageSeverityForcedError,                                ///< Error, always output interactively.
-         MessageSeverityForcedWarning,                              ///< Warning, always output interactively.
-         MessageSeverityForcedInfo,                                 ///< Informational, always output interactively.
+         // Forced interactive output
+         MessageSeverityForcedInteractiveError,                     ///< Error, always output interactively.
+         MessageSeverityForcedInteractiveWarning,                   ///< Warning, always output interactively.
+         MessageSeverityForcedInteractiveInfo,                      ///< Informational, always output interactively.
 
-         // Boundary value between forced and optional output.
-         MessageSeverityForcedBoundaryValue,                        ///< Not used as a value, but separates forced output from optional output.
+         // Boundary value between forced interactive and optional output
+         MessageSeverityForcedInteractiveBoundaryValue,             ///< Not used as a value, but separates forced interactive output from optional output.
 
-         // Optional output.
+         // Optional output
          MessageSeverityError,                                      ///< Error. Causes a change in behavior if encountered, possibly leading to application termination.
          MessageSeverityWarning,                                    ///< Warning. May cause a change in behavior but is not critical and will not terminate the application.
          MessageSeverityInfo,                                       ///< Informational. Useful status-related remarks for tracking application behavior.
@@ -40,17 +40,20 @@ namespace Hookshot
      };
 
      /// Enumerates all supported modes of outputting messages.
-     enum class EMessageOutputMode
+     enum EMessageOutputMode
      {
          // Non-interactive output modes
          MessageOutputModeDebugString,                              ///< Message is output using a debug string, which debuggers will display.
          MessageOutputLogFile,                                      ///< Message is output to a log file.
 
-         // Boundary value between non-interactive and interactive modes.
+         // Boundary value between non-interactive and interactive modes
          MessageOutputModeInteractiveBoundaryValue,                 ///< Not used as a value, but separates non-interactive output modes from interactive output modes.
 
          // Interactive output modes
          MessageOutputModeMessageBox,                               ///< Message is output using a message box.
+
+         // Upper sentinel value
+         MessageOutputModeUpperBoundValue,                          ///< Not used as a value. One higher than the maximum possible value in this enumeration.
      };
      
     /// Encapsulates all message-related functionality.
@@ -94,20 +97,20 @@ namespace Hookshot
         /// Requires both a severity and a message string.
         /// @param [in] severity Severity of the message.
         /// @param [in] message Message text.
-        static void Output(const EMessageSeverity severity, LPCTSTR message);
+        static void Output(const EMessageSeverity severity, LPCWSTR message);
         
         /// Formats and outputs the specified message.
         /// Requires a severity, a message string with standard format specifiers, and values to be formatted.
         /// @param [in] severity Severity of the message.
         /// @param [in] format Message string, possibly with format specifiers.
-        static void OutputFormatted(const EMessageSeverity severity, LPCTSTR format, ...);
+        static void OutputFormatted(const EMessageSeverity severity, LPCWSTR format, ...);
 
         /// Sets the minimum message severity required for a message to be output.
         /// Ineffective if the input is invalid.
         /// @param [in] severity New minimum severity setting.
         static inline void SetMinimumSeverityForOutput(EMessageSeverity severity)
         {
-            if (severity > EMessageSeverity::MessageSeverityForcedBoundaryValue)
+            if (severity > EMessageSeverity::MessageSeverityForcedInteractiveBoundaryValue)
                 minimumSeverityForOutput = severity;
         }
         
@@ -135,46 +138,47 @@ namespace Hookshot
             return (outputMode > EMessageOutputMode::MessageOutputModeInteractiveBoundaryValue);
         }
 
-        /// Checks if the specified severity is forced (i.e. one of the elements that will always cause a message to be emitted).
-        /// @return `true` if the severity is forced, `false` otherwise.
-        static inline bool IsSeverityForced(const EMessageSeverity severity)
+        /// Checks if the specified severity is forced interactive (i.e. one of the elements that will always cause a message to be emitted interactively).
+        /// @return `true` if the severity is forced interactive, `false` otherwise.
+        static inline bool IsSeverityForcedInteractive(const EMessageSeverity severity)
         {
-            return (severity < EMessageSeverity::MessageSeverityForcedBoundaryValue);
+            return (severity < EMessageSeverity::MessageSeverityForcedInteractiveBoundaryValue);
         }
         
         /// Formats and outputs some text of the given severity.
         /// @param [in] severity Severity of the message.
         /// @param [in] format Message string, possibly with format specifiers.
         /// @param [in] args Variable-length list of arguments to be used for any format specifiers in the message string.
-        static void OutputFormattedInternal(const EMessageSeverity severity, LPCTSTR format, va_list args);
+        static void OutputFormattedInternal(const EMessageSeverity severity, LPCWSTR format, va_list args);
 
         /// Outputs the specified message.
         /// Requires both a severity and a message string.
         /// @param [in] severity Severity of the message.
         /// @param [in] message Message text.
-        static void OutputInternal(const EMessageSeverity severity, LPCTSTR message);
+        static void OutputInternal(const EMessageSeverity severity, LPCWSTR message);
         
         /// Outputs the specified message using a debug string.
         /// Requires both a severity and a message string.
         /// @param [in] severity Severity of the message.
         /// @param [in] message Message text.
-        static void OutputInternalUsingDebugString(const EMessageSeverity severity, LPCTSTR message);
+        static void OutputInternalUsingDebugString(const EMessageSeverity severity, LPCWSTR message);
 
         /// Outputs the specified message to the log file.
         /// Requires both a severity and a message string.
         /// @param [in] severity Severity of the message.
         /// @param [in] message Message text.
-        static void OutputInternalUsingLogFile(const EMessageSeverity severity, LPCTSTR message);
+        static void OutputInternalUsingLogFile(const EMessageSeverity severity, LPCWSTR message);
 
         /// Outputs the specified message using a graphical message box.
         /// Requires both a severity and a message string.
         /// @param [in] severity Severity of the message.
         /// @param [in] message Message text.
-        static void OutputInternalUsingMessageBox(const EMessageSeverity severity, LPCTSTR message);
+        static void OutputInternalUsingMessageBox(const EMessageSeverity severity, LPCWSTR message);
 
-        /// Determines the appropriate mode of output based on the current configuration and message severity.
+        /// Determines the appropriate modes of output based on the current configuration and message severity.
         /// @param [in] severity Severity of the message for which an output mode is being chosen.
-        /// @return Output mode to use.
-        static EMessageOutputMode SelectOutputMode(const EMessageSeverity severity);
+        /// @param [out] selectedOutputModes Filled with the output modes that are selected.  Array should have #EMessageOutputMode::MessageOutputModeUpperBoundValue elements.
+        /// @return Number of output modes selected.
+        static int SelectOutputModes(const EMessageSeverity severity, EMessageOutputMode* selectedOutputModes);
     };
 }
