@@ -46,29 +46,16 @@ extern "C" void __stdcall InjectLandingCleanup(const SInjectData* const injectDa
 extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const injectData)
 {
     if ((0 != injectData->isDebuggerAttached) && (0 == IsDebuggerPresent()))
-    {
-        TemporaryBuffer<TCHAR> executableBaseName;
-        GetModuleBaseName(GetCurrentProcess(), NULL, executableBaseName, executableBaseName.Count());
-        
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityForcedInfo, _T("Attach to \"%s\" (PID %d) to continue debugging."), (TCHAR*)executableBaseName, GetProcessId(GetCurrentProcess()));
-    }
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityForcedInfo, _T("Attach to \"%s\" (PID %d) to continue debugging."), Strings::kStrExecutableBaseName.data(), GetProcessId(GetCurrentProcess()));
 
     // First, try the executable-specific hook module filename.
     // Second, try the directory-common hook module filename.
     // If both fail, there is no hook module to load.
 
-    TemporaryBuffer<TCHAR> hookModuleFileName;
-
-    if (false == Strings::FillHookModuleFilenameUnique(hookModuleFileName, hookModuleFileName.Count()))
+    if (true == LibraryInitialize::LoadHookModule(Strings::GetHookModuleFilename(Strings::kStrExecutableBaseName).c_str()))
         return;
 
-    if (true == LibraryInitialize::LoadHookModule(hookModuleFileName))
-        return;
-
-    if (false == Strings::FillHookModuleFilenameCommon(hookModuleFileName, hookModuleFileName.Count()))
-        return;
-
-    if (true == LibraryInitialize::LoadHookModule(hookModuleFileName))
+    if (true == LibraryInitialize::LoadHookModule(Strings::GetHookModuleFilename(_T("Common")).c_str()))
         return;
 
     Message::Output(EMessageSeverity::MessageSeverityWarning, _T("No hook module is loaded. No hooks have been set for the current process."));

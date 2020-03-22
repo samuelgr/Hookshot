@@ -31,7 +31,6 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvRe
     switch (fdwReason)
     {
     case DLL_PROCESS_ATTACH:
-        Globals::SetInstanceHandle(hinstDLL);
         break;
 
     case DLL_PROCESS_DETACH:

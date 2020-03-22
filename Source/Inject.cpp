@@ -149,7 +149,7 @@ namespace Hookshot
                 // Since each such section should only appear once, also verify uniqueness.
                 for (WORD secidx = 0; secidx < ntHeader->FileHeader.NumberOfSections; ++secidx)
                 {
-                    if (0 == memcmp((void*)Strings::kStrInjectCodeSectionName, (void*)&sectionHeader[secidx].Name, Strings::kLenInjectCodeSectionName * sizeof(Strings::kStrInjectCodeSectionName[0])))
+                    if (Strings::kStrInjectCodeSectionName == (const char*)sectionHeader[secidx].Name)
                     {
                         if (NULL != sectionCode)
                         {
@@ -159,7 +159,7 @@ namespace Hookshot
 
                         sectionCode = (void*)((size_t)injectBinaryBase + (size_t)sectionHeader[secidx].PointerToRawData);
                     }
-                    else if (0 == memcmp((void*)Strings::kStrInjectMetaSectionName, (void*)&sectionHeader[secidx].Name, Strings::kLenInjectMetaSectionName * sizeof(Strings::kStrInjectMetaSectionName[0])))
+                    else if (Strings::kStrInjectMetaSectionName == (const char*)sectionHeader[secidx].Name)
                     {
                         if (NULL != sectionMeta)
                         {

@@ -22,6 +22,7 @@ namespace Hookshot
     /// These can be used for any purpose and are intended to replace large stack-allocated or heap-allocated buffers.
     /// Instead, memory is allocated statically at load-time and divided up as needed to various parts of the application.
     /// If too many buffers are allocated such that the available static buffers are exhausted, additional objects will allocate heap memory.
+    /// All temporary buffer functionality is concurrency-safe and available as early as dynamic initialization.
     /// Do not instantiate this class directly; instead, instantiate the template class below.
     class TemporaryBufferBase
     {

@@ -18,22 +18,53 @@
 
 namespace Hookshot
 {
-    // -------- INTERNAL VARIABLES ----------------------------------------- //
+    // -------- INTERNAL TYPES --------------------------------------------- //
 
-    /// Statically-allocated buffer space itself.
-    static uint8_t staticBuffers[TemporaryBufferBase::kBuffersTotalNumBytes];
+    /// Holds all static data associated with the management of temporary buffers.
+    /// Used to make sure that temporary buffer functionality is available as early as dynamic initialization.
+    /// Implemented as a singleton object.
+    class TemporaryBufferData
+    {
+    public:
+        // -------- INSTANCE VARIABLES ------------------------------------- //
 
-    /// List of free statically-allocated buffers.
-    static uint8_t* freeBuffers[TemporaryBufferBase::kBuffersCount];
+        /// Statically-allocated buffer space itself.
+        uint8_t staticBuffers[TemporaryBufferBase::kBuffersTotalNumBytes];
 
-    /// Index of next valid free buffer list element.
-    static int nextFreeBuffer = 0;
+        /// List of free statically-allocated buffers.
+        uint8_t* freeBuffers[TemporaryBufferBase::kBuffersCount];
 
-    /// Flag that specifies if one-time initialization needs to take place.
-    static bool isInitialized = false;
+        /// Index of next valid free buffer list element.
+        int nextFreeBuffer = 0;
 
-    /// Mutex used to ensure concurrency control over temporary buffer allocation and deallocation.
-    static std::mutex allocationMutex;
+        /// Flag that specifies if one-time initialization needs to take place.
+        bool isInitialized = false;
+
+        /// Mutex used to ensure concurrency control over temporary buffer allocation and deallocation.
+        std::mutex allocationMutex;
+
+
+    private:
+        // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
+
+        /// Default constructor.  Objects cannot be constructed externally.
+        TemporaryBufferData(void) = default;
+
+        /// Copy constructor. Should never be invoked.
+        TemporaryBufferData(const TemporaryBufferData& other) = delete;
+
+
+    public:
+        // -------- CLASS METHODS ------------------------------------------ //
+
+        /// Returns a reference to the singleton instance of this class.
+        /// @return Reference to the singleton instance.
+        static TemporaryBufferData& GetInstance(void)
+        {
+            static TemporaryBufferData temporaryBufferData;
+            return temporaryBufferData;
+        }
+    };
 
     
     // -------- CONSTRUCTION AND DESTRUCTION ------------------------------- //
@@ -41,26 +72,27 @@ namespace Hookshot
 
     TemporaryBufferBase::TemporaryBufferBase(void)
     {
-        std::lock_guard<std::mutex> lock(allocationMutex);
+        TemporaryBufferData& data = TemporaryBufferData::GetInstance();
+        std::lock_guard<std::mutex> lock(data.allocationMutex);
 
-        if (false == isInitialized)
+        if (false == data.isInitialized)
         {
-            for (int i = 0; i < _countof(freeBuffers); ++i)
-                freeBuffers[i] = &staticBuffers[TemporaryBufferBase::kBytesPerBuffer * i];
+            for (int i = 0; i < _countof(data.freeBuffers); ++i)
+                data.freeBuffers[i] = &data.staticBuffers[TemporaryBufferBase::kBytesPerBuffer * i];
             
-            nextFreeBuffer = _countof(freeBuffers) - 1;
-            isInitialized = true;
+            data.nextFreeBuffer = _countof(data.freeBuffers) - 1;
+            data.isInitialized = true;
         }
 
-        if (nextFreeBuffer < 0)
+        if (data.nextFreeBuffer < 0)
         {
             buffer = new uint8_t[TemporaryBufferBase::kBytesPerBuffer];
             isHeapAllocated = true;
         }
         else
         {
-            buffer = freeBuffers[nextFreeBuffer];
-            nextFreeBuffer -= 1;
+            buffer = data.freeBuffers[data.nextFreeBuffer];
+            data.nextFreeBuffer -= 1;
             isHeapAllocated = false;
         }
     }
@@ -69,16 +101,18 @@ namespace Hookshot
 
     TemporaryBufferBase::~TemporaryBufferBase(void)
     {
+        TemporaryBufferData& data = TemporaryBufferData::GetInstance();
+
         if (true == isHeapAllocated)
         {
             delete[] buffer;
         }
         else
         {
-            std::lock_guard<std::mutex> lock(allocationMutex);
+            std::lock_guard<std::mutex> lock(data.allocationMutex);
 
-            nextFreeBuffer += 1;
-            freeBuffers[nextFreeBuffer] = buffer;
+            data.nextFreeBuffer += 1;
+            data.freeBuffers[data.nextFreeBuffer] = buffer;
         }
     }
 }

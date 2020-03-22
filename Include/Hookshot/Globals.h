@@ -21,13 +21,6 @@ namespace Hookshot
     /// Not intended to be instantiated.
     class Globals
     {
-    private:
-        // -------- CLASS VARIABLES ---------------------------------------- //
-
-        /// Handle of the instance that represents the running form of Hookshot.
-        static HINSTANCE gInstanceHandle;
-
-
     public:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
@@ -39,17 +32,6 @@ namespace Hookshot
         
         /// Retrieves the handle of the instance that represents the current running form of Hookshot, be it the library or the bootstrap executable.
         /// @return Instance handle for the loaded module.
-        static inline HINSTANCE GetInstanceHandle(void)
-        {
-            return gInstanceHandle;
-        }
-
-        /// Sets the handle of the instance that represents the current running form of Hookshot, be it the library or the bootstrap executable.
-        /// Intended to be called only once during initialization.
-        /// @param [in] newInstanceHandle Instance handle to set.
-        static inline void SetInstanceHandle(HINSTANCE newInstanceHandle)
-        {
-            gInstanceHandle = newInstanceHandle;
-        }
+        static HINSTANCE GetInstanceHandle(void);
     };
 }

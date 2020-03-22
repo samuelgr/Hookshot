@@ -11,8 +11,8 @@
 
 #include "ApiWindows.h"
 #include "Globals.h"
-#include "Strings.h"
 #include "TemporaryBuffer.h"
+#include "UnicodeTypes.h"
 
 #include <cstddef>
 #include <cstdlib>
@@ -23,189 +23,219 @@ namespace Hookshot
 {
     namespace Strings
     {
+        // -------- INTERNAL CONSTANTS ------------------------------------- //
+        
+        /// File extension of the dynamic-link library form of Hookshot.
+#ifdef HOOKSHOT64
+        static constexpr TStdStringView kStrHookshotDynamicLinkLibraryExtension = _T(".64.dll");
+#else
+        static constexpr TStdStringView kStrHookshotDynamicLinkLibraryExtension = _T(".32.dll");
+#endif
+
+        /// File extension of the executable form of Hookshot.
+#ifdef HOOKSHOT64
+        static constexpr TStdStringView kStrHookshotExecutableExtension = _T(".64.exe");
+#else
+        static constexpr TStdStringView kStrHookshotExecutableExtension = _T(".32.exe");
+#endif
+
+        /// File extension of the executable form of Hookshot but targeting the opposite processor architecture.
+#ifdef HOOKSHOT64
+        static constexpr TStdStringView kStrHookshotExecutableOtherArchitectureExtension = _T(".32.exe");
+#else
+        static constexpr TStdStringView kStrHookshotExecutableOtherArchitectureExtension = _T(".64.exe");
+#endif
+
+        /// File extension for a Hookshot configuration file.
+        static constexpr TStdStringView kStrHookshotConfigurationFileExtension = _T(".ini");
+
+        /// File extension for all hook modules.
+#ifdef HOOKSHOT64
+        static constexpr TStdStringView kStrHookModuleExtension = _T(".HookModule.64.dll");
+#else
+        static constexpr TStdStringView kStrHookModuleExtension = _T(".HookModule.32.dll");
+#endif
+
+
         // -------- INTERNAL FUNCTIONS ------------------------------------- //
 
-        /// Fills the specified buffer with the fully-qualified path of the current running form of Hookshot, minus the extension.
-        /// This is useful for determining the correct path of the next file or module to load.
-        /// @param [in,out] buf Buffer to be filled.
-        /// @param [in] numchars Size of the buffer, in character units.
-        /// @return Number of characters written to the buffer (not including the terminal `NULL` character, which is always written), or 0 in the event of an error.
-        static size_t FillHookshotBasePath(TCHAR* const buf, const size_t numchars)
+        /// Generates the directory name of the current running form of Hookshot, including the trailing backslash if available.
+        /// For example: "C:\Directory\Program\Hookshot.32.dll" -> "C:\Directory\Program\"
+        static TStdString GetHookshotDirectory(void)
         {
-            const DWORD length = GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)numchars);
+            TemporaryBuffer<TCHAR> buf;
+            GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
 
-            if (0 == length || (numchars == length && ERROR_INSUFFICIENT_BUFFER == GetLastError()))
-                return 0;
+            TCHAR* const lastBackslash = _tcsrchr(buf, _T('\\'));
+            if (NULL == lastBackslash)
+                buf[0] = _T('\0');
+            else
+                lastBackslash[1] = _T('\0');
+
+            return (TStdString(buf));
+        }
+
+        /// Generates the base name of the current running form of Hookshot, minus the extension.
+        /// For example: "C:\Directory\Program\Hookshot.32.dll" -> "Hookshot"
+        /// @return Base name.
+        static TStdString GetHookshotBaseName(void)
+        {
+            TemporaryBuffer<TCHAR> buf;
+            GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
+
+            TCHAR* hookshotBaseName = _tcsrchr(buf, _T('\\'));
+            if (NULL == hookshotBaseName)
+                hookshotBaseName = buf;
+            else
+                hookshotBaseName += 1;
+            
+            // Hookshot module filenames are expected to end with a double-extension, the first specifying the platform and the second the actual file type.
+            // Therefore, look for the last two dot characters and truncate them.
+            TCHAR* const lastDot = _tcsrchr(hookshotBaseName, _T('.'));
+
+            if (NULL == lastDot)
+                return (TStdString(hookshotBaseName));
+
+            *lastDot = _T('\0');
+
+            TCHAR* const secondLastDot = _tcsrchr(hookshotBaseName, _T('.'));
+
+            if (NULL == secondLastDot)
+                return (TStdString(hookshotBaseName));
+
+            *secondLastDot = _T('\0');
+
+            return (TStdString(hookshotBaseName));
+        }
+        
+        /// Generates the fully-qualified path of the current running form of Hookshot, minus the extension.
+        /// This is useful for determining the correct path of the next file or module to load.
+        /// For example: "C:\Directory\Program\Hookshot.32.dll" -> "C:\Directory\Program\Hookshot"
+        /// @return Fully-qualified base path.
+        static TStdString GetHookshotBasePath(void)
+        {
+            TemporaryBuffer<TCHAR> buf;
+            GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
 
             // Hookshot module filenames are expected to end with a double-extension, the first specifying the platform and the second the actual file type.
             // Therefore, look for the last two dot characters and truncate them.
             TCHAR* const lastDot = _tcsrchr(buf, _T('.'));
 
             if (NULL == lastDot)
-                return 0;
+                return (TStdString(buf));
 
             *lastDot = _T('\0');
 
             TCHAR* const secondLastDot = _tcsrchr(buf, _T('.'));
 
             if (NULL == secondLastDot)
-                return 0;
+                return (TStdString(buf));
 
             *secondLastDot = _T('\0');
 
-            return ((size_t)secondLastDot - (size_t)buf) / sizeof(buf[0]);
+            return (TStdString(buf));
         }
         
-        /// Generates the expected filename for a Hookshot-related file, given the desired extension and extension length.
-        /// @param [out] buf Buffer to be filled with the filename.
-        /// @param [in] numchars Size of the buffer, in character units.
-        /// @param [in] extension String containing the extension to append to the Hookshot base name.
-        /// @param [in] extlen Length of the supplied extension.
-        /// @return `true` on success, `false` on failure.
-        static bool FillHookshotFilename(TCHAR* const buf, const size_t numchars, const TCHAR* const extension, const size_t extlen)
+        /// Generates the value for #kStrExecutableBaseName; see documentation of this run-time constant for more information.
+        /// @return Corresponding run-time constant value.
+        static TStdString GetExecutableBaseName(void)
         {
-            const size_t lengthBasePath = FillHookshotBasePath(buf, numchars);
+            TemporaryBuffer<TCHAR> buf;
+            GetModuleFileName(NULL, buf, (DWORD)buf.Count());
 
-            if (0 == lengthBasePath)
-                return false;
-
-            if ((lengthBasePath + extlen) >= numchars)
-            {
-                SetLastError(ERROR_INSUFFICIENT_BUFFER);
-                return false;
-            }
-
-            _tcscpy_s(&buf[lengthBasePath], extlen, extension);
-
-            return true;
-        }
-
-
-        
-        // -------- FUNCTIONS ---------------------------------------------- //
-        // See "Strings.h" for documentation.
-
-        bool FillExecutableBaseName(TCHAR* const buf, const size_t numchars)
-        {
-            TemporaryBuffer<TCHAR> executablePath;
-            if ((GetModuleFileName(NULL, executablePath, (DWORD)executablePath.Count()) == executablePath.Count()) && (ERROR_INSUFFICIENT_BUFFER == GetLastError()))
-                return false;
-
-            TCHAR* executableBaseName = _tcsrchr(executablePath, _T('\\'));
+            TCHAR* executableBaseName = _tcsrchr(buf, _T('\\'));
             if (NULL == executableBaseName)
-                executableBaseName = executablePath;
+                executableBaseName = buf;
             else
                 executableBaseName += 1;
 
-            return (0 == _tcscpy_s(buf, numchars, executableBaseName));
+            return (TStdString(executableBaseName));
         }
 
-        // --------
-
-        bool FillExecutableDirectoryName(TCHAR* const buf, const size_t numchars)
+        /// Generates the value for #kStrExecutableDirectoryName; see documentation of this run-time constant for more information.
+        /// @return Corresponding run-time constant value.
+        static TStdString GetExecutableDirectoryName(void)
         {
-            if ((GetModuleFileName(NULL, buf, (DWORD)numchars) == numchars) && (ERROR_INSUFFICIENT_BUFFER == GetLastError()))
-                return false;
+            TemporaryBuffer<TCHAR> buf;
+            GetModuleFileName(NULL, buf, (DWORD)buf.Count());
 
             TCHAR* const lastBackslash = _tcsrchr(buf, _T('\\'));
-
             if (NULL == lastBackslash)
                 buf[0] = _T('\0');
             else
                 lastBackslash[1] = _T('\0');
 
-            return true;
+            return (TStdString(buf));
         }
 
-        // --------
+        /// Generates the value for #kStrHookshotConfigurationFilename; see documentation of this run-time constant for more information.
+        /// @return Corresponding run-time constant value.
+        static TStdString GetHookshotConfigurationFilename(void)
+        {
+            return GetExecutableDirectoryName() + GetHookshotBaseName() + kStrHookshotConfigurationFileExtension.data();
+        }
+
+        /// Generates the value for #kStrHookshotDynamicLinkLibraryFilename; see documentation of this run-time constant for more information.
+        /// @return coorresponding run-time constant value.
+        static TStdString GetHookshotDynamicLinkLibraryFilename(void)
+        {
+            return GetHookshotBasePath() + kStrHookshotDynamicLinkLibraryExtension.data();
+        }
+
+        /// Generates the value for #kStrHookshotExecutableFilename; see documentation of this run-time constant for more information.
+        /// @return coorresponding run-time constant value.
+        static TStdString GetHookshotExecutableFilename(void)
+        {
+            return GetHookshotBasePath() + kStrHookshotExecutableExtension.data();
+        }
+
+        /// Generates the value for #kStrHookshotExecutableOtherArchitectureFilename; see documentation of this run-time constant for more information.
+        /// @return coorresponding run-time constant value.
+        static TStdString GetHookshotExecutableOtherArchitectureFilename(void)
+        {
+            return GetHookshotBasePath() + kStrHookshotExecutableOtherArchitectureExtension.data();
+        }
+
+
+        // -------- INTERNAL CONSTANTS ------------------------------------- //
+        // Used to implement run-time constants; see "Strings.h" for documentation.
+
+        static const TStdString kStrExecutableBaseNameImpl(GetExecutableBaseName());
+
+        static const TStdString kStrExecutableDirectoryNameImpl(GetExecutableDirectoryName());
+
+        static const TStdString kStrHookshotConfigurationFilenameImpl(GetHookshotConfigurationFilename());
+
+        static const TStdString kStrHookshotDynamicLinkLibraryFilenameImpl(GetHookshotDynamicLinkLibraryFilename());
+
+        static const TStdString kStrHookshotExecutableFilenameImpl(GetHookshotExecutableFilename());
+
+        static const TStdString kStrHookshotExecutableOtherArchitectureFilenameImpl(GetHookshotExecutableOtherArchitectureFilename());
+
+
+        // -------- RUN-TIME CONSTANTS ------------------------------------- //
+        // See "Strings.h" for documentation.
+
+        extern const TStdStringView kStrExecutableBaseName(kStrExecutableBaseNameImpl);
+
+        extern const TStdStringView kStrExecutableDirectoryName(kStrExecutableDirectoryNameImpl);
+
+        extern const TStdStringView kStrHookshotConfigurationFilename(kStrHookshotConfigurationFilenameImpl);
+
+        extern const TStdStringView kStrHookshotDynamicLinkLibraryFilename(kStrHookshotDynamicLinkLibraryFilenameImpl);
+
+        extern const TStdStringView kStrHookshotExecutableFilename(kStrHookshotExecutableFilenameImpl);
+
+        extern const TStdStringView kStrHookshotExecutableOtherArchitectureFilename(kStrHookshotExecutableOtherArchitectureFilenameImpl);
+
+
         
-        bool FillHookModuleFilename(const TCHAR* const moduleName, TCHAR* const buf, const size_t numchars)
-        {
-            if (false == FillExecutableDirectoryName(buf, numchars))
-                return false;
-
-            if (0 != _tcscat_s(buf, numchars, moduleName))
-                return false;
-
-            if (0 != _tcscat_s(buf, numchars, kStrHookModuleExtension))
-                return false;
-
-            return true;
-        }
-
-        // --------
+        // -------- FUNCTIONS ---------------------------------------------- //
+        // See "Strings.h" for documentation.
         
-        bool FillHookModuleFilenameUnique(TCHAR* const buf, const size_t numchars)
+        TStdString GetHookModuleFilename(TStdStringView moduleName)
         {
-            GetModuleFileName(NULL, buf, (DWORD)numchars);
-
-            if (0 != _tcscat_s(buf, numchars, kStrHookModuleExtension))
-                return false;
-            
-            return true;
-        }
-
-        // --------
-
-        bool FillHookModuleFilenameCommon(TCHAR* const buf, const size_t numchars)
-        {
-            if (false == FillExecutableDirectoryName(buf, numchars))
-                return false;
-
-            if (0 != _tcscat_s(buf, numchars, _T("Common")))
-                return false;
-
-            if (0 != _tcscat_s(buf, numchars, kStrHookModuleExtension))
-                return false;
-            
-            return true;
-        }
-
-        // --------
-
-        bool FillHookshotConfigurationFilename(TCHAR* const buf, const size_t numchars)
-        {
-            if (false == FillExecutableDirectoryName(buf, numchars))
-                return false;
-
-            TemporaryBuffer<TCHAR> hookshotBasePath;
-            if (0 == FillHookshotBasePath(hookshotBasePath, hookshotBasePath.Count()))
-                return false;
-
-            TCHAR* hookshotBaseName = _tcsrchr(hookshotBasePath, _T('\\'));
-            if (NULL == hookshotBaseName)
-                hookshotBaseName = hookshotBasePath;
-            else
-                hookshotBaseName += 1;
-
-            if (0 != _tcscat_s(buf, numchars, hookshotBaseName))
-                return false;
-
-            if (0 != _tcscat_s(buf, numchars, kStrHookshotConfigurationFileExtension))
-                return false;
-
-            return true;
-        }
-
-        // --------
-
-        bool FillHookshotDynamicLinkLibraryFilename(TCHAR* const buf, const size_t numchars)
-        {
-            return FillHookshotFilename(buf, numchars, kStrHookshotDynamicLinkLibraryExtension, kLenHookshotDynamicLinkLibraryExtension);
-        }
-
-        // --------
-
-        bool FillHookshotExecutableFilename(TCHAR* const buf, const size_t numchars)
-        {
-            return FillHookshotFilename(buf, numchars, kStrHookshotExecutableExtension, kLenHookshotExecutableExtension);
-        }
-
-        // --------
-
-        bool FillHookshotExecutableOtherArchitectureFilename(TCHAR* const buf, const size_t numchars)
-        {
-            return FillHookshotFilename(buf, numchars, kStrHookshotExecutableExtensionOtherArchitecture, kLenHookshotExecutableExtensionOtherArchitecture);
+            return kStrExecutableDirectoryNameImpl + moduleName.data() + kStrHookModuleExtension.data();
         }
     }
 }

@@ -13,6 +13,7 @@
 #include "RemoteProcessInjector.h"
 #include "Strings.h"
 #include "TemporaryBuffer.h"
+#include "UnicodeTypes.h"
 
 
 namespace Hookshot
@@ -25,23 +26,12 @@ namespace Hookshot
         // Obtain the name of the Hookshot executable to spawn.
         // Hold both the application name and the command-line arguments, enclosing the application name in quotes.
         // At most the argument needs to represent a 64-bit integer in hexadecimal, so two characters per byte, plus a space, an indicator character and a null character.
+        const TStdStringView kExecutableFileName = (switchArchitecture ? Strings::kStrHookshotExecutableOtherArchitectureFilename : Strings::kStrHookshotExecutableFilename);
         const size_t kExecutableArgumentMaxCount = 3 + (2 * sizeof(uint64_t));
-        TemporaryBuffer<TCHAR> executableCommandLine;
-        executableCommandLine[0] = _T('\"');
+        const size_t kExecutableCommandLineMaxCount = 3 + kExecutableFileName.length() + kExecutableArgumentMaxCount;
 
-        if (true == switchArchitecture)
-        {
-            if (false == Strings::FillHookshotExecutableOtherArchitectureFilename(&executableCommandLine[1], executableCommandLine.Count()))
-                return EInjectResult::InjectResultErrorCannotGenerateExecutableFilename;
-        }
-        else
-        {
-            if (false == Strings::FillHookshotExecutableFilename(&executableCommandLine[1], executableCommandLine.Count()))
-                return EInjectResult::InjectResultErrorCannotGenerateExecutableFilename;
-        }
-
-        const size_t kExecutableFileNameLength = _tcslen(executableCommandLine) + 1;
-        executableCommandLine[kExecutableFileNameLength - 1] = _T('\"');
+        TStdStringStream executableCommandLine;
+        executableCommandLine << _T('\"') << kExecutableFileName << _T('\"');
 
         // Create an anonymous file mapping object backed by the system paging file, and ensure it can be inherited by child processes.
         // This has the effect of creating an anonymous shared memory object.
@@ -61,9 +51,12 @@ namespace Hookshot
         if (NULL == sharedInfo)
             return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
 
-        // Generate the command-line argument to pass to the new Hookshot instance.
-        // At most we need to represent a 64-bit integer in hexadecimal, so two characters per byte, plus an indicator character and a null character.
-        _stprintf_s(&executableCommandLine[kExecutableFileNameLength], kExecutableArgumentMaxCount, _T(" |%llx"), (uint64_t)sharedMemoryHandle);
+        // Append the command-line argument to pass to the new Hookshot instance and convert to a mutable string, as required by CreateProcess.
+        executableCommandLine << _T(' ') << Strings::kCharCmdlineIndicatorFileMappingHandle << std::hex << (uint64_t)sharedMemoryHandle;
+        
+        TemporaryBuffer<TCHAR> executableCommandLineMutableString;
+        if (0 != _tcscpy_s(executableCommandLineMutableString, executableCommandLineMutableString.Count(), executableCommandLine.str().c_str()))
+            return EInjectResult::InjectResultErrorCannotGenerateExecutableFilename;
 
         // Create the new instance of Hookshot.
         STARTUPINFO startupInfo;
@@ -71,7 +64,7 @@ namespace Hookshot
         memset((void*)&startupInfo, 0, sizeof(startupInfo));
         memset((void*)&processInfo, 0, sizeof(processInfo));
 
-        if (FALSE == CreateProcess(NULL, executableCommandLine, NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, NULL, &startupInfo, &processInfo))
+        if (FALSE == CreateProcess(NULL, executableCommandLineMutableString, NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, NULL, &startupInfo, &processInfo))
             return EInjectResult::InjectResultErrorCreateHookshotProcessFailed;
 
         // Fill in the required inputs to the new instance of Hookshot.

@@ -59,7 +59,7 @@ namespace Hookshot
             return false;
         }
 
-        const THookModuleInitProc initProc = (THookModuleInitProc)GetProcAddress(hookModule, Strings::kStrHookLibraryInitFuncName);
+        const THookModuleInitProc initProc = (THookModuleInitProc)GetProcAddress(hookModule, Strings::kStrHookLibraryInitFuncName.data());
 
         if (NULL == initProc)
         {

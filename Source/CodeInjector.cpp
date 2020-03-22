@@ -325,24 +325,17 @@ namespace Hookshot
             injectData.injectionResultCodeInitializationFailed = EInjectResult::InjectResultErrorLibraryInitFailed;
             injectData.injectionResult = EInjectResult::InjectResultFailure;
 
-            strcpy_s(injectDataStrings, Strings::kStrLibraryInitializationProcName);
+            strcpy_s(injectDataStrings, Strings::kStrLibraryInitializationProcName.data());
 
 #ifdef UNICODE
-            {
-                TemporaryBuffer<wchar_t> dynamicLibraryName;
-
-                if (false == Strings::FillHookshotDynamicLinkLibraryFilename(dynamicLibraryName, dynamicLibraryName.Count()))
-                    return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
-
-                if (0 != wcstombs_s(NULL, &injectDataStrings[Strings::kLenLibraryInitializationProcName], sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 1, dynamicLibraryName, sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 2))
-                    return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
-            }
+            if (0 != wcstombs_s(NULL, &injectDataStrings[Strings::kStrLibraryInitializationProcName.length() + 1], sizeof(injectDataStrings) - (Strings::kStrLibraryInitializationProcName.length() + 1) - 1, Strings::kStrHookshotDynamicLinkLibraryFilename.data(), sizeof(injectDataStrings) - (Strings::kStrLibraryInitializationProcName.length() + 1) - 2))
+                return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
 #else
             if (false == Strings::FillHookshotDynamicLinkLibraryFilename(&injectDataStrings[Strings::kLenLibraryInitializationProcName], sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 1))
                 return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
 #endif
 
-            injectData.strLibraryName = (const char*)((size_t)baseAddressData + sizeof(injectData) + Strings::kLenLibraryInitializationProcName);
+            injectData.strLibraryName = (const char*)((size_t)baseAddressData + sizeof(injectData) + (Strings::kStrLibraryInitializationProcName.length() + 1));
             injectData.strProcName = (const char*)((size_t)baseAddressData + sizeof(injectData));
             
             // Figure out which addresses need to be cleaned up.

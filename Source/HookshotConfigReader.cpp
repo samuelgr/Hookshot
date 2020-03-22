@@ -54,13 +54,7 @@ namespace Hookshot
     {
         if (false == configurationFileLayoutIsComplete)
         {
-            TemporaryBuffer<TCHAR> executableBaseName;
-            if (false == Strings::FillExecutableBaseName(executableBaseName, executableBaseName.Count()))
-                return;
-
-            executableSpecificSectionName = executableBaseName;
-            
-            configurationFileLayout.insert(ConfigurationFileLayoutSection(executableSpecificSectionName, kExecutableScopeSectionLayout));
+            configurationFileLayout.insert(ConfigurationFileLayoutSection(Strings::kStrExecutableBaseName, kExecutableScopeSectionLayout));
             configurationFileLayoutIsComplete = true;
         }
     }
