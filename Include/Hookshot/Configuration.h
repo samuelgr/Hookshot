@@ -42,9 +42,12 @@ namespace Hookshot
         enum class EValueType
         {
             Error,                                                          ///< Combination of section and name pair is not supported.
-            Integer,                                                        ///< Combination of section and name pair is supported; value is an integer.
-            Boolean,                                                        ///< Combination of section and name pair is supported; value is a Boolean.
-            String,                                                         ///< Combination of section and name pair is supported; value is a string.
+            Integer,                                                        ///< Combination of section and name pair is supported; value is a single integer.
+            Boolean,                                                        ///< Combination of section and name pair is supported; value is a single Boolean.
+            String,                                                         ///< Combination of section and name pair is supported; value is a single string.
+            IntegerMultiValue,                                              ///< Combination of section and name pair is supported; value is integer and multiple values are allowed.
+            BooleanMultiValue,                                              ///< Combination of section and name pair is supported; value is Boolean and multiple values are allowed.
+            StringMultiValue,                                               ///< Combination of section and name pair is supported; value is string and multiple values are allowed.
         };
 
         /// Underlying type used for storing integer-typed values.
@@ -259,6 +262,14 @@ namespace Hookshot
         public:
             // -------- INSTANCE METHODS ----------------------------------- //
 
+            /// Allows read-only access to the first stored value.
+            /// Useful for single-valued settings.
+            /// @return First stored value.
+            inline const Value& FirstValue(void) const
+            {
+                return *(values.begin());
+            }
+            
             /// Stores a new value for the configuration setting represented by this object.
             /// Will fail if the value already exists.
             /// @tparam ValueType Type of value to insert.
@@ -323,7 +334,7 @@ namespace Hookshot
                 return nameIterator->second.Insert(value);
             }
 
-            /// Allows read-only access to individual configuration settings by name, with bounds checking.
+            /// Allows read-only access to individual configuration settings by name, without bounds checking.
             /// @param [in] name Name of the configuration setting to retrieve.
             /// @return Reference to the desired configuration setting.
             inline const Name& NameByName(std::wstring_view name) const
@@ -426,7 +437,7 @@ namespace Hookshot
                 return sectionIterator->second.Insert(name, value);
             }
 
-            /// Allows read-only access to individual sections by name, with bounds checking.
+            /// Allows read-only access to individual sections by name, without bounds checking.
             /// @param [in] section Name of the section to retrieve.
             /// @return Reference to the desired section.
             inline const Section& SectionByName(std::wstring_view section) const
@@ -447,6 +458,19 @@ namespace Hookshot
             inline bool SectionExists(std::wstring_view section) const
             {
                 return (0 != sections.count(section));
+            }
+
+            /// Determines if a configuration setting of the specified name exists in the specified section.
+            /// @param [in] name Section name to check.
+            /// @param [in] name Name of the configuration setting to check.
+            /// @return `true` if the setting exists, `false` otherwise.
+            inline bool SectionNamePairExists(std::wstring_view section, std::wstring_view name) const
+            {
+                auto sectionIterator = sections.find(section);
+                if (sections.end() == sectionIterator)
+                    return false;
+
+                return sectionIterator->second.NameExists(name);
             }
 
             /// Allows read-only access to all sections.

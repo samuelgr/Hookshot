@@ -50,26 +50,9 @@ extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const 
 
     if (true == LibraryInterface::IsConfigurationDataValid())
     {
-        auto hookModulesToLoad = LibraryInterface::GetConfigurationData().SectionsWithName(Strings::kStrConfigurationSettingNameHookModule);
-        int numHookModulesLoaded = 0;
-        
-        for (auto& sectionsWithHookModules : *hookModulesToLoad)
-        {
-            for (auto& hookModule : sectionsWithHookModules.name.Values())
-            {
-                if (Configuration::EValueType::String != hookModule.GetType())
-                {
-                    Message::Output(EMessageSeverity::MessageSeverityError, L"Internal error while loading hook modules.");
-                    return;
-                }
-
-                if (true == LibraryInterface::LoadHookModule(Strings::MakeHookModuleFilename(hookModule.GetStringValue())))
-                    numHookModulesLoaded += 1;
-            }
-        }
-
-        if (0 == numHookModulesLoaded)
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, L"No hook modules are loaded; no hooks have been set for process \"%s\" (PID %d).", Strings::kStrExecutableBaseName.data(), GetProcessId(GetCurrentProcess()));
+        const int numHookModulesLoaded = LibraryInterface::LoadConfiguredHookModules();
+        const int numInjectOnlyLibrariesLoaded = LibraryInterface::LoadConfiguredInjectOnlyLibraries();
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"Loaded %d hook module%s and %d injection-only librar%s.", numHookModulesLoaded, (1 == numHookModulesLoaded ? L"" : L"s"), numInjectOnlyLibrariesLoaded, (1 == numInjectOnlyLibrariesLoaded ? L"y" : L"ies"));
     }
     else
     {

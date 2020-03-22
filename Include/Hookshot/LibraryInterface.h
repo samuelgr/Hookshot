@@ -46,6 +46,9 @@ namespace Hookshot
 
         // -------- CLASS METHODS ------------------------------------------ //
 
+        /// Enables the log, if it is configured in the configuration file.
+        static void EnableLogIfConfigured(void);
+        
         /// Retrieves the Hookshot configuration data object.
         /// Only useful if #IsConfigurationDataValid returns `true`.
         static inline const Configuration::ConfigurationData& GetConfigurationData(void)
@@ -78,11 +81,24 @@ namespace Hookshot
         {
             return configuration.IsDataValid();
         }
-        
+
+        /// Attempts to load and initialize the hook modules named in the Hookshot configuration file.
+        /// @return Number of hook modules successfully loaded.
+        static int LoadConfiguredHookModules(void);
+
+        /// Attempts to load and initialize the inject-only libraries named in the Hookshot configuration file.
+        /// @return Number of inject-only libraries successfully loaded.
+        static int LoadConfiguredInjectOnlyLibraries(void);
+
         /// Attempts to load and initialize the named hook module.
         /// Useful if hooks to be set are contained in an external hook module.
         /// @param [in] hookModuleFileName File name of the hook module to load and initialize.
         /// @return `true` on success, `false` on failure.
         static bool LoadHookModule(std::wstring_view hookModuleFileName);
+
+        /// Attempts to load the specified library, which is not to be treated as a hook module.
+        /// @param [in] injectOnlyLibraryFileName File name of library to load.
+        /// @return `true` on success, `false` on failure.
+        static bool LoadInjectOnlyLibrary(std::wstring_view injectOnlyLibraryFileName);
     };
 }

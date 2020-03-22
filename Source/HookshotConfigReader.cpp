@@ -24,17 +24,14 @@ namespace Hookshot
 {
     // -------- INTERNAL VARIABLES ----------------------------------------- //
     
-    /// Holds the layout of executable-scoped sections of a Hookshot configuration file.
-    /// Hookshot supports a directory-wide section that applies to all contained executables and an executable-specific section.
-    /// In both cases the supported settings are the same, and the layout of each such section is captured here.
-    static const Configuration::TConfigurationFileSectionLayout kExecutableScopeSectionLayout = {
-        ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameHookModule, Configuration::EValueType::String),
-    };
-    
     /// Holds the layout of the Hookshot configuration file that is known statically.
     /// At compile time, this encompasses all settings except for the dynamically-determined section whose name matches the file name of the currently-running executable, which is filled in at runtime.
     static Configuration::TConfigurationFileLayout configurationFileLayout = {
-        ConfigurationFileLayoutSection(Configuration::ConfigurationData::kSectionNameGlobal, kExecutableScopeSectionLayout),
+        ConfigurationFileLayoutSection(Configuration::ConfigurationData::kSectionNameGlobal, {
+            ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameHookModule, Configuration::EValueType::StringMultiValue),
+            ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameInject, Configuration::EValueType::StringMultiValue),
+            ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameLogLevel, Configuration::EValueType::Integer),
+        }),
     };
 
     /// Holds the section name for the per-executable settings.
@@ -54,7 +51,11 @@ namespace Hookshot
     {
         if (false == configurationFileLayoutIsComplete)
         {
-            configurationFileLayout.insert(ConfigurationFileLayoutSection(Strings::kStrExecutableBaseName, kExecutableScopeSectionLayout));
+            configurationFileLayout.insert(ConfigurationFileLayoutSection(Strings::kStrExecutableBaseName, {
+                ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameHookModule, Configuration::EValueType::StringMultiValue),
+                ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameInject, Configuration::EValueType::StringMultiValue),
+            }));
+
             configurationFileLayoutIsComplete = true;
         }
     }
@@ -75,15 +76,13 @@ namespace Hookshot
 
     bool HookshotConfigReader::CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TIntegerValue& value)
     {
-        // No integer values are currently supported.
-        return false;
+        return (value >= 0);
     }
 
     // --------
 
     bool HookshotConfigReader::CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TBooleanValue& value)
     {
-        // No Boolean values are currently supported.
         return false;
     }
 

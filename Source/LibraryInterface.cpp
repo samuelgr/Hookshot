@@ -39,6 +39,22 @@ namespace Hookshot
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "LibraryInterface.h" for documentation.
 
+    void LibraryInterface::EnableLogIfConfigured(void)
+    {
+        if (true == IsConfigurationDataValid())
+        {
+            if (true == GetConfigurationData().SectionNamePairExists(Configuration::ConfigurationData::kSectionNameGlobal, Strings::kStrConfigurationSettingNameLogLevel))
+            {
+                const EMessageSeverity configuredSeverity = (EMessageSeverity)(GetConfigurationData().SectionByName(Configuration::ConfigurationData::kSectionNameGlobal).NameByName(Strings::kStrConfigurationSettingNameLogLevel).FirstValue().GetIntegerValue() + EMessageSeverity::MessageSeverityForcedInteractiveBoundaryValue + 1);
+                
+                Message::CreateAndEnableLogFile();
+                Message::SetMinimumSeverityForOutput(configuredSeverity);
+            }
+        }
+    }
+
+    // --------
+    
     void LibraryInterface::Initialize(void)
     {
         static bool isInitialized = false;
@@ -50,8 +66,56 @@ namespace Hookshot
             if (false == IsConfigurationDataValid())
                 configuration.ReadConfigurationFile(Strings::kStrHookshotConfigurationFilename);
 
+            EnableLogIfConfigured();
+
             isInitialized = true;
         }
+    }
+
+    // --------
+
+    int LibraryInterface::LoadConfiguredHookModules(void)
+    {
+        int numHookModulesLoaded = 0;
+
+        if (true == IsConfigurationDataValid())
+        {
+            auto hookModulesToLoad = GetConfigurationData().SectionsWithName(Strings::kStrConfigurationSettingNameHookModule);
+
+            for (auto& sectionsWithHookModules : *hookModulesToLoad)
+            {
+                for (auto& hookModule : sectionsWithHookModules.name.Values())
+                {
+                    if (true == LoadHookModule(Strings::MakeHookModuleFilename(hookModule.GetStringValue())))
+                        numHookModulesLoaded += 1;
+                }
+            }
+        }
+
+        return numHookModulesLoaded;
+    }
+
+    // --------
+
+    int LibraryInterface::LoadConfiguredInjectOnlyLibraries(void)
+    {
+        int numInjectOnlyLibrariesLoaded = 0;
+
+        if (true == IsConfigurationDataValid())
+        {
+            auto injectOnlyLibrariesToLoad = GetConfigurationData().SectionsWithName(Strings::kStrConfigurationSettingNameInject);
+
+            for (auto& sectionsWithInjectOnlyLibraries : *injectOnlyLibrariesToLoad)
+            {
+                for (auto& injectOnlyLibrary : sectionsWithInjectOnlyLibraries.name.Values())
+                {
+                    if (true == LoadInjectOnlyLibrary(injectOnlyLibrary.GetStringValue()))
+                        numInjectOnlyLibrariesLoaded += 1;
+                }
+            }
+        }
+
+        return numInjectOnlyLibrariesLoaded;
     }
 
     // --------
@@ -78,6 +142,23 @@ namespace Hookshot
         initProc(GetHookConfigInterface());
 
         Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"%s - Successfully loaded hook module.", hookModuleFileName.data());
+        return true;
+    }
+
+    // --------
+
+    bool LibraryInterface::LoadInjectOnlyLibrary(std::wstring_view injectOnlyLibraryFileName)
+    {
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"%s - Attempting to load library.", injectOnlyLibraryFileName.data());
+        const HMODULE hookModule = LoadLibrary(injectOnlyLibraryFileName.data());
+
+        if (NULL == hookModule)
+        {
+            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, L"%s - Failed to load library (system error %d).", injectOnlyLibraryFileName.data(), GetLastError());
+            return false;
+        }
+
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"%s - Successfully loaded library.", injectOnlyLibraryFileName.data());
         return true;
     }
 }
