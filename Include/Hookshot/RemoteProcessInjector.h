@@ -26,6 +26,7 @@ namespace Hookshot
     {
         uint64_t processHandle;                                     ///< Handle of the process to inject, as a 64-bit integer.  Must be valid for the instance of Hookshot that performs the injection.
         uint64_t threadHandle;                                      ///< Handle of the main thread in the process to inject, as a 64-bit integer.  Must be valid for the instance of Hookshot that performs the injection.
+        bool enableDebugFeatures;                                   ///< If `true`, signals to the injected process that a debugger is present, so certain debug features should be enabled.
         uint64_t injectionResult;                                   ///< EInjectionResult value, as a 64-bit integer.  Indicates the result of the injection attempt.
         uint64_t extendedInjectionResult;                           ///< Extended injection result, as a 64-bit integer.
     };
@@ -48,6 +49,6 @@ namespace Hookshot
         /// @param [in] threadHandle Handle to the main thread of the process to inject.
         /// @param [in] switchArchitecture If `true`, specifies that the injection must cross a processor architecture boundary (i.e. 32-bit -> 64-bit or vice versa).
         /// @return Indictor of the result of the operation.
-        static EInjectResult RemoteInjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool switchArchitecture);
+        static EInjectResult RemoteInjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool switchArchitecture, const bool enableDebugFeatures);
     };
 }

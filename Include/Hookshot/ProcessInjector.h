@@ -73,8 +73,9 @@ namespace Hookshot
         /// Attempts to inject a process with Hookshot code.
         /// @param [in] processHandle Handle to the process to inject.
         /// @param [in] threadHandle Handle to the main thread of the process to inject.
+        /// @param [in] enableDebugFeatures If `true`, signals to the injected process that a debugger is present, so certain debug features should be enabled.
         /// @return Indictor of the result of the operation.
-        static EInjectResult InjectProcess(const HANDLE processHandle, const HANDLE threadHandle);
+        static EInjectResult InjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool enableDebugFeatures);
 
         /// Injects a process created by another instance of Hookshot.
         /// Communication between instances occurs by means of shared memory using the handle passed in, including more detailed error information than is directly returned.

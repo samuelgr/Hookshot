@@ -57,7 +57,7 @@ namespace Hookshot
         *lpProcessInformation = processInfo;
 
         // Attempt to inject the newly-created process and handle the result.
-        return HandleInjectionResult(InjectProcess(processInfo.hProcess, processInfo.hThread), shouldCreateSuspended, processInfo.hProcess, processInfo.hThread);
+        return HandleInjectionResult(InjectProcess(processInfo.hProcess, processInfo.hThread, (IsDebuggerPresent() ? true : false)), shouldCreateSuspended, processInfo.hProcess, processInfo.hThread);
     }
 
     // --------
@@ -76,12 +76,12 @@ namespace Hookshot
         *lpProcessInformation = processInfo;
 
         // Attempt to inject the newly-created process and handle the result.
-        return HandleInjectionResult(InjectProcess(processInfo.hProcess, processInfo.hThread), shouldCreateSuspended, processInfo.hProcess, processInfo.hThread);
+        return HandleInjectionResult(InjectProcess(processInfo.hProcess, processInfo.hThread, (IsDebuggerPresent() ? true : false)), shouldCreateSuspended, processInfo.hProcess, processInfo.hThread);
     }
 
     // --------
 
-    EInjectResult ProcessInjector::InjectProcess(const HANDLE processHandle, const HANDLE threadHandle)
+    EInjectResult ProcessInjector::InjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool enableDebugFeatures)
     {
         // First make sure the architectures match between this process and the process being injected.
         // If not, spawn a version of Hookshot that does match and request that it inject the process on behalf of this process.
@@ -93,7 +93,7 @@ namespace Hookshot
             break;
 
         case EInjectResult::InjectResultErrorArchitectureMismatch:
-            return RemoteProcessInjector::RemoteInjectProcess(processHandle, threadHandle, true);
+            return RemoteProcessInjector::RemoteInjectProcess(processHandle, threadHandle, true, enableDebugFeatures);
 
         default:
             return operationResult;
@@ -139,7 +139,7 @@ namespace Hookshot
         // Inject code and data.
         // Only mark the code buffer as requiring cleanup because both code and data buffers are from the same single allocation.
         CodeInjector injector(injectedCodeBase, injectedDataBase, true, false, processEntryPoint, kEffectiveInjectRegionSize, kEffectiveInjectRegionSize, processHandle, threadHandle);
-        operationResult = injector.SetAndRun();
+        operationResult = injector.SetAndRun(enableDebugFeatures);
 
         return operationResult;
     }
@@ -148,7 +148,7 @@ namespace Hookshot
 
     bool ProcessInjector::PerformRequestedRemoteInjection(SRemoteProcessInjectionData* const remoteInjectionData)
     {
-        EInjectResult operationResult = ProcessInjector::InjectProcess((HANDLE)remoteInjectionData->processHandle, (HANDLE)remoteInjectionData->threadHandle);
+        EInjectResult operationResult = ProcessInjector::InjectProcess((HANDLE)remoteInjectionData->processHandle, (HANDLE)remoteInjectionData->threadHandle, remoteInjectionData->enableDebugFeatures);
 
         remoteInjectionData->injectionResult = (uint64_t)operationResult;
         remoteInjectionData->extendedInjectionResult = (uint64_t)GetLastError();

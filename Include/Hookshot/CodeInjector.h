@@ -101,8 +101,9 @@ namespace Hookshot
         /// Sets the injected code into the injected process and runs it upon completion.
         /// Performs the actual operations of copying over code to the right locations and then executing it.
         /// Upon successful completion, the main thread of the injected process will be suspended and, once resumed, will return control to the entry point specified at construction time.
+        /// @param [in] enableDebugFeatures If `true`, signals to the injected process that a debugger is present, so certain debug features should be enabled.
         /// @return Indicator of the result of the operation.
-        EInjectResult SetAndRun(void);
+        EInjectResult SetAndRun(const bool enableDebugFeatures);
 
 
     private:
@@ -138,8 +139,9 @@ namespace Hookshot
         EInjectResult Run(void);
 
         /// Sets the injected code into the injected process, performing all required operations.
+        /// @param [in] enableDebugFeatures If `true`, signals to the injected process that a debugger is present, so certain debug features should be enabled.
         /// @return Indictor of the result of the operation.
-        EInjectResult Set(void);
+        EInjectResult Set(const bool enableDebugFeatures);
 
         /// Returns the code region occupied by the trampoline to its original content.
         /// This is necessary to allow the injected process to execute as normal.

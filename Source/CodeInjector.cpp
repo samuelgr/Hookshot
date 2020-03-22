@@ -36,12 +36,12 @@ namespace Hookshot
     // -------- INSTANCE METHODS ------------------------------------------- //
     // See "CodeInjector.h" for documentation.
 
-    EInjectResult CodeInjector::SetAndRun(void)
+    EInjectResult CodeInjector::SetAndRun(const bool enableDebugFeatures)
     {
         EInjectResult result = Check();
 
         if (EInjectResult::InjectResultSuccess == result)
-            result = Set();
+            result = Set(enableDebugFeatures);
 
         if (EInjectResult::InjectResultSuccess == result)
             result = Run();
@@ -276,7 +276,7 @@ namespace Hookshot
 
     // --------
 
-    EInjectResult CodeInjector::Set(void)
+    EInjectResult CodeInjector::Set(const bool enableDebugFeatures)
     {
         SIZE_T numBytes = 0;
 
@@ -318,7 +318,7 @@ namespace Hookshot
             memset((void*)&injectData, 0, sizeof(injectData));
             memset((void*)&injectDataStrings, 0, sizeof(injectDataStrings));
 
-            injectData.isDebuggerAttached = (0 == IsDebuggerPresent() ? 0 : 1);
+            injectData.enableDebugFeatures = (true == enableDebugFeatures ? 1 : 0);
             injectData.injectionResultCodeSuccess = EInjectResult::InjectResultSuccess;
             injectData.injectionResultCodeLoadLibraryFailed = EInjectResult::InjectResultErrorCannotLoadLibrary;
             injectData.injectionResultCodeGetProcAddressFailed = EInjectResult::InjectResultErrorMalformedLibrary;

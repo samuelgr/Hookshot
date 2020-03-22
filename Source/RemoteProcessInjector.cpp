@@ -21,7 +21,7 @@ namespace Hookshot
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "RemoteProcessInjector.h" for documentation.
 
-    EInjectResult RemoteProcessInjector::RemoteInjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool switchArchitecture)
+    EInjectResult RemoteProcessInjector::RemoteInjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool switchArchitecture, const bool enableDebugFeatures)
     {
         // Obtain the name of the Hookshot executable to spawn.
         // Hold both the application name and the command-line arguments, enclosing the application name in quotes.
@@ -79,6 +79,7 @@ namespace Hookshot
 
         sharedInfo->processHandle = (uint64_t)duplicateProcessHandle;
         sharedInfo->threadHandle = (uint64_t)duplicateThreadHandle;
+        sharedInfo->enableDebugFeatures = enableDebugFeatures;
         sharedInfo->injectionResult = (uint64_t)EInjectResult::InjectResultFailure;
         sharedInfo->extendedInjectionResult = 0ull;
 
