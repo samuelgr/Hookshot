@@ -16,7 +16,9 @@
 
 #include <cstddef>
 #include <cstdlib>
+#include <intrin.h>
 #include <psapi.h>
+#include <shlobj.h>
 
 
 namespace Hookshot
@@ -48,6 +50,9 @@ namespace Hookshot
 
         /// File extension for a Hookshot configuration file.
         static constexpr TStdStringView kStrHookshotConfigurationFileExtension = _T(".ini");
+
+        /// File extension for a Hookshot log file.
+        static constexpr TStdStringView kStrHookshotLogFileExtension = _T(".log");
 
         /// File extension for all hook modules.
 #ifdef HOOKSHOT64
@@ -175,6 +180,33 @@ namespace Hookshot
             return GetExecutableDirectoryName() + GetHookshotBaseName() + kStrHookshotConfigurationFileExtension.data();
         }
 
+        /// Generates the value for #kStrHookshotLogFilename; see documentation of this run-time constant for more information.
+        /// @return Corresponding run-time constant value.
+        static TStdString GetHookshotLogFilename(void)
+        {
+            TStdStringStream logFilename;
+            
+            PWSTR knownFolderPath;
+            const HRESULT result = SHGetKnownFolderPath(FOLDERID_Desktop, 0, NULL, &knownFolderPath);
+
+            if (S_OK == result)
+            {
+#ifdef UNICODE
+                logFilename << knownFolderPath;
+#else
+                TemporaryBuffer<char> knownFolderPathConverted;
+                if (0 == wcstombs_s(NULL, knownFolderPathConverted, knownFolderPathConverted.Size(), knownFolderPath, knownFolderPathConverted.Size()))
+                    logFilename << knownFolderPathConverted;
+#endif
+                logFilename << _T('\\');
+                CoTaskMemFree(knownFolderPath);
+            }
+
+            logFilename << GetHookshotBaseName() << _T('_') << GetExecutableBaseName() << _T('_') << GetProcessId(GetCurrentProcess()) << kStrHookshotLogFileExtension;
+
+            return logFilename.str();
+        }
+
         /// Generates the value for #kStrHookshotDynamicLinkLibraryFilename; see documentation of this run-time constant for more information.
         /// @return coorresponding run-time constant value.
         static TStdString GetHookshotDynamicLinkLibraryFilename(void)
@@ -206,6 +238,8 @@ namespace Hookshot
 
         static const TStdString kStrHookshotConfigurationFilenameImpl(GetHookshotConfigurationFilename());
 
+        static const TStdString kStrHookshotLogFilenameImpl(GetHookshotLogFilename());
+
         static const TStdString kStrHookshotDynamicLinkLibraryFilenameImpl(GetHookshotDynamicLinkLibraryFilename());
 
         static const TStdString kStrHookshotExecutableFilenameImpl(GetHookshotExecutableFilename());
@@ -222,6 +256,8 @@ namespace Hookshot
 
         extern const TStdStringView kStrHookshotConfigurationFilename(kStrHookshotConfigurationFilenameImpl);
 
+        extern const TStdStringView kStrHookshotLogFilename(kStrHookshotLogFilenameImpl);
+        
         extern const TStdStringView kStrHookshotDynamicLinkLibraryFilename(kStrHookshotDynamicLinkLibraryFilenameImpl);
 
         extern const TStdStringView kStrHookshotExecutableFilename(kStrHookshotExecutableFilenameImpl);
@@ -233,7 +269,7 @@ namespace Hookshot
         // -------- FUNCTIONS ---------------------------------------------- //
         // See "Strings.h" for documentation.
         
-        TStdString GetHookModuleFilename(TStdStringView moduleName)
+        TStdString MakeHookModuleFilename(TStdStringView moduleName)
         {
             return kStrExecutableDirectoryNameImpl + moduleName.data() + kStrHookModuleExtension.data();
         }

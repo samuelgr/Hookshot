@@ -80,9 +80,13 @@ namespace Hookshot
         extern const TStdStringView kStrExecutableDirectoryName;
 
         /// Expected filename of a Hookshot configuration file.
-        /// Hookshot configuration filename = (executable directory)\(base name of this Hookshot DLL).ini
+        /// Hookshot configuration filename = (executable directory)\(base name of this form of Hookshot).ini
         /// For example, C:\PathToExecutable\Executable.exe -> C:\PathToExecutable\Hookshot.ini, using Hookshot's default filenames.
         extern const TStdStringView kStrHookshotConfigurationFilename;
+
+        /// Expected filename for the log file.
+        /// Hookshot log filename = (current user's desktop)\(base name of this form of Hookshot)_(base name of the running executable)_(process ID).log
+        extern const TStdStringView kStrHookshotLogFilename;
 
         /// Expected filename of the dynamic-link library form of Hookshot.
         extern const TStdStringView kStrHookshotDynamicLinkLibraryFilename;
