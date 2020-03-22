@@ -29,6 +29,8 @@ using namespace Hookshot;
 /// @return `TRUE` if this function successfully initialized or uninitialized this library, `FALSE` otherwise.
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
 {
+    Globals::SetHookshotLoadMethod(EHookshotLoadMethod::Executed);
+
     if (2 != __argc)
     {
         Message::Output(EMessageSeverity::MessageSeverityError, L"This program requires exactly one argument that specifies command-line of the executable to run and inject.");

@@ -13,6 +13,7 @@
 #include "Globals.h"
 #include "InjectLanding.h"
 #include "LibraryInterface.h"
+#include "Message.h"
 
 using namespace Hookshot;
 
@@ -55,7 +56,12 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvRe
 /// @return Address to which to jump to continue running the injected process, or `NULL` on failure.
 extern "C" __declspec(dllexport) void* __stdcall HookshotInjectInitialize(void)
 {
+    Globals::SetHookshotLoadMethod(EHookshotLoadMethod::Injected);
     LibraryInterface::Initialize();
+
+    if (false == LibraryInterface::IsConfigurationDataValid())
+        Message::Output(EMessageSeverity::MessageSeverityError, LibraryInterface::GetConfigurationErrorMessage().data());
+
     return (void*)InjectLanding;
 }
 
@@ -63,6 +69,11 @@ extern "C" __declspec(dllexport) void* __stdcall HookshotInjectInitialize(void)
 /// Part of the external Hookshot API.  See "Hookshot.h" for documentation.
 __declspec(dllexport) IHookConfig* __stdcall HookshotLibraryInitialize(void)
 {
+    Globals::SetHookshotLoadMethod(EHookshotLoadMethod::LibraryLoaded);
     LibraryInterface::Initialize();
+
+    if (false == LibraryInterface::IsConfigurationDataValid())
+        Message::Output(EMessageSeverity::MessageSeverityWarning, LibraryInterface::GetConfigurationErrorMessage().data());
+
     return LibraryInterface::GetHookConfigInterface();
 }

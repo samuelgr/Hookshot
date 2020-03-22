@@ -75,6 +75,7 @@ namespace Hookshot
     {
         if (false == IsLogFileEnabled())
         {
+            // Open the log file.
             if (0 != _wfopen_s(&logFileHandle, Strings::kStrHookshotLogFilename.data(), L"w"))
             {
                 logFileHandle = NULL;
@@ -82,20 +83,20 @@ namespace Hookshot
                 return;
             }
 
-            // Log file header part 1: Hookshot product name.
+            // Output the log file header.
+            static constexpr std::wstring_view kLogHeaderSeparator = L"---------------------------------------------";
+
             TemporaryBuffer<wchar_t> hookshotProductName;
-            if (0 != LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, hookshotProductName, hookshotProductName.Count()))
-            {
-                fputws(hookshotProductName, logFileHandle);
-                fputws(L" Log\n", logFileHandle);
-            }
+            if (0 == LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, hookshotProductName, hookshotProductName.Count()))
+                hookshotProductName[0] = L'\0';
 
-            // Log file header part 2: Executable file name.
-            fputws(Strings::kStrExecutableCompleteFilename.data(), logFileHandle);
-            fputws(L"\n", logFileHandle);
-
-            // Log file header part 3: Separator
-            fputws(L"-------------------------\n", logFileHandle);
+            fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator.data());
+            fwprintf_s(logFileHandle, L"%s Log\n", (wchar_t*)hookshotProductName);
+            fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator.data());
+            fwprintf_s(logFileHandle, L"Method:    %s\n", Globals::GetHookshotLoadMethodString().data());
+            fwprintf_s(logFileHandle, L"Program:   %s\n", Strings::kStrExecutableCompleteFilename.data());
+            fwprintf_s(logFileHandle, L"PID:       %d\n", GetProcessId(GetCurrentProcess()));
+            fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator.data());
         }
     }
 

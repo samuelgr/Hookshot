@@ -45,10 +45,18 @@ namespace Hookshot
         {
             if (true == GetConfigurationData().SectionNamePairExists(Configuration::ConfigurationData::kSectionNameGlobal, Strings::kStrConfigurationSettingNameLogLevel))
             {
-                const EMessageSeverity configuredSeverity = (EMessageSeverity)(GetConfigurationData().SectionByName(Configuration::ConfigurationData::kSectionNameGlobal).NameByName(Strings::kStrConfigurationSettingNameLogLevel).FirstValue().GetIntegerValue() + EMessageSeverity::MessageSeverityForcedInteractiveBoundaryValue + 1);
-                
-                Message::CreateAndEnableLogFile();
-                Message::SetMinimumSeverityForOutput(configuredSeverity);
+                const int64_t requestedSeverity = GetConfigurationData().SectionByName(Configuration::ConfigurationData::kSectionNameGlobal).NameByName(Strings::kStrConfigurationSettingNameLogLevel).FirstValue().GetIntegerValue();
+
+                // Map from the requested severity to the configured severity, such that increasing number means increased verbosity.
+                // Offset the requested severity by skipping over all the forced and boundary severity values.
+                // Resulting mapping: 0 = disabled, 1 = error, 2 = warning, 3 = debug, etc.
+                if (requestedSeverity > 0)
+                {
+                    const EMessageSeverity configuredSeverity = (EMessageSeverity)(requestedSeverity + EMessageSeverity::MessageSeverityForcedInteractiveBoundaryValue);
+
+                    Message::CreateAndEnableLogFile();
+                    Message::SetMinimumSeverityForOutput(configuredSeverity);
+                }
             }
         }
     }

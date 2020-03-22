@@ -29,12 +29,15 @@ namespace Hookshot
         /// Handle of the instance that represents the running form of Hookshot.
         HINSTANCE gInstanceHandle;
 
+        /// Method by which Hookshot was loaded into the current process.
+        EHookshotLoadMethod gLoadMethod;
+
 
     private:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
         /// Default constructor.  Objects cannot be constructed externally.
-        GlobalData(void)
+        GlobalData(void) : gInstanceHandle(NULL), gLoadMethod(EHookshotLoadMethod::Executed)
         {
             GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)&GlobalData::GetInstance, &gInstanceHandle);
         }
@@ -59,9 +62,42 @@ namespace Hookshot
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "Globals.h" for documentation.
 
+    EHookshotLoadMethod Globals::GetHookshotLoadMethod(void)
+    {
+        return GlobalData::GetInstance().gLoadMethod;
+    }
+
+    // --------
+
+    std::wstring_view Globals::GetHookshotLoadMethodString(void)
+    {
+        switch (GlobalData::GetInstance().gLoadMethod)
+        {
+        case EHookshotLoadMethod::Executed:
+            return L"EXECUTED";
+
+        case EHookshotLoadMethod::Injected:
+            return L"INJECTED";
+
+        case EHookshotLoadMethod::LibraryLoaded:
+            return L"LIBRARY_LOADED";
+
+        default:
+            return L"UNKNOWN";
+        }
+    }
+
+    // --------
+
     HINSTANCE Globals::GetInstanceHandle(void)
     {
-        GlobalData& data = GlobalData::GetInstance();
-        return data.gInstanceHandle;
+        return GlobalData::GetInstance().gInstanceHandle;
+    }
+
+    // --------
+
+    void Globals::SetHookshotLoadMethod(const EHookshotLoadMethod loadMethod)
+    {
+        GlobalData::GetInstance().gLoadMethod = loadMethod;
     }
 }

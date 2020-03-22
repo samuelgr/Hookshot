@@ -54,8 +54,4 @@ extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const 
         const int numInjectOnlyLibrariesLoaded = LibraryInterface::LoadConfiguredInjectOnlyLibraries();
         Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"Loaded %d hook module%s and %d injection-only librar%s.", numHookModulesLoaded, (1 == numHookModulesLoaded ? L"" : L"s"), numInjectOnlyLibrariesLoaded, (1 == numInjectOnlyLibrariesLoaded ? L"y" : L"ies"));
     }
-    else
-    {
-        Message::Output(EMessageSeverity::MessageSeverityError, LibraryInterface::GetConfigurationErrorMessage().data());
-    }
 }
