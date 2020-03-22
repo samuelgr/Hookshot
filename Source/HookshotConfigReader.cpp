@@ -28,7 +28,7 @@ namespace Hookshot
     /// Hookshot supports a directory-wide section that applies to all contained executables and an executable-specific section.
     /// In both cases the supported settings are the same, and the layout of each such section is captured here.
     static const Configuration::TConfigurationFileSectionLayout kExecutableScopeSectionLayout = {
-        ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigFileNameHookModule, Configuration::EValueType::String),
+        ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameHookModule, Configuration::EValueType::String),
     };
     
     /// Holds the layout of the Hookshot configuration file that is known statically.

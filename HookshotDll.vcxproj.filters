@@ -45,9 +45,6 @@
     <ClCompile Include="Source\X86Instruction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\LibraryInitialize.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\RemoteProcessInjector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,6 +52,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\HookshotConfigReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\LibraryInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -109,9 +109,6 @@
     <ClInclude Include="Include\Hookshot\X86Instruction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\LibraryInitialize.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Hookshot\RemoteProcessInjector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -122,6 +119,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Hookshot\HookshotConfigReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Hookshot\LibraryInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

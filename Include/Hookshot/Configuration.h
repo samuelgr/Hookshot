@@ -586,7 +586,7 @@ namespace Hookshot
             // -------- CONSTRUCTION AND DESTRUCTION ----------------------- //
 
             /// Initialization constructor. Requires a reader at construction time.
-            inline Configuration(std::unique_ptr<ConfigurationFileReader> reader) : reader(std::move(reader))
+            inline Configuration(std::unique_ptr<ConfigurationFileReader> reader) : reader(std::move(reader)), configData(), settingsReadSuccessfully(false)
             {
                 // Nothing to do here.
             }

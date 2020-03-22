@@ -12,7 +12,7 @@
 #include "ApiWindows.h"
 #include "Globals.h"
 #include "InjectLanding.h"
-#include "LibraryInitialize.h"
+#include "LibraryInterface.h"
 
 using namespace Hookshot;
 
@@ -55,7 +55,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvRe
 /// @return Address to which to jump to continue running the injected process, or `NULL` on failure.
 extern "C" __declspec(dllexport) void* __stdcall HookshotInjectInitialize(void)
 {
-    LibraryInitialize::CommonInitialization();
+    LibraryInterface::Initialize();
     return (void*)InjectLanding;
 }
 
@@ -63,6 +63,6 @@ extern "C" __declspec(dllexport) void* __stdcall HookshotInjectInitialize(void)
 /// Part of the external Hookshot API.  See "Hookshot.h" for documentation.
 __declspec(dllexport) IHookConfig* __stdcall HookshotLibraryInitialize(void)
 {
-    LibraryInitialize::CommonInitialization();
-    return LibraryInitialize::GetHookConfigInterface();
+    LibraryInterface::Initialize();
+    return LibraryInterface::GetHookConfigInterface();
 }

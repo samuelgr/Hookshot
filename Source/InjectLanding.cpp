@@ -12,7 +12,7 @@
 
 #include "Globals.h"
 #include "Inject.h"
-#include "LibraryInitialize.h"
+#include "LibraryInterface.h"
 #include "Message.h"
 #include "Strings.h"
 #include "TemporaryBuffer.h"
@@ -48,15 +48,31 @@ extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const 
     if ((0 != injectData->enableDebugFeatures) && (0 == IsDebuggerPresent()))
         Message::OutputFormatted(EMessageSeverity::MessageSeverityForcedInfo, _T("Attach to \"%s\" (PID %d) to continue debugging."), Strings::kStrExecutableBaseName.data(), GetProcessId(GetCurrentProcess()));
 
-    // First, try the executable-specific hook module filename.
-    // Second, try the directory-common hook module filename.
-    // If both fail, there is no hook module to load.
+    if (true == LibraryInterface::IsConfigurationDataValid())
+    {
+        auto hookModulesToLoad = LibraryInterface::GetConfigurationData().SectionsWithName(Strings::kStrConfigurationSettingNameHookModule);
+        int numHookModulesLoaded = 0;
+        
+        for (auto& sectionsWithHookModules : *hookModulesToLoad)
+        {
+            for (auto& hookModule : sectionsWithHookModules.name.Values())
+            {
+                if (Configuration::EValueType::String != hookModule.GetType())
+                {
+                    Message::Output(EMessageSeverity::MessageSeverityError, _T("Internal error while loading hook modules."));
+                    return;
+                }
 
-    if (true == LibraryInitialize::LoadHookModule(Strings::GetHookModuleFilename(Strings::kStrExecutableBaseName).c_str()))
-        return;
+                if (true == LibraryInterface::LoadHookModule(Strings::GetHookModuleFilename(hookModule.GetStringValue())))
+                    numHookModulesLoaded += 1;
+            }
+        }
 
-    if (true == LibraryInitialize::LoadHookModule(Strings::GetHookModuleFilename(_T("Common")).c_str()))
-        return;
-
-    Message::Output(EMessageSeverity::MessageSeverityWarning, _T("No hook module is loaded. No hooks have been set for the current process."));
+        if (0 == numHookModulesLoaded)
+            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, _T("No hook modules are loaded; no hooks have been set for process \"%s\" (PID %d)."), Strings::kStrExecutableBaseName.data(), GetProcessId(GetCurrentProcess()));
+    }
+    else
+    {
+        Message::Output(EMessageSeverity::MessageSeverityError, LibraryInterface::GetConfigurationErrorMessage().data());
+    }
 }

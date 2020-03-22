@@ -63,7 +63,7 @@ namespace Hookshot
 #endif
 
         /// Configuration file setting name for specifying a hook module to load.
-        static constexpr TStdStringView kStrConfigFileNameHookModule = _T("HookModule");
+        static constexpr TStdStringView kStrConfigurationSettingNameHookModule = _T("HookModule");
 
 
         // -------- RUN-TIME CONSTANTS ------------------------------------- //
