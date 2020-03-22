@@ -173,6 +173,16 @@ namespace Hookshot
             return (TStdString(buf));
         }
 
+        /// Generates the value for #kStrExecutableCompleteFilename; see documentation of this run-time constant for more information.
+        /// @return Corresponding run-time constant value.
+        static TStdString GetExecutableCompleteFilename(void)
+        {
+            TemporaryBuffer<TCHAR> buf;
+            GetModuleFileName(NULL, buf, (DWORD)buf.Count());
+
+            return (TStdString(buf));
+        }
+
         /// Generates the value for #kStrHookshotConfigurationFilename; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static TStdString GetHookshotConfigurationFilename(void)
@@ -236,6 +246,8 @@ namespace Hookshot
 
         static const TStdString kStrExecutableDirectoryNameImpl(GetExecutableDirectoryName());
 
+        static const TStdString kStrExecutableCompleteFilenameImpl(GetExecutableCompleteFilename());
+
         static const TStdString kStrHookshotConfigurationFilenameImpl(GetHookshotConfigurationFilename());
 
         static const TStdString kStrHookshotLogFilenameImpl(GetHookshotLogFilename());
@@ -253,6 +265,8 @@ namespace Hookshot
         extern const TStdStringView kStrExecutableBaseName(kStrExecutableBaseNameImpl);
 
         extern const TStdStringView kStrExecutableDirectoryName(kStrExecutableDirectoryNameImpl);
+
+        extern const TStdStringView kStrExecutableCompleteFilename(kStrExecutableCompleteFilenameImpl);
 
         extern const TStdStringView kStrHookshotConfigurationFilename(kStrHookshotConfigurationFilenameImpl);
 

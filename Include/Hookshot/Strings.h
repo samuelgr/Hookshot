@@ -79,9 +79,13 @@ namespace Hookshot
         /// For Hookshot's library form, this will be the name of the executable that loaded it or into which it was injected.
         extern const TStdStringView kStrExecutableDirectoryName;
 
+        /// Complete path and filename of the currently-running executable.
+        /// For Hookshot's executable form, this will be the Hookshot executable.
+        /// For Hookshot's library form, this will be the name of the executable that loaded it or into which it was injected.
+        extern const TStdStringView kStrExecutableCompleteFilename;
+
         /// Expected filename of a Hookshot configuration file.
         /// Hookshot configuration filename = (executable directory)\(base name of this form of Hookshot).ini
-        /// For example, C:\PathToExecutable\Executable.exe -> C:\PathToExecutable\Hookshot.ini, using Hookshot's default filenames.
         extern const TStdStringView kStrHookshotConfigurationFilename;
 
         /// Expected filename for the log file.

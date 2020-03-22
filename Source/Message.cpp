@@ -12,7 +12,9 @@
 #include "ApiWindows.h"
 #include "Globals.h"
 #include "Message.h"
+#include "Strings.h"
 #include "TemporaryBuffer.h"
+#include "UnicodeTypes.h"
 
 #include <cstdarg>
 #include <cstdio>
@@ -23,8 +25,50 @@
 
 namespace Hookshot
 {
+    // -------- CLASS VARIABLES -------------------------------------------- //
+    // See "Message.h" for documentation.
+
+    FILE* Message::logFileHandle = NULL;
+
+#if HOOKSHOT_DEBUG
+    EMessageSeverity Message::minimumSeverityForOutput = EMessageSeverity::MessageSeverityDebug;
+#else
+    EMessageSeverity Message::minimumSeverityForOutput = EMessageSeverity::MessageSeverityError;
+#endif
+
+
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "Message.h" for documentation.
+
+    void Message::CreateAndEnableLogFile(void)
+    {
+        if (false == IsLogFileEnabled())
+        {
+            if (0 != _tfopen_s(&logFileHandle, Strings::kStrHookshotLogFilename.data(), _T("w")))
+            {
+                logFileHandle = NULL;
+                OutputFormatted(EMessageSeverity::MessageSeverityError, _T("%s - Unable to create log file."), Strings::kStrHookshotLogFilename.data());
+                return;
+            }
+
+            // Log file header part 1: Hookshot product name.
+            TemporaryBuffer<TCHAR> hookshotProductName;
+            if (0 != LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, hookshotProductName, hookshotProductName.Count()))
+            {
+                _fputts(hookshotProductName, logFileHandle);
+                _fputts(_T("\n"), logFileHandle);
+            }
+
+            // Log file header part 2: Executable file name.
+            _fputts(Strings::kStrExecutableCompleteFilename.data(), logFileHandle);
+            _fputts(_T("\n"), logFileHandle);
+
+            // Log file header part 3: Separator
+            _fputts(_T("-------------------------\n"), logFileHandle);
+        }
+    }
+
+    // --------
 
     void Message::Output(const EMessageSeverity severity, LPCTSTR message)
     {
@@ -53,9 +97,9 @@ namespace Hookshot
 
     bool Message::WillOutputMessageOfSeverity(const EMessageSeverity severity)
     {
-        if ((severity < EMessageSeverity::MessageSeverityForcedBoundaryValue) || (severity <= kMinimumSeverityForOutput))
+        if ((severity < EMessageSeverity::MessageSeverityForcedBoundaryValue) || (severity <= minimumSeverityForOutput))
         {
-            if ((severity >= kMaximumSeverityToRequireNonInteractiveOutput) && (true == IsOutputModeInteractive(SelectOutputMode())))
+            if ((severity >= kMaximumSeverityToRequireNonInteractiveOutput) && (true == IsOutputModeInteractive(SelectOutputMode(severity))))
                 return false;
             else
                 return true;
@@ -80,7 +124,7 @@ namespace Hookshot
 
     void Message::OutputInternal(const EMessageSeverity severity, LPCTSTR message)
     {
-        switch (SelectOutputMode())
+        switch (SelectOutputMode(severity))
         {
         case EMessageOutputMode::MessageOutputModeDebugString:
             OutputInternalUsingDebugString(severity, message);
@@ -139,6 +183,13 @@ namespace Hookshot
 
     // --------
 
+    void Message::OutputInternalUsingLogFile(const EMessageSeverity severity, LPCTSTR message)
+    {
+        // TODO: fill this in.
+    }
+
+    // --------
+    
     void Message::OutputInternalUsingMessageBox(const EMessageSeverity severity, LPCTSTR message)
     {
         TemporaryBuffer<TCHAR> productNameBuf;
@@ -174,10 +225,14 @@ namespace Hookshot
 
     // --------
 
-    EMessageOutputMode Message::SelectOutputMode(void)
+    EMessageOutputMode Message::SelectOutputMode(const EMessageSeverity severity)
     {
-        if (IsDebuggerPresent())
+        if (IsSeverityForced(severity))
+            return EMessageOutputMode::MessageOutputModeMessageBox;
+        else if (IsDebuggerPresent())
             return EMessageOutputMode::MessageOutputModeDebugString;
+        else if (IsLogFileEnabled())
+            return EMessageOutputMode::MessageOutputLogFile;
         else
             return EMessageOutputMode::MessageOutputModeMessageBox;
     }
