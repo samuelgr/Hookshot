@@ -101,6 +101,6 @@ namespace Hookshot
         /// Hook module filename = (executable directory)\(hook module name).(hook module suffix)
         /// @param [in] moduleName Hook module name to use when generating the filename.
         /// @return Hook module filename.
-        TStdString GetHookModuleFilename(TStdStringView moduleName);
+        TStdString MakeHookModuleFilename(TStdStringView moduleName);
     }
 }

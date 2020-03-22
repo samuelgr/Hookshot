@@ -63,7 +63,7 @@ extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const 
                     return;
                 }
 
-                if (true == LibraryInterface::LoadHookModule(Strings::GetHookModuleFilename(hookModule.GetStringValue())))
+                if (true == LibraryInterface::LoadHookModule(Strings::MakeHookModuleFilename(hookModule.GetStringValue())))
                     numHookModulesLoaded += 1;
             }
         }
