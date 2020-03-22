@@ -14,10 +14,10 @@
 #include "HookshotConfigReader.h"
 #include "Strings.h"
 #include "TemporaryBuffer.h"
-#include "UnicodeTypes.h"
 
-#include <tchar.h>
 #include <unordered_map>
+#include <string>
+#include <string_view>
 
 
 namespace Hookshot
@@ -39,7 +39,7 @@ namespace Hookshot
 
     /// Holds the section name for the per-executable settings.
     /// This is dynamically set to the name of the currently-running executable.
-    TStdString executableSpecificSectionName;
+    std::wstring executableSpecificSectionName;
     
     /// If `true`, indicates that the hookshot configuration file layout definition has been augmented with runtime information.
     static bool configurationFileLayoutIsComplete = false;
@@ -63,7 +63,7 @@ namespace Hookshot
     // -------- CONCRETE INSTANCE METHODS ---------------------------------- //
     // See "Configuration.h" for documentation.
 
-    Configuration::ESectionAction HookshotConfigReader::ActionForSection(TStdStringView section)
+    Configuration::ESectionAction HookshotConfigReader::ActionForSection(std::wstring_view section)
     {
         if (0 != configurationFileLayout.count(section))
             return Configuration::ESectionAction::Read;
@@ -73,7 +73,7 @@ namespace Hookshot
 
     // --------
 
-    bool HookshotConfigReader::CheckValue(TStdStringView section, TStdStringView name, const Configuration::TIntegerValue& value)
+    bool HookshotConfigReader::CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TIntegerValue& value)
     {
         // No integer values are currently supported.
         return false;
@@ -81,7 +81,7 @@ namespace Hookshot
 
     // --------
 
-    bool HookshotConfigReader::CheckValue(TStdStringView section, TStdStringView name, const Configuration::TBooleanValue& value)
+    bool HookshotConfigReader::CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TBooleanValue& value)
     {
         // No Boolean values are currently supported.
         return false;
@@ -89,7 +89,7 @@ namespace Hookshot
 
     // --------
 
-    bool HookshotConfigReader::CheckValue(TStdStringView section, TStdStringView name, const Configuration::TStringValue& value)
+    bool HookshotConfigReader::CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TStringValue& value)
     {
         return true;
     }
@@ -103,7 +103,7 @@ namespace Hookshot
 
     // --------
     
-    Configuration::EValueType HookshotConfigReader::TypeForValue(TStdStringView section, TStdStringView name)
+    Configuration::EValueType HookshotConfigReader::TypeForValue(std::wstring_view section, std::wstring_view name)
     {
         auto sectionLayout = configurationFileLayout.find(section);
         if (configurationFileLayout.end() == sectionLayout)

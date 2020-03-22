@@ -46,7 +46,7 @@ extern "C" void __stdcall InjectLandingCleanup(const SInjectData* const injectDa
 extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const injectData)
 {
     if ((0 != injectData->enableDebugFeatures) && (0 == IsDebuggerPresent()))
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityForcedInfo, _T("Attach to \"%s\" (PID %d) to continue debugging."), Strings::kStrExecutableBaseName.data(), GetProcessId(GetCurrentProcess()));
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityForcedInfo, L"Attach to \"%s\" (PID %d) to continue debugging.", Strings::kStrExecutableBaseName.data(), GetProcessId(GetCurrentProcess()));
 
     if (true == LibraryInterface::IsConfigurationDataValid())
     {
@@ -59,7 +59,7 @@ extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const 
             {
                 if (Configuration::EValueType::String != hookModule.GetType())
                 {
-                    Message::Output(EMessageSeverity::MessageSeverityError, _T("Internal error while loading hook modules."));
+                    Message::Output(EMessageSeverity::MessageSeverityError, L"Internal error while loading hook modules.");
                     return;
                 }
 
@@ -69,7 +69,7 @@ extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const 
         }
 
         if (0 == numHookModulesLoaded)
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, _T("No hook modules are loaded; no hooks have been set for process \"%s\" (PID %d)."), Strings::kStrExecutableBaseName.data(), GetProcessId(GetCurrentProcess()));
+            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, L"No hook modules are loaded; no hooks have been set for process \"%s\" (PID %d).", Strings::kStrExecutableBaseName.data(), GetProcessId(GetCurrentProcess()));
     }
     else
     {

@@ -12,7 +12,6 @@
 #pragma once
 
 #include "ApiWindows.h"
-#include "UnicodeTypes.h"
 
 #include <cstdarg>
 #include <cstddef>

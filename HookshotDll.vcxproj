@@ -41,7 +41,6 @@
   <ItemGroup>
     <ClInclude Include="Include\Hookshot.h" />
     <ClInclude Include="Include\Hookshot\HookshotConfigReader.h" />
-    <ClInclude Include="Include\Hookshot\UnicodeTypes.h" />
     <ClInclude Include="Include\Hookshot\ApiWindows.h" />
     <ClInclude Include="Include\Hookshot\Configuration.h" />
     <ClInclude Include="Include\Hookshot\Globals.h" />

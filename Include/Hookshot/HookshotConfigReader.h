@@ -13,7 +13,7 @@
 
 #include "Configuration.h"
 
-#include <unordered_map>
+#include <string_view>
 
 
 namespace Hookshot
@@ -24,11 +24,11 @@ namespace Hookshot
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See "Configuration.h" for documentation.
 
-        Configuration::ESectionAction ActionForSection(TStdStringView section) override;
-        bool CheckValue(TStdStringView section, TStdStringView name, const Configuration::TIntegerValue& value) override;
-        bool CheckValue(TStdStringView section, TStdStringView name, const Configuration::TBooleanValue& value) override;
-        bool CheckValue(TStdStringView section, TStdStringView name, const Configuration::TStringValue& value) override;
+        Configuration::ESectionAction ActionForSection(std::wstring_view section) override;
+        bool CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TIntegerValue& value) override;
+        bool CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TBooleanValue& value) override;
+        bool CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TStringValue& value) override;
         void PrepareForRead(void) override;
-        Configuration::EValueType TypeForValue(TStdStringView section, TStdStringView name) override;
+        Configuration::EValueType TypeForValue(std::wstring_view section, std::wstring_view name) override;
     };
 }

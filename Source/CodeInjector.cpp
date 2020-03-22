@@ -105,9 +105,9 @@ namespace Hookshot
         HMODULE moduleGetProcAddress = NULL;
         HMODULE moduleLoadLibraryA = NULL;
 
-        TemporaryBuffer<TCHAR> moduleFilenameGetLastError;
-        TemporaryBuffer<TCHAR> moduleFilenameGetProcAddress;
-        TemporaryBuffer<TCHAR> moduleFilenameLoadLibraryA;
+        TemporaryBuffer<wchar_t> moduleFilenameGetLastError;
+        TemporaryBuffer<wchar_t> moduleFilenameGetProcAddress;
+        TemporaryBuffer<wchar_t> moduleFilenameLoadLibraryA;
         MODULEINFO moduleInfo;
 
         // Get module handles for the desired functions in the current process.
@@ -169,14 +169,14 @@ namespace Hookshot
         for (DWORD modidx = 0; (modidx < numLoadedModules) && ((NULL == addrGetLastError) || (NULL == addrGetProcAddress) || (NULL == addrLoadLibraryA)); ++modidx)
         {
             const HMODULE loadedModule = loadedModules[modidx];
-            TemporaryBuffer<TCHAR> loadedModuleName;
+            TemporaryBuffer<wchar_t> loadedModuleName;
 
             if (0 == GetModuleFileNameEx(injectedProcess, loadedModule, loadedModuleName, loadedModuleName.Count()))
                 return false;
 
             if (NULL == addrGetLastError)
             {
-                if (0 == _tcsncmp(moduleFilenameGetLastError, loadedModuleName, loadedModuleName.Count()))
+                if (0 == wcsncmp(moduleFilenameGetLastError, loadedModuleName, loadedModuleName.Count()))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -187,7 +187,7 @@ namespace Hookshot
 
             if (NULL == addrGetProcAddress)
             {
-                if (0 == _tcsncmp(moduleFilenameGetProcAddress, loadedModuleName, loadedModuleName.Count()))
+                if (0 == wcsncmp(moduleFilenameGetProcAddress, loadedModuleName, loadedModuleName.Count()))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -198,7 +198,7 @@ namespace Hookshot
 
             if (NULL == addrLoadLibraryA)
             {
-                if (0 == _tcsncmp(moduleFilenameLoadLibraryA, loadedModuleName, loadedModuleName.Count()))
+                if (0 == wcsncmp(moduleFilenameLoadLibraryA, loadedModuleName, loadedModuleName.Count()))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -327,13 +327,8 @@ namespace Hookshot
 
             strcpy_s(injectDataStrings, Strings::kStrLibraryInitializationProcName.data());
 
-#ifdef UNICODE
             if (0 != wcstombs_s(NULL, &injectDataStrings[Strings::kStrLibraryInitializationProcName.length() + 1], sizeof(injectDataStrings) - (Strings::kStrLibraryInitializationProcName.length() + 1) - 1, Strings::kStrHookshotDynamicLinkLibraryFilename.data(), sizeof(injectDataStrings) - (Strings::kStrLibraryInitializationProcName.length() + 1) - 2))
                 return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
-#else
-            if (false == Strings::FillHookshotDynamicLinkLibraryFilename(&injectDataStrings[Strings::kLenLibraryInitializationProcName], sizeof(injectDataStrings) - Strings::kLenLibraryInitializationProcName - 1))
-                return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
-#endif
 
             injectData.strLibraryName = (const char*)((size_t)baseAddressData + sizeof(injectData) + (Strings::kStrLibraryInitializationProcName.length() + 1));
             injectData.strProcName = (const char*)((size_t)baseAddressData + sizeof(injectData));

@@ -15,7 +15,6 @@
 
 #include <cstddef>
 #include <hookshot.h>
-#include <tchar.h>
 
 
 // -------- CONSTANTS ------------------------------------------------------ //

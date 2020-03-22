@@ -11,11 +11,10 @@
 
 #pragma once
 
-#include "UnicodeTypes.h"
-
 #include <cstddef>
 #include <cstdint>
-#include <tchar.h>
+#include <string>
+#include <string_view>
 
 
 namespace Hookshot
@@ -26,7 +25,7 @@ namespace Hookshot
         // Can safely be used at any time, including to perform static initialization.
         
         /// Character that occurs at the start of a command-line argument to indicate it is a file mapping handle rather than an executable name.
-        static constexpr TCHAR kCharCmdlineIndicatorFileMappingHandle = _T('|');
+        static constexpr wchar_t kCharCmdlineIndicatorFileMappingHandle = L'|';
 
         /// Name of the section in the injection binary that contains injection code.
         /// PE header encodes section name strings in UTF-8, so each character must directly be specified as being one byte.
@@ -63,7 +62,7 @@ namespace Hookshot
 #endif
 
         /// Configuration file setting name for specifying a hook module to load.
-        static constexpr TStdStringView kStrConfigurationSettingNameHookModule = _T("HookModule");
+        static constexpr std::wstring_view kStrConfigurationSettingNameHookModule = L"HookModule";
 
 
         // -------- RUN-TIME CONSTANTS ------------------------------------- //
@@ -72,35 +71,35 @@ namespace Hookshot
         /// Base name of the currently-running executable.
         /// For Hookshot's executable form, this will be the Hookshot executable.
         /// For Hookshot's library form, this will be the name of the executable that loaded it or into which it was injected.
-        extern const TStdStringView kStrExecutableBaseName;
+        extern const std::wstring_view kStrExecutableBaseName;
         
         /// Directory name of the currently-running executable, including trailing backslash if available.
         /// For Hookshot's executable form, this will be the Hookshot executable.
         /// For Hookshot's library form, this will be the name of the executable that loaded it or into which it was injected.
-        extern const TStdStringView kStrExecutableDirectoryName;
+        extern const std::wstring_view kStrExecutableDirectoryName;
 
         /// Complete path and filename of the currently-running executable.
         /// For Hookshot's executable form, this will be the Hookshot executable.
         /// For Hookshot's library form, this will be the name of the executable that loaded it or into which it was injected.
-        extern const TStdStringView kStrExecutableCompleteFilename;
+        extern const std::wstring_view kStrExecutableCompleteFilename;
 
         /// Expected filename of a Hookshot configuration file.
         /// Hookshot configuration filename = (executable directory)\(base name of this form of Hookshot).ini
-        extern const TStdStringView kStrHookshotConfigurationFilename;
+        extern const std::wstring_view kStrHookshotConfigurationFilename;
 
         /// Expected filename for the log file.
         /// Hookshot log filename = (current user's desktop)\(base name of this form of Hookshot)_(base name of the running executable)_(process ID).log
-        extern const TStdStringView kStrHookshotLogFilename;
+        extern const std::wstring_view kStrHookshotLogFilename;
 
         /// Expected filename of the dynamic-link library form of Hookshot.
-        extern const TStdStringView kStrHookshotDynamicLinkLibraryFilename;
+        extern const std::wstring_view kStrHookshotDynamicLinkLibraryFilename;
 
         /// Expected filename of the executable form of Hookshot.
-        extern const TStdStringView kStrHookshotExecutableFilename;
+        extern const std::wstring_view kStrHookshotExecutableFilename;
 
         /// Expected filename of the executable form of Hookshot targeting the opposite processor architecture.
         /// For example, when running in 32-bit mode, this is the name of the 64-bit executable, and vice versa.
-        extern const TStdStringView kStrHookshotExecutableOtherArchitectureFilename;
+        extern const std::wstring_view kStrHookshotExecutableOtherArchitectureFilename;
 
 
         // -------- FUNCTIONS ---------------------------------------------- //
@@ -109,6 +108,6 @@ namespace Hookshot
         /// Hook module filename = (executable directory)\(hook module name).(hook module suffix)
         /// @param [in] moduleName Hook module name to use when generating the filename.
         /// @return Hook module filename.
-        TStdString MakeHookModuleFilename(TStdStringView moduleName);
+        std::wstring MakeHookModuleFilename(std::wstring_view moduleName);
     }
 }

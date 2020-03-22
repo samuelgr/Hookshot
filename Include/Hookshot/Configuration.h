@@ -12,15 +12,14 @@
 
 #pragma once
 
-#include "UnicodeTypes.h"
-
 #include <cstddef>
 #include <cstdint>
 #include <list>
 #include <map>
 #include <memory>
 #include <set>
-#include <tchar.h>
+#include <string>
+#include <string_view>
 
 
 namespace Hookshot
@@ -55,7 +54,7 @@ namespace Hookshot
         typedef bool TBooleanValue;
 
         /// Underlying type used for storing string-valued types.
-        typedef TStdString TStringValue;
+        typedef std::wstring TStringValue;
 
         /// Fourth-level object used to represent a single configuration value for a particular configuration setting.
         class Value
@@ -70,7 +69,7 @@ namespace Hookshot
             typedef TBooleanValue TBooleanView;
 
             /// View type used for retrieving and returning string-typed values.
-            typedef TStdStringView TStringView;
+            typedef std::wstring_view TStringView;
 
 
             // -------- INSTANCE VARIABLES --------------------------------- //
@@ -293,7 +292,7 @@ namespace Hookshot
             // -------- TYPE DEFINITIONS ----------------------------------- //
 
             /// Alias for the underlying data structure used to store per-section configuration settings.
-            typedef std::map<TStdString, Name, std::less<>> TNames;
+            typedef std::map<std::wstring, Name, std::less<>> TNames;
 
 
             // -------- INSTANCE VARIABLES --------------------------------- //
@@ -311,7 +310,7 @@ namespace Hookshot
             /// @param [in] name Name of the configuration setting into which to insert the value.
             /// @param [in] value Value to insert.
             /// @return `true` on success, `false` on failure.
-            template <typename ValueType> bool Insert(TStdStringView name, const ValueType& value)
+            template <typename ValueType> bool Insert(std::wstring_view name, const ValueType& value)
             {
                 auto nameIterator = names.find(name);
 
@@ -327,7 +326,7 @@ namespace Hookshot
             /// Allows read-only access to individual configuration settings by name, with bounds checking.
             /// @param [in] name Name of the configuration setting to retrieve.
             /// @return Reference to the desired configuration setting.
-            inline const Name& NameByName(TStdStringView name) const
+            inline const Name& NameByName(std::wstring_view name) const
             {
                 return names.find(name)->second;
             }
@@ -342,7 +341,7 @@ namespace Hookshot
             /// Determines if a configuration setting of the specified name exists in the section represented by this object.
             /// @param [in] name Name of the configuration setting to check.
             /// @return `true` if the setting exists, `false` otherwise.
-            inline bool NameExists(TStdStringView name) const
+            inline bool NameExists(std::wstring_view name) const
             {
                 return (0 != names.count(name));
             }
@@ -363,25 +362,25 @@ namespace Hookshot
             // -------- CONSTANTS ------------------------------------------ //
 
             /// Section name for all settings that appear at global scope (i.e. outside of a section).
-            static constexpr TStdStringView kSectionNameGlobal = _T("");
+            static constexpr std::wstring_view kSectionNameGlobal = L"";
 
 
         private:
             // -------- TYPE DEFINITIONS ----------------------------------- //
 
             /// Alias for the underlying data structure used to store top-level configuration section data.
-            typedef std::map<TStdString, Section, std::less<>> TSections;
+            typedef std::map<std::wstring, Section, std::less<>> TSections;
 
 
             /// Holds an individual section and name pair.
             /// Used when responding to queries for all settings of a given name across all sections.
             struct SSectionNamePair
             {
-                TStdStringView section;                                     ///< Name of the section that holds the identified configuration setting.
+                std::wstring_view section;                                     ///< Name of the section that holds the identified configuration setting.
                 const Name& name;                                           ///< Reference to the object that holds all values for the identified configuration setting.
 
                 /// Initialization constructor. Initializes both references.
-                inline constexpr SSectionNamePair(TStdStringView section, const Name& name) : section(section), name(name)
+                inline constexpr SSectionNamePair(std::wstring_view section, const Name& name) : section(section), name(name)
                 {
                     // Nothing to do here.
                 }
@@ -414,7 +413,7 @@ namespace Hookshot
             /// @param [in] name Name of the configuration setting into which to insert the value.
             /// @param [in] value Value to insert.
             /// @return `true` on success, `false` on failure.
-            template <typename ValueType> bool Insert(TStdStringView section, TStdStringView name, const ValueType& value)
+            template <typename ValueType> bool Insert(std::wstring_view section, std::wstring_view name, const ValueType& value)
             {
                 auto sectionIterator = sections.find(section);
 
@@ -430,7 +429,7 @@ namespace Hookshot
             /// Allows read-only access to individual sections by name, with bounds checking.
             /// @param [in] section Name of the section to retrieve.
             /// @return Reference to the desired section.
-            inline const Section& SectionByName(TStdStringView section) const
+            inline const Section& SectionByName(std::wstring_view section) const
             {
                 return sections.find(section)->second;
             }
@@ -445,7 +444,7 @@ namespace Hookshot
             /// Determines if a section of the specified name exists in the configuration represented by this object.
             /// @param [in] section Section name to check.
             /// @return `true` if the setting exists, `false` otherwise.
-            inline bool SectionExists(TStdStringView section) const
+            inline bool SectionExists(std::wstring_view section) const
             {
                 return (0 != sections.count(section));
             }
@@ -464,7 +463,7 @@ namespace Hookshot
             /// If there are no matches, returns an empty container.
             /// @param [in] name Name of the configuration setting for which to search.
             /// @return Container holding the results.
-            inline std::unique_ptr<TSectionNamePairList> SectionsWithName(TStdStringView name) const
+            inline std::unique_ptr<TSectionNamePairList> SectionsWithName(std::wstring_view name) const
             {
                 std::unique_ptr<TSectionNamePairList> sectionsWithName = std::make_unique<TSectionNamePairList>();
 
@@ -487,7 +486,7 @@ namespace Hookshot
             // -------- INSTANCE VARIABLES --------------------------------- //
 
             /// Holds the error message that describes the error that arose during the last unsuccessful attempt at reading a configuration file.
-            TStdString readErrorMessage;
+            std::wstring readErrorMessage;
 
 
         public:
@@ -502,7 +501,7 @@ namespace Hookshot
             /// Retrieves and returns the error message that arose during the last unsuccessful attempt at reading a configuration file.
             /// The error message is valid if #ReadConfigurationFile returns `false`.
             /// @return Error message from last unsuccessful read attempt.
-            inline TStdStringView GetReadErrorMessage(void)
+            inline std::wstring_view GetReadErrorMessage(void)
             {
                 return readErrorMessage;
             }
@@ -512,7 +511,7 @@ namespace Hookshot
             /// @param [in] configFileName Name of the configuration file to read.
             /// @param [out] configToFill Configuration object to fill with configuration data (contents are only valid if this method succeeds).
             /// @return `true` on success, `false` on failure.
-            bool ReadConfigurationFile(TStdStringView configFileName, ConfigurationData& configToFill);
+            bool ReadConfigurationFile(std::wstring_view configFileName, ConfigurationData& configToFill);
 
 
         private:
@@ -525,28 +524,28 @@ namespace Hookshot
             /// For example, if the particular section name is not within the list of supported configuration namespaces, subclasses can flag an error.
             /// @param [in] section Name of the section, as read from the configuration file.
             /// @return Action to take with the section.
-            virtual ESectionAction ActionForSection(TStdStringView section) = 0;
+            virtual ESectionAction ActionForSection(std::wstring_view section) = 0;
 
             /// Invoked to allow the subclass to error-check the specified integer-typed configuration setting, identified by enclosing section name and by configuration setting name.
             /// @param [in] section Name of the enclosing section, as read from the configuration file.
             /// @param [in] name Name of the configuration setting, as read from the configuration file.
             /// @param [in] value Value of the configuration setting, as read and parsed from the configuration file.
             /// @return `true` if the submitted value was acceptable (according to whatever arbitrary characteristics the subclass wishes), `false` otherwise.
-            virtual bool CheckValue(TStdStringView section, TStdStringView name, const TIntegerValue& value) = 0;
+            virtual bool CheckValue(std::wstring_view section, std::wstring_view name, const TIntegerValue& value) = 0;
 
             /// Invoked to allow the subclass to error-check the specified Boolean-typed configuration setting, identified by enclosing section name and by configuration setting name.
             /// @param [in] section Name of the enclosing section, as read from the configuration file.
             /// @param [in] name Name of the configuration setting, as read from the configuration file.
             /// @param [in] value Value of the configuration setting, as read and parsed from the configuration file.
             /// @return `true` if the submitted value was acceptable (according to whatever arbitrary characteristics the subclass wishes), `false` otherwise.
-            virtual bool CheckValue(TStdStringView section, TStdStringView name, const TBooleanValue& value) = 0;
+            virtual bool CheckValue(std::wstring_view section, std::wstring_view name, const TBooleanValue& value) = 0;
 
             /// Invoked to allow the subclass to error-check specified string-typed configuration setting, identified by enclosing section name and by configuration setting name.
             /// @param [in] section Name of the enclosing section, as read from the configuration file.
             /// @param [in] name Name of the configuration setting, as read from the configuration file.
             /// @param [in] value Value of the configuration setting, as read and parsed from the configuration file.
             /// @return `true` if the submitted value was acceptable (according to whatever arbitrary characteristics the subclass wishes), `false` otherwise.
-            virtual bool CheckValue(TStdStringView section, TStdStringView name, const TStringValue& value) = 0;
+            virtual bool CheckValue(std::wstring_view section, std::wstring_view name, const TStringValue& value) = 0;
             
             /// Specifies the type of the value for the given configuration setting.
             /// In lines that are of the form "name = value" parameters identify both the enclosing section and the name part.
@@ -555,7 +554,7 @@ namespace Hookshot
             /// @param [in] section Name of the enclosing section, as read from the configuration file.
             /// @param [in] name Name of the configuration setting (the left part of the example line given above).
             /// @return Type to associate with the value (the right part of the example line given above), which can be an error if the particular configuration setting is not supported.
-            virtual EValueType TypeForValue(TStdStringView section, TStdStringView name) = 0;
+            virtual EValueType TypeForValue(std::wstring_view section, std::wstring_view name) = 0;
 
 
             // -------- CONCRETE INSTANCE METHODS -------------------------- //
@@ -614,7 +613,7 @@ namespace Hookshot
             /// Retrieves and returns the error message that arose during the last unsuccessful attempt at reading a configuration file.
             /// The error message is valid as long as #IsDataValid returns `false`.
             /// @return Error message from last unsuccessful read attempt.
-            inline TStdStringView GetReadErrorMessage(void)
+            inline std::wstring_view GetReadErrorMessage(void)
             {
                 return reader->GetReadErrorMessage();
             }
@@ -623,7 +622,7 @@ namespace Hookshot
             /// After this method returns, use #IsDataValid and #GetData to retrieve configuration settings.
             /// In the event of a read error, #GetReadErrorMessage can be used to obtain a string describing the read error that occurred.
             /// @param [in] configFileName Name of the configuration file to read.
-            inline void ReadConfigurationFile(TStdStringView configFileName)
+            inline void ReadConfigurationFile(std::wstring_view configFileName)
             {
                 settingsReadSuccessfully = reader->ReadConfigurationFile(configFileName, configData);
             }
@@ -631,11 +630,11 @@ namespace Hookshot
 
         /// Type alias for a suggested format for storing the supported layout of a section within a configuration file.
         /// Useful for pre-determining what is allowed to appear within one section of a configuration file.
-        typedef std::map<TStdStringView, EValueType, std::less<>> TConfigurationFileSectionLayout;
+        typedef std::map<std::wstring_view, EValueType, std::less<>> TConfigurationFileSectionLayout;
 
         /// Type alias for a suggested format for storing the supported layout of a configuration file.
         /// Useful for pre-determining what is allowed to appear within a configuration file.
-        typedef std::map<TStdStringView, TConfigurationFileSectionLayout, std::less<>> TConfigurationFileLayout;
+        typedef std::map<std::wstring_view, TConfigurationFileSectionLayout, std::less<>> TConfigurationFileLayout;
     }
 }
 

@@ -19,12 +19,11 @@
 #include "LibraryInterface.h"
 #include "Message.h"
 #include "Strings.h"
-#include "UnicodeTypes.h"
 #include "X86Instruction.h"
 
 #include <hookshot.h>
 #include <memory>
-#include <tchar.h>
+#include <string_view>
 
 
 namespace Hookshot
@@ -57,14 +56,14 @@ namespace Hookshot
 
     // --------
 
-    bool LibraryInterface::LoadHookModule(TStdStringView hookModuleFileName)
+    bool LibraryInterface::LoadHookModule(std::wstring_view hookModuleFileName)
     {
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("%s - Attempting to load hook module."), hookModuleFileName.data());
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"%s - Attempting to load hook module.", hookModuleFileName.data());
         const HMODULE hookModule = LoadLibrary(hookModuleFileName.data());
 
         if (NULL == hookModule)
         {
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, _T("%s - Failed to load hook module (system error %d)."), hookModuleFileName.data(), GetLastError());
+            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, L"%s - Failed to load hook module (system error %d).", hookModuleFileName.data(), GetLastError());
             return false;
         }
 
@@ -72,13 +71,13 @@ namespace Hookshot
 
         if (NULL == initProc)
         {
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, _T("%s - Failed to locate required procedure in hook module (system error %d)."), hookModuleFileName.data(), GetLastError());
+            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, L"%s - Failed to locate required procedure in hook module (system error %d).", hookModuleFileName.data(), GetLastError());
             return false;
         }
 
         initProc(GetHookConfigInterface());
 
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, _T("%s - Successfully loaded hook module."), hookModuleFileName.data());
+        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"%s - Successfully loaded hook module.", hookModuleFileName.data());
         return true;
     }
 }

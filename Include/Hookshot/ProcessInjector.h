@@ -48,27 +48,9 @@ namespace Hookshot
         // -------- CLASS METHODS ------------------------------------------ //
 
         /// Creates a new process using the specified parameters and attempts to inject Hookshot code into it before it is allowed to run.
-        /// This is essentially a macro for selecting between ANSI and wide-character versions.
         /// Refer to Microsoft's documentation on CreateProcess for information on parameters.
         /// @return Indictor of the result of the operation.
-        static inline EInjectResult CreateInjectedProcess(LPCTSTR lpApplicationName, LPTSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCTSTR lpCurrentDirectory, LPSTARTUPINFO lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation)
-        {
-#ifdef UNICODE
-            return CreateInjectedProcessW(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
-#else
-            return CreateInjectedProcessA(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
-#endif
-        }
-        
-        /// Creates a new process using the specified parameters and attempts to inject Hookshot code into it before it is allowed to run.
-        /// This is the ANSI version; refer to Microsoft's documentation on CreateProcessA for information on parameters.
-        /// @return Indictor of the result of the operation.
-        static EInjectResult CreateInjectedProcessA(LPCSTR lpApplicationName, LPSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCSTR lpCurrentDirectory, LPSTARTUPINFOA lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
-
-        /// Creates a new process using the specified parameters and attempts to inject Hookshot code into it before it is allowed to run.
-        /// This is the wide-character version; refer to Microsoft's documentation on CreateProcessW for information on parameters.
-        /// @return Indictor of the result of the operation.
-        static EInjectResult CreateInjectedProcessW(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
+        static EInjectResult CreateInjectedProcess(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 
         /// Attempts to inject a process with Hookshot code.
         /// @param [in] processHandle Handle to the process to inject.

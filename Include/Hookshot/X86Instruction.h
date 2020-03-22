@@ -14,7 +14,6 @@
 #include <climits>
 #include <cstddef>
 #include <cstdint>
-#include <tchar.h>
 
 extern "C"
 {
@@ -256,7 +255,7 @@ namespace Hookshot
         /// Attempts to print the disassembled instruction to the specified buffer.
         /// @param [out] buf Buffer to fill.
         /// @param [in] numChars Size of the buffer, in character units.
-        bool PrintDisassembly(TCHAR* const buf, const size_t numChars) const;
+        bool PrintDisassembly(wchar_t* const buf, const size_t numChars) const;
 
         /// If this instruction contains a position-dependent memory reference, attempts to update the displacement value to the specified value.
         /// @param [in] displacement Displacement value to set.

@@ -15,7 +15,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
-#include <tchar.h>
 
 
 namespace Hookshot

@@ -14,7 +14,6 @@
 #include "Message.h"
 #include "Strings.h"
 #include "TemporaryBuffer.h"
-#include "UnicodeTypes.h"
 
 #include <cstdarg>
 #include <cstdio>
@@ -44,27 +43,27 @@ namespace Hookshot
     {
         if (false == IsLogFileEnabled())
         {
-            if (0 != _tfopen_s(&logFileHandle, Strings::kStrHookshotLogFilename.data(), _T("w")))
+            if (0 != _wfopen_s(&logFileHandle, Strings::kStrHookshotLogFilename.data(), L"w"))
             {
                 logFileHandle = NULL;
-                OutputFormatted(EMessageSeverity::MessageSeverityError, _T("%s - Unable to create log file."), Strings::kStrHookshotLogFilename.data());
+                OutputFormatted(EMessageSeverity::MessageSeverityError, L"%s - Unable to create log file.", Strings::kStrHookshotLogFilename.data());
                 return;
             }
 
             // Log file header part 1: Hookshot product name.
-            TemporaryBuffer<TCHAR> hookshotProductName;
+            TemporaryBuffer<wchar_t> hookshotProductName;
             if (0 != LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, hookshotProductName, hookshotProductName.Count()))
             {
-                _fputts(hookshotProductName, logFileHandle);
-                _fputts(_T("\n"), logFileHandle);
+                fputws(hookshotProductName, logFileHandle);
+                fputws(L"\n", logFileHandle);
             }
 
             // Log file header part 2: Executable file name.
-            _fputts(Strings::kStrExecutableCompleteFilename.data(), logFileHandle);
-            _fputts(_T("\n"), logFileHandle);
+            fputws(Strings::kStrExecutableCompleteFilename.data(), logFileHandle);
+            fputws(L"\n", logFileHandle);
 
             // Log file header part 3: Separator
-            _fputts(_T("-------------------------\n"), logFileHandle);
+            fputws(L"-------------------------\n", logFileHandle);
         }
     }
 
@@ -114,9 +113,9 @@ namespace Hookshot
 
     void Message::OutputFormattedInternal(const EMessageSeverity severity, LPCTSTR format, va_list args)
     {
-        TemporaryBuffer<TCHAR> messageBuf;
+        TemporaryBuffer<wchar_t> messageBuf;
 
-        _vstprintf_s(messageBuf, messageBuf.Count(), format, args);
+        vswprintf_s(messageBuf, messageBuf.Count(), format, args);
         OutputInternal(severity, messageBuf);
     }
 
@@ -143,42 +142,42 @@ namespace Hookshot
 
     void Message::OutputInternalUsingDebugString(const EMessageSeverity severity, LPCTSTR message)
     {
-        TemporaryBuffer<TCHAR> moduleBaseNameBuf;
+        TemporaryBuffer<wchar_t> moduleBaseNameBuf;
         GetModuleBaseName(GetCurrentProcess(), Globals::GetInstanceHandle(), moduleBaseNameBuf, moduleBaseNameBuf.Count());
 
-        TCHAR messageStampSeverity;
+        wchar_t messageStampSeverity;
         switch (severity)
         {
         case EMessageSeverity::MessageSeverityForcedError:
         case EMessageSeverity::MessageSeverityError:
-            messageStampSeverity = _T('E');
+            messageStampSeverity = L'E';
             break;
 
         case EMessageSeverity::MessageSeverityForcedWarning:
         case EMessageSeverity::MessageSeverityWarning:
-            messageStampSeverity = _T('W');
+            messageStampSeverity = L'W';
             break;
 
         case EMessageSeverity::MessageSeverityForcedInfo:
         case EMessageSeverity::MessageSeverityInfo:
-            messageStampSeverity = _T('I');
+            messageStampSeverity = L'I';
             break;
 
         case EMessageSeverity::MessageSeverityDebug:
-            messageStampSeverity = _T('D');
+            messageStampSeverity = L'D';
             break;
 
         default:
-            messageStampSeverity = _T('?');
+            messageStampSeverity = L'?';
             break;
         }
 
-        TemporaryBuffer<TCHAR> messageStampBuf;
-        _stprintf_s(messageStampBuf, messageStampBuf.Count(), _T("%s: [%c] "), (TCHAR*)moduleBaseNameBuf, messageStampSeverity);
+        TemporaryBuffer<wchar_t> messageStampBuf;
+        swprintf_s(messageStampBuf, messageStampBuf.Count(), L"%s: [%c] ", (wchar_t*)moduleBaseNameBuf, messageStampSeverity);
 
         OutputDebugString(messageStampBuf);
         OutputDebugString(message);
-        OutputDebugString(_T("\n"));
+        OutputDebugString(L"\n");
     }
 
     // --------
@@ -192,9 +191,9 @@ namespace Hookshot
     
     void Message::OutputInternalUsingMessageBox(const EMessageSeverity severity, LPCTSTR message)
     {
-        TemporaryBuffer<TCHAR> productNameBuf;
-        if (0 == LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, (TCHAR*)productNameBuf, productNameBuf.Count()))
-            productNameBuf[0] = _T('\0');
+        TemporaryBuffer<wchar_t> productNameBuf;
+        if (0 == LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, (wchar_t*)productNameBuf, productNameBuf.Count()))
+            productNameBuf[0] = L'\0';
 
         UINT messageBoxType = 0;
 

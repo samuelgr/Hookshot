@@ -20,7 +20,7 @@ namespace HookshotTest
     // -------- CONSTRUCTION AND DESTRUCTION ------------------------------- //
     // See "TestCase.h" for documentation.
 
-    ITestCase::ITestCase(const TCHAR* const name)
+    ITestCase::ITestCase(const wchar_t* const name)
     {
         Harness::RegisterTestCase(this, name);
     }
@@ -29,14 +29,14 @@ namespace HookshotTest
     // -------- INSTANCE METHODS ------------------------------------------- //
     // See "TestCase.h" for documentation.
 
-    void ITestCase::Print(const TCHAR* const str) const
+    void ITestCase::Print(const wchar_t* const str) const
     {
         Harness::PrintFromTestCase(this, str);
     }
 
     // --------
 
-    void ITestCase::PrintFormatted(const TCHAR* const format, ...) const
+    void ITestCase::PrintFormatted(const wchar_t* const format, ...) const
     {
         va_list args;
         va_start(args, format);

@@ -283,20 +283,16 @@ namespace Hookshot
 
     // --------
 
-    bool X86Instruction::PrintDisassembly(TCHAR* const buf, const size_t numChars) const
+    bool X86Instruction::PrintDisassembly(wchar_t* const buf, const size_t numChars) const
     {
         if (false == valid)
             return false;
 
-#ifdef UNICODE
         TemporaryBuffer<char> narrowCharDisassembly;
         if (false == xed_format_context(XED_SYNTAX_INTEL, &decodedInstruction, narrowCharDisassembly, narrowCharDisassembly.Count(), (xed_uint64_t)address, NULL, NULL))
             return false;
 
         return (0 == mbstowcs_s(NULL, buf, numChars, narrowCharDisassembly, narrowCharDisassembly.Count()));
-#else
-        return (true == xed_format_context(XED_SYNTAX_INTEL, &decodedInstruction, buf, numChars, (xed_uint64_t)address, NULL, NULL));
-#endif
     }
 
     // --------

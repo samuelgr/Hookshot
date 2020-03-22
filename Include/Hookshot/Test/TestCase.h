@@ -12,7 +12,6 @@
 #pragma once
 
 #include <hookshot.h>
-#include <tchar.h>
 
 
 namespace HookshotTest
@@ -25,7 +24,7 @@ namespace HookshotTest
 
         /// Initialization constructor. Constructs a test case object with an associated test case name, and registers it with the harness.
         /// @param [in] name Test case name.
-        ITestCase(const TCHAR* const name);
+        ITestCase(const wchar_t* const name);
 
 
         // -------- INSTANCE METHODS --------------------------------------- //
@@ -33,12 +32,12 @@ namespace HookshotTest
         /// Prints the specified message and appends a newline.
         /// Available to be called directly from the body of a test case.
         /// @param [in] str Message string.
-        void Print(const TCHAR* const str) const;
+        void Print(const wchar_t* const str) const;
         
         /// Formats and prints the specified message and appends a newline.
         /// Available to be called directly from the body of a test case.
         /// @param [in] format Message string, possibly with format specifiers.
-        void PrintFormatted(const TCHAR* const format, ...) const;
+        void PrintFormatted(const wchar_t* const format, ...) const;
 
         
         // -------- ABSTRACT INSTANCE METHODS ------------------------------ //
@@ -58,7 +57,7 @@ namespace HookshotTest
     /// Concrete test case object template.
     /// Each test case created by #HOOKSHOT_TEST_CASE instantiates an object of this type with a different template parameter.
     /// @tparam kName Name of the test case.
-    template <const TCHAR* kName> class TestCase : public ITestCase
+    template <const wchar_t* kName> class TestCase : public ITestCase
     {
     public:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
@@ -89,7 +88,7 @@ namespace HookshotTest
 #define HOOKSHOT_TEST_FAILED                return false
 
 /// Exit from a test case and indicate a failing result if the expression is false.
-#define HOOKSHOT_TEST_ASSERT(expr)          do {if (!(expr)) {PrintFormatted(_T("%s:%d: Assertion failed: %s"), _T(__FILE__), __LINE__, _T(#expr)); return false;}} while (0)
+#define HOOKSHOT_TEST_ASSERT(expr)          do {if (!(expr)) {PrintFormatted(L"%s:%d: Assertion failed: %s", __FILEW__, __LINE__, L#expr); return false;}} while (0)
 
 /// Recommended way of creating Hookshot test cases that execute conditionally.
 /// Requires a test case name and a condition, which evaluates to a value of type bool.
@@ -98,7 +97,7 @@ namespace HookshotTest
 /// Treat this macro as a function declaration; the test case is the function body.
 /// A variable called "hookConfig" is available for configuring Hookshot for test purposes.
 #define HOOKSHOT_TEST_CASE_CONDITIONAL(name, cond)                                                              \
-    static constexpr TCHAR kHookshotTestName__##name[] = _T(#name);                                             \
+    static constexpr wchar_t kHookshotTestName__##name[] = L#name;                                              \
     HookshotTest::TestCase<kHookshotTestName__##name>  hookshotTestCaseInstance__##name;                        \
     bool HookshotTest::TestCase<kHookshotTestName__##name>::CanRun(void) const { return (cond); }               \
     bool HookshotTest::TestCase<kHookshotTestName__##name>::Run(Hookshot::IHookConfig* const hookConfig) const

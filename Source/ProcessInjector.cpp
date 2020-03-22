@@ -43,26 +43,7 @@ namespace Hookshot
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "ProcessInjector.h" for documentation.
 
-    EInjectResult ProcessInjector::CreateInjectedProcessA(LPCSTR lpApplicationName, LPSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCSTR lpCurrentDirectory, LPSTARTUPINFOA lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation)
-    {
-        // This method creates processes in suspended state as part of injection functionality.
-        // It will allow the new process to run, unless the caller requested a suspended process.
-        const bool shouldCreateSuspended = (0 != (dwCreationFlags & CREATE_SUSPENDED)) ? true : false;
-
-        // Attempt to create the new process in suspended state and capture information about it.
-        PROCESS_INFORMATION processInfo;
-        if (0 == CreateProcessA(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, (dwCreationFlags | CREATE_SUSPENDED), lpEnvironment, lpCurrentDirectory, lpStartupInfo, &processInfo))
-            return EInjectResult::InjectResultErrorCreateProcess;
-
-        *lpProcessInformation = processInfo;
-
-        // Attempt to inject the newly-created process and handle the result.
-        return HandleInjectionResult(InjectProcess(processInfo.hProcess, processInfo.hThread, (IsDebuggerPresent() ? true : false)), shouldCreateSuspended, processInfo.hProcess, processInfo.hThread);
-    }
-
-    // --------
-
-    EInjectResult ProcessInjector::CreateInjectedProcessW(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation)
+    EInjectResult ProcessInjector::CreateInjectedProcess(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation)
     {
         // This method creates processes in suspended state as part of injection functionality.
         // It will allow the new process to run, unless the caller requested a suspended process.
@@ -193,7 +174,7 @@ namespace Hookshot
         // Verify that "ntdll.dll" is loaded.
         if (NULL == ntdllModuleHandle)
         {
-            ntdllModuleHandle = LoadLibraryEx(_T("ntdll.dll"), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+            ntdllModuleHandle = LoadLibraryEx(L"ntdll.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
 
             if (NULL == ntdllModuleHandle)
                 return EInjectResult::InjectResultErrorLoadNtDll;

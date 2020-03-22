@@ -16,7 +16,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <hookshot.h>
-#include <tchar.h>
 #include <windows.h>
 
 
@@ -182,7 +181,7 @@ namespace HookshotTest
         {
             if (Hookshot::SuccessfulResult(testData.hookConfig->CreateHook(testData.originalFuncs[i], testData.hookFuncs[i])))
             {
-                testData.testCase->PrintFormatted(_T("Thread %d: Successfully set hook at index %d."), threadID, i);
+                testData.testCase->PrintFormatted(L"Thread %d: Successfully set hook at index %d.", threadID, i);
                 numSuccesses += 1;
             }
         }
@@ -255,7 +254,7 @@ namespace HookshotTest
 
         constexpr int kNumThreads = _countof(originalFuncs) / 4;
         testData.numThreads = kNumThreads;
-        PrintFormatted(_T("Creating %d threads."), kNumThreads);
+        PrintFormatted(L"Creating %d threads.", kNumThreads);
 
         // Capture some expected values.
         // These are just the results of calling the hook functions.
@@ -292,13 +291,13 @@ namespace HookshotTest
             totalNumSuccesses += thisThreadNumSuccesses;
         }
 
-        PrintFormatted(_T("%d total successful hook set operations."), totalNumSuccesses);
+        PrintFormatted(L"%d total successful hook set operations.", totalNumSuccesses);
         HOOKSHOT_TEST_ASSERT(_countof(originalFuncs) == totalNumSuccesses);
 
         for (int i = 0; i < _countof(originalFuncs); ++i)
         {
             const int actualValue = originalFuncs[i]();
-            PrintFormatted(_T("Hook %d: %s: expected %d, got %d."), i, (actualValue == expectedValues[i] ? _T("OK") : _T("BAD")), expectedValues[i], actualValue);
+            PrintFormatted(L"Hook %d: %s: expected %d, got %d.", i, (actualValue == expectedValues[i] ? L"OK" : L"BAD"), expectedValues[i], actualValue);
             HOOKSHOT_TEST_ASSERT(actualValue == expectedValues[i]);
         }
 

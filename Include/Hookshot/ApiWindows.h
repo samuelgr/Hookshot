@@ -17,5 +17,4 @@
 #define NOMINMAX
 
 #include <sdkddkver.h>
-#include <tchar.h>
 #include <windows.h>

@@ -13,10 +13,9 @@
 
 #include "Configuration.h"
 #include "HookStore.h"
-#include "UnicodeTypes.h"
 
-#include <tchar.h>
 #include <hookshot.h>
+#include <string_view>
 
 
 namespace Hookshot
@@ -57,7 +56,7 @@ namespace Hookshot
         /// Retrieves a string containing a message that describes the error encountered while attempting to read the Hookshot configuration file.
         /// Only useful if #IsConfigurationDataValid returns `false`.
         /// @return String containing the configuration file read error message.
-        static inline TStdStringView GetConfigurationErrorMessage(void)
+        static inline std::wstring_view GetConfigurationErrorMessage(void)
         {
             return configuration.GetReadErrorMessage();
         }
@@ -84,6 +83,6 @@ namespace Hookshot
         /// Useful if hooks to be set are contained in an external hook module.
         /// @param [in] hookModuleFileName File name of the hook module to load and initialize.
         /// @return `true` on success, `false` on failure.
-        static bool LoadHookModule(TStdStringView hookModuleFileName);
+        static bool LoadHookModule(std::wstring_view hookModuleFileName);
     };
 }
