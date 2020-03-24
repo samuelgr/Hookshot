@@ -66,6 +66,16 @@ namespace Hookshot
 
         // -------- INTERNAL FUNCTIONS ------------------------------------- //
 
+        /// Generates the value for #kStrProductName; see documentation of this run-time constant for more information.
+        /// @return Corresponding run-time constant value.
+        static std::wstring GetProductName(void)
+        {
+            TemporaryBuffer<wchar_t> buf;
+            LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, (wchar_t*)buf, buf.Count());
+
+            return (std::wstring(buf));
+        }
+        
         /// Generates the base name of the current running form of Hookshot, minus the extension.
         /// For example: "C:\Directory\Program\Hookshot.32.dll" -> "Hookshot"
         /// @return Base name without extension.
@@ -263,6 +273,8 @@ namespace Hookshot
         // -------- INTERNAL CONSTANTS ------------------------------------- //
         // Used to implement run-time constants; see "Strings.h" for documentation.
 
+        static const std::wstring kStrProductNameImpl(GetProductName());
+
         static const std::wstring kStrExecutableBaseNameImpl(GetExecutableBaseName());
 
         static const std::wstring kStrExecutableDirectoryNameImpl(GetExecutableDirectoryName());
@@ -289,6 +301,8 @@ namespace Hookshot
         // -------- RUN-TIME CONSTANTS ------------------------------------- //
         // See "Strings.h" for documentation.
 
+        extern const std::wstring_view kStrProductName(kStrProductNameImpl);
+
         extern const std::wstring_view kStrExecutableBaseName(kStrExecutableBaseNameImpl);
 
         extern const std::wstring_view kStrExecutableDirectoryName(kStrExecutableDirectoryNameImpl);
@@ -304,7 +318,7 @@ namespace Hookshot
         extern const std::wstring_view kStrHookshotConfigurationFilename(kStrHookshotConfigurationFilenameImpl);
 
         extern const std::wstring_view kStrHookshotLogFilename(kStrHookshotLogFilenameImpl);
-        
+
         extern const std::wstring_view kStrHookshotDynamicLinkLibraryFilename(kStrHookshotDynamicLinkLibraryFilenameImpl);
 
         extern const std::wstring_view kStrHookshotExecutableFilename(kStrHookshotExecutableFilenameImpl);
@@ -312,7 +326,6 @@ namespace Hookshot
         extern const std::wstring_view kStrHookshotExecutableOtherArchitectureFilename(kStrHookshotExecutableOtherArchitectureFilenameImpl);
 
 
-        
         // -------- FUNCTIONS ---------------------------------------------- //
         // See "Strings.h" for documentation.
         

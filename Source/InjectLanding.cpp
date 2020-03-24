@@ -46,12 +46,12 @@ extern "C" void __stdcall InjectLandingCleanup(const SInjectData* const injectDa
 extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const injectData)
 {
     if ((0 != injectData->enableDebugFeatures) && (0 == IsDebuggerPresent()))
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityForcedInteractiveInfo, L"Attach to \"%s\" (PID %d) to continue debugging.", Strings::kStrExecutableBaseName.data(), GetProcessId(GetCurrentProcess()));
+        Message::OutputFormatted(Message::ESeverity::ForcedInteractiveInfo, L"Attach to \"%s\" (PID %d) to continue debugging.", Strings::kStrExecutableBaseName.data(), GetProcessId(GetCurrentProcess()));
 
     if (true == LibraryInterface::IsConfigurationDataValid())
     {
         const int numHookModulesLoaded = LibraryInterface::LoadConfiguredHookModules();
         const int numInjectOnlyLibrariesLoaded = LibraryInterface::LoadConfiguredInjectOnlyLibraries();
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"Loaded %d hook module%s and %d injection-only librar%s.", numHookModulesLoaded, (1 == numHookModulesLoaded ? L"" : L"s"), numInjectOnlyLibrariesLoaded, (1 == numInjectOnlyLibrariesLoaded ? L"y" : L"ies"));
+        Message::OutputFormatted(Message::ESeverity::Info, L"Loaded %d hook module%s and %d injection-only librar%s.", numHookModulesLoaded, (1 == numHookModulesLoaded ? L"" : L"s"), numInjectOnlyLibrariesLoaded, (1 == numInjectOnlyLibrariesLoaded ? L"y" : L"ies"));
     }
 }

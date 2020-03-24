@@ -76,6 +76,10 @@ namespace Hookshot
         // -------- RUN-TIME CONSTANTS ------------------------------------- //
         // Not safe to access before run-time, and should not be used to perform dynamic initialization.
 
+        /// Product name.
+        /// Use this to identify Hookshot in areas of user interaction.
+        extern const std::wstring_view kStrProductName;
+        
         /// Base name of the currently-running executable.
         /// For Hookshot's executable form, this will be the Hookshot executable.
         /// For Hookshot's library form, this will be the name of the executable that loaded it or into which it was injected.

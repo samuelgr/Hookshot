@@ -77,7 +77,7 @@ namespace Hookshot
     
     void Trampoline::SetHookFunction(const void* hookFunc)
     {
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"Trampoline at 0x%llx is being set up with hook function 0x%llx.", (long long)this, (long long)hookFunc);
+        Message::OutputFormatted(Message::ESeverity::Info, L"Trampoline at 0x%llx is being set up with hook function 0x%llx.", (long long)this, (long long)hookFunc);
         code.hook.ptr[_countof(code.hook.ptr) - 1] = ValueForHookAddress(hookFunc);
         FlushInstructionCache(GetCurrentProcess(), &code.hook, sizeof(code.hook));
     }
@@ -86,12 +86,12 @@ namespace Hookshot
     
     bool Trampoline::SetOriginalFunction(const void* originalFunc)
     {
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"Trampoline at 0x%llx is being set up with original function 0x%llx.", (long long)this, (long long)originalFunc);
+        Message::OutputFormatted(Message::ESeverity::Info, L"Trampoline at 0x%llx is being set up with original function 0x%llx.", (long long)this, (long long)originalFunc);
         
         // Sanity check.  Make sure the original function is not too far away from this trampoline.
         if (false == X86Instruction::CanWriteJumpInstruction(originalFunc, &code.hook))
         {
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, L"Set hook failed for function %llx because it is too far from the trampoline.", (long long)originalFunc);
+            Message::OutputFormatted(Message::ESeverity::Warning, L"Set hook failed for function %llx because it is too far from the trampoline.", (long long)originalFunc);
             return false;
         }
         
@@ -107,7 +107,7 @@ namespace Hookshot
         int instructionIndex = 0;
         std::vector<X86Instruction> originalInstructions;
 
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Starting to decode instructions at 0x%llx, need %d bytes.", (long long)originalFunc, numOriginalFunctionBytesNeeded);
+        Message::OutputFormatted(Message::ESeverity::Debug, L"Starting to decode instructions at 0x%llx, need %d bytes.", (long long)originalFunc, numOriginalFunctionBytesNeeded);
 
         while (numOriginalFunctionBytes < numOriginalFunctionBytesNeeded)
         {
@@ -116,20 +116,20 @@ namespace Hookshot
             
             if (false == decodedInstruction.IsValid())
             {
-                Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Invalid instruction.", instructionIndex);
+                Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Invalid instruction.", instructionIndex);
                 return false;
             }
 
-            if (Message::WillOutputMessageOfSeverity(EMessageSeverity::MessageSeverityDebug))
+            if (Message::WillOutputMessageOfSeverity(Message::ESeverity::Debug))
             {
                 TemporaryBuffer<wchar_t> disassembly;
                 if (true == decodedInstruction.PrintDisassembly(disassembly, disassembly.Count()))
-                    Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Decoded %d-byte instruction \"%s\"", instructionIndex, decodedInstruction.GetLengthBytes(), &disassembly[0]);
+                    Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Decoded %d-byte instruction \"%s\"", instructionIndex, decodedInstruction.GetLengthBytes(), &disassembly[0]);
                 else
-                    Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Decoded %d-byte instruction \"(failed to disassemble\")", instructionIndex, decodedInstruction.GetLengthBytes());
+                    Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Decoded %d-byte instruction \"(failed to disassemble\")", instructionIndex, decodedInstruction.GetLengthBytes());
 
                 if (decodedInstruction.IsTerminal())
-                    Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - This is a terminal instruction.", instructionIndex);
+                    Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - This is a terminal instruction.", instructionIndex);
             }
             
             numOriginalFunctionBytes += decodedInstruction.GetLengthBytes();
@@ -141,11 +141,11 @@ namespace Hookshot
 
         if (numOriginalFunctionBytes < numOriginalFunctionBytesNeeded)
         {
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Decoded a total of %d byte(s), needed %d. This is insufficient. Bailing.", numOriginalFunctionBytes, numOriginalFunctionBytesNeeded);
+            Message::OutputFormatted(Message::ESeverity::Debug, L"Decoded a total of %d byte(s), needed %d. This is insufficient. Bailing.", numOriginalFunctionBytes, numOriginalFunctionBytesNeeded);
             return false;
         }
         else
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Decoded a total of %d byte(s), needed %d. This is sufficient. Proceeding.", numOriginalFunctionBytes, numOriginalFunctionBytesNeeded);
+            Message::OutputFormatted(Message::ESeverity::Debug, L"Decoded a total of %d byte(s), needed %d. This is sufficient. Proceeding.", numOriginalFunctionBytes, numOriginalFunctionBytesNeeded);
 
         // Second and third sub-parts.
         int numTrampolineBytesWritten = 0;
@@ -160,7 +160,7 @@ namespace Hookshot
             if (originalInstructions[i].HasPositionDependentMemoryReference())
             {
                 const int64_t originalDisplacement = originalInstructions[i].GetMemoryDisplacement();
-                Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Has a position-dependent memory reference with displacement 0x%llx.", i, (long long)originalDisplacement);
+                Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Has a position-dependent memory reference with displacement 0x%llx.", i, (long long)originalDisplacement);
                 
                 // If the displacement is so small that it refers to another instruction that is also being transplanted, then there is no need to modify it.
                 // Note the need to check both forwards (positive) and backwards (negative) displacement directions.
@@ -171,7 +171,7 @@ namespace Hookshot
                 {
                     // There are no changes to the length of the instruction, so the change to the displacement value is just the difference in its new and original locations in memory.
                     const intptr_t newDisplacementValue = ((intptr_t)originalInstructions[i].GetAddress() - (intptr_t)nextTrampolineAddressToWrite) + (intptr_t)originalDisplacement;
-                    Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Transplanting from 0x%llx to 0x%llx, absolute target is 0x%llx, new displacement is 0x%llx.", i, (long long)originalInstructions[i].GetAddress(), (long long)nextTrampolineAddressToWrite, (long long)originalInstructions[i].GetAbsoluteMemoryReferenceTarget(), (long long)newDisplacementValue);
+                    Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Transplanting from 0x%llx to 0x%llx, absolute target is 0x%llx, new displacement is 0x%llx.", i, (long long)originalInstructions[i].GetAddress(), (long long)nextTrampolineAddressToWrite, (long long)originalInstructions[i].GetAbsoluteMemoryReferenceTarget(), (long long)newDisplacementValue);
 
                     // Try to replace the displacement in the original instruction. If this fails, perhaps using a 32-bit unconditional jump as an assist will help, especially if the original instruction uses an 8-bit or 16-bit relative displacement.
                     // However, an assist like this is only possible if the original instruction has a relative branch displacement, not a position-relative data access displacement. Note that the latter case, RIP-relative addressing, is only supported in 64-bit mode.
@@ -190,31 +190,31 @@ namespace Hookshot
                             void* const jumpAssistTargetAddress = originalInstructions[i].GetAbsoluteMemoryReferenceTarget();
                             const intptr_t displacementValueToJumpAssist = (intptr_t)jumpAssistAddress - ((intptr_t)nextTrampolineAddressToWrite + (intptr_t)originalInstructions[i].GetLengthBytes());
 
-                            Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Failed to set new displacement, but will attempt to use a jump assist (from=0x%llx, to=0x%llx, disp=0x%llx, target=0x%llx) instead.", i, (long long)nextTrampolineAddressToWrite, (long long)jumpAssistAddress, (long long)displacementValueToJumpAssist, (long long)jumpAssistTargetAddress);
+                            Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Failed to set new displacement, but will attempt to use a jump assist (from=0x%llx, to=0x%llx, disp=0x%llx, target=0x%llx) instead.", i, (long long)nextTrampolineAddressToWrite, (long long)jumpAssistAddress, (long long)displacementValueToJumpAssist, (long long)jumpAssistTargetAddress);
 
                             if (false == originalInstructions[i].SetMemoryDisplacement((int64_t)displacementValueToJumpAssist))
                             {
-                                Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Jump assist failed, unable to set original instruction displacement.", i, (long long)nextTrampolineAddressToWrite);
+                                Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Jump assist failed, unable to set original instruction displacement.", i, (long long)nextTrampolineAddressToWrite);
                                 return false;
                             }
 
                             if (false == X86Instruction::WriteJumpInstruction(jumpAssistAddress, X86Instruction::kJumpInstructionLengthBytes, jumpAssistTargetAddress))
                             {
-                                Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Jump assist failed, unable write jump assist instruction.", i);
+                                Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Jump assist failed, unable write jump assist instruction.", i);
                                 return false;
                             }
 
-                            Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Jump assist succeeded, encoded %d extra bytes at 0x%llx.", i, X86Instruction::kJumpInstructionLengthBytes, (long long)jumpAssistAddress);
+                            Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Jump assist succeeded, encoded %d extra bytes at 0x%llx.", i, X86Instruction::kJumpInstructionLengthBytes, (long long)jumpAssistAddress);
                         }
                         else
                         {
-                            Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Failed to set new displacement, and cannot use a jump assist.", i);
+                            Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Failed to set new displacement, and cannot use a jump assist.", i);
                             return false;
                         }
                     }
                 }
                 else
-                    Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Displacement is short enough, no modification required.", i);
+                    Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Displacement is short enough, no modification required.", i);
             }
 
             // Third sub-part. Re-encode the instruction.
@@ -222,11 +222,11 @@ namespace Hookshot
 
             if (0 == numEncodedBytes)
             {
-                Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Failed to encode at 0x%llx.", i, (long long)nextTrampolineAddressToWrite);
+                Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Failed to encode at 0x%llx.", i, (long long)nextTrampolineAddressToWrite);
                 return false;
             }
 
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Instruction %d - Encoded %d byte(s) at 0x%llx.", i, numEncodedBytes, (long long)nextTrampolineAddressToWrite);
+            Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Encoded %d byte(s) at 0x%llx.", i, numEncodedBytes, (long long)nextTrampolineAddressToWrite);
             numTrampolineBytesWritten += numEncodedBytes;
         }
 
@@ -235,11 +235,11 @@ namespace Hookshot
         if (false == originalInstructions.back().IsTerminal())
         {
             const int numTrampolineBytesLeft = sizeof(code.original) - numTrampolineBytesWritten - numExtraTrampolineBytesUsed;
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Final encoded instruction is non-terminal, so adding a jump to 0x%llx with %d byte(s) free in the trampoline.", (long long)&originalFunctionBytes[numOriginalFunctionBytes], numTrampolineBytesLeft);
+            Message::OutputFormatted(Message::ESeverity::Debug, L"Final encoded instruction is non-terminal, so adding a jump to 0x%llx with %d byte(s) free in the trampoline.", (long long)&originalFunctionBytes[numOriginalFunctionBytes], numTrampolineBytesLeft);
             
             if (false == X86Instruction::WriteJumpInstruction(&code.original.byte[numTrampolineBytesWritten], numTrampolineBytesLeft, &originalFunctionBytes[numOriginalFunctionBytes]))
             {
-                Message::OutputFormatted(EMessageSeverity::MessageSeverityDebug, L"Failed to write terminal jump instruction.");
+                Message::OutputFormatted(Message::ESeverity::Debug, L"Failed to write terminal jump instruction.");
                 return false;
             }
         }

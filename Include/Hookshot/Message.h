@@ -18,165 +18,77 @@
 
 namespace Hookshot
 {
-     /// Enumerates all supported severity levels for messages.
-     /// These are primarily used to assist with output formatting.
-     enum EMessageSeverity
-     {
-         // Forced interactive output
-         MessageSeverityForcedInteractiveError,                     ///< Error, always output interactively.
-         MessageSeverityForcedInteractiveWarning,                   ///< Warning, always output interactively.
-         MessageSeverityForcedInteractiveInfo,                      ///< Informational, always output interactively.
-
-         // Boundary value between forced interactive and optional output
-         MessageSeverityForcedInteractiveBoundaryValue,             ///< Not used as a value, but separates forced interactive output from optional output.
-
-         // Optional output
-         MessageSeverityError,                                      ///< Error. Causes a change in behavior if encountered, possibly leading to application termination.
-         MessageSeverityWarning,                                    ///< Warning. May cause a change in behavior but is not critical and will not terminate the application.
-         MessageSeverityInfo,                                       ///< Informational. Useful status-related remarks for tracking application behavior.
-         MessageSeverityDebug,                                      ///< Debug. Only output in debug mode, and then only written to an attached debugger.
-     };
-
-     /// Enumerates all supported modes of outputting messages.
-     enum EMessageOutputMode
-     {
-         // Non-interactive output modes
-         MessageOutputModeDebugString,                              ///< Message is output using a debug string, which debuggers will display.
-         MessageOutputLogFile,                                      ///< Message is output to a log file.
-
-         // Boundary value between non-interactive and interactive modes
-         MessageOutputModeInteractiveBoundaryValue,                 ///< Not used as a value, but separates non-interactive output modes from interactive output modes.
-
-         // Interactive output modes
-         MessageOutputModeMessageBox,                               ///< Message is output using a message box.
-
-         // Upper sentinel value
-         MessageOutputModeUpperBoundValue,                          ///< Not used as a value. One higher than the maximum possible value in this enumeration.
-     };
-     
-    /// Encapsulates all message-related functionality.
-    /// All methods are class methods.
-    class Message
+    namespace Message
     {
-    private:
+        // -------- TYPE DEFINITIONS --------------------------------------- //
+
+        /// Enumerates all supported severity levels for messages.
+        /// These are primarily used to assist with output formatting.
+        enum class ESeverity
+        {
+            // Forced interactive output
+            ForcedInteractiveError,                                     ///< Error, always output interactively.
+            ForcedInteractiveWarning,                                   ///< Warning, always output interactively.
+            ForcedInteractiveInfo,                                      ///< Informational, always output interactively.
+
+            // Boundary value between forced interactive and optional output
+            ForcedInteractiveBoundaryValue,                             ///< Not used as a value, but separates forced interactive output from optional output.
+
+            // Optional output
+            Error,                                                      ///< Error. Causes a change in behavior if encountered, possibly leading to application termination.
+            Warning,                                                    ///< Warning. May cause a change in behavior but is not critical and will not terminate the application.
+            Info,                                                       ///< Informational. Useful status-related remarks for tracking application behavior.
+            Debug,                                                      ///< Debug. Only output in debug mode, and then only written to an attached debugger.
+
+            // Upper sentinel value
+            UpperBoundValue,                                            ///< Not used as a value. One higher than the maximum possible value in this enumeration.
+        };
+
+
         // -------- CONSTANTS ---------------------------------------------- //
+
+        /// Specifies the default minimum severity required to output a message.
+        /// Messages below the configured minimum severity severity (i.e. above the integer value that represents this severity) are not output.
+#if HOOKSHOT_DEBUG
+        static constexpr ESeverity kDefaultMinimumSeverityForOutput = ESeverity::Debug;
+#else
+        static constexpr ESeverity kDefaultMinimumSeverityForOutput = ESeverity::Error;
+#endif
 
         /// Specifies the maximum severity that requires a non-interactive mode of output be used.
         /// Messages at this severity or lower will be skipped unless a non-intneractive output mode is being used.
-        static constexpr EMessageSeverity kMaximumSeverityToRequireNonInteractiveOutput = EMessageSeverity::MessageSeverityDebug;
+        static constexpr ESeverity kMaximumSeverityToRequireNonInteractiveOutput = ESeverity::Debug;
 
 
-        // -------- CLASS VARIABLES ---------------------------------------- //
+        // -------- FUNCTIONS ---------------------------------------------- //
 
-        /// Handle to the log file, if enabled.
-        static FILE* logFileHandle;
-        
-        /// Specifies the minimum severity required to output a message.
-        /// Messages below this severity (i.e. above the integer value that represents this severity) are ignored.
-        /// Default values are different between debug and release configurations but in either case can be overridden at runtime.
-        static EMessageSeverity minimumSeverityForOutput;
-
-
-    public:
-        // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
-
-        /// Default constructor. Should never be invoked.
-        Message(void) = delete;
-
-
-        // -------- CLASS METHODS ------------------------------------------ //
-        
         /// Attempts to create and enable the log file.
         /// Will generate an error message on failure.
         /// Once logging to a file is enabled, it cannot be disabled.
-        static void CreateAndEnableLogFile(void);
-        
+        void CreateAndEnableLogFile(void);
+
         /// Outputs the specified message.
         /// Requires both a severity and a message string.
         /// @param [in] severity Severity of the message.
         /// @param [in] message Message text.
-        static void Output(const EMessageSeverity severity, const wchar_t* message);
-        
+        void Output(const ESeverity severity, const wchar_t* message);
+
         /// Formats and outputs the specified message.
         /// Requires a severity, a message string with standard format specifiers, and values to be formatted.
         /// @param [in] severity Severity of the message.
         /// @param [in] format Message string, possibly with format specifiers.
-        static void OutputFormatted(const EMessageSeverity severity, const wchar_t* format, ...);
+        void OutputFormatted(const ESeverity severity, const wchar_t* format, ...);
 
         /// Sets the minimum message severity required for a message to be output.
-        /// Ineffective if the input is invalid.
+        /// Compares the supplied severity level to #ESeverity::ForcedInteractiveBoundaryValue and, if not greater, sums them together and adds 1.
+        /// The effect of doing this is to map from forced severities to unforced severities (i.e. input is #ESeverity::ForcedInteractiveError, actual minimum severity is #ESeverity::Error).
         /// @param [in] severity New minimum severity setting.
-        static inline void SetMinimumSeverityForOutput(EMessageSeverity severity)
-        {
-            if (severity > EMessageSeverity::MessageSeverityForcedInteractiveBoundaryValue)
-                minimumSeverityForOutput = severity;
-        }
-        
+        void SetMinimumSeverityForOutput(const ESeverity severity);
+
         /// Determines if a message of the specified severity will be output.
         /// Compares the supplied severity level to the configured minimum severity level.
         /// @param [in] severity Severity to test.
         /// @return `true` if a message of the specified severity should be output, `false` otherwise.
-        static bool WillOutputMessageOfSeverity(const EMessageSeverity severity);
-
-
-    private:
-        // -------- HELPERS ------------------------------------------------ //
-
-        /// Checks if logging to a file is enabled.
-        /// @return `true` if so, `false` if not.
-        static inline bool IsLogFileEnabled(void)
-        {
-            return (NULL != logFileHandle);
-        }
-        
-        /// Checks if the specified output mode is interactive or non-interactive.
-        /// @return `true` if the mode is interactive, `false` otherwise.
-        static inline bool IsOutputModeInteractive(const EMessageOutputMode outputMode)
-        {
-            return (outputMode > EMessageOutputMode::MessageOutputModeInteractiveBoundaryValue);
-        }
-
-        /// Checks if the specified severity is forced interactive (i.e. one of the elements that will always cause a message to be emitted interactively).
-        /// @return `true` if the severity is forced interactive, `false` otherwise.
-        static inline bool IsSeverityForcedInteractive(const EMessageSeverity severity)
-        {
-            return (severity < EMessageSeverity::MessageSeverityForcedInteractiveBoundaryValue);
-        }
-        
-        /// Formats and outputs some text of the given severity.
-        /// @param [in] severity Severity of the message.
-        /// @param [in] format Message string, possibly with format specifiers.
-        /// @param [in] args Variable-length list of arguments to be used for any format specifiers in the message string.
-        static void OutputFormattedInternal(const EMessageSeverity severity, const wchar_t* format, va_list args);
-
-        /// Outputs the specified message.
-        /// Requires both a severity and a message string.
-        /// @param [in] severity Severity of the message.
-        /// @param [in] message Message text.
-        static void OutputInternal(const EMessageSeverity severity, const wchar_t* message);
-        
-        /// Outputs the specified message using a debug string.
-        /// Requires both a severity and a message string.
-        /// @param [in] severity Severity of the message.
-        /// @param [in] message Message text.
-        static void OutputInternalUsingDebugString(const EMessageSeverity severity, const wchar_t* message);
-
-        /// Outputs the specified message to the log file.
-        /// Requires both a severity and a message string.
-        /// @param [in] severity Severity of the message.
-        /// @param [in] message Message text.
-        static void OutputInternalUsingLogFile(const EMessageSeverity severity, const wchar_t* message);
-
-        /// Outputs the specified message using a graphical message box.
-        /// Requires both a severity and a message string.
-        /// @param [in] severity Severity of the message.
-        /// @param [in] message Message text.
-        static void OutputInternalUsingMessageBox(const EMessageSeverity severity, const wchar_t* message);
-
-        /// Determines the appropriate modes of output based on the current configuration and message severity.
-        /// @param [in] severity Severity of the message for which an output mode is being chosen.
-        /// @param [out] selectedOutputModes Filled with the output modes that are selected.  Array should have #EMessageOutputMode::MessageOutputModeUpperBoundValue elements.
-        /// @return Number of output modes selected.
-        static int SelectOutputModes(const EMessageSeverity severity, EMessageOutputMode* selectedOutputModes);
-    };
+        bool WillOutputMessageOfSeverity(const ESeverity severity);
+    }
 }

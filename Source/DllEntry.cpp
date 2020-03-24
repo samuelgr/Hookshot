@@ -60,7 +60,7 @@ extern "C" __declspec(dllexport) void* __stdcall HookshotInjectInitialize(void)
     LibraryInterface::Initialize();
 
     if (false == LibraryInterface::IsConfigurationDataValid())
-        Message::Output(EMessageSeverity::MessageSeverityError, LibraryInterface::GetConfigurationErrorMessage().data());
+        Message::Output(Message::ESeverity::Error, LibraryInterface::GetConfigurationErrorMessage().data());
 
     return (void*)InjectLanding;
 }
@@ -73,7 +73,7 @@ __declspec(dllexport) IHookConfig* __stdcall HookshotLibraryInitialize(void)
     LibraryInterface::Initialize();
 
     if (false == LibraryInterface::IsConfigurationDataValid())
-        Message::Output(EMessageSeverity::MessageSeverityWarning, LibraryInterface::GetConfigurationErrorMessage().data());
+        Message::Output(Message::ESeverity::Warning, LibraryInterface::GetConfigurationErrorMessage().data());
 
     return LibraryInterface::GetHookConfigInterface();
 }

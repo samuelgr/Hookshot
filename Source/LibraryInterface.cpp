@@ -47,15 +47,13 @@ namespace Hookshot
             {
                 const int64_t requestedSeverity = GetConfigurationData().SectionByName(Configuration::ConfigurationData::kSectionNameGlobal).NameByName(Strings::kStrConfigurationSettingNameLogLevel).FirstValue().GetIntegerValue();
 
-                // Map from the requested severity to the configured severity, such that increasing number means increased verbosity.
-                // Offset the requested severity by skipping over all the forced and boundary severity values.
-                // Resulting mapping: 0 = disabled, 1 = error, 2 = warning, 3 = debug, etc.
+                // Offset the requested severity by subtracting 1 from it so that 0 = disabled, 1 = error, 2 = warning, etc.
                 if (requestedSeverity > 0)
                 {
-                    const EMessageSeverity configuredSeverity = (EMessageSeverity)(requestedSeverity + EMessageSeverity::MessageSeverityForcedInteractiveBoundaryValue);
+                    const Message::ESeverity configureSeverity = (Message::ESeverity)(requestedSeverity - 1);
 
                     Message::CreateAndEnableLogFile();
-                    Message::SetMinimumSeverityForOutput(configuredSeverity);
+                    Message::SetMinimumSeverityForOutput(configureSeverity);
                 }
             }
         }
@@ -130,12 +128,12 @@ namespace Hookshot
 
     bool LibraryInterface::LoadHookModule(std::wstring_view hookModuleFileName)
     {
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"%s - Attempting to load hook module.", hookModuleFileName.data());
+        Message::OutputFormatted(Message::ESeverity::Info, L"%s - Attempting to load hook module.", hookModuleFileName.data());
         const HMODULE hookModule = LoadLibrary(hookModuleFileName.data());
 
         if (NULL == hookModule)
         {
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, L"%s - Failed to load hook module (system error %d).", hookModuleFileName.data(), GetLastError());
+            Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load hook module (system error %d).", hookModuleFileName.data(), GetLastError());
             return false;
         }
 
@@ -143,13 +141,13 @@ namespace Hookshot
 
         if (NULL == initProc)
         {
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, L"%s - Failed to locate required procedure in hook module (system error %d).", hookModuleFileName.data(), GetLastError());
+            Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to locate required procedure in hook module (system error %d).", hookModuleFileName.data(), GetLastError());
             return false;
         }
 
         initProc(GetHookConfigInterface());
 
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"%s - Successfully loaded hook module.", hookModuleFileName.data());
+        Message::OutputFormatted(Message::ESeverity::Info, L"%s - Successfully loaded hook module.", hookModuleFileName.data());
         return true;
     }
 
@@ -157,16 +155,16 @@ namespace Hookshot
 
     bool LibraryInterface::LoadInjectOnlyLibrary(std::wstring_view injectOnlyLibraryFileName)
     {
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"%s - Attempting to load library.", injectOnlyLibraryFileName.data());
+        Message::OutputFormatted(Message::ESeverity::Info, L"%s - Attempting to load library.", injectOnlyLibraryFileName.data());
         const HMODULE hookModule = LoadLibrary(injectOnlyLibraryFileName.data());
 
         if (NULL == hookModule)
         {
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityWarning, L"%s - Failed to load library (system error %d).", injectOnlyLibraryFileName.data(), GetLastError());
+            Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load library (system error %d).", injectOnlyLibraryFileName.data(), GetLastError());
             return false;
         }
 
-        Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"%s - Successfully loaded library.", injectOnlyLibraryFileName.data());
+        Message::OutputFormatted(Message::ESeverity::Info, L"%s - Successfully loaded library.", injectOnlyLibraryFileName.data());
         return true;
     }
 }

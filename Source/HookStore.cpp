@@ -172,7 +172,7 @@ namespace Hookshot
         trampoline.SetHookFunction(hookFunc);
         if (false == trampoline.SetOriginalFunction(originalFunc))
         {
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"Failed to set up a trampoline for original function at 0x%llx.", (long long)originalFunc);
+            Message::OutputFormatted(Message::ESeverity::Info, L"Failed to set up a trampoline for original function at 0x%llx.", (long long)originalFunc);
 
             trampolineStore.Deallocate();
             return EHookshotResult::HookshotResultFailCannotSetHook;
@@ -180,7 +180,7 @@ namespace Hookshot
 
         if (false == RedirectExecution(originalFunc, trampoline.GetHookFunction()))
         {
-            Message::OutputFormatted(EMessageSeverity::MessageSeverityInfo, L"Failed to redirect execution from 0x%llx to 0x%llx.", (long long)originalFunc, (long long)trampoline.GetHookFunction());
+            Message::OutputFormatted(Message::ESeverity::Info, L"Failed to redirect execution from 0x%llx to 0x%llx.", (long long)originalFunc, (long long)trampoline.GetHookFunction());
 
             trampolineStore.Deallocate();
             return EHookshotResult::HookshotResultFailCannotSetHook;
