@@ -46,7 +46,7 @@ extern "C" void __stdcall InjectLandingCleanup(const SInjectData* const injectDa
 extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const injectData)
 {
     if ((0 != injectData->enableDebugFeatures) && (0 == IsDebuggerPresent()))
-        Message::OutputFormatted(Message::ESeverity::ForcedInteractiveInfo, L"Attach to \"%s\" (PID %d) to continue debugging.", Strings::kStrExecutableBaseName.data(), GetProcessId(GetCurrentProcess()));
+        Message::OutputFormatted(Message::ESeverity::ForcedInteractiveInfo, L"Attach to \"%s\" (PID %d) to continue debugging.", Strings::kStrExecutableBaseName.data(), Globals::GetCurrentProcessId());
 
     if (true == LibraryInterface::IsConfigurationDataValid())
     {

@@ -243,7 +243,7 @@ namespace Hookshot
                 CoTaskMemFree(knownFolderPath);
             }
 
-            logFilename << GetHookshotBaseNameWithoutExtension() << L'_' << GetExecutableBaseName() << L'_' << GetProcessId(GetCurrentProcess()) << kStrHookshotLogFileExtension;
+            logFilename << GetHookshotBaseNameWithoutExtension() << L'_' << GetExecutableBaseName() << L'_' << Globals::GetCurrentProcessId() << kStrHookshotLogFileExtension;
 
             return logFilename.str();
         }

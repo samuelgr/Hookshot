@@ -26,6 +26,12 @@ namespace Hookshot
     public:
         // -------- INSTANCE VARIABLES ------------------------------------- //
 
+        /// Pseudohandle of the current process.
+        HANDLE gCurrentProcessHandle;
+
+        /// PID of the current process.
+        DWORD gCurrentProcessId;
+
         /// Handle of the instance that represents the running form of Hookshot.
         HINSTANCE gInstanceHandle;
 
@@ -37,7 +43,11 @@ namespace Hookshot
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
         /// Default constructor.  Objects cannot be constructed externally.
-        GlobalData(void) : gInstanceHandle(NULL), gLoadMethod(EHookshotLoadMethod::Executed)
+        GlobalData(void) :
+            gCurrentProcessHandle(GetCurrentProcess()),
+            gCurrentProcessId(GetProcessId(GetCurrentProcess())),
+            gInstanceHandle(NULL),
+            gLoadMethod(EHookshotLoadMethod::Executed)
         {
             GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)&GlobalData::GetInstance, &gInstanceHandle);
         }
@@ -61,6 +71,20 @@ namespace Hookshot
 
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "Globals.h" for documentation.
+
+    HANDLE Globals::GetCurrentProcessHandle(void)
+    {
+        return GlobalData::GetInstance().gCurrentProcessHandle;
+    }
+
+    // --------
+
+    DWORD Globals::GetCurrentProcessId(void)
+    {
+        return GlobalData::GetInstance().gCurrentProcessId;
+    }
+
+    // --------
 
     EHookshotLoadMethod Globals::GetHookshotLoadMethod(void)
     {

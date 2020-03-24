@@ -252,7 +252,7 @@ namespace Hookshot
         USHORT machineTargetProcess = 0;
         USHORT machineCurrentProcess = 0;
 
-        if ((FALSE == IsWow64Process2(processHandle, &machineTargetProcess, NULL)) || (FALSE == IsWow64Process2(GetCurrentProcess(), &machineCurrentProcess, NULL)))
+        if ((FALSE == IsWow64Process2(processHandle, &machineTargetProcess, NULL)) || (FALSE == IsWow64Process2(Globals::GetCurrentProcessHandle(), &machineCurrentProcess, NULL)))
             return EInjectResult::InjectResultErrorDetermineMachineProcess;
 
         if (machineTargetProcess == machineCurrentProcess)

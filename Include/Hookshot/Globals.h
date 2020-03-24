@@ -39,7 +39,15 @@ namespace Hookshot
 
 
         // -------- CLASS METHODS ------------------------------------------ //
-        
+
+        /// Retrieves a pseudohandle to the current process.
+        /// @return Current process pseudohandle.
+        static HANDLE GetCurrentProcessHandle(void);
+
+        /// Retrieves the PID of the current process.
+        /// @return Current process PID.
+        static DWORD GetCurrentProcessId(void);
+
         /// Retrieves the method by which this form of Hookshot was loaded.
         /// @return Method by which Hookshot was loaded.
         static EHookshotLoadMethod GetHookshotLoadMethod(void);

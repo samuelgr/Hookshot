@@ -13,6 +13,7 @@
 
 #include "ApiWindows.h"
 #include "CodeInjector.h"
+#include "Globals.h"
 #include "Inject.h"
 #include "InjectResult.h"
 #include "Strings.h"
@@ -126,17 +127,17 @@ namespace Hookshot
         size_t offsetGetProcAddress = (size_t)-1;
         size_t offsetLoadLibraryA = (size_t)-1;
         
-        if (FALSE == GetModuleInformation(GetCurrentProcess(), moduleGetLastError, &moduleInfo, sizeof(moduleInfo)))
+        if (FALSE == GetModuleInformation(Globals::GetCurrentProcessHandle(), moduleGetLastError, &moduleInfo, sizeof(moduleInfo)))
             return false;
 
         offsetGetLastError = (size_t)GetLastError - (size_t)moduleInfo.lpBaseOfDll;
 
-        if ((moduleGetProcAddress != moduleGetLastError) && (FALSE == GetModuleInformation(GetCurrentProcess(), moduleGetProcAddress, &moduleInfo, sizeof(moduleInfo))))
+        if ((moduleGetProcAddress != moduleGetLastError) && (FALSE == GetModuleInformation(Globals::GetCurrentProcessHandle(), moduleGetProcAddress, &moduleInfo, sizeof(moduleInfo))))
             return false;
 
         offsetGetProcAddress = (size_t)GetProcAddress - (size_t)moduleInfo.lpBaseOfDll;
 
-        if ((moduleLoadLibraryA != moduleGetProcAddress) && (FALSE == GetModuleInformation(GetCurrentProcess(), moduleGetProcAddress, &moduleInfo, sizeof(moduleInfo))))
+        if ((moduleLoadLibraryA != moduleGetProcAddress) && (FALSE == GetModuleInformation(Globals::GetCurrentProcessHandle(), moduleGetProcAddress, &moduleInfo, sizeof(moduleInfo))))
             return false;
 
         offsetLoadLibraryA = (size_t)LoadLibraryA - (size_t)moduleInfo.lpBaseOfDll;

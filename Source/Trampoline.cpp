@@ -10,6 +10,7 @@
  *****************************************************************************/
 
 #include "ApiWindows.h"
+#include "Globals.h"
 #include "Message.h"
 #include "TemporaryBuffer.h"
 #include "Trampoline.h"
@@ -79,7 +80,7 @@ namespace Hookshot
     {
         Message::OutputFormatted(Message::ESeverity::Info, L"Trampoline at 0x%llx is being set up with hook function 0x%llx.", (long long)this, (long long)hookFunc);
         code.hook.ptr[_countof(code.hook.ptr) - 1] = ValueForHookAddress(hookFunc);
-        FlushInstructionCache(GetCurrentProcess(), &code.hook, sizeof(code.hook));
+        FlushInstructionCache(Globals::GetCurrentProcessHandle(), &code.hook, sizeof(code.hook));
     }
 
     // --------
@@ -244,7 +245,7 @@ namespace Hookshot
             }
         }
 
-        FlushInstructionCache(GetCurrentProcess(), &code.original, sizeof(code.original));
+        FlushInstructionCache(Globals::GetCurrentProcessHandle(), &code.original, sizeof(code.original));
         return true;
     }
 }

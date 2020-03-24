@@ -79,7 +79,7 @@ namespace Hookshot
         DWORD unusedOriginalProtection = 0;
         const bool restoreProtectionResult = (0 != VirtualProtect(from, X86Instruction::kJumpInstructionLengthBytes, originalProtection, &unusedOriginalProtection));
         if (true == restoreProtectionResult)
-            FlushInstructionCache(GetCurrentProcess(), from, (SIZE_T)X86Instruction::kJumpInstructionLengthBytes);
+            FlushInstructionCache(Globals::GetCurrentProcessHandle(), from, (SIZE_T)X86Instruction::kJumpInstructionLengthBytes);
 
         return (writeJumpResult && restoreProtectionResult);
     }

@@ -10,6 +10,7 @@
  *****************************************************************************/
 
 #include "ApiWindows.h"
+#include "Globals.h"
 #include "RemoteProcessInjector.h"
 #include "Strings.h"
 #include "TemporaryBuffer.h"
@@ -73,7 +74,7 @@ namespace Hookshot
         HANDLE duplicateProcessHandle = INVALID_HANDLE_VALUE;
         HANDLE duplicateThreadHandle = INVALID_HANDLE_VALUE;
 
-        if ((FALSE == DuplicateHandle(GetCurrentProcess(), processHandle, processInfo.hProcess, &duplicateProcessHandle, 0, FALSE, DUPLICATE_SAME_ACCESS)) || (FALSE == DuplicateHandle(GetCurrentProcess(), threadHandle, processInfo.hProcess, &duplicateThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS)))
+        if ((FALSE == DuplicateHandle(Globals::GetCurrentProcessHandle(), processHandle, processInfo.hProcess, &duplicateProcessHandle, 0, FALSE, DUPLICATE_SAME_ACCESS)) || (FALSE == DuplicateHandle(Globals::GetCurrentProcessHandle(), threadHandle, processInfo.hProcess, &duplicateThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS)))
         {
             TerminateProcess(processInfo.hProcess, (UINT)-1);
             return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
