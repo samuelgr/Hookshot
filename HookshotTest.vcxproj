@@ -255,6 +255,8 @@
     <MASM Include="Source\Test\Case\HookSetFail\JumpForwardTooFar.asm" />
     <MASM Include="Source\Test\Case\HookSetFail\OneByteFunction.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\BasicFunction.asm" />
+    <MASM Include="Source\Test\Case\HookSetSuccess\JumpAbsolutePositionRelative.asm" />
+    <MASM Include="Source\Test\Case\HookSetSuccess\JumpAbsolutePositionRelativeUselessPrefix.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\JumpBackwardRel32.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\JumpBackwardRel8.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\JumpForwardRel32.asm" />
