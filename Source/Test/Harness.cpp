@@ -97,7 +97,7 @@ namespace HookshotTest
 
     // --------
 
-    int Harness::RunAllTestsInternal(Hookshot::IHookConfig* const hookConfig)
+    int Harness::RunAllTestsInternal(void)
     {
         int numFailingTests = 0;
         int numSkippedTests = 0;
@@ -129,7 +129,7 @@ namespace HookshotTest
             {
                 PrintFormatted(L"[ %-9s ] %s", L"RUN", name.c_str());
 
-                const bool testCasePassed = testCase->Run(hookConfig);
+                const bool testCasePassed = testCase->Run();
                 if (true != testCasePassed)
                     numFailingTests += 1;
 
@@ -186,6 +186,6 @@ namespace HookshotTest
 /// @return Number of failing tests (0 means all tests passed).
 int main(int argc, const char* argv[])
 {
-    Hookshot::IHookConfig* hookConfig = HookshotLibraryInitialize();
-    return HookshotTest::Harness::RunAllTests(hookConfig);
+    Hookshot::InitializeLibrary();
+    return HookshotTest::Harness::RunAllTests();
 }

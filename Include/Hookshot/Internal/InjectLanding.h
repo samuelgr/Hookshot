@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include "Hookshot.h"
 #include "Inject.h"
 
 #include <cstddef>
@@ -21,7 +20,7 @@
  // -------- TYPE DEFINITIONS ----------------------------------------------- //
 
 /// Function signature for the hook module initialization function.
-typedef void(__fastcall* THookModuleInitProc)(Hookshot::IHookConfig*);
+typedef void(__fastcall* THookModuleInitProc)(void);
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //

@@ -101,8 +101,8 @@ namespace Hookshot
 #endif
 
     
-    // -------- CONCRETE INSTANCE METHODS ------------------------------ //
-    // See "Hookshot.h" for documentation.
+    // -------- INSTANCE METHODS --------------------------------------- //
+    // See "HookStore.h" for documentation.
 
     EResult HookStore::CreateHook(void* originalFunc, const void* hookFunc)
     {

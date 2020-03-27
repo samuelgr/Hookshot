@@ -11,6 +11,7 @@
 
 #include "ApiWindows.h"
 #include "Globals.h"
+#include "HookshotTypes.h"
 #include "InjectLanding.h"
 #include "LibraryInterface.h"
 #include "Message.h"
@@ -18,7 +19,74 @@
 using namespace Hookshot;
 
 
-// -------- ENTRY POINT FUNCTIONS ------------------------------------------ //
+namespace Hookshot
+{
+    // -------- INTERNAL VARIABLES ----------------------------------------- //
+
+    /// Flag that specifies if this library was initialized.
+    static bool isInitialized = false;
+
+
+    // -------- EXPORTED FUNCTIONS ----------------------------------------- //
+    // See "HookshotFunctions.h" for documentation.
+
+    __declspec(dllexport) EResult __fastcall CreateHook(void* originalFunc, const void* hookFunc)
+    {
+        if (false == isInitialized)
+            return EResult::HookshotResultFailBadState;
+
+        return LibraryInterface::GetHookStore().CreateHook(originalFunc, hookFunc);
+    }
+
+    // --------
+
+    __declspec(dllexport) EResult __fastcall DisableHookFunction(const void* originalOrHookFunc)
+    {
+        if (false == isInitialized)
+            return EResult::HookshotResultFailBadState;
+
+        return LibraryInterface::GetHookStore().DisableHookFunction(originalOrHookFunc);
+    }
+
+    // --------
+
+    __declspec(dllexport) void __fastcall InitializeLibrary(void)
+    {
+        if (false == isInitialized)
+        {
+            Globals::SetHookshotLoadMethod(EHookshotLoadMethod::LibraryLoaded);
+            LibraryInterface::Initialize();
+
+            if (false == LibraryInterface::IsConfigurationDataValid())
+                Message::Output(Message::ESeverity::Warning, LibraryInterface::GetConfigurationErrorMessage().data());
+
+            isInitialized = true;
+        }
+    }
+
+    // --------
+    
+    __declspec(dllexport) const void* __fastcall GetOriginalFunction(const void* originalOrHookFunc)
+    {
+        if (false == isInitialized)
+            return NULL;
+
+        return LibraryInterface::GetHookStore().GetOriginalFunction(originalOrHookFunc);
+    }
+
+    // --------
+
+    __declspec(dllexport) EResult __fastcall ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc)
+    {
+        if (false == isInitialized)
+            return EResult::HookshotResultFailBadState;
+
+        return LibraryInterface::GetHookStore().ReplaceHookFunction(originalOrHookFunc, newHookFunc);
+    }
+}
+
+
+// -------- ENTRY POINT ---------------------------------------------------- //
 
 /// Performs library initialization and teardown functions.
 /// Invoked automatically by the operating system.
@@ -56,24 +124,16 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvRe
 /// @return Address to which to jump to continue running the injected process, or `NULL` on failure.
 extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
 {
-    Globals::SetHookshotLoadMethod(EHookshotLoadMethod::Injected);
-    LibraryInterface::Initialize();
+    if (false == isInitialized)
+    {
+        Globals::SetHookshotLoadMethod(EHookshotLoadMethod::Injected);
+        LibraryInterface::Initialize();
 
-    if (false == LibraryInterface::IsConfigurationDataValid())
-        Message::Output(Message::ESeverity::Error, LibraryInterface::GetConfigurationErrorMessage().data());
+        if (false == LibraryInterface::IsConfigurationDataValid())
+            Message::Output(Message::ESeverity::Error, LibraryInterface::GetConfigurationErrorMessage().data());
+
+        isInitialized = true;
+    }
 
     return (void*)InjectLanding;
-}
-
-/// Intended to be invoked by programs that link with this library and load it directly, rather than via injection.
-/// Part of the external Hookshot API.  See "Hookshot.h" for documentation.
-__declspec(dllexport) IHookConfig* __fastcall HookshotLibraryInitialize(void)
-{
-    Globals::SetHookshotLoadMethod(EHookshotLoadMethod::LibraryLoaded);
-    LibraryInterface::Initialize();
-
-    if (false == LibraryInterface::IsConfigurationDataValid())
-        Message::Output(Message::ESeverity::Warning, LibraryInterface::GetConfigurationErrorMessage().data());
-
-    return LibraryInterface::GetHookConfigInterface();
 }

@@ -49,9 +49,8 @@ namespace HookshotTest
         
         /// Runs the test case represented by this object.
         /// Implementations are generated when test cases are created using the #HOOKSHOT_TEST_CASE macro.
-        /// @param [in] hookConfig Hookshot configuration interface object to use.
         /// @return Indication of the test result, via the appropriate test result macros.
-        virtual bool Run(Hookshot::IHookConfig* const hookConfig) const = 0;
+        virtual bool Run(void) const = 0;
     };
 
     /// Concrete test case object template.
@@ -73,7 +72,7 @@ namespace HookshotTest
         // See above for documentation.
 
         bool CanRun(void) const override;
-        bool Run(Hookshot::IHookConfig* const hookConfig) const override;
+        bool Run(void) const override;
     };
 }
 
@@ -95,12 +94,11 @@ namespace HookshotTest
 /// If the condition ends up being false, which can be determined at runtime, the test case is skipped.
 /// Automatically instantiates the proper test case object and registers it with the harness.
 /// Treat this macro as a function declaration; the test case is the function body.
-/// A variable called "hookConfig" is available for configuring Hookshot for test purposes.
 #define HOOKSHOT_TEST_CASE_CONDITIONAL(name, cond)                                                              \
     static constexpr wchar_t kHookshotTestName__##name[] = L#name;                                              \
     HookshotTest::TestCase<kHookshotTestName__##name>  hookshotTestCaseInstance__##name;                        \
     bool HookshotTest::TestCase<kHookshotTestName__##name>::CanRun(void) const { return (cond); }               \
-    bool HookshotTest::TestCase<kHookshotTestName__##name>::Run(Hookshot::IHookConfig* const hookConfig) const
+    bool HookshotTest::TestCase<kHookshotTestName__##name>::Run(void) const
 
 /// Recommended way of creating Hookshot test cases that execute unconditionally.
 /// Just provide the test case name.

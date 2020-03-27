@@ -12,7 +12,6 @@
 #pragma once
 
 #include "Configuration.h"
-#include "Hookshot.h"
 #include "HookStore.h"
 
 #include <string_view>
@@ -33,8 +32,7 @@ namespace Hookshot
         static Configuration::Configuration configuration;
         
         /// Single hook configuration interface object.
-        /// It can be passed safely by reference to an arbitrary number of hook modules and other Hookshot clients during initialization.
-        static HookStore hookConfig;
+        static HookStore hookStore;
 
 
     public:
@@ -64,11 +62,11 @@ namespace Hookshot
             return configuration.GetReadErrorMessage();
         }
 
-        /// Retrieves the hook configuration interface object that can be passed to Hookshot clients during initialization.
-        /// @return Pointer to the hook configuration interface object.
-        static inline IHookConfig* GetHookConfigInterface(void)
+        /// Retrieves the hook data storage object.
+        /// @return Hook storage object.
+        static inline HookStore& GetHookStore(void)
         {
-            return &hookConfig;
+            return hookStore;
         }
 
         /// Performs common top-level initialization operations. Idempotent.

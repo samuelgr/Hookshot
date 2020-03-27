@@ -74,10 +74,10 @@ namespace HookshotTest
 
         /// Runs all tests registered by the harness.
         /// Typically invoked only once by the entry point to the test program.
-        /// @param [in] hookConfig Hookshot configuration interface object to send to test cases (obtained during Hookshot initialization by the entry point).
-        static inline int RunAllTests(Hookshot::IHookConfig* const hookConfig)
+        /// @return Number of failing tests.
+        static inline int RunAllTests(void)
         {
-            return GetInstance().RunAllTestsInternal(hookConfig);
+            return GetInstance().RunAllTestsInternal();
         }
 
 
@@ -90,8 +90,7 @@ namespace HookshotTest
         void RegisterTestCaseInternal(const ITestCase* const testCase, const wchar_t* const name);
 
         /// Internal implementation of running all tests.
-        /// @param [in] hookConfig Hookshot configuration interface object to send to test cases.
         /// @return Number of failing tests.
-        int RunAllTestsInternal(Hookshot::IHookConfig* const hookConfig);
+        int RunAllTestsInternal(void);
     };
 }

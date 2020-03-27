@@ -41,6 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Hookshot\Hookshot.h" />
+    <ClInclude Include="Include\Hookshot\HookshotFunctions.h" />
+    <ClInclude Include="Include\Hookshot\HookshotTypes.h" />
     <ClInclude Include="Include\Hookshot\Internal\HookshotConfigReader.h" />
     <ClInclude Include="Include\Hookshot\Internal\ApiWindows.h" />
     <ClInclude Include="Include\Hookshot\Internal\Configuration.h" />

@@ -14,7 +14,6 @@
 #include "HookshotConfigReader.h"
 #include "HookStore.h"
 #include "Globals.h"
-#include "Hookshot.h"
 #include "HookStore.h"
 #include "InjectLanding.h"
 #include "LibraryInterface.h"
@@ -33,7 +32,7 @@ namespace Hookshot
 
     Configuration::Configuration LibraryInterface::configuration(std::make_unique<HookshotConfigReader>());
 
-    HookStore LibraryInterface::hookConfig;
+    HookStore LibraryInterface::hookStore;
 
 
     // -------- CLASS METHODS ---------------------------------------------- //
@@ -63,19 +62,12 @@ namespace Hookshot
     
     void LibraryInterface::Initialize(void)
     {
-        static bool isInitialized = false;
-        
-        if (false == isInitialized)
-        {
-            X86Instruction::Initialize();
-            
-            if (false == IsConfigurationDataValid())
-                configuration.ReadConfigurationFile(Strings::kStrHookshotConfigurationFilename);
+        X86Instruction::Initialize();
 
-            EnableLogIfConfigured();
+        if (false == IsConfigurationDataValid())
+            configuration.ReadConfigurationFile(Strings::kStrHookshotConfigurationFilename);
 
-            isInitialized = true;
-        }
+        EnableLogIfConfigured();
     }
 
     // --------
@@ -145,7 +137,7 @@ namespace Hookshot
             return false;
         }
 
-        initProc(GetHookConfigInterface());
+        initProc();
 
         Message::OutputFormatted(Message::ESeverity::Info, L"%s - Successfully loaded hook module.", hookModuleFileName.data());
         return true;
