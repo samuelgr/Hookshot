@@ -105,7 +105,7 @@
     <MASM Include="Source\Test\Case\HookSetSuccess\JumpAbsolutePositionRelative.asm">
       <Filter>Source Files</Filter>
     </MASM>
-    <MASM Include="Source\Test\Case\HookSetSuccess\JumpAbsolutePositionRelativeUselessPrefix.asm">
+    <MASM Include="Source\Test\Case\HookSetSuccess\JumpAbsolutePositionRelativeRexW.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>

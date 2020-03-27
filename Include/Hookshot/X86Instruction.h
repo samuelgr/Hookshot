@@ -37,9 +37,6 @@ namespace Hookshot
         static constexpr uint8_t kJumpInstructionPreamble[] = {
             0xe9                                                            // jmp rel32
         };
-
-        /// Opcode for a nop instruction.
-        static constexpr uint8_t kNopInstructionOpcode = 0x90;
         
         /// Length of an unconditional jump instruction, in bytes, as written by #WriteJumpInstruction.
         /// Equal to the length of the binary preamble plus the size of a 32-bit displacement.
@@ -133,6 +130,9 @@ namespace Hookshot
         
         /// Specifies if the represented instruction is valid.
         bool valid;
+
+        /// Holds the initial byte of the instruction if it might be a REX prefix.
+        uint8_t possibleRexPrefix;
 
         /// Holds information on any position-dependent memory accesses performed by this instruction, if any.
         PositionDependentMemoryReference positionDependentMemoryReference;

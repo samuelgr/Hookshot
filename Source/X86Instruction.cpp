@@ -35,11 +35,38 @@ namespace Hookshot
     static constexpr xed_state_t kXedMachineState = {XED_MACHINE_MODE_LEGACY_32, XED_ADDRESS_WIDTH_32b};
 #endif
 
+#ifdef HOOKSHOT64
+    /// Mask used to determine if a byte is a REX prefix of any form.
+    static constexpr uint8_t kRexPrefixMask = 0xf0;
+
+    /// Comparison value used to determine if a byte is a REX prefix of any form.
+    static constexpr uint8_t kRexPrefixCompareValue = 0x40;
+#endif
+
+    /// Opcode for a nop instruction.
+    static constexpr uint8_t kNopInstructionOpcode = 0x90;
+
+
+    // -------- INTERNAL FUNCTIONS ------------------------------------- //
+
+    /// Tests if the specified byte could be a REX prefix or not.
+    /// @param byte Byte to test.
+    /// @return `true` if it is a REX prefix, `false` if not.
+    static inline bool CouldBeRexPrefix(const uint8_t byte)
+    {
+#ifdef HOOKSHOT64
+        return ((byte & kRexPrefixMask) == kRexPrefixCompareValue);
+#else
+        // REX prefixes do not exist in 32-bit mode.
+        return false;
+#endif
+    }
+
 
     // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
     // See "X86Instruction.h" for documentation.
 
-    X86Instruction::X86Instruction(void) : decodedInstruction(), address(NULL), valid(false), positionDependentMemoryReference()
+    X86Instruction::X86Instruction(void) : decodedInstruction(), address(NULL), valid(false), possibleRexPrefix(0), positionDependentMemoryReference()
     {
         // Nothing to do here.
     }
@@ -152,12 +179,14 @@ namespace Hookshot
         {
             address = NULL;
             positionDependentMemoryReference.ClearOperandLocation();
+            possibleRexPrefix = 0;
             valid = false;
             return false;
         }
 
         address = instruction;
         positionDependentMemoryReference.SetFromInstruction(&decodedInstruction);
+        possibleRexPrefix = (CouldBeRexPrefix(((uint8_t*)instruction)[0]) ? ((uint8_t*)instruction)[0] : 0);
         valid = true;
         return true;
     }
@@ -166,7 +195,9 @@ namespace Hookshot
 
     int X86Instruction::EncodeInstruction(void* const buf, const int maxLengthBytes) const
     {
-        if (false == valid)
+        const unsigned int decodedLength = GetLengthBytes();
+        
+        if (false == valid || maxLengthBytes < 0 || (unsigned int)maxLengthBytes < decodedLength)
             return 0;
         
         xed_encoder_request_t toEncode = decodedInstruction;
@@ -176,6 +207,37 @@ namespace Hookshot
         if (XED_ERROR_NONE != xed_encode(&toEncode, (unsigned char*)buf, maxLengthBytes, &encodedLength))
             return 0;
 
+        if (encodedLength > decodedLength)
+        {
+            // It should never be the case that the encoded instruction actually has a larger size than the originally-decoded instruction.
+            // The only changes that can be made to a decoded instruction are changes to position-dependent memory offsets, which are size-preserving operations.
+            return 0;
+        }
+        else if (encodedLength < decodedLength)
+        {
+            // Sometimes the encoder does not preserve all the bytes of the original instruction if they are deemed unnecessary because they would be ignored by the processor.
+            // To ensure there is no length discrepancy between the original decoded instruction and the newly-encoded enstruction, pad to the length of the original instruction.
+            // This is particularly important in case the original instruction has a position-dependent memory reference, because shortening its length can invalidate its displacement value.
+
+            const unsigned int lengthDiscrepancy = decodedLength - encodedLength;
+
+            for (unsigned int i = 0; i < encodedLength; ++i)
+                ((uint8_t*)buf)[decodedLength - 1 - i] = ((uint8_t*)buf)[decodedLength - 1 - lengthDiscrepancy - i];
+
+            FillWithNop(buf, lengthDiscrepancy);
+            
+#ifdef HOOKSHOT64
+            // If the decoded instruction had a REX prefix and the newly-encoded instruction does not, this means the encoder removed it because it has no functional purpose.
+            // However, REX prefixes are used for other things besides just functional changes.  For example, Windows uses "rex.w jmp" to indicate a function epilogue.
+            // Therefore, in this case the REX prefix should be reintroduced.
+            // REX prefixes only exist in 64-bit mode.
+            if ((true == CouldBeRexPrefix(possibleRexPrefix)) && (false == CouldBeRexPrefix(((uint8_t*)buf)[lengthDiscrepancy])) && (possibleRexPrefix != ((uint8_t*)buf)[lengthDiscrepancy]))
+                ((uint8_t*)buf)[lengthDiscrepancy - 1] = possibleRexPrefix;
+#endif
+
+            encodedLength = decodedLength;
+        }
+        
         return (int)encodedLength;
     }
 
