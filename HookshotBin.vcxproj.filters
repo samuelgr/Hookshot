@@ -20,19 +20,19 @@
     </MASM>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Include\Hookshot\Inject.inc">
+    <None Include="Include\Hookshot\Internal\Inject.inc">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="Include\Hookshot\Preamble.inc">
+    <None Include="Include\Hookshot\Internal\Preamble.inc">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="Include\Hookshot\Registers.inc">
+    <None Include="Include\Hookshot\Internal\Registers.inc">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="Include\Hookshot\Strings.inc">
+    <None Include="Include\Hookshot\Internal\Strings.inc">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="Include\Hookshot\Functions.inc">
+    <None Include="Include\Hookshot\Internal\Functions.inc">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

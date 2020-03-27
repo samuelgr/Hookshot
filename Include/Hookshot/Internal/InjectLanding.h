@@ -12,10 +12,10 @@
 
 #pragma once
 
+#include "Hookshot.h"
 #include "Inject.h"
 
 #include <cstddef>
-#include <hookshot.h>
 
 
  // -------- TYPE DEFINITIONS ----------------------------------------------- //

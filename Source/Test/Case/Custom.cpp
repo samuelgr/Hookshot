@@ -10,12 +10,12 @@
  *****************************************************************************/
 
 #include "CpuInfo.h"
+#include "Hookshot.h"
 #include "TestPattern.h"
 
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
-#include <hookshot.h>
 #include <windows.h>
 
 

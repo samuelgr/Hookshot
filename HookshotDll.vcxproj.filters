@@ -70,22 +70,22 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Hookshot\ApiWindows.h">
+    <ClInclude Include="Include\Hookshot\Internal\ApiWindows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\Globals.h">
+    <ClInclude Include="Include\Hookshot\Internal\Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\InjectResult.h">
+    <ClInclude Include="Include\Hookshot\Internal\InjectResult.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\Message.h">
+    <ClInclude Include="Include\Hookshot\Internal\Message.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\Strings.h">
+    <ClInclude Include="Include\Hookshot\Internal\Strings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\InjectLanding.h">
+    <ClInclude Include="Include\Hookshot\Internal\InjectLanding.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resources\HookshotDll.h">
@@ -94,37 +94,37 @@
     <ClInclude Include="Resources\Hookshot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\TemporaryBuffer.h">
+    <ClInclude Include="Include\Hookshot\Internal\TemporaryBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot.h">
+    <ClInclude Include="Include\Hookshot\Hookshot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\HookStore.h">
+    <ClInclude Include="Include\Hookshot\Internal\HookStore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\Trampoline.h">
+    <ClInclude Include="Include\Hookshot\Internal\Trampoline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\TrampolineStore.h">
+    <ClInclude Include="Include\Hookshot\Internal\TrampolineStore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\X86Instruction.h">
+    <ClInclude Include="Include\Hookshot\Internal\X86Instruction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\RemoteProcessInjector.h">
+    <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\Configuration.h">
+    <ClInclude Include="Include\Hookshot\Internal\Configuration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\HookshotConfigReader.h">
+    <ClInclude Include="Include\Hookshot\Internal\HookshotConfigReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\LibraryInterface.h">
+    <ClInclude Include="Include\Hookshot\Internal\LibraryInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\DependencyProtect.h">
+    <ClInclude Include="Include\Hookshot\Internal\DependencyProtect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -134,16 +134,16 @@
     </MASM>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Include\Hookshot\InjectLanding.inc">
+    <None Include="Include\Hookshot\Internal\InjectLanding.inc">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="Include\Hookshot\Functions.inc">
+    <None Include="Include\Hookshot\Internal\Functions.inc">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="Include\Hookshot\Preamble.inc">
+    <None Include="Include\Hookshot\Internal\Preamble.inc">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="Include\Hookshot\Registers.inc">
+    <None Include="Include\Hookshot\Internal\Registers.inc">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

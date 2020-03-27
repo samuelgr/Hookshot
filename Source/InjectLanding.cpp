@@ -12,6 +12,7 @@
 
 #include "DependencyProtect.h"
 #include "Globals.h"
+#include "Hookshot.h"
 #include "Inject.h"
 #include "LibraryInterface.h"
 #include "Message.h"
@@ -19,7 +20,6 @@
 #include "TemporaryBuffer.h"
 
 #include <cstddef>
-#include <hookshot.h>
 #include <psapi.h>
 
 using namespace Hookshot;

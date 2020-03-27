@@ -11,10 +11,10 @@
 
 #pragma once
 
+#include "Hookshot.h"
 #include "TestCase.h"
 
 #include <cstddef>
-#include <hookshot.h>
 
 
 // -------- CONSTANTS ------------------------------------------------------ //

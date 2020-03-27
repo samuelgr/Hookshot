@@ -35,17 +35,17 @@
     <ResourceCompile Include="Resources\HookshotExe.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Hookshot\ApiWindows.h" />
-    <ClInclude Include="Include\Hookshot\CodeInjector.h" />
-    <ClInclude Include="Include\Hookshot\DependencyProtect.h" />
-    <ClInclude Include="Include\Hookshot\Globals.h" />
-    <ClInclude Include="Include\Hookshot\Inject.h" />
-    <ClInclude Include="Include\Hookshot\InjectResult.h" />
-    <ClInclude Include="Include\Hookshot\Message.h" />
-    <ClInclude Include="Include\Hookshot\ProcessInjector.h" />
-    <ClInclude Include="Include\Hookshot\RemoteProcessInjector.h" />
-    <ClInclude Include="Include\Hookshot\Strings.h" />
-    <ClInclude Include="Include\Hookshot\TemporaryBuffer.h" />
+    <ClInclude Include="Include\Hookshot\Internal\ApiWindows.h" />
+    <ClInclude Include="Include\Hookshot\Internal\CodeInjector.h" />
+    <ClInclude Include="Include\Hookshot\Internal\DependencyProtect.h" />
+    <ClInclude Include="Include\Hookshot\Internal\Globals.h" />
+    <ClInclude Include="Include\Hookshot\Internal\Inject.h" />
+    <ClInclude Include="Include\Hookshot\Internal\InjectResult.h" />
+    <ClInclude Include="Include\Hookshot\Internal\Message.h" />
+    <ClInclude Include="Include\Hookshot\Internal\ProcessInjector.h" />
+    <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h" />
+    <ClInclude Include="Include\Hookshot\Internal\Strings.h" />
+    <ClInclude Include="Include\Hookshot\Internal\TemporaryBuffer.h" />
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotExe.h" />
   </ItemGroup>
@@ -137,7 +137,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Internal</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <ConformanceMode>true</ConformanceMode>
@@ -167,7 +167,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Internal</AdditionalIncludeDirectories>
       <OmitFramePointers>false</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
@@ -199,7 +199,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Internal</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
@@ -231,7 +231,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Internal</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>

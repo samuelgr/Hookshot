@@ -11,10 +11,10 @@
 
 #pragma once
 
+#include "Hookshot.h"
 #include "TestCase.h"
 
 #include <cstdarg>
-#include <hookshot.h>
 #include <map>
 #include <string>
 

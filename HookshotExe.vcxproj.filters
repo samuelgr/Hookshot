@@ -55,28 +55,28 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Hookshot\ApiWindows.h">
+    <ClInclude Include="Include\Hookshot\Internal\ApiWindows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\CodeInjector.h">
+    <ClInclude Include="Include\Hookshot\Internal\CodeInjector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\Globals.h">
+    <ClInclude Include="Include\Hookshot\Internal\Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\Inject.h">
+    <ClInclude Include="Include\Hookshot\Internal\Inject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\InjectResult.h">
+    <ClInclude Include="Include\Hookshot\Internal\InjectResult.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\Message.h">
+    <ClInclude Include="Include\Hookshot\Internal\Message.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\ProcessInjector.h">
+    <ClInclude Include="Include\Hookshot\Internal\ProcessInjector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\Strings.h">
+    <ClInclude Include="Include\Hookshot\Internal\Strings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resources\Hookshot.h">
@@ -85,13 +85,13 @@
     <ClInclude Include="Resources\HookshotExe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\TemporaryBuffer.h">
+    <ClInclude Include="Include\Hookshot\Internal\TemporaryBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\RemoteProcessInjector.h">
+    <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\DependencyProtect.h">
+    <ClInclude Include="Include\Hookshot\Internal\DependencyProtect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

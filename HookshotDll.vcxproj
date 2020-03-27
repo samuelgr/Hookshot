@@ -40,23 +40,23 @@
     <ResourceCompile Include="Resources\HookshotDll.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Hookshot.h" />
-    <ClInclude Include="Include\Hookshot\HookshotConfigReader.h" />
-    <ClInclude Include="Include\Hookshot\ApiWindows.h" />
-    <ClInclude Include="Include\Hookshot\Configuration.h" />
-    <ClInclude Include="Include\Hookshot\Globals.h" />
-    <ClInclude Include="Include\Hookshot\HookStore.h" />
-    <ClInclude Include="Include\Hookshot\InjectLanding.h" />
-    <ClInclude Include="Include\Hookshot\InjectResult.h" />
-    <ClInclude Include="Include\Hookshot\LibraryInterface.h" />
-    <ClInclude Include="Include\Hookshot\Message.h" />
-    <ClInclude Include="Include\Hookshot\DependencyProtect.h" />
-    <ClInclude Include="Include\Hookshot\RemoteProcessInjector.h" />
-    <ClInclude Include="Include\Hookshot\Strings.h" />
-    <ClInclude Include="Include\Hookshot\TemporaryBuffer.h" />
-    <ClInclude Include="Include\Hookshot\Trampoline.h" />
-    <ClInclude Include="Include\Hookshot\TrampolineStore.h" />
-    <ClInclude Include="Include\Hookshot\X86Instruction.h" />
+    <ClInclude Include="Include\Hookshot\Hookshot.h" />
+    <ClInclude Include="Include\Hookshot\Internal\HookshotConfigReader.h" />
+    <ClInclude Include="Include\Hookshot\Internal\ApiWindows.h" />
+    <ClInclude Include="Include\Hookshot\Internal\Configuration.h" />
+    <ClInclude Include="Include\Hookshot\Internal\Globals.h" />
+    <ClInclude Include="Include\Hookshot\Internal\HookStore.h" />
+    <ClInclude Include="Include\Hookshot\Internal\InjectLanding.h" />
+    <ClInclude Include="Include\Hookshot\Internal\InjectResult.h" />
+    <ClInclude Include="Include\Hookshot\Internal\LibraryInterface.h" />
+    <ClInclude Include="Include\Hookshot\Internal\Message.h" />
+    <ClInclude Include="Include\Hookshot\Internal\DependencyProtect.h" />
+    <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h" />
+    <ClInclude Include="Include\Hookshot\Internal\Strings.h" />
+    <ClInclude Include="Include\Hookshot\Internal\TemporaryBuffer.h" />
+    <ClInclude Include="Include\Hookshot\Internal\Trampoline.h" />
+    <ClInclude Include="Include\Hookshot\Internal\TrampolineStore.h" />
+    <ClInclude Include="Include\Hookshot\Internal\X86Instruction.h" />
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotDll.h" />
   </ItemGroup>
@@ -64,10 +64,10 @@
     <MASM Include="Source\InjectLanding.asm" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Include\Hookshot\Functions.inc" />
-    <None Include="Include\Hookshot\InjectLanding.inc" />
-    <None Include="Include\Hookshot\Preamble.inc" />
-    <None Include="Include\Hookshot\Registers.inc" />
+    <None Include="Include\Hookshot\Internal\Functions.inc" />
+    <None Include="Include\Hookshot\Internal\InjectLanding.inc" />
+    <None Include="Include\Hookshot\Internal\Preamble.inc" />
+    <None Include="Include\Hookshot\Internal\Registers.inc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -157,7 +157,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Internal</AdditionalIncludeDirectories>
       <OmitFramePointers>false</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT64;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
@@ -178,7 +178,7 @@
     </Link>
     <MASM />
     <MASM>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <IncludePaths>Include\$(SolutionName);Include\$(SolutionName)\Internal</IncludePaths>
     </MASM>
     <MASM>
       <PreserveIdentifierCase>1</PreserveIdentifierCase>
@@ -198,7 +198,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Internal</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT32;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <AssemblerOutput>All</AssemblerOutput>
@@ -218,7 +218,7 @@
     </Link>
     <MASM />
     <MASM>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <IncludePaths>Include\$(SolutionName);Include\$(SolutionName)\Internal</IncludePaths>
     </MASM>
     <MASM>
       <PreserveIdentifierCase>1</PreserveIdentifierCase>
@@ -239,7 +239,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Internal</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT32;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
@@ -260,7 +260,7 @@
     </Link>
     <MASM />
     <MASM>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <IncludePaths>Include\$(SolutionName);Include\$(SolutionName)\Internal</IncludePaths>
     </MASM>
     <MASM>
       <PreserveIdentifierCase>1</PreserveIdentifierCase>
@@ -281,7 +281,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Internal</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT64;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
@@ -302,7 +302,7 @@
     </Link>
     <MASM />
     <MASM>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <IncludePaths>Include\$(SolutionName);Include\$(SolutionName)\Internal</IncludePaths>
     </MASM>
     <MASM>
       <PreserveIdentifierCase>1</PreserveIdentifierCase>

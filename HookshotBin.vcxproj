@@ -22,11 +22,11 @@
     <MASM Include="Source\Inject.asm" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Include\Hookshot\Functions.inc" />
-    <None Include="Include\Hookshot\Inject.inc" />
-    <None Include="Include\Hookshot\Preamble.inc" />
-    <None Include="Include\Hookshot\Registers.inc" />
-    <None Include="Include\Hookshot\Strings.inc" />
+    <None Include="Include\Hookshot\Internal\Functions.inc" />
+    <None Include="Include\Hookshot\Internal\Inject.inc" />
+    <None Include="Include\Hookshot\Internal\Preamble.inc" />
+    <None Include="Include\Hookshot\Internal\Registers.inc" />
+    <None Include="Include\Hookshot\Internal\Strings.inc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -133,7 +133,7 @@
     </ClCompile>
     <MASM>
       <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <IncludePaths>Include\$(SolutionName);Include\$(SolutionName)\Internal</IncludePaths>
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
@@ -183,7 +183,7 @@
     </ClCompile>
     <MASM>
       <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <IncludePaths>Include\$(SolutionName);Include\$(SolutionName)\Internal</IncludePaths>
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
@@ -252,7 +252,7 @@
     </Link>
     <MASM>
       <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <IncludePaths>Include\$(SolutionName);Include\$(SolutionName)\Internal</IncludePaths>
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
@@ -303,7 +303,7 @@
     </Link>
     <MASM>
       <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
-      <IncludePaths>Include\$(SolutionName)</IncludePaths>
+      <IncludePaths>Include\$(SolutionName);Include\$(SolutionName)\Internal</IncludePaths>
       <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>

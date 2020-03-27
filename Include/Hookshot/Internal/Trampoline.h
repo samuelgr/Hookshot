@@ -11,10 +11,11 @@
 
 #pragma once
 
+#include "Hookshot.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-#include <hookshot.h>
 
 
 namespace Hookshot

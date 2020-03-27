@@ -12,9 +12,9 @@
 #pragma once
 
 #include "Configuration.h"
+#include "Hookshot.h"
 #include "HookStore.h"
 
-#include <hookshot.h>
 #include <string_view>
 
 

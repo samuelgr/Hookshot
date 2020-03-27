@@ -14,6 +14,7 @@
 #include "HookshotConfigReader.h"
 #include "HookStore.h"
 #include "Globals.h"
+#include "Hookshot.h"
 #include "HookStore.h"
 #include "InjectLanding.h"
 #include "LibraryInterface.h"
@@ -21,7 +22,6 @@
 #include "Strings.h"
 #include "X86Instruction.h"
 
-#include <hookshot.h>
 #include <memory>
 #include <string_view>
 

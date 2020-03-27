@@ -12,11 +12,11 @@
 #pragma once
 
 #include "ApiWindows.h"
+#include "Hookshot.h"
 #include "Trampoline.h"
 #include "TrampolineStore.h"
 
 #include <cstdint>
-#include <hookshot.h>
 #include <shared_mutex>
 #include <unordered_map>
 #include <vector>

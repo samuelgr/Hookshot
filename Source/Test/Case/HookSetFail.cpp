@@ -10,9 +10,8 @@
  *****************************************************************************/
 
 #include "CpuInfo.h"
+#include "Hookshot.h"
 #include "TestPattern.h"
-
-#include <hookshot.h>
 
 
 namespace HookshotTest
