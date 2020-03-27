@@ -9,7 +9,7 @@
  *   Implementation of support functionality for Hookshot's library interface.
  *****************************************************************************/
 
-#include "ApiWindows.h"
+#include "DependencyProtect.h"
 #include "Configuration.h"
 #include "HookshotConfigReader.h"
 #include "HookStore.h"
@@ -129,19 +129,19 @@ namespace Hookshot
     bool LibraryInterface::LoadHookModule(std::wstring_view hookModuleFileName)
     {
         Message::OutputFormatted(Message::ESeverity::Info, L"%s - Attempting to load hook module.", hookModuleFileName.data());
-        const HMODULE hookModule = LoadLibrary(hookModuleFileName.data());
+        const HMODULE hookModule = Windows::ProtectedLoadLibrary(hookModuleFileName.data());
 
         if (NULL == hookModule)
         {
-            Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load hook module (system error %d).", hookModuleFileName.data(), GetLastError());
+            Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load hook module (system error %d).", hookModuleFileName.data(), Windows::ProtectedGetLastError());
             return false;
         }
 
-        const THookModuleInitProc initProc = (THookModuleInitProc)GetProcAddress(hookModule, Strings::kStrHookLibraryInitFuncName.data());
+        const THookModuleInitProc initProc = (THookModuleInitProc)Windows::ProtectedGetProcAddress(hookModule, Strings::kStrHookLibraryInitFuncName.data());
 
         if (NULL == initProc)
         {
-            Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to locate required procedure in hook module (system error %d).", hookModuleFileName.data(), GetLastError());
+            Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to locate required procedure in hook module (system error %d).", hookModuleFileName.data(), Windows::ProtectedGetLastError());
             return false;
         }
 
@@ -156,11 +156,11 @@ namespace Hookshot
     bool LibraryInterface::LoadInjectOnlyLibrary(std::wstring_view injectOnlyLibraryFileName)
     {
         Message::OutputFormatted(Message::ESeverity::Info, L"%s - Attempting to load library.", injectOnlyLibraryFileName.data());
-        const HMODULE hookModule = LoadLibrary(injectOnlyLibraryFileName.data());
+        const HMODULE hookModule = Windows::ProtectedLoadLibrary(injectOnlyLibraryFileName.data());
 
         if (NULL == hookModule)
         {
-            Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load library (system error %d).", injectOnlyLibraryFileName.data(), GetLastError());
+            Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load library (system error %d).", injectOnlyLibraryFileName.data(), Windows::ProtectedGetLastError());
             return false;
         }
 

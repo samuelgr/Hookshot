@@ -9,7 +9,6 @@
  *   Implementation of Hookshot-specific configuration reading functionality.
  *****************************************************************************/
 
-#include "ApiWindows.h"
 #include "Configuration.h"
 #include "HookshotConfigReader.h"
 #include "Strings.h"

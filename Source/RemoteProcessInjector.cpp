@@ -9,7 +9,7 @@
  *   Implementation of all process creation and injection functionality.
  *****************************************************************************/
 
-#include "ApiWindows.h"
+#include "DependencyProtect.h"
 #include "Globals.h"
 #include "RemoteProcessInjector.h"
 #include "Strings.h"
@@ -44,12 +44,12 @@ namespace Hookshot
         sharedMemorySecurityAttributes.lpSecurityDescriptor = NULL;
         sharedMemorySecurityAttributes.bInheritHandle = TRUE;
 
-        HANDLE sharedMemoryHandle = CreateFileMapping(INVALID_HANDLE_VALUE, &sharedMemorySecurityAttributes, PAGE_READWRITE, 0, sizeof(SRemoteProcessInjectionData), NULL);
+        HANDLE sharedMemoryHandle = Windows::ProtectedCreateFileMapping(INVALID_HANDLE_VALUE, &sharedMemorySecurityAttributes, PAGE_READWRITE, 0, sizeof(SRemoteProcessInjectionData), NULL);
 
         if ((NULL == sharedMemoryHandle) || (INVALID_HANDLE_VALUE == sharedMemoryHandle))
             return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
 
-        SRemoteProcessInjectionData* const sharedInfo = (SRemoteProcessInjectionData*)MapViewOfFile(sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+        SRemoteProcessInjectionData* const sharedInfo = (SRemoteProcessInjectionData*)Windows::ProtectedMapViewOfFile(sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 
         if (NULL == sharedInfo)
             return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
@@ -67,16 +67,16 @@ namespace Hookshot
         memset((void*)&startupInfo, 0, sizeof(startupInfo));
         memset((void*)&processInfo, 0, sizeof(processInfo));
 
-        if (FALSE == CreateProcess(NULL, executableCommandLineMutableString, NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, NULL, &startupInfo, &processInfo))
+        if (FALSE == Windows::ProtectedCreateProcess(NULL, executableCommandLineMutableString, NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, NULL, &startupInfo, &processInfo))
             return EInjectResult::InjectResultErrorCreateHookshotProcessFailed;
 
         // Fill in the required inputs to the new instance of Hookshot.
         HANDLE duplicateProcessHandle = INVALID_HANDLE_VALUE;
         HANDLE duplicateThreadHandle = INVALID_HANDLE_VALUE;
 
-        if ((FALSE == DuplicateHandle(Globals::GetCurrentProcessHandle(), processHandle, processInfo.hProcess, &duplicateProcessHandle, 0, FALSE, DUPLICATE_SAME_ACCESS)) || (FALSE == DuplicateHandle(Globals::GetCurrentProcessHandle(), threadHandle, processInfo.hProcess, &duplicateThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS)))
+        if ((FALSE == Windows::ProtectedDuplicateHandle(Globals::GetCurrentProcessHandle(), processHandle, processInfo.hProcess, &duplicateProcessHandle, 0, FALSE, DUPLICATE_SAME_ACCESS)) || (FALSE == Windows::ProtectedDuplicateHandle(Globals::GetCurrentProcessHandle(), threadHandle, processInfo.hProcess, &duplicateThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS)))
         {
-            TerminateProcess(processInfo.hProcess, (UINT)-1);
+            Windows::ProtectedTerminateProcess(processInfo.hProcess, (UINT)-1);
             return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
         }
 
@@ -87,28 +87,28 @@ namespace Hookshot
         sharedInfo->extendedInjectionResult = 0ull;
 
         // Let the new instance of Hookshot run and wait for it to finish.
-        ResumeThread(processInfo.hThread);
+        Windows::ProtectedResumeThread(processInfo.hThread);
 
-        if (WAIT_OBJECT_0 != WaitForSingleObject(processInfo.hProcess, INFINITE))
+        if (WAIT_OBJECT_0 != Windows::ProtectedWaitForSingleObject(processInfo.hProcess, INFINITE))
         {
-            TerminateProcess(processInfo.hProcess, (UINT)-1);
+            Windows::ProtectedTerminateProcess(processInfo.hProcess, (UINT)-1);
             return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
         }
 
         // Obtain results from the new instance of Hookshot, clean up, and return.
         DWORD injectExitCode = 0;
-        if ((FALSE == GetExitCodeProcess(processInfo.hProcess, &injectExitCode)) || (0 != injectExitCode))
+        if ((FALSE == Windows::ProtectedGetExitCodeProcess(processInfo.hProcess, &injectExitCode)) || (0 != injectExitCode))
             return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
 
         const DWORD extendedResult = (DWORD)sharedInfo->extendedInjectionResult;
         const EInjectResult operationResult = (EInjectResult)sharedInfo->injectionResult;
 
-        UnmapViewOfFile(sharedInfo);
-        CloseHandle(sharedMemoryHandle);
-        CloseHandle(processInfo.hProcess);
-        CloseHandle(processInfo.hThread);
+        Windows::ProtectedUnmapViewOfFile(sharedInfo);
+        Windows::ProtectedCloseHandle(sharedMemoryHandle);
+        Windows::ProtectedCloseHandle(processInfo.hProcess);
+        Windows::ProtectedCloseHandle(processInfo.hThread);
 
-        SetLastError(extendedResult);
+        Windows::ProtectedSetLastError(extendedResult);
         return operationResult;
     }
 }

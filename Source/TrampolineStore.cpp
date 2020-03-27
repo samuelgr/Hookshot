@@ -9,7 +9,7 @@
  *   Implementation of top-level data structure for trampoline objects.
  *****************************************************************************/
 
-#include "ApiWindows.h"
+#include "DependencyProtect.h"
 #include "TrampolineStore.h"
 
 #include <cstddef>
@@ -25,7 +25,7 @@ namespace Hookshot
     /// @return Pointer to the allocated buffer, or `NULL` on failure.
     static inline Trampoline* AllocateTrampolineBuffer(void* baseAddress = NULL)
     {
-        return (Trampoline*)VirtualAlloc(baseAddress, TrampolineStore::kTrampolineStoreSizeBytes, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        return (Trampoline*)Windows::ProtectedVirtualAlloc(baseAddress, TrampolineStore::kTrampolineStoreSizeBytes, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     }
 
     
@@ -49,7 +49,7 @@ namespace Hookshot
     TrampolineStore::~TrampolineStore(void)
     {
         if (NULL != trampolines && 0 == Count())
-            VirtualFree(trampolines, 0, MEM_RELEASE);
+            Windows::ProtectedVirtualFree(trampolines, 0, MEM_RELEASE);
     }
 
     // --------

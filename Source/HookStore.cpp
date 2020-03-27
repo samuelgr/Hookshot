@@ -9,7 +9,7 @@
  *   Data structure implementation for holding information about hooks.
  *****************************************************************************/
 
-#include "ApiWindows.h"
+#include "DependencyProtect.h"
 #include "Globals.h"
 #include "HookStore.h"
 #include "Message.h"
@@ -30,12 +30,12 @@ namespace Hookshot
     {
         // If the target function is part of a loaded module, the base address of the region is the base address of that module.
         HMODULE moduleHandle;
-        if (0 != GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)originalFunc, &moduleHandle))
+        if (0 != Windows::ProtectedGetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)originalFunc, &moduleHandle))
             return (void*)moduleHandle;
         
         // If the target function is not part of a loaded module, the base address of the region needs to be queried.
         MEMORY_BASIC_INFORMATION virtualMemoryInfo;
-        if (sizeof(virtualMemoryInfo) == VirtualQuery((LPCVOID)originalFunc, &virtualMemoryInfo, sizeof(virtualMemoryInfo)))
+        if (sizeof(virtualMemoryInfo) == Windows::ProtectedVirtualQuery((LPCVOID)originalFunc, &virtualMemoryInfo, sizeof(virtualMemoryInfo)))
             return virtualMemoryInfo.AllocationBase;
 
         // At this point the base address cannot be determined.
@@ -71,15 +71,15 @@ namespace Hookshot
     static inline bool RedirectExecution(void* from, const void* to)
     {
         DWORD originalProtection = 0;
-        if (0 == VirtualProtect(from, X86Instruction::kJumpInstructionLengthBytes, PAGE_EXECUTE_READWRITE, &originalProtection))
+        if (0 == Windows::ProtectedVirtualProtect(from, X86Instruction::kJumpInstructionLengthBytes, PAGE_EXECUTE_READWRITE, &originalProtection))
             return false;
 
         const bool writeJumpResult = X86Instruction::WriteJumpInstruction(from, X86Instruction::kJumpInstructionLengthBytes, to);
 
         DWORD unusedOriginalProtection = 0;
-        const bool restoreProtectionResult = (0 != VirtualProtect(from, X86Instruction::kJumpInstructionLengthBytes, originalProtection, &unusedOriginalProtection));
+        const bool restoreProtectionResult = (0 != Windows::ProtectedVirtualProtect(from, X86Instruction::kJumpInstructionLengthBytes, originalProtection, &unusedOriginalProtection));
         if (true == restoreProtectionResult)
-            FlushInstructionCache(Globals::GetCurrentProcessHandle(), from, (SIZE_T)X86Instruction::kJumpInstructionLengthBytes);
+            Windows::ProtectedFlushInstructionCache(Globals::GetCurrentProcessHandle(), from, (SIZE_T)X86Instruction::kJumpInstructionLengthBytes);
 
         return (writeJumpResult && restoreProtectionResult);
     }
@@ -177,6 +177,8 @@ namespace Hookshot
             trampolineStore.Deallocate();
             return EHookshotResult::HookshotResultFailCannotSetHook;
         }
+
+        UpdateProtectedDependencyAddress(originalFunc, trampoline.GetOriginalFunction());
 
         if (false == RedirectExecution(originalFunc, trampoline.GetHookFunction()))
         {

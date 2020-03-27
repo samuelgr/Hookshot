@@ -10,6 +10,7 @@
  *   Receives control from injection code, cleans up, and runs the program.
  *****************************************************************************/
 
+#include "DependencyProtect.h"
 #include "Globals.h"
 #include "Inject.h"
 #include "LibraryInterface.h"
@@ -37,7 +38,7 @@ extern "C" void __stdcall InjectLandingCleanup(const SInjectData* const injectDa
     for (size_t i = 0; i < _countof(cleanupBaseAddress); ++i)
     {
         if (NULL != cleanupBaseAddress[i])
-            VirtualFree(cleanupBaseAddress[i], 0, MEM_RELEASE);
+            Windows::ProtectedVirtualFree(cleanupBaseAddress[i], 0, MEM_RELEASE);
     }
 }
 
@@ -45,7 +46,7 @@ extern "C" void __stdcall InjectLandingCleanup(const SInjectData* const injectDa
 
 extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const injectData)
 {
-    if ((0 != injectData->enableDebugFeatures) && (0 == IsDebuggerPresent()))
+    if ((0 != injectData->enableDebugFeatures) && (0 == Windows::ProtectedIsDebuggerPresent()))
         Message::OutputFormatted(Message::ESeverity::ForcedInteractiveInfo, L"Attach to \"%s\" (PID %d) to continue debugging.", Strings::kStrExecutableBaseName.data(), Globals::GetCurrentProcessId());
 
     if (true == LibraryInterface::IsConfigurationDataValid())

@@ -435,4 +435,33 @@ namespace HookshotTest
         HOOKSHOT_TEST_ASSERT(Hookshot::EHookshotResult::HookshotResultFailInvalidArgument == hookConfig->CreateHook(funcA, (void*)((intptr_t)funcA + 1)));
         HOOKSHOT_TEST_PASSED;
     }
+
+    // Performs a standard hooking operation after hooking some Windows API functions used internally by Hookshot to implement hooking.
+    // Hookshot should be resilient against this and work anyway.
+    // Hook version of the VirtualProtect Windows API function. Always fails.
+    BOOL WINAPI HookVirtualProtect(LPVOID lpAddress, SIZE_T dwSize, DWORD flNewProtect, PDWORD lpflOldProtect)
+    {
+        return FALSE;
+    }
+
+    // Main test case logic.
+    HOOKSHOT_CUSTOM_TEST(WindowsApiUsedByHookshot)
+    {
+        // Hook the VirtualProtect Windows API function.
+        // This is used internally by Hookshot to set memory permissions while setting hooks.
+        HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookConfig->CreateHook(&VirtualProtect, &HookVirtualProtect)));
+
+        // Standard hook operations follow.  These are expected to succeed.
+        GENERATE_AND_ASSIGN_FUNCTION(originalFunc);
+        GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
+
+        const auto kOriginalFuncResult = originalFunc();
+        const auto kHookFuncResult = hookFunc();
+
+        HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookConfig->CreateHook(originalFunc, hookFunc)));
+        HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
+        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookConfig->GetOriginalFunction(originalFunc))());
+
+        HOOKSHOT_TEST_PASSED;
+    }
 }

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\CodeInjector.cpp" />
+    <ClCompile Include="Source\DependencyProtect.cpp" />
     <ClCompile Include="Source\ExeMain.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\Inject.cpp" />
@@ -36,6 +37,7 @@
   <ItemGroup>
     <ClInclude Include="Include\Hookshot\ApiWindows.h" />
     <ClInclude Include="Include\Hookshot\CodeInjector.h" />
+    <ClInclude Include="Include\Hookshot\DependencyProtect.h" />
     <ClInclude Include="Include\Hookshot\Globals.h" />
     <ClInclude Include="Include\Hookshot\Inject.h" />
     <ClInclude Include="Include\Hookshot\InjectResult.h" />

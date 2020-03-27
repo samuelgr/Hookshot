@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Configuration.cpp" />
+    <ClCompile Include="Source\DependencyProtect.cpp" />
     <ClCompile Include="Source\HookshotConfigReader.cpp" />
     <ClCompile Include="Source\DllEntry.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
@@ -49,6 +50,7 @@
     <ClInclude Include="Include\Hookshot\InjectResult.h" />
     <ClInclude Include="Include\Hookshot\LibraryInterface.h" />
     <ClInclude Include="Include\Hookshot\Message.h" />
+    <ClInclude Include="Include\Hookshot\DependencyProtect.h" />
     <ClInclude Include="Include\Hookshot\RemoteProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Strings.h" />
     <ClInclude Include="Include\Hookshot\TemporaryBuffer.h" />

@@ -9,7 +9,7 @@
  *   Implementation of some functionality for individual trampolines.
  *****************************************************************************/
 
-#include "ApiWindows.h"
+#include "DependencyProtect.h"
 #include "Globals.h"
 #include "Message.h"
 #include "TemporaryBuffer.h"
@@ -80,7 +80,7 @@ namespace Hookshot
     {
         Message::OutputFormatted(Message::ESeverity::Info, L"Trampoline at 0x%llx is being set up with hook function 0x%llx.", (long long)this, (long long)hookFunc);
         code.hook.ptr[_countof(code.hook.ptr) - 1] = ValueForHookAddress(hookFunc);
-        FlushInstructionCache(Globals::GetCurrentProcessHandle(), &code.hook, sizeof(code.hook));
+        Windows::ProtectedFlushInstructionCache(Globals::GetCurrentProcessHandle(), &code.hook, sizeof(code.hook));
     }
 
     // --------
@@ -245,7 +245,7 @@ namespace Hookshot
             }
         }
 
-        FlushInstructionCache(Globals::GetCurrentProcessHandle(), &code.original, sizeof(code.original));
+        Windows::ProtectedFlushInstructionCache(Globals::GetCurrentProcessHandle(), &code.original, sizeof(code.original));
         return true;
     }
 }
