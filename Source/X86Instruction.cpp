@@ -231,7 +231,7 @@ namespace Hookshot
             // However, REX prefixes are used for other things besides just functional changes.  For example, Windows uses "rex.w jmp" to indicate a function epilogue.
             // Therefore, in this case the REX prefix should be reintroduced.
             // REX prefixes only exist in 64-bit mode.
-            if ((true == CouldBeRexPrefix(possibleRexPrefix)) && (false == CouldBeRexPrefix(((uint8_t*)buf)[lengthDiscrepancy])) && (possibleRexPrefix != ((uint8_t*)buf)[lengthDiscrepancy]))
+            if ((true == CouldBeRexPrefix(possibleRexPrefix)) && (false == CouldBeRexPrefix(((uint8_t*)buf)[lengthDiscrepancy])))
                 ((uint8_t*)buf)[lengthDiscrepancy - 1] = possibleRexPrefix;
 #endif
 
