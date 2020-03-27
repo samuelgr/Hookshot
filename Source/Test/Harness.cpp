@@ -10,8 +10,9 @@
  *****************************************************************************/
 
 #include "Harness.h"
-#include "Hookshot.h"
 #include "TestCase.h"
+
+#include "Hookshot/Hookshot.h"
 
 #include <cstdarg>
 #include <cstddef>

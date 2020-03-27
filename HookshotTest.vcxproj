@@ -109,7 +109,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
-      <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Test</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test</AdditionalIncludeDirectories>
       <OmitFramePointers>false</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
@@ -141,7 +141,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
-      <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Test</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -172,7 +172,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Test</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
@@ -206,7 +206,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Test</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>

@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "Hookshot.h"
+#include "Hookshot/Hookshot.h"
 
 
 namespace HookshotTest
