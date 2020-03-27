@@ -20,7 +20,7 @@
 namespace Hookshot
 {
     /// Enumeration of possible errors from Hookshot functions.
-    enum EHookshotResult
+    enum class EResult
     {
         // Success codes.
         HookshotResultSuccess,                                      ///< Operation was successful.
@@ -44,9 +44,9 @@ namespace Hookshot
     /// Convenience function used to determine if a hook operation succeeded.
     /// @param [in] result Hook identifier returned as the result of any #IHookConfig interface method call.
     /// @return `true` if the identifier represents success, `false` otherwise.
-    inline bool SuccessfulResult(const EHookshotResult result)
+    inline bool SuccessfulResult(const EResult result)
     {
-        return (result < EHookshotResult::HookshotResultBoundaryValue);
+        return (result < EResult::HookshotResultBoundaryValue);
     }
     
     /// Interface provided by Hookshot that the hook module can use to configure hooks.
@@ -62,14 +62,14 @@ namespace Hookshot
         /// @param [in,out] originalFunc Address of the function that should be hooked.
         /// @param [in] hookFunc Hook function that should be invoked instead of the original function.
         /// @return Result of the operation.
-        virtual EHookshotResult CreateHook(void* originalFunc, const void* hookFunc) = 0;
+        virtual EResult CreateHook(void* originalFunc, const void* hookFunc) = 0;
         
         /// Disables the hook function associated with the specified hook.
         /// On success, going forward all invocations of the original function will execute as if not hooked at all, and Hookshot no longer associates the hook function with the hook.
         /// To re-enable the hook, use #ReplaceHookFunction and identify the hook by its original function address.
         /// @param [in] originalOrHookFunc Address of either the original function or the current hook function (it does not matter which) currently associated with the hook.
         /// @return Result of the operation.
-        virtual EHookshotResult DisableHookFunction(const void* originalOrHookFunc) = 0;
+        virtual EResult DisableHookFunction(const void* originalOrHookFunc) = 0;
 
         /// Retrieves and returns an address that, when invoked as a function, calls the original (i.e. un-hooked) version of the hooked function.
         /// This is useful for accessing the original behavior of the function being hooked.
@@ -84,7 +84,7 @@ namespace Hookshot
         /// On success, Hookshot associates the new hook function with the hook and forgets about the old hook function.
         /// @param [in] originalOrHookFunc Address of either the original function or the hook function (it does not matter which) currently associated with the hook.
         /// @return Result of the operation.
-        virtual EHookshotResult ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc) = 0;
+        virtual EResult ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc) = 0;
     };
 }
 
@@ -95,9 +95,9 @@ namespace Hookshot
 /// Hookshot initialization function to be used when linking directly with the Hookshot library instead of loading it through injection.
 /// Must be invoked to initialize the Hookshot library before any functionality is accessed.
 /// @return Hook configuration interface object, which remains owned by Hookshot, or `NULL` in the event Hookshot failed to initialize.
-__declspec(dllimport) Hookshot::IHookConfig* __stdcall HookshotLibraryInitialize(void);
+__declspec(dllimport) Hookshot::IHookConfig* __fastcall HookshotLibraryInitialize(void);
 #else
 /// Convenient definition for the entry point of a Hookshot hook module.
 /// Parameter allows specifying the name of the function parameter of type #IHookConfig.
-#define HOOKSHOT_HOOK_MODULE_ENTRY(hc)      extern "C" __declspec(dllexport) void __stdcall HookshotMain(Hookshot::IHookConfig* hc)
+#define HOOKSHOT_HOOK_MODULE_ENTRY(hc)      extern "C" __declspec(dllexport) void __fastcall HookshotMain(Hookshot::IHookConfig* hc)
 #endif

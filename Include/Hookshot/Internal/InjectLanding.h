@@ -21,7 +21,7 @@
  // -------- TYPE DEFINITIONS ----------------------------------------------- //
 
 /// Function signature for the hook module initialization function.
-typedef void(__stdcall* THookModuleInitProc)(Hookshot::IHookConfig*);
+typedef void(__fastcall* THookModuleInitProc)(Hookshot::IHookConfig*);
 
 
 // -------- FUNCTIONS ------------------------------------------------------ //
@@ -31,11 +31,11 @@ typedef void(__stdcall* THookModuleInitProc)(Hookshot::IHookConfig*);
 /// When this DLL has been loaded and initialized successfully, control transfers to this address.
 /// At the time that this occurs, this DLL assumes control of the injection and hook setup process, freeing the injecting process of all further responsibility.
 /// There is no return, but rather upon completion control is transferred to the actual entry point of the injected process.
-extern "C" void __stdcall InjectLanding(void);
+extern "C" void __fastcall InjectLanding(void);
 
 /// Performs all necessary cleanup operations upon completion of the injection code.
 /// @param [in] injectData Data used during the injection process.
-extern "C" void __stdcall InjectLandingCleanup(const Hookshot::SInjectData* const injectData);
+extern "C" void __fastcall InjectLandingCleanup(const Hookshot::SInjectData* const injectData);
 
 /// Performs all operations needed to read hook configuration information and load hook modules.
-extern "C" void __stdcall InjectLandingLoadHookModules(const Hookshot::SInjectData* const injectData);
+extern "C" void __fastcall InjectLandingLoadHookModules(const Hookshot::SInjectData* const injectData);

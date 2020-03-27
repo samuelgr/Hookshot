@@ -54,7 +54,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvRe
 /// Success or failure of this function determines the overall success or failure of the injection process.
 /// The injecting process is still waiting on this code to complete, so it should be as fast as possible to avoid undue delays.
 /// @return Address to which to jump to continue running the injected process, or `NULL` on failure.
-extern "C" __declspec(dllexport) void* __stdcall HookshotInjectInitialize(void)
+extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
 {
     Globals::SetHookshotLoadMethod(EHookshotLoadMethod::Injected);
     LibraryInterface::Initialize();
@@ -67,7 +67,7 @@ extern "C" __declspec(dllexport) void* __stdcall HookshotInjectInitialize(void)
 
 /// Intended to be invoked by programs that link with this library and load it directly, rather than via injection.
 /// Part of the external Hookshot API.  See "Hookshot.h" for documentation.
-__declspec(dllexport) IHookConfig* __stdcall HookshotLibraryInitialize(void)
+__declspec(dllexport) IHookConfig* __fastcall HookshotLibraryInitialize(void)
 {
     Globals::SetHookshotLoadMethod(EHookshotLoadMethod::LibraryLoaded);
     LibraryInterface::Initialize();

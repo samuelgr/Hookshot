@@ -21,7 +21,7 @@ namespace HookshotTest
     // Each is implemented in a source file named identically to the test name.
     // See source files for documentation.
 
-    HOOKSHOT_HOOK_SET_FAIL_TEST(InvalidInstruction, Hookshot::EHookshotResult::HookshotResultFailCannotSetHook);
-    HOOKSHOT_HOOK_SET_FAIL_TEST_CONDITIONAL(JumpForwardTooFar, Hookshot::EHookshotResult::HookshotResultFailCannotSetHook, CpuInfo::Is64BitLongModeEnabled());
-    HOOKSHOT_HOOK_SET_FAIL_TEST(OneByteFunction, Hookshot::EHookshotResult::HookshotResultFailCannotSetHook);
+    HOOKSHOT_HOOK_SET_FAIL_TEST(InvalidInstruction, Hookshot::EResult::HookshotResultFailCannotSetHook);
+    HOOKSHOT_HOOK_SET_FAIL_TEST_CONDITIONAL(JumpForwardTooFar, Hookshot::EResult::HookshotResultFailCannotSetHook, CpuInfo::Is64BitLongModeEnabled());
+    HOOKSHOT_HOOK_SET_FAIL_TEST(OneByteFunction, Hookshot::EResult::HookshotResultFailCannotSetHook);
 }

@@ -51,14 +51,14 @@ namespace Hookshot
 #ifdef HOOKSHOT64
         static constexpr std::string_view kStrLibraryInitializationProcName = "HookshotInjectInitialize";
 #else
-        static constexpr std::string_view kStrLibraryInitializationProcName = "_HookshotInjectInitialize@0";
+        static constexpr std::string_view kStrLibraryInitializationProcName = "@HookshotInjectInitialize@0";
 #endif
 
         /// Function name of the hook module's exported initialization routine.
 #ifdef HOOKSHOT64
         static constexpr std::string_view kStrHookLibraryInitFuncName = "HookshotMain";
 #else
-        static constexpr std::string_view kStrHookLibraryInitFuncName = "_HookshotMain@4";
+        static constexpr std::string_view kStrHookLibraryInitFuncName = "@HookshotMain@4";
 #endif
 
         /// Configuration file setting name for specifying a library to load only but not initialize.

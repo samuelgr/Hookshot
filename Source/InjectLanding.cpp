@@ -28,7 +28,7 @@ using namespace Hookshot;
 // -------- FUNCTIONS ------------------------------------------------------ //
 // See "InjectLanding.h" for documentation.
 
-extern "C" void __stdcall InjectLandingCleanup(const SInjectData* const injectData)
+extern "C" void __fastcall InjectLandingCleanup(const SInjectData* const injectData)
 {
     // Before cleaning up, set aside the array of addresses to free.
     // This is needed because freeing any one of these could invalidate the injectData pointer.
@@ -44,7 +44,7 @@ extern "C" void __stdcall InjectLandingCleanup(const SInjectData* const injectDa
 
 // --------
 
-extern "C" void __stdcall InjectLandingLoadHookModules(const SInjectData* const injectData)
+extern "C" void __fastcall InjectLandingLoadHookModules(const SInjectData* const injectData)
 {
     if ((0 != injectData->enableDebugFeatures) && (0 == Windows::ProtectedIsDebuggerPresent()))
         Message::OutputFormatted(Message::ESeverity::ForcedInteractiveInfo, L"Attach to \"%s\" (PID %d) to continue debugging.", Strings::kStrExecutableBaseName.data(), Globals::GetCurrentProcessId());

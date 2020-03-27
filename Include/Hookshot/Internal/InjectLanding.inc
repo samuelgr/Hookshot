@@ -21,11 +21,11 @@ IFDEF HOOKSHOT64
 EXTRN InjectLandingCleanup:PROC
 EXTRN InjectLandingLoadHookModules:PROC
 ELSE
-InjectLanding TEXTEQU <_InjectLanding@0>
-EXTRN _InjectLandingCleanup@4:PROC
-InjectLandingCleanup TEXTEQU <_InjectLandingCleanup@4>
-EXTRN _InjectLandingLoadHookModules@4:PROC
-InjectLandingLoadHookModules TEXTEQU <_InjectLandingLoadHookModules@4>
+InjectLanding TEXTEQU <@InjectLanding@0>
+EXTRN @InjectLandingCleanup@4:PROC
+InjectLandingCleanup TEXTEQU <@InjectLandingCleanup@4>
+EXTRN @InjectLandingLoadHookModules@4:PROC
+InjectLandingLoadHookModules TEXTEQU <@InjectLandingLoadHookModules@4>
 ENDIF
 
 

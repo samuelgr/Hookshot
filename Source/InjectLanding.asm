@@ -31,11 +31,11 @@ InjectLanding                               PROC PUBLIC
     
     ; Call the injection setup function to load all hook modules.
     mov scx, sbp
-    call1ParamStdCall InjectLandingLoadHookModules
+    call InjectLandingLoadHookModules
 
     ; Call the injection cleanup function to free all allocated memory for injection purposes.
     mov scx, sbp
-    call1ParamStdCall InjectLandingCleanup
+    call InjectLandingCleanup
 
     ; Clean up the stack after API calls.
     stackStdCallShadowPop

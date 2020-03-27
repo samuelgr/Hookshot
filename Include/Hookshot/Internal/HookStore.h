@@ -58,9 +58,9 @@ namespace Hookshot
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See "Hookshot.h" for documentation.
 
-        EHookshotResult CreateHook(void* originalFunc, const void* hookFunc) override;
-        EHookshotResult DisableHookFunction(const void* originalOrHookFunc) override;
+        EResult CreateHook(void* originalFunc, const void* hookFunc) override;
+        EResult DisableHookFunction(const void* originalOrHookFunc) override;
         const void* GetOriginalFunction(const void* originalOrHookFunc) override;
-        EHookshotResult ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc) override;
+        EResult ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc) override;
     };
 }

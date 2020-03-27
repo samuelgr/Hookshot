@@ -10,7 +10,8 @@
  *   Implementation of all entry-point-related functionality.
  *****************************************************************************/
 
-#include <hookshot.h>
+#include "Hookshot\Hookshot.h"
+
 #include <windows.h>
 
 
