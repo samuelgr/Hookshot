@@ -14,7 +14,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <string>
 
 
 namespace Hookshot
@@ -42,7 +41,7 @@ namespace Hookshot
     };
     
     /// Convenience function used to determine if a hook operation succeeded.
-    /// @param [in] result Hook identifier returned as the result of any #IHookConfig interface method call.
+    /// @param [in] result Result code returned from most Hookshot functions.
     /// @return `true` if the identifier represents success, `false` otherwise.
     inline bool SuccessfulResult(const EResult result)
     {
