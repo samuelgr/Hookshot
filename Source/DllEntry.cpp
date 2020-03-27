@@ -33,7 +33,7 @@ namespace Hookshot
     __declspec(dllexport) EResult __fastcall CreateHook(void* originalFunc, const void* hookFunc)
     {
         if (false == isInitialized)
-            return EResult::HookshotResultFailBadState;
+            return EResult::FailBadState;
 
         return LibraryInterface::GetHookStore().CreateHook(originalFunc, hookFunc);
     }
@@ -43,7 +43,7 @@ namespace Hookshot
     __declspec(dllexport) EResult __fastcall DisableHookFunction(const void* originalOrHookFunc)
     {
         if (false == isInitialized)
-            return EResult::HookshotResultFailBadState;
+            return EResult::FailBadState;
 
         return LibraryInterface::GetHookStore().DisableHookFunction(originalOrHookFunc);
     }
@@ -79,7 +79,7 @@ namespace Hookshot
     __declspec(dllexport) EResult __fastcall ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc)
     {
         if (false == isInitialized)
-            return EResult::HookshotResultFailBadState;
+            return EResult::FailBadState;
 
         return LibraryInterface::GetHookStore().ReplaceHookFunction(originalOrHookFunc, newHookFunc);
     }

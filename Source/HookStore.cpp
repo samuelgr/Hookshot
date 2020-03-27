@@ -107,14 +107,14 @@ namespace Hookshot
     EResult HookStore::CreateHook(void* originalFunc, const void* hookFunc)
     {
         if (false == IsHookSpecValid(originalFunc, hookFunc))
-            return EResult::HookshotResultFailInvalidArgument;
+            return EResult::FailInvalidArgument;
 
         std::unique_lock<std::shared_mutex> lock(hookStoreMutex);
 
         // Check for duplicates.
         // If Hookshot has already set a hook that touches either the specified original or hook function, that is an error.
         if (0 != functionToTrampoline.count(originalFunc) || 0 != functionToTrampoline.count(hookFunc))
-            return EResult::HookshotResultFailDuplicate;
+            return EResult::FailDuplicate;
 
 #ifdef HOOKSHOT64
         // In 64-bit mode, trampolines are stored close to the target functions.
@@ -122,7 +122,7 @@ namespace Hookshot
         // Because only one TrampolineStore object exists per base address, the number of allowed hooks per base address is limited.
         void* const baseAddress = BaseAddressForOriginalFunc(originalFunc);
         if (NULL == baseAddress)
-            return EResult::HookshotResultFailInternal;
+            return EResult::FailInternal;
 
         // If this is the first target function for the specified base address, attempt to place a TrampolineStore buffer.
         // Do this by repeatedly moving backward in memory from the base address by the size of the TrampolineStore buffer until either too many attempts were made or a location is identified.
@@ -145,7 +145,7 @@ namespace Hookshot
         }
 
         if (0 == trampolineStoreMap.count(baseAddress))
-            return EResult::HookshotResultFailAllocation;
+            return EResult::FailAllocation;
 
         const size_t trampolineStoreIndex = trampolineStoreMap.at(baseAddress);
 #else
@@ -162,11 +162,11 @@ namespace Hookshot
 
         TrampolineStore& trampolineStore = trampolines[trampolineStoreIndex];
         if (false == trampolineStore.IsInitialized())
-            return EResult::HookshotResultFailInternal;
+            return EResult::FailInternal;
 
         const int allocatedIndex = trampolineStore.Allocate();
         if (allocatedIndex < 0)
-            return EResult::HookshotResultFailAllocation;
+            return EResult::FailAllocation;
 
         Trampoline& trampoline = trampolineStore[allocatedIndex];
         trampoline.SetHookFunction(hookFunc);
@@ -175,7 +175,7 @@ namespace Hookshot
             Message::OutputFormatted(Message::ESeverity::Info, L"Failed to set up a trampoline for original function at 0x%llx.", (long long)originalFunc);
 
             trampolineStore.Deallocate();
-            return EResult::HookshotResultFailCannotSetHook;
+            return EResult::FailCannotSetHook;
         }
 
         UpdateProtectedDependencyAddress(originalFunc, trampoline.GetOriginalFunction());
@@ -185,14 +185,14 @@ namespace Hookshot
             Message::OutputFormatted(Message::ESeverity::Info, L"Failed to redirect execution from 0x%llx to 0x%llx.", (long long)originalFunc, (long long)trampoline.GetHookFunction());
 
             trampolineStore.Deallocate();
-            return EResult::HookshotResultFailCannotSetHook;
+            return EResult::FailCannotSetHook;
         }
 
         functionToTrampoline[originalFunc] = &trampolineStore[allocatedIndex];
         functionToTrampoline[hookFunc] = &trampolineStore[allocatedIndex];
         trampolineToOriginalFunction[&trampoline] = originalFunc;
 
-        return EResult::HookshotResultSuccess;
+        return EResult::Success;
     }
 
     // --------
@@ -222,35 +222,35 @@ namespace Hookshot
 
         // If this fails, the specified hook does not exist.
         if (0 == functionToTrampoline.count(originalOrHookFunc))
-            return EResult::HookshotResultFailNotFound;
+            return EResult::FailNotFound;
 
         Trampoline* const trampoline = functionToTrampoline.at(originalOrHookFunc);
 
         // If this fails, internal data structures are inconsistent.
         if (0 == trampolineToOriginalFunction.count(trampoline))
-            return EResult::HookshotResultFailInternal;
+            return EResult::FailInternal;
 
         const void* const originalFunc = trampolineToOriginalFunction.at(trampoline);
         const void* const oldHookFunc = trampoline->GetHookTrampolineTarget();
         if (oldHookFunc == newHookFunc)
-            return EResult::HookshotResultNoEffect;
+            return EResult::NoEffect;
 
         // If this fails, internal data structures are inconsistent.
         if (0 == functionToTrampoline.count(originalFunc) || 0 == functionToTrampoline.count(oldHookFunc))
-            return EResult::HookshotResultFailInternal;
+            return EResult::FailInternal;
 
         // If this fails, the replacement hook function is already involved in a different hook.
         if (0 != functionToTrampoline.count(newHookFunc))
-            return EResult::HookshotResultFailDuplicate;
+            return EResult::FailDuplicate;
 
         // If this fails, the specified hook cannot be set.
         if (false == IsHookSpecValid(originalFunc, newHookFunc))
-            return EResult::HookshotResultFailInvalidArgument;
+            return EResult::FailInvalidArgument;
 
         trampoline->SetHookFunction(newHookFunc);
         functionToTrampoline.erase(oldHookFunc);
         functionToTrampoline[newHookFunc] = trampoline;
 
-        return EResult::HookshotResultSuccess;
+        return EResult::Success;
     }
 }

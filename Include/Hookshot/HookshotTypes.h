@@ -15,27 +15,27 @@
 
 namespace Hookshot
 {
-    /// Enumeration of possible errors from Hookshot functions.
+    /// Enumeration of possible results from Hookshot functions.
     enum class EResult
     {
         // Success codes.
-        HookshotResultSuccess,                                      ///< Operation was successful.
-        HookshotResultNoEffect,                                     ///< Operation did not generate an error but had no effect.
+        Success,                                                        ///< Operation was successful.
+        NoEffect,                                                       ///< Operation did not generate an error but had no effect.
 
         // Boundary value between success and failure.
-        HookshotResultBoundaryValue,                                ///< Boundary value between success and failure, not used as an error code.
+        BoundaryValue,                                                  ///< Boundary value between success and failure, not used as an error code.
 
         // Failure codes.
-        HookshotResultFailAllocation,                               ///< Unable to allocate a new hook data structure.
-        HookshotResultFailBadState,                                 ///< Hookshot is not initialized. Invoke #InitializeLibrary and try again.
-        HookshotResultFailCannotSetHook,                            ///< Failed to set the hook.
-        HookshotResultFailDuplicate,                                ///< Specified function is already hooked.
-        HookshotResultFailInvalidArgument,                          ///< An argument that was supplied is invalid.
-        HookshotResultFailInternal,                                 ///< Internal error.
-        HookshotResultFailNotFound,                                 ///< Unable to find a hook using the supplied identification.
+        FailAllocation,                                                 ///< Unable to allocate a new hook data structure.
+        FailBadState,                                                   ///< Hookshot is not initialized. Invoke #InitializeLibrary and try again.
+        FailCannotSetHook,                                              ///< Failed to set the hook.
+        FailDuplicate,                                                  ///< Specified function is already hooked.
+        FailInvalidArgument,                                            ///< An argument that was supplied is invalid.
+        FailInternal,                                                   ///< Internal error.
+        FailNotFound,                                                   ///< Unable to find a hook using the supplied identification.
 
-        // Upper sentinal.
-        HookshotResultUpperBoundValue                               ///< Upper sentinel value, not used as an error code.
+        // Upper sentinel.
+        UpperBoundValue                                                 ///< Upper sentinel value, not used as an error code.
     };
 
     /// Convenience function used to determine if a hook operation succeeded.
@@ -43,6 +43,6 @@ namespace Hookshot
     /// @return `true` if the identifier represents success, `false` otherwise.
     inline bool SuccessfulResult(const EResult result)
     {
-        return (result < EResult::HookshotResultBoundaryValue);
+        return (result < EResult::BoundaryValue);
     }
 }

@@ -64,7 +64,7 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(funcC);
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::CreateHook(funcB, funcC)));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailDuplicate == Hookshot::CreateHook(funcA, funcB));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == Hookshot::CreateHook(funcA, funcB));
 
         HOOKSHOT_TEST_PASSED;
     }
@@ -77,7 +77,7 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::CreateHook(originalFunc, hookFunc)));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailDuplicate == Hookshot::CreateHook(originalFunc, hookFunc));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == Hookshot::CreateHook(originalFunc, hookFunc));
 
         HOOKSHOT_TEST_PASSED;
     }
@@ -102,7 +102,7 @@ namespace HookshotTest
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))Hookshot::GetOriginalFunction(originalFunc))());
         HOOKSHOT_TEST_ASSERT(NULL == Hookshot::GetOriginalFunction(hookFunc));
         
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailNotFound == Hookshot::ReplaceHookFunction(hookFunc, hookFunc));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailNotFound == Hookshot::ReplaceHookFunction(hookFunc, hookFunc));
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::ReplaceHookFunction(originalFunc, hookFunc)));
         HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))Hookshot::GetOriginalFunction(originalFunc))());
@@ -119,7 +119,7 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(funcC);
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::CreateHook(funcA, funcB)));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailDuplicate == Hookshot::CreateHook(funcB, funcC));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == Hookshot::CreateHook(funcB, funcC));
 
         HOOKSHOT_TEST_PASSED;
     }
@@ -132,7 +132,7 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(funcB);
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::CreateHook(funcA, funcB)));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailDuplicate == Hookshot::CreateHook(funcB, funcA));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == Hookshot::CreateHook(funcB, funcA));
 
         HOOKSHOT_TEST_PASSED;
     }
@@ -142,7 +142,7 @@ namespace HookshotTest
     HOOKSHOT_CUSTOM_TEST(HookHookshot)
     {
         GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailInvalidArgument == Hookshot::CreateHook(&Hookshot::DisableHookFunction, hookFunc));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == Hookshot::CreateHook(&Hookshot::DisableHookFunction, hookFunc));
         HOOKSHOT_TEST_PASSED;
     }
 
@@ -310,7 +310,7 @@ namespace HookshotTest
     // Expected result is Hookshot rejects the input arguments as invalid.
     HOOKSHOT_CUSTOM_TEST(NullPointerBoth)
     {
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailInvalidArgument == Hookshot::CreateHook(NULL, NULL));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == Hookshot::CreateHook(NULL, NULL));
         HOOKSHOT_TEST_PASSED;
     }
 
@@ -319,7 +319,7 @@ namespace HookshotTest
     HOOKSHOT_CUSTOM_TEST(NullPointerHook)
     {
         GENERATE_AND_ASSIGN_FUNCTION(func);
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailInvalidArgument == Hookshot::CreateHook(func, NULL));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == Hookshot::CreateHook(func, NULL));
         HOOKSHOT_TEST_PASSED;
     }
 
@@ -328,7 +328,7 @@ namespace HookshotTest
     HOOKSHOT_CUSTOM_TEST(NullPointerOriginal)
     {
         GENERATE_AND_ASSIGN_FUNCTION(func);
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailInvalidArgument == Hookshot::CreateHook(NULL, func));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == Hookshot::CreateHook(NULL, func));
         HOOKSHOT_TEST_PASSED;
     }
 
@@ -337,7 +337,7 @@ namespace HookshotTest
     HOOKSHOT_CUSTOM_TEST(SelfHook)
     {
         GENERATE_AND_ASSIGN_FUNCTION(func);
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailInvalidArgument == Hookshot::CreateHook(func, func));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == Hookshot::CreateHook(func, func));
         HOOKSHOT_TEST_PASSED;
     }
 
@@ -353,10 +353,10 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(hookFunc2);
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::CreateHook(originalFunc2, hookFunc2)));
 
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailDuplicate == Hookshot::ReplaceHookFunction(originalFunc1, hookFunc2));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailDuplicate == Hookshot::ReplaceHookFunction(hookFunc1, hookFunc2));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailDuplicate == Hookshot::ReplaceHookFunction(originalFunc2, hookFunc1));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailDuplicate == Hookshot::ReplaceHookFunction(hookFunc2, hookFunc1));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == Hookshot::ReplaceHookFunction(originalFunc1, hookFunc2));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == Hookshot::ReplaceHookFunction(hookFunc1, hookFunc2));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == Hookshot::ReplaceHookFunction(originalFunc2, hookFunc1));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == Hookshot::ReplaceHookFunction(hookFunc2, hookFunc1));
 
         HOOKSHOT_TEST_PASSED;
     }
@@ -368,10 +368,10 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(funcA);
         GENERATE_AND_ASSIGN_FUNCTION(funcB);
 
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailNotFound == Hookshot::ReplaceHookFunction(funcA, funcA));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailNotFound == Hookshot::ReplaceHookFunction(funcA, funcB));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailNotFound == Hookshot::ReplaceHookFunction(funcB, funcA));
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailNotFound == Hookshot::ReplaceHookFunction(funcB, funcB));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailNotFound == Hookshot::ReplaceHookFunction(funcA, funcA));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailNotFound == Hookshot::ReplaceHookFunction(funcA, funcB));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailNotFound == Hookshot::ReplaceHookFunction(funcB, funcA));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailNotFound == Hookshot::ReplaceHookFunction(funcB, funcB));
 
         HOOKSHOT_TEST_PASSED;
     }
@@ -431,7 +431,7 @@ namespace HookshotTest
     HOOKSHOT_CUSTOM_TEST(UnsafeSeparation)
     {
         GENERATE_AND_ASSIGN_FUNCTION(funcA);
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::HookshotResultFailInvalidArgument == Hookshot::CreateHook(funcA, (void*)((intptr_t)funcA + 1)));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == Hookshot::CreateHook(funcA, (void*)((intptr_t)funcA + 1)));
         HOOKSHOT_TEST_PASSED;
     }
 
