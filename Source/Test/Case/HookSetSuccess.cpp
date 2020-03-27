@@ -22,7 +22,7 @@ namespace HookshotTest
     HOOKSHOT_HOOK_SET_SUCCESS_TEST(BasicFunction);
     HOOKSHOT_HOOK_SET_SUCCESS_TEST(CallSubroutine);
     HOOKSHOT_HOOK_SET_SUCCESS_TEST(JumpAbsolutePositionRelative);
-    HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(JumpAbsolutePositionRelativeUselessPrefix, CpuInfo::Is64BitLongModeEnabled());
+    HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(JumpAbsolutePositionRelativeRexW, CpuInfo::Is64BitLongModeEnabled());
     HOOKSHOT_HOOK_SET_SUCCESS_TEST(JumpBackwardRel8);
     HOOKSHOT_HOOK_SET_SUCCESS_TEST(JumpForwardRel8);
     HOOKSHOT_HOOK_SET_SUCCESS_TEST(JumpBackwardRel32);
