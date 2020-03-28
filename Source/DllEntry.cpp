@@ -9,7 +9,7 @@
  *   Entry points for the injected library.
  *****************************************************************************/
 
-#include "ApiWindows.h"
+#include "DependencyProtect.h"
 #include "Globals.h"
 #include "HookshotTypes.h"
 #include "InjectLanding.h"
@@ -36,6 +36,19 @@ namespace Hookshot
             return EResult::FailBadState;
 
         return LibraryInterface::GetHookStore().CreateHook(originalFunc, hookFunc);
+    }
+
+    // --------
+
+    __declspec(dllexport) void __fastcall CreateHookOrDie(void* originalFunc, const void* hookFunc)
+    {
+        const EResult result = CreateHook(originalFunc, hookFunc);
+
+        if (true != SuccessfulResult(result))
+        {
+            Message::OutputFormatted(Message::ESeverity::Error, L"EResult %d - Terminating process due to CreateHook failure.", (int)result);
+            Windows::ProtectedTerminateProcess(Globals::GetCurrentProcessHandle(), (UINT)result);
+        }
     }
 
     // --------

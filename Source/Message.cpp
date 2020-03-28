@@ -199,6 +199,7 @@ namespace Hookshot
 
             // Write to the log file.
             fputws(outputString.str().c_str(), logFileHandle);
+            fflush(logFileHandle);
         }
 
         /// Outputs the specified message using a graphical message box.

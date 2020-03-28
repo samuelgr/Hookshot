@@ -22,10 +22,16 @@
 namespace Hookshot
 {
     /// Causes Hookshot to attempt to install a hook on the specified function.
-    /// @param [in,out] originalFunc Address of the function that should be hooked.
+    /// @param [in] originalFunc Address of the function that should be hooked.
     /// @param [in] hookFunc Hook function that should be invoked instead of the original function.
     /// @return Result of the operation.
     __declspec(dllimport) EResult __fastcall CreateHook(void* originalFunc, const void* hookFunc);
+
+    /// Causes Hookshot to attempt to install a hook on the specified function.
+    /// On failure, the current process is terminated with a message.
+    /// @param [in] originalFunc Address of the function that should be hooked.
+    /// @param [in] hookFunc Hook function that should be invoked instead of the original function.
+    __declspec(dllimport) void __fastcall CreateHookOrDie(void* originalFunc, const void* hookFunc);
 
     /// Disables the hook function associated with the specified hook.
     /// On success, going forward all invocations of the original function will execute as if not hooked at all, and Hookshot no longer associates the hook function with the hook.
@@ -58,4 +64,4 @@ namespace Hookshot
 
 /// Convenient definition for the entry point of a Hookshot hook module.
 /// If building a hook module, use this macro to create a hook module entry point.
-#define HOOKSHOT_HOOK_MODULE_ENTRY          extern "C" __declspec(dllexport) void __fastcall HookshotMain(void)
+#define HOOKSHOT_HOOK_MODULE_ENTRY()        extern "C" __declspec(dllexport) void __fastcall HookshotMain(void)
