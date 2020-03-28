@@ -46,7 +46,7 @@ namespace Hookshot
         GlobalData(void) :
             gCurrentProcessHandle(GetCurrentProcess()),
             gCurrentProcessId(GetProcessId(GetCurrentProcess())),
-            gInstanceHandle(NULL),
+            gInstanceHandle(nullptr),
             gLoadMethod(EHookshotLoadMethod::Executed)
         {
             GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)&GlobalData::GetInstance, &gInstanceHandle);

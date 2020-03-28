@@ -75,7 +75,7 @@ namespace Hookshot
         /// It is up to the caller to ensure that invocations to the returned address satisfy all calling convention and parameter type requirements of the original function.
         /// The returned address is not the original entry point of the hooked function but rather a trampoline address that Hookshot created when installing the hook.
         /// @param [in] originalOrHookFunc Address of either the original function or the hook function (it does not matter which) currently associated with the hook.
-        /// @return Address that can be invoked to access the functionality of the original function, or `NULL` in the event that a hook cannot be found matching the specified function.
+        /// @return Address that can be invoked to access the functionality of the original function, or `nullptr` in the event that a hook cannot be found matching the specified function.
         const void* GetOriginalFunction(const void* originalOrHookFunc);
 
         /// Modifies an existing hook by replacing its hook function.

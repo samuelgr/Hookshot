@@ -45,7 +45,7 @@ namespace Hookshot
         /// Attempts to open the specified file on construction and close it on destruction.
         struct FileHandle
         {
-            FILE* fileHandle = NULL;
+            FILE* fileHandle = nullptr;
 
             inline operator FILE*(void) const
             {
@@ -59,7 +59,7 @@ namespace Hookshot
 
             inline ~FileHandle(void)
             {
-                if (NULL != fileHandle)
+                if (nullptr != fileHandle)
                     fclose(fileHandle);
             }
         };
@@ -299,7 +299,7 @@ namespace Hookshot
         static bool ParseInteger(const TStringValue& source, TIntegerValue* const dest)
         {
             intmax_t value = 0ll;
-            wchar_t* endptr = NULL;
+            wchar_t* endptr = nullptr;
 
             // Parse out a number in any representable base.
             value = wcstoll(source.c_str(), &endptr, 0);
@@ -403,7 +403,7 @@ namespace Hookshot
             FileHandle configFileHandle;
             _wfopen_s(&configFileHandle, configFileName.data(), L"r");
 
-            if (NULL == configFileHandle)
+            if (nullptr == configFileHandle)
             {
                 FormatString(readErrorMessage, L"%s - Unable to open configuration file.", configFileName.data());
                 return false;

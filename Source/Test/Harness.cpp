@@ -91,7 +91,7 @@ namespace HookshotTest
 
     void Harness::RegisterTestCaseInternal(const ITestCase* const testCase, const wchar_t* const name)
     {
-        if ((NULL != name) && ('\0' != name[0]) && (0 == testCases.count(name)))
+        if ((nullptr != name) && ('\0' != name[0]) && (0 == testCases.count(name)))
             testCases[name] = testCase;
     }
 

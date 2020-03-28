@@ -36,7 +36,7 @@ extern "C" void __fastcall InjectLandingCleanup(const SInjectData* const injectD
 
     for (size_t i = 0; i < _countof(cleanupBaseAddress); ++i)
     {
-        if (NULL != cleanupBaseAddress[i])
+        if (nullptr != cleanupBaseAddress[i])
             Windows::ProtectedVirtualFree(cleanupBaseAddress[i], 0, MEM_RELEASE);
     }
 }

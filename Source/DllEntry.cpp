@@ -69,7 +69,7 @@ namespace Hookshot
     __declspec(dllexport) const void* __fastcall GetOriginalFunction(const void* originalOrHookFunc)
     {
         if (false == isInitialized)
-            return NULL;
+            return nullptr;
 
         return LibraryInterface::GetHookStore().GetOriginalFunction(originalOrHookFunc);
     }
@@ -121,7 +121,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvRe
 /// Invoked by injection code to perform additional initialization functions, especially those not safe to perform in the main DLL entry point.
 /// Success or failure of this function determines the overall success or failure of the injection process.
 /// The injecting process is still waiting on this code to complete, so it should be as fast as possible to avoid undue delays.
-/// @return Address to which to jump to continue running the injected process, or `NULL` on failure.
+/// @return Address to which to jump to continue running the injected process, or `nullptr` on failure.
 extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
 {
     if (false == isInitialized)

@@ -57,21 +57,21 @@ namespace Hookshot
     /// @return `true` on success, `false` on failure.
     static bool LoadInjectCodeBinary(void** baseAddress, size_t* sizeBytes)
     {
-        static void* injectCodeBinaryBaseAddress = NULL;
+        static void* injectCodeBinaryBaseAddress = nullptr;
         static size_t injectCodeBinarySizeBytes = 0;
 
-        if (NULL == injectCodeBinaryBaseAddress)
+        if (nullptr == injectCodeBinaryBaseAddress)
         {
             const HRSRC resourceInfoBlock = FindResource(Globals::GetInstanceHandle(), MAKEINTRESOURCE(IDR_HOOKSHOT_INJECT_CODE), RT_RCDATA);
-            if (NULL == resourceInfoBlock)
+            if (nullptr == resourceInfoBlock)
                 return false;
 
             const HGLOBAL resourceHandle = LoadResource(Globals::GetInstanceHandle(), resourceInfoBlock);
-            if (NULL == resourceHandle)
+            if (nullptr == resourceHandle)
                 return false;
 
             void* const resourceBaseAddress = LockResource(resourceHandle);
-            if (NULL == resourceBaseAddress)
+            if (nullptr == resourceBaseAddress)
                 return false;
 
             size_t resourceSizeBytes = (size_t)SizeofResource(Globals::GetInstanceHandle(), resourceInfoBlock);
@@ -91,9 +91,9 @@ namespace Hookshot
     // -------- CONSTRUCTION AND DESTRUCTION ------------------------------- //
     // See "Inject.h" for documentation.
 
-    InjectInfo::InjectInfo(void) : injectTrampolineStart(NULL), injectTrampolineAddressMarker(NULL), injectTrampolineEnd(NULL), injectCodeStart(NULL), injectCodeBegin(NULL), injectCodeEnd(NULL), initializationResult(EInjectResult::InjectResultFailure)
+    InjectInfo::InjectInfo(void) : injectTrampolineStart(nullptr), injectTrampolineAddressMarker(nullptr), injectTrampolineEnd(nullptr), injectCodeStart(nullptr), injectCodeBegin(nullptr), injectCodeEnd(nullptr), initializationResult(EInjectResult::InjectResultFailure)
     {
-        void* injectBinaryBase = NULL;
+        void* injectBinaryBase = nullptr;
         size_t injectBinarySizeBytes = 0;
 
         if (false == LoadInjectCodeBinary(&injectBinaryBase, &injectBinarySizeBytes))
@@ -139,8 +139,8 @@ namespace Hookshot
             }
 
             // Look through the section headers for the required code and metadata sections.
-            void* sectionCode = NULL;
-            SInjectMeta* sectionMeta = NULL;
+            void* sectionCode = nullptr;
+            SInjectMeta* sectionMeta = nullptr;
 
             {
                 const IMAGE_SECTION_HEADER* const sectionHeader = (IMAGE_SECTION_HEADER*)&ntHeader[1];
@@ -151,7 +151,7 @@ namespace Hookshot
                 {
                     if (Strings::kStrInjectCodeSectionName == (const char*)sectionHeader[secidx].Name)
                     {
-                        if (NULL != sectionCode)
+                        if (nullptr != sectionCode)
                         {
                             initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
                             return;
@@ -161,7 +161,7 @@ namespace Hookshot
                     }
                     else if (Strings::kStrInjectMetaSectionName == (const char*)sectionHeader[secidx].Name)
                     {
-                        if (NULL != sectionMeta)
+                        if (nullptr != sectionMeta)
                         {
                             initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
                             return;
@@ -173,7 +173,7 @@ namespace Hookshot
             }
 
             // Verify that both sections exist.
-            if ((NULL == sectionCode) || (NULL == sectionMeta))
+            if ((nullptr == sectionCode) || (nullptr == sectionMeta))
             {
                 initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
                 return;

@@ -123,7 +123,7 @@ namespace Hookshot
         Message::OutputFormatted(Message::ESeverity::Info, L"%s - Attempting to load hook module.", hookModuleFileName.data());
         const HMODULE hookModule = Windows::ProtectedLoadLibrary(hookModuleFileName.data());
 
-        if (NULL == hookModule)
+        if (nullptr == hookModule)
         {
             Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load hook module (system error %d).", hookModuleFileName.data(), Windows::ProtectedGetLastError());
             return false;
@@ -131,7 +131,7 @@ namespace Hookshot
 
         const THookModuleInitProc initProc = (THookModuleInitProc)Windows::ProtectedGetProcAddress(hookModule, Strings::kStrHookLibraryInitFuncName.data());
 
-        if (NULL == initProc)
+        if (nullptr == initProc)
         {
             Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to locate required procedure in hook module (system error %d).", hookModuleFileName.data(), Windows::ProtectedGetLastError());
             return false;
@@ -150,7 +150,7 @@ namespace Hookshot
         Message::OutputFormatted(Message::ESeverity::Info, L"%s - Attempting to load library.", injectOnlyLibraryFileName.data());
         const HMODULE hookModule = Windows::ProtectedLoadLibrary(injectOnlyLibraryFileName.data());
 
-        if (NULL == hookModule)
+        if (nullptr == hookModule)
         {
             Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load library (system error %d).", injectOnlyLibraryFileName.data(), Windows::ProtectedGetLastError());
             return false;

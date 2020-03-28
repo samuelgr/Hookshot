@@ -22,8 +22,8 @@ namespace Hookshot
 
     /// Allocates a buffer suitable for holding Trampoline objects optionally using a specified base address.
     /// @param [in] baseAddress Desired base address for the buffer.
-    /// @return Pointer to the allocated buffer, or `NULL` on failure.
-    static inline Trampoline* AllocateTrampolineBuffer(void* baseAddress = NULL)
+    /// @return Pointer to the allocated buffer, or `nullptr` on failure.
+    static inline Trampoline* AllocateTrampolineBuffer(void* baseAddress = nullptr)
     {
         return (Trampoline*)Windows::ProtectedVirtualAlloc(baseAddress, TrampolineStore::kTrampolineStoreSizeBytes, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     }
@@ -48,7 +48,7 @@ namespace Hookshot
 
     TrampolineStore::~TrampolineStore(void)
     {
-        if (NULL != trampolines && 0 == Count())
+        if (nullptr != trampolines && 0 == Count())
             Windows::ProtectedVirtualFree(trampolines, 0, MEM_RELEASE);
     }
 
@@ -57,7 +57,7 @@ namespace Hookshot
     TrampolineStore::TrampolineStore(TrampolineStore&& other) : count(other.count), trampolines(other.trampolines)
     {
         other.count = 0;
-        other.trampolines = NULL;
+        other.trampolines = nullptr;
     }
 
 
@@ -66,7 +66,7 @@ namespace Hookshot
 
     int TrampolineStore::Allocate(void)
     {
-        if ((NULL == trampolines) || (count >= kTrampolineStoreCount))
+        if ((nullptr == trampolines) || (count >= kTrampolineStoreCount))
             return -1;
 
         new (&trampolines[count]) Trampoline();

@@ -192,11 +192,11 @@ namespace Hookshot
         int EncodeInstruction(void* const buf, const int maxLengthBytes = kMaxInstructionLengthBytes) const;
         
         /// If this instruction contains a position-dependent memory reference, computes and returns the absolute target address of said reference.
-        /// @return Absolute target address, or `NULL` if either this instruction is invalid or no such memory reference exists.
+        /// @return Absolute target address, or `nullptr` if either this instruction is invalid or no such memory reference exists.
         void* GetAbsoluteMemoryReferenceTarget(void) const;
 
         /// Retrieves and returns the original location in memory of this instruction.
-        /// @return Original address of this instruction, or `NULL` if it is invalid.
+        /// @return Original address of this instruction, or `nullptr` if it is invalid.
         inline void* GetAddress(void) const
         {
             return address;

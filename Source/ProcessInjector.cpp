@@ -33,9 +33,9 @@ namespace Hookshot
     // -------- CLASS VARIABLES -------------------------------------------- //
     // See "ProcessInjector.h" for documentation.
 
-    HMODULE ProcessInjector::ntdllModuleHandle = NULL;
+    HMODULE ProcessInjector::ntdllModuleHandle = nullptr;
 
-    NTSTATUS(WINAPI* ProcessInjector::ntdllQueryInformationProcessProc)(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG) = NULL;
+    NTSTATUS(WINAPI* ProcessInjector::ntdllQueryInformationProcessProc)(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG) = nullptr;
 
     size_t ProcessInjector::systemAllocationGranularity = 0;
 
@@ -83,10 +83,10 @@ namespace Hookshot
         // Architecture matches, so it is safe to proceed.
         const size_t allocationGranularity = GetSystemAllocationGranularity();
         const size_t kEffectiveInjectRegionSize = (InjectInfo::kMaxInjectBinaryFileSize < allocationGranularity) ? allocationGranularity : InjectInfo::kMaxInjectBinaryFileSize;
-        void* processBaseAddress = NULL;
-        void* processEntryPoint = NULL;
-        void* injectedCodeBase = NULL;
-        void* injectedDataBase = NULL;
+        void* processBaseAddress = nullptr;
+        void* processEntryPoint = nullptr;
+        void* injectedCodeBase = nullptr;
+        void* injectedDataBase = nullptr;
 
         // Attempt to obtain the base address of the executable image of the new process.
         operationResult = GetProcessImageBaseAddress(processHandle, &processBaseAddress);
@@ -100,10 +100,10 @@ namespace Hookshot
 
         // Allocate code and data areas in the target process.
         // Code first, then data.
-        injectedCodeBase = VirtualAllocEx(processHandle, NULL, ((SIZE_T)kEffectiveInjectRegionSize * (SIZE_T)2), MEM_RESERVE | MEM_COMMIT, PAGE_NOACCESS);
+        injectedCodeBase = VirtualAllocEx(processHandle, nullptr, ((SIZE_T)kEffectiveInjectRegionSize * (SIZE_T)2), MEM_RESERVE | MEM_COMMIT, PAGE_NOACCESS);
         injectedDataBase = (void*)((size_t)injectedCodeBase + kEffectiveInjectRegionSize);
 
-        if (NULL == injectedCodeBase)
+        if (nullptr == injectedCodeBase)
             return EInjectResult::InjectResultErrorVirtualAllocFailed;
 
         // Set appropriate protection values onto the new areas individually.
@@ -172,29 +172,29 @@ namespace Hookshot
     EInjectResult ProcessInjector::GetProcessImageBaseAddress(const HANDLE processHandle, void** const baseAddress)
     {
         // Verify that "ntdll.dll" is loaded.
-        if (NULL == ntdllModuleHandle)
+        if (nullptr == ntdllModuleHandle)
         {
-            ntdllModuleHandle = LoadLibraryEx(L"ntdll.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+            ntdllModuleHandle = LoadLibraryEx(L"ntdll.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 
-            if (NULL == ntdllModuleHandle)
+            if (nullptr == ntdllModuleHandle)
                 return EInjectResult::InjectResultErrorLoadNtDll;
 
-            ntdllQueryInformationProcessProc = NULL;
+            ntdllQueryInformationProcessProc = nullptr;
         }
 
         // Verify that "NtQueryInformationProcess" is available.
-        if (NULL == ntdllQueryInformationProcessProc)
+        if (nullptr == ntdllQueryInformationProcessProc)
         {
             ntdllQueryInformationProcessProc = (decltype(ntdllQueryInformationProcessProc))GetProcAddress(ntdllModuleHandle, "NtQueryInformationProcess");
 
-            if (NULL == ntdllQueryInformationProcessProc)
+            if (nullptr == ntdllQueryInformationProcessProc)
                 return EInjectResult::InjectResultErrorNtQueryInformationProcessUnavailable;
         }
 
         // Obtain the address of the process environment block (PEB) for the process, which is within the address space of the process.
         PROCESS_BASIC_INFORMATION processBasicInfo;
 
-        if (0 != ntdllQueryInformationProcessProc(processHandle, ProcessBasicInformation, &processBasicInfo, sizeof(processBasicInfo), NULL))
+        if (0 != ntdllQueryInformationProcessProc(processHandle, ProcessBasicInformation, &processBasicInfo, sizeof(processBasicInfo), nullptr))
             return EInjectResult::InjectResultErrorNtQueryInformationProcessFailed;
 
         // Read the desired information from the PEB in the process' address space.
@@ -252,7 +252,7 @@ namespace Hookshot
         USHORT machineTargetProcess = 0;
         USHORT machineCurrentProcess = 0;
 
-        if ((FALSE == IsWow64Process2(processHandle, &machineTargetProcess, NULL)) || (FALSE == IsWow64Process2(Globals::GetCurrentProcessHandle(), &machineCurrentProcess, NULL)))
+        if ((FALSE == IsWow64Process2(processHandle, &machineTargetProcess, nullptr)) || (FALSE == IsWow64Process2(Globals::GetCurrentProcessHandle(), &machineCurrentProcess, nullptr)))
             return EInjectResult::InjectResultErrorDetermineMachineProcess;
 
         if (machineTargetProcess == machineCurrentProcess)

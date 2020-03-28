@@ -41,17 +41,17 @@ namespace Hookshot
         // The resulting handle must be passed to the new instance of Hookshot that is spawned.
         SECURITY_ATTRIBUTES sharedMemorySecurityAttributes;
         sharedMemorySecurityAttributes.nLength = sizeof(sharedMemorySecurityAttributes);
-        sharedMemorySecurityAttributes.lpSecurityDescriptor = NULL;
+        sharedMemorySecurityAttributes.lpSecurityDescriptor = nullptr;
         sharedMemorySecurityAttributes.bInheritHandle = TRUE;
 
-        HANDLE sharedMemoryHandle = Windows::ProtectedCreateFileMapping(INVALID_HANDLE_VALUE, &sharedMemorySecurityAttributes, PAGE_READWRITE, 0, sizeof(SRemoteProcessInjectionData), NULL);
+        HANDLE sharedMemoryHandle = Windows::ProtectedCreateFileMapping(INVALID_HANDLE_VALUE, &sharedMemorySecurityAttributes, PAGE_READWRITE, 0, sizeof(SRemoteProcessInjectionData), nullptr);
 
-        if ((NULL == sharedMemoryHandle) || (INVALID_HANDLE_VALUE == sharedMemoryHandle))
+        if ((nullptr == sharedMemoryHandle) || (INVALID_HANDLE_VALUE == sharedMemoryHandle))
             return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
 
         SRemoteProcessInjectionData* const sharedInfo = (SRemoteProcessInjectionData*)Windows::ProtectedMapViewOfFile(sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 
-        if (NULL == sharedInfo)
+        if (nullptr == sharedInfo)
             return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
 
         // Append the command-line argument to pass to the new Hookshot instance and convert to a mutable string, as required by CreateProcess.
@@ -67,7 +67,7 @@ namespace Hookshot
         memset((void*)&startupInfo, 0, sizeof(startupInfo));
         memset((void*)&processInfo, 0, sizeof(processInfo));
 
-        if (FALSE == Windows::ProtectedCreateProcess(NULL, executableCommandLineMutableString, NULL, NULL, TRUE, CREATE_SUSPENDED, NULL, NULL, &startupInfo, &processInfo))
+        if (FALSE == Windows::ProtectedCreateProcess(nullptr, executableCommandLineMutableString, nullptr, nullptr, TRUE, CREATE_SUSPENDED, nullptr, nullptr, &startupInfo, &processInfo))
             return EInjectResult::InjectResultErrorCreateHookshotProcessFailed;
 
         // Fill in the required inputs to the new instance of Hookshot.

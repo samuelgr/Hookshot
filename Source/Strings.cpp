@@ -85,7 +85,7 @@ namespace Hookshot
             GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
 
             wchar_t* hookshotBaseName = wcsrchr(buf, L'\\');
-            if (NULL == hookshotBaseName)
+            if (nullptr == hookshotBaseName)
                 hookshotBaseName = buf;
             else
                 hookshotBaseName += 1;
@@ -94,14 +94,14 @@ namespace Hookshot
             // Therefore, look for the last two dot characters and truncate them.
             wchar_t* const lastDot = wcsrchr(hookshotBaseName, L'.');
 
-            if (NULL == lastDot)
+            if (nullptr == lastDot)
                 return (std::wstring(hookshotBaseName));
 
             *lastDot = L'\0';
 
             wchar_t* const secondLastDot = wcsrchr(hookshotBaseName, L'.');
 
-            if (NULL == secondLastDot)
+            if (nullptr == secondLastDot)
                 return (std::wstring(hookshotBaseName));
 
             *secondLastDot = L'\0';
@@ -122,14 +122,14 @@ namespace Hookshot
             // Therefore, look for the last two dot characters and truncate them.
             wchar_t* const lastDot = wcsrchr(buf, L'.');
 
-            if (NULL == lastDot)
+            if (nullptr == lastDot)
                 return (std::wstring(buf));
 
             *lastDot = L'\0';
 
             wchar_t* const secondLastDot = wcsrchr(buf, L'.');
 
-            if (NULL == secondLastDot)
+            if (nullptr == secondLastDot)
                 return (std::wstring(buf));
 
             *secondLastDot = L'\0';
@@ -142,10 +142,10 @@ namespace Hookshot
         static std::wstring GetExecutableBaseName(void)
         {
             TemporaryBuffer<wchar_t> buf;
-            GetModuleFileName(NULL, buf, (DWORD)buf.Count());
+            GetModuleFileName(nullptr, buf, (DWORD)buf.Count());
 
             wchar_t* executableBaseName = wcsrchr(buf, L'\\');
-            if (NULL == executableBaseName)
+            if (nullptr == executableBaseName)
                 executableBaseName = buf;
             else
                 executableBaseName += 1;
@@ -158,10 +158,10 @@ namespace Hookshot
         static std::wstring GetExecutableDirectoryName(void)
         {
             TemporaryBuffer<wchar_t> buf;
-            GetModuleFileName(NULL, buf, (DWORD)buf.Count());
+            GetModuleFileName(nullptr, buf, (DWORD)buf.Count());
 
             wchar_t* const lastBackslash = wcsrchr(buf, L'\\');
-            if (NULL == lastBackslash)
+            if (nullptr == lastBackslash)
                 buf[0] = L'\0';
             else
                 lastBackslash[1] = L'\0';
@@ -174,7 +174,7 @@ namespace Hookshot
         static std::wstring GetExecutableCompleteFilename(void)
         {
             TemporaryBuffer<wchar_t> buf;
-            GetModuleFileName(NULL, buf, (DWORD)buf.Count());
+            GetModuleFileName(nullptr, buf, (DWORD)buf.Count());
 
             return (std::wstring(buf));
         }
@@ -187,7 +187,7 @@ namespace Hookshot
             GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
 
             wchar_t* hookshotBaseName = wcsrchr(buf, L'\\');
-            if (NULL == hookshotBaseName)
+            if (nullptr == hookshotBaseName)
                 hookshotBaseName = buf;
             else
                 hookshotBaseName += 1;
@@ -203,7 +203,7 @@ namespace Hookshot
             GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
 
             wchar_t* const lastBackslash = wcsrchr(buf, L'\\');
-            if (NULL == lastBackslash)
+            if (nullptr == lastBackslash)
                 buf[0] = L'\0';
             else
                 lastBackslash[1] = L'\0';
@@ -235,7 +235,7 @@ namespace Hookshot
             std::wstringstream logFilename;
             
             PWSTR knownFolderPath;
-            const HRESULT result = SHGetKnownFolderPath(FOLDERID_Desktop, 0, NULL, &knownFolderPath);
+            const HRESULT result = SHGetKnownFolderPath(FOLDERID_Desktop, 0, nullptr, &knownFolderPath);
 
             if (S_OK == result)
             {

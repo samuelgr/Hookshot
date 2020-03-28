@@ -100,7 +100,7 @@ namespace HookshotTest
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::DisableHookFunction(originalFunc)));
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == originalFunc());
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))Hookshot::GetOriginalFunction(originalFunc))());
-        HOOKSHOT_TEST_ASSERT(NULL == Hookshot::GetOriginalFunction(hookFunc));
+        HOOKSHOT_TEST_ASSERT(nullptr == Hookshot::GetOriginalFunction(hookFunc));
         
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailNotFound == Hookshot::ReplaceHookFunction(hookFunc, hookFunc));
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::ReplaceHookFunction(originalFunc, hookFunc)));
@@ -201,10 +201,10 @@ namespace HookshotTest
         // Second, all threads wait for an event that is set by the test case body once it is woken up by the phase 1 event.
         // This is done to ensure that all threads start hammering Hookshot with requests at around the same time.
         testData.syncThreadCounter = 0;
-        testData.syncEventPhase1 = CreateEvent(NULL, TRUE, FALSE, NULL);
-        testData.syncEventPhase2 = CreateEvent(NULL, TRUE, FALSE, NULL);
-        HOOKSHOT_TEST_ASSERT(NULL != testData.syncEventPhase1);
-        HOOKSHOT_TEST_ASSERT(NULL != testData.syncEventPhase2);
+        testData.syncEventPhase1 = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+        testData.syncEventPhase2 = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+        HOOKSHOT_TEST_ASSERT(nullptr != testData.syncEventPhase1);
+        HOOKSHOT_TEST_ASSERT(nullptr != testData.syncEventPhase2);
 
         TGeneratedTestFunction originalFuncs[] = {
             GENERATE_FUNCTION(),
@@ -265,8 +265,8 @@ namespace HookshotTest
         HANDLE threadHandles[kNumThreads];
         for (int i = 0; i < kNumThreads; ++i)
         {
-            threadHandles[i] = CreateThread(NULL, 0, MultipleThreadsTestThreadProc, &testData, 0, NULL);
-            HOOKSHOT_TEST_ASSERT(NULL != threadHandles[i]);
+            threadHandles[i] = CreateThread(nullptr, 0, MultipleThreadsTestThreadProc, &testData, 0, nullptr);
+            HOOKSHOT_TEST_ASSERT(nullptr != threadHandles[i]);
         }
 
         HOOKSHOT_TEST_ASSERT(WAIT_OBJECT_0 == WaitForSingleObject(testData.syncEventPhase1, 10000));
@@ -310,7 +310,7 @@ namespace HookshotTest
     // Expected result is Hookshot rejects the input arguments as invalid.
     HOOKSHOT_CUSTOM_TEST(NullPointerBoth)
     {
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == Hookshot::CreateHook(NULL, NULL));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == Hookshot::CreateHook(nullptr, nullptr));
         HOOKSHOT_TEST_PASSED;
     }
 
@@ -319,7 +319,7 @@ namespace HookshotTest
     HOOKSHOT_CUSTOM_TEST(NullPointerHook)
     {
         GENERATE_AND_ASSIGN_FUNCTION(func);
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == Hookshot::CreateHook(func, NULL));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == Hookshot::CreateHook(func, nullptr));
         HOOKSHOT_TEST_PASSED;
     }
 
@@ -328,7 +328,7 @@ namespace HookshotTest
     HOOKSHOT_CUSTOM_TEST(NullPointerOriginal)
     {
         GENERATE_AND_ASSIGN_FUNCTION(func);
-        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == Hookshot::CreateHook(NULL, func));
+        HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == Hookshot::CreateHook(nullptr, func));
         HOOKSHOT_TEST_PASSED;
     }
 
@@ -391,13 +391,13 @@ namespace HookshotTest
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::CreateHook(originalFunc, hookFunc)));
         HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))Hookshot::GetOriginalFunction(originalFunc))());
-        HOOKSHOT_TEST_ASSERT(NULL != Hookshot::GetOriginalFunction(hookFunc));
+        HOOKSHOT_TEST_ASSERT(nullptr != Hookshot::GetOriginalFunction(hookFunc));
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::ReplaceHookFunction(hookFunc, replacementHookFunc)));
         HOOKSHOT_TEST_ASSERT(kReplacementHookFuncResult == originalFunc());
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))Hookshot::GetOriginalFunction(originalFunc))());
-        HOOKSHOT_TEST_ASSERT(NULL == Hookshot::GetOriginalFunction(hookFunc));
-        HOOKSHOT_TEST_ASSERT(NULL != Hookshot::GetOriginalFunction(replacementHookFunc));
+        HOOKSHOT_TEST_ASSERT(nullptr == Hookshot::GetOriginalFunction(hookFunc));
+        HOOKSHOT_TEST_ASSERT(nullptr != Hookshot::GetOriginalFunction(replacementHookFunc));
 
         HOOKSHOT_TEST_PASSED;
     }
@@ -415,13 +415,13 @@ namespace HookshotTest
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::CreateHook(originalFunc, hookFunc)));
         HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))Hookshot::GetOriginalFunction(originalFunc))());
-        HOOKSHOT_TEST_ASSERT(NULL != Hookshot::GetOriginalFunction(hookFunc));
+        HOOKSHOT_TEST_ASSERT(nullptr != Hookshot::GetOriginalFunction(hookFunc));
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::ReplaceHookFunction(originalFunc, hookFunc)));
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::ReplaceHookFunction(hookFunc, hookFunc)));
         HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))Hookshot::GetOriginalFunction(originalFunc))());
-        HOOKSHOT_TEST_ASSERT(NULL != Hookshot::GetOriginalFunction(hookFunc));
+        HOOKSHOT_TEST_ASSERT(nullptr != Hookshot::GetOriginalFunction(hookFunc));
 
         HOOKSHOT_TEST_PASSED;
     }

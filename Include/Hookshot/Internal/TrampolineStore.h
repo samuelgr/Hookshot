@@ -91,7 +91,7 @@ namespace Hookshot
         /// @return `true` if so, `false` otherwise.
         inline bool IsInitialized(void) const
         {
-            return (NULL != trampolines);
+            return (nullptr != trampolines);
         }
 
         /// Attempts to allocate and construct a new trampoline object.

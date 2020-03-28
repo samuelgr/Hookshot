@@ -25,7 +25,7 @@ namespace Hookshot
 
     /// Determines the base address of the memory region associated with the target function.
     /// @param [in] originalFunc Address of the function that is being hooked.
-    /// @return Base address of the associated memory region, or NULL if it cannot be determined.
+    /// @return Base address of the associated memory region, or `nullptr` if it cannot be determined.
     static void* BaseAddressForOriginalFunc(const void* originalFunc)
     {
         // If the target function is part of a loaded module, the base address of the region is the base address of that module.
@@ -39,7 +39,7 @@ namespace Hookshot
             return virtualMemoryInfo.AllocationBase;
 
         // At this point the base address cannot be determined.
-        return NULL;
+        return nullptr;
     }
 
     /// Checks the specified hook for validity and safety.
@@ -49,7 +49,7 @@ namespace Hookshot
     static bool IsHookSpecValid(const void* originalFunc, const void* hookFunc)
     {
         // Simple null pointer check.
-        if (NULL == originalFunc || NULL == hookFunc)
+        if (nullptr == originalFunc || nullptr == hookFunc)
             return false;
 
         // Verify that the hook function is not located within the region of the original function that is guaranteed to be transplanted.
@@ -121,7 +121,7 @@ namespace Hookshot
         // Therefore, it is necessary to identify the TrampolineStore object that is correct for the given target function address.
         // Because only one TrampolineStore object exists per base address, the number of allowed hooks per base address is limited.
         void* const baseAddress = BaseAddressForOriginalFunc(originalFunc);
-        if (NULL == baseAddress)
+        if (nullptr == baseAddress)
             return EResult::FailInternal;
 
         // If this is the first target function for the specified base address, attempt to place a TrampolineStore buffer.
@@ -209,7 +209,7 @@ namespace Hookshot
         std::shared_lock<std::shared_mutex> lock(hookStoreMutex);
 
         if (0 == functionToTrampoline.count(originalOrHookFunc))
-            return NULL;
+            return nullptr;
 
         return functionToTrampoline.at(originalOrHookFunc)->GetOriginalFunction();
     }

@@ -71,7 +71,7 @@ namespace Hookshot
         if (GetRequiredDataSize() > sizeData)
             return EInjectResult::InjectResultErrorInsufficientDataSpace;
 
-        if ((NULL == baseAddressCode) || (NULL == baseAddressData) || (NULL == entryPoint) || (INVALID_HANDLE_VALUE == injectedProcess) || (INVALID_HANDLE_VALUE == injectedProcessMainThread))
+        if ((nullptr == baseAddressCode) || (nullptr == baseAddressData) || (nullptr == entryPoint) || (INVALID_HANDLE_VALUE == injectedProcess) || (INVALID_HANDLE_VALUE == injectedProcessMainThread))
             return EInjectResult::InjectResultErrorInternalInvalidParams;
         
         return EInjectResult::InjectResultSuccess;
@@ -102,9 +102,9 @@ namespace Hookshot
     
     bool CodeInjector::LocateFunctions(void*& addrGetLastError, void*& addrGetProcAddress, void*& addrLoadLibraryA) const
     {
-        HMODULE moduleGetLastError = NULL;
-        HMODULE moduleGetProcAddress = NULL;
-        HMODULE moduleLoadLibraryA = NULL;
+        HMODULE moduleGetLastError = nullptr;
+        HMODULE moduleGetProcAddress = nullptr;
+        HMODULE moduleLoadLibraryA = nullptr;
 
         TemporaryBuffer<wchar_t> moduleFilenameGetLastError;
         TemporaryBuffer<wchar_t> moduleFilenameGetProcAddress;
@@ -163,11 +163,11 @@ namespace Hookshot
         numLoadedModules /= sizeof(HMODULE);
 
         // For each loaded module, see if its full name matches one of the desired modules and, if so, compute the address of the desired function.
-        addrGetLastError = NULL;
-        addrGetProcAddress = NULL;
-        addrLoadLibraryA = NULL;
+        addrGetLastError = nullptr;
+        addrGetProcAddress = nullptr;
+        addrLoadLibraryA = nullptr;
 
-        for (DWORD modidx = 0; (modidx < numLoadedModules) && ((NULL == addrGetLastError) || (NULL == addrGetProcAddress) || (NULL == addrLoadLibraryA)); ++modidx)
+        for (DWORD modidx = 0; (modidx < numLoadedModules) && ((nullptr == addrGetLastError) || (nullptr == addrGetProcAddress) || (nullptr == addrLoadLibraryA)); ++modidx)
         {
             const HMODULE loadedModule = loadedModules[modidx];
             TemporaryBuffer<wchar_t> loadedModuleName;
@@ -175,7 +175,7 @@ namespace Hookshot
             if (0 == GetModuleFileNameEx(injectedProcess, loadedModule, loadedModuleName, loadedModuleName.Count()))
                 return false;
 
-            if (NULL == addrGetLastError)
+            if (nullptr == addrGetLastError)
             {
                 if (0 == wcsncmp(moduleFilenameGetLastError, loadedModuleName, loadedModuleName.Count()))
                 {
@@ -186,7 +186,7 @@ namespace Hookshot
                 }
             }
 
-            if (NULL == addrGetProcAddress)
+            if (nullptr == addrGetProcAddress)
             {
                 if (0 == wcsncmp(moduleFilenameGetProcAddress, loadedModuleName, loadedModuleName.Count()))
                 {
@@ -197,7 +197,7 @@ namespace Hookshot
                 }
             }
 
-            if (NULL == addrLoadLibraryA)
+            if (nullptr == addrLoadLibraryA)
             {
                 if (0 == wcsncmp(moduleFilenameLoadLibraryA, loadedModuleName, loadedModuleName.Count()))
                 {
@@ -209,7 +209,7 @@ namespace Hookshot
             }
         }
 
-        return ((NULL != addrGetLastError) && (NULL != addrGetProcAddress) && (NULL != addrLoadLibraryA));
+        return ((nullptr != addrGetLastError) && (nullptr != addrGetProcAddress) && (nullptr != addrLoadLibraryA));
     }
     
     // --------
@@ -328,7 +328,7 @@ namespace Hookshot
 
             strcpy_s(injectDataStrings, Strings::kStrLibraryInitializationProcName.data());
 
-            if (0 != wcstombs_s(NULL, &injectDataStrings[Strings::kStrLibraryInitializationProcName.length() + 1], sizeof(injectDataStrings) - (Strings::kStrLibraryInitializationProcName.length() + 1) - 1, Strings::kStrHookshotDynamicLinkLibraryFilename.data(), sizeof(injectDataStrings) - (Strings::kStrLibraryInitializationProcName.length() + 1) - 2))
+            if (0 != wcstombs_s(nullptr, &injectDataStrings[Strings::kStrLibraryInitializationProcName.length() + 1], sizeof(injectDataStrings) - (Strings::kStrLibraryInitializationProcName.length() + 1) - 1, Strings::kStrHookshotDynamicLinkLibraryFilename.data(), sizeof(injectDataStrings) - (Strings::kStrLibraryInitializationProcName.length() + 1) - 2))
                 return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
 
             injectData.strLibraryName = (const char*)((size_t)baseAddressData + sizeof(injectData) + (Strings::kStrLibraryInitializationProcName.length() + 1));

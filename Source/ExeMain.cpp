@@ -23,7 +23,7 @@ using namespace Hookshot;
 
 /// Program entry point.
 /// @param [in] hInstance Instance handle for this executable.
-/// @param [in] hPrevInstance Unused, always `NULL`.
+/// @param [in] hPrevInstance Unused, always `nullptr`.
 /// @param [in] lpCmdLine Command-line arguments specified after the executable name.
 /// @param [in] nCommandShow Flag that specifies how the main application window should be shown. Not applicable to this executable.
 /// @return `TRUE` if this function successfully initialized or uninitialized this library, `FALSE` otherwise.
@@ -62,7 +62,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
             return __LINE__;
 
         SRemoteProcessInjectionData* const remoteInjectionData = (SRemoteProcessInjectionData*)MapViewOfFile(sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
-        if (NULL == remoteInjectionData)
+        if (nullptr == remoteInjectionData)
             return __LINE__;
 
         const bool remoteInjectionResult = ProcessInjector::PerformRequestedRemoteInjection(remoteInjectionData);
@@ -83,7 +83,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         memset((void*)&startupInfo, 0, sizeof(startupInfo));
         memset((void*)&processInfo, 0, sizeof(processInfo));
 
-        const EInjectResult result = ProcessInjector::CreateInjectedProcess(NULL, __wargv[1], NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
+        const EInjectResult result = ProcessInjector::CreateInjectedProcess(nullptr, __wargv[1], nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInfo);
 
         switch (result)
         {

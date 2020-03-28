@@ -65,7 +65,7 @@ namespace Hookshot
     // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
     // See "X86Instruction.h" for documentation.
 
-    X86Instruction::X86Instruction(void) : decodedInstruction(), address(NULL), valid(false), possibleRexPrefix(0), positionDependentMemoryReference()
+    X86Instruction::X86Instruction(void) : decodedInstruction(), address(nullptr), valid(false), possibleRexPrefix(0), positionDependentMemoryReference()
     {
         // Nothing to do here.
     }
@@ -176,7 +176,7 @@ namespace Hookshot
 
         if (XED_ERROR_NONE != xed_decode(&decodedInstruction, (const unsigned char*)instruction, maxLengthBytes))
         {
-            address = NULL;
+            address = nullptr;
             positionDependentMemoryReference.ClearOperandLocation();
             possibleRexPrefix = 0;
             valid = false;
@@ -246,7 +246,7 @@ namespace Hookshot
     {
         const int64_t displacement = GetMemoryDisplacement();
         if (kInvalidMemoryDisplacement == displacement)
-            return NULL;
+            return nullptr;
 
         const int64_t base = (int64_t)((intptr_t)address) + (int64_t)GetLengthBytes();
         return (void*)((size_t)base + (size_t)displacement);
@@ -350,10 +350,10 @@ namespace Hookshot
             return false;
 
         TemporaryBuffer<char> narrowCharDisassembly;
-        if (false == xed_format_context(XED_SYNTAX_INTEL, &decodedInstruction, narrowCharDisassembly, narrowCharDisassembly.Count(), (xed_uint64_t)address, NULL, NULL))
+        if (false == xed_format_context(XED_SYNTAX_INTEL, &decodedInstruction, narrowCharDisassembly, narrowCharDisassembly.Count(), (xed_uint64_t)address, nullptr, nullptr))
             return false;
 
-        return (0 == mbstowcs_s(NULL, buf, numChars, narrowCharDisassembly, narrowCharDisassembly.Count()));
+        return (0 == mbstowcs_s(nullptr, buf, numChars, narrowCharDisassembly, narrowCharDisassembly.Count()));
     }
 
     // --------

@@ -50,7 +50,7 @@ namespace Hookshot
         // -------- INTERNAL VARIABLES ------------------------------------- //
 
         /// Handle to the log file, if enabled.
-        static FILE* logFileHandle = NULL;
+        static FILE* logFileHandle = nullptr;
 
         /// Specifies the minimum severity required to output a message.
         /// Messages below this severity (i.e. above the integer value that represents this severity) are not output.
@@ -63,7 +63,7 @@ namespace Hookshot
         /// @return `true` if so, `false` if not.
         static inline bool IsLogFileEnabled(void)
         {
-            return (NULL != logFileHandle);
+            return (nullptr != logFileHandle);
         }
 
         /// Checks if the specified output mode is interactive or non-interactive.
@@ -184,12 +184,12 @@ namespace Hookshot
 
             TemporaryBuffer<wchar_t> bufferTimestamp;
 
-            if (0 != GetDateFormatEx(LOCALE_NAME_USER_DEFAULT, 0, NULL, L"MM'/'dd'/'yyyy", bufferTimestamp, bufferTimestamp.Count(), NULL))
+            if (0 != GetDateFormatEx(LOCALE_NAME_USER_DEFAULT, 0, nullptr, L"MM'/'dd'/'yyyy", bufferTimestamp, bufferTimestamp.Count(), nullptr))
                 outputString << (wchar_t*)bufferTimestamp;
             else
                 outputString << L"(date not available)";
 
-            if (0 != GetTimeFormatEx(LOCALE_NAME_USER_DEFAULT, 0, NULL, L"HH':'mm':'ss", bufferTimestamp, bufferTimestamp.Count()))
+            if (0 != GetTimeFormatEx(LOCALE_NAME_USER_DEFAULT, 0, nullptr, L"HH':'mm':'ss", bufferTimestamp, bufferTimestamp.Count()))
                 outputString << L' ' << (wchar_t*)bufferTimestamp;
             else
                 outputString << L" (time not available)";
@@ -231,7 +231,7 @@ namespace Hookshot
                 break;
             }
 
-            Windows::ProtectedMessageBox(NULL, message, Strings::kStrProductName.data(), messageBoxType);
+            Windows::ProtectedMessageBox(nullptr, message, Strings::kStrProductName.data(), messageBoxType);
         }
 
         /// Outputs the specified message.
@@ -288,7 +288,7 @@ namespace Hookshot
                 // Open the log file.
                 if (0 != _wfopen_s(&logFileHandle, Strings::kStrHookshotLogFilename.data(), L"w"))
                 {
-                    logFileHandle = NULL;
+                    logFileHandle = nullptr;
                     OutputFormatted(ESeverity::Error, L"%s - Unable to create log file.", Strings::kStrHookshotLogFilename.data());
                     return;
                 }
