@@ -11,14 +11,13 @@
 
 #pragma once
 
+extern "C" {
+#include "xed/xed-interface.h"
+}
+
 #include <climits>
 #include <cstddef>
 #include <cstdint>
-
-extern "C"
-{
-#include <xed/xed-interface.h>
-}
 
 
 namespace Hookshot

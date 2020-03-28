@@ -12,15 +12,14 @@
 #include "TemporaryBuffer.h"
 #include "X86Instruction.h"
 
+extern "C" {
+#include "xed/xed-interface.h"
+}
+
 #include <climits>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-
-extern "C"
-{
-    #include <xed/xed-interface.h>
-}
 
 
 namespace Hookshot

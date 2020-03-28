@@ -11,10 +11,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookshotBin", "HookshotBin.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookshotTest", "HookshotTest.vcxproj", "{E2206506-72CC-4D4D-A638-981055AB4678}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{F4E68CE9-C86D-4689-8640-7B1EAA4F49B2}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Skeleton", "Examples\Skeleton.vcxproj", "{6E56CC10-45D7-4F3E-A2C3-1E8D516290C6}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -55,20 +51,9 @@ Global
 		{E2206506-72CC-4D4D-A638-981055AB4678}.Release|Win32.Build.0 = Release|Win32
 		{E2206506-72CC-4D4D-A638-981055AB4678}.Release|x64.ActiveCfg = Release|x64
 		{E2206506-72CC-4D4D-A638-981055AB4678}.Release|x64.Build.0 = Release|x64
-		{6E56CC10-45D7-4F3E-A2C3-1E8D516290C6}.Debug|Win32.ActiveCfg = Debug|Win32
-		{6E56CC10-45D7-4F3E-A2C3-1E8D516290C6}.Debug|Win32.Build.0 = Debug|Win32
-		{6E56CC10-45D7-4F3E-A2C3-1E8D516290C6}.Debug|x64.ActiveCfg = Debug|x64
-		{6E56CC10-45D7-4F3E-A2C3-1E8D516290C6}.Debug|x64.Build.0 = Debug|x64
-		{6E56CC10-45D7-4F3E-A2C3-1E8D516290C6}.Release|Win32.ActiveCfg = Release|Win32
-		{6E56CC10-45D7-4F3E-A2C3-1E8D516290C6}.Release|Win32.Build.0 = Release|Win32
-		{6E56CC10-45D7-4F3E-A2C3-1E8D516290C6}.Release|x64.ActiveCfg = Release|x64
-		{6E56CC10-45D7-4F3E-A2C3-1E8D516290C6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{6E56CC10-45D7-4F3E-A2C3-1E8D516290C6} = {F4E68CE9-C86D-4689-8640-7B1EAA4F49B2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {409B2D84-B4D8-4EA6-9D2C-E6072DA28F7C}

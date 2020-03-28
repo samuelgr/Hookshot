@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <cpuinfo_x86.h>
+#include "cpuinfo_x86.h"
 
 
 namespace HookshotTest
