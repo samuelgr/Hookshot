@@ -44,20 +44,18 @@ typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
 /// If written in C/C++, these functions should use C linkage and be declared using the function signature for #THookshotTestFunc.
 /// If written in assembly, refer to the assembly language definitions for more information on how to construct a test function easily.
 /// Whatever is the control flow, name_Original should return #kOriginalFunctionResult when executed correctly, and name_Hook should likewise return #kHookFunctionResult.
-#define HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(name, cond)                                                              \
-    extern "C" size_t __fastcall name##_Original(size_t scx, size_t sdx);                                                   \
-    extern "C" size_t __fastcall name##_Hook(size_t scx, size_t sdx);                                                       \
-    HOOKSHOT_TEST_CASE_CONDITIONAL(HookSetSuccess_##name, cond)                                                             \
-    {                                                                                                                       \
-        HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::CreateHook(&name##_Original, &name##_Hook)));             \
-        HOOKSHOT_TEST_ASSERT(kHookFunctionResult == name##_Original(kOriginalFunctionResult, 0));                           \
-                                                                                                                            \
-        THookshotTestFunc originalFuncPtr = (THookshotTestFunc)Hookshot::GetOriginalFunction(&name##_Hook);                 \
-        HOOKSHOT_TEST_ASSERT(nullptr != originalFuncPtr);                                                                   \
-        HOOKSHOT_TEST_ASSERT((THookshotTestFunc)Hookshot::GetOriginalFunction(&name##_Original) == originalFuncPtr);        \
-                                                                                                                            \
-        HOOKSHOT_TEST_ASSERT(kOriginalFunctionResult == originalFuncPtr(kOriginalFunctionResult, 0));                       \
-        HOOKSHOT_TEST_PASSED;                                                                                               \
+#define HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(name, cond) \
+    extern "C" size_t __fastcall name##_Original(size_t scx, size_t sdx); \
+    extern "C" size_t __fastcall name##_Hook(size_t scx, size_t sdx); \
+    HOOKSHOT_TEST_CASE_CONDITIONAL(HookSetSuccess_##name, cond) \
+    { \
+        HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(Hookshot::CreateHook(&name##_Original, &name##_Hook))); \
+        HOOKSHOT_TEST_ASSERT(kHookFunctionResult == name##_Original(kOriginalFunctionResult, 0)); \
+        THookshotTestFunc originalFuncPtr = (THookshotTestFunc)Hookshot::GetOriginalFunction(&name##_Hook); \
+        HOOKSHOT_TEST_ASSERT(nullptr != originalFuncPtr); \
+        HOOKSHOT_TEST_ASSERT((THookshotTestFunc)Hookshot::GetOriginalFunction(&name##_Original) == originalFuncPtr); \
+        HOOKSHOT_TEST_ASSERT(kOriginalFunctionResult == originalFuncPtr(kOriginalFunctionResult, 0)); \
+        HOOKSHOT_TEST_PASSED; \
     }
 
 /// Convenience wrapper that unconditionally runs a test in which the expected result is the hook successfully being set.
@@ -69,13 +67,13 @@ typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
 /// If written in C/C++, this function should use C linkage and be declared using the function signature for #THookshotTestFunc.
 /// If written in assembly, refer to the assembly language definitions for more information on how to construct a test function easily.
 /// Since no hooking actually takes place, and therefore the external function is never executed, its actual behavior is not important.
-#define HOOKSHOT_HOOK_SET_FAIL_TEST_CONDITIONAL(name, result, cond)                                                         \
-    extern "C" size_t __fastcall name##_Test(size_t scx, size_t sdx);                                                       \
-    HOOKSHOT_TEST_HELPER_FUNCTION size_t name##_Test_Hook(void) { return __LINE__; }                                        \
-    HOOKSHOT_TEST_CASE_CONDITIONAL(HookSetFail_##name, cond)                                                                \
-    {                                                                                                                       \
-        HOOKSHOT_TEST_ASSERT(result == Hookshot::CreateHook(&name##_Test, &name##_Test_Hook));                              \
-        HOOKSHOT_TEST_PASSED;                                                                                               \
+#define HOOKSHOT_HOOK_SET_FAIL_TEST_CONDITIONAL(name, result, cond) \
+    extern "C" size_t __fastcall name##_Test(size_t scx, size_t sdx); \
+    HOOKSHOT_TEST_HELPER_FUNCTION size_t name##_Test_Hook(void) { return __LINE__; } \
+    HOOKSHOT_TEST_CASE_CONDITIONAL(HookSetFail_##name, cond) \
+    { \
+        HOOKSHOT_TEST_ASSERT(result == Hookshot::CreateHook(&name##_Test, &name##_Test_Hook)); \
+        HOOKSHOT_TEST_PASSED; \
     }
 
 /// Convenience wrapper that unconditionally runs a test in which the expected result is the hook failing to be set and the supplied error code being returned.

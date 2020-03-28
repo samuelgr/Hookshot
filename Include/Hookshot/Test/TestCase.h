@@ -94,10 +94,10 @@ namespace HookshotTest
 /// If the condition ends up being false, which can be determined at runtime, the test case is skipped.
 /// Automatically instantiates the proper test case object and registers it with the harness.
 /// Treat this macro as a function declaration; the test case is the function body.
-#define HOOKSHOT_TEST_CASE_CONDITIONAL(name, cond)                                                              \
-    static constexpr wchar_t kHookshotTestName__##name[] = L#name;                                              \
-    HookshotTest::TestCase<kHookshotTestName__##name>  hookshotTestCaseInstance__##name;                        \
-    bool HookshotTest::TestCase<kHookshotTestName__##name>::CanRun(void) const { return (cond); }               \
+#define HOOKSHOT_TEST_CASE_CONDITIONAL(name, cond) \
+    static constexpr wchar_t kHookshotTestName__##name[] = L#name; \
+    HookshotTest::TestCase<kHookshotTestName__##name>  hookshotTestCaseInstance__##name; \
+    bool HookshotTest::TestCase<kHookshotTestName__##name>::CanRun(void) const { return (cond); } \
     bool HookshotTest::TestCase<kHookshotTestName__##name>::Run(void) const
 
 /// Recommended way of creating Hookshot test cases that execute unconditionally.
