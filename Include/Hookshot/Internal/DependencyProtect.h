@@ -25,29 +25,29 @@ namespace Hookshot
 
     namespace Windows
     {
-        extern const decltype(&CloseHandle) ProtectedCloseHandle;
-        extern const decltype(&CreateFileMapping) ProtectedCreateFileMapping;
-        extern const decltype(&CreateProcess) ProtectedCreateProcess;
-        extern const decltype(&DuplicateHandle) ProtectedDuplicateHandle;
-        extern const decltype(&FlushInstructionCache) ProtectedFlushInstructionCache;
-        extern const decltype(&GetExitCodeProcess) ProtectedGetExitCodeProcess;
-        extern const decltype(&GetLastError) ProtectedGetLastError;
-        extern const decltype(&GetModuleHandleEx) ProtectedGetModuleHandleEx;
-        extern const decltype(&GetProcAddress) ProtectedGetProcAddress;
-        extern const decltype(&IsDebuggerPresent) ProtectedIsDebuggerPresent;
-        extern const decltype(&LoadLibrary) ProtectedLoadLibrary;
-        extern const decltype(&MessageBox) ProtectedMessageBox;
-        extern const decltype(&MapViewOfFile) ProtectedMapViewOfFile;
-        extern const decltype(&OutputDebugString) ProtectedOutputDebugString;
-        extern const decltype(&ResumeThread) ProtectedResumeThread;
-        extern const decltype(&SetLastError) ProtectedSetLastError;
-        extern const decltype(&TerminateProcess) ProtectedTerminateProcess;
-        extern const decltype(&UnmapViewOfFile) ProtectedUnmapViewOfFile;
-        extern const decltype(&VirtualAlloc) ProtectedVirtualAlloc;
-        extern const decltype(&VirtualFree) ProtectedVirtualFree;
-        extern const decltype(&VirtualQuery) ProtectedVirtualQuery;
-        extern const decltype(&VirtualProtect) ProtectedVirtualProtect;
-        extern const decltype(&WaitForSingleObject) ProtectedWaitForSingleObject;
+        extern const volatile decltype(&CloseHandle) ProtectedCloseHandle;
+        extern const volatile decltype(&CreateFileMapping) ProtectedCreateFileMapping;
+        extern const volatile decltype(&CreateProcess) ProtectedCreateProcess;
+        extern const volatile decltype(&DuplicateHandle) ProtectedDuplicateHandle;
+        extern const volatile decltype(&FlushInstructionCache) ProtectedFlushInstructionCache;
+        extern const volatile decltype(&GetExitCodeProcess) ProtectedGetExitCodeProcess;
+        extern const volatile decltype(&GetLastError) ProtectedGetLastError;
+        extern const volatile decltype(&GetModuleHandleEx) ProtectedGetModuleHandleEx;
+        extern const volatile decltype(&GetProcAddress) ProtectedGetProcAddress;
+        extern const volatile decltype(&IsDebuggerPresent) ProtectedIsDebuggerPresent;
+        extern const volatile decltype(&LoadLibrary) ProtectedLoadLibrary;
+        extern const volatile decltype(&MessageBox) ProtectedMessageBox;
+        extern const volatile decltype(&MapViewOfFile) ProtectedMapViewOfFile;
+        extern const volatile decltype(&OutputDebugString) ProtectedOutputDebugString;
+        extern const volatile decltype(&ResumeThread) ProtectedResumeThread;
+        extern const volatile decltype(&SetLastError) ProtectedSetLastError;
+        extern const volatile decltype(&TerminateProcess) ProtectedTerminateProcess;
+        extern const volatile decltype(&UnmapViewOfFile) ProtectedUnmapViewOfFile;
+        extern const volatile decltype(&VirtualAlloc) ProtectedVirtualAlloc;
+        extern const volatile decltype(&VirtualFree) ProtectedVirtualFree;
+        extern const volatile decltype(&VirtualQuery) ProtectedVirtualQuery;
+        extern const volatile decltype(&VirtualProtect) ProtectedVirtualProtect;
+        extern const volatile decltype(&WaitForSingleObject) ProtectedWaitForSingleObject;
     }
 
 

@@ -26,57 +26,57 @@ namespace Hookshot
 
     namespace Windows
     {
-        extern const decltype(&CloseHandle) ProtectedCloseHandle = CloseHandle;
-        extern const decltype(&CreateFileMapping) ProtectedCreateFileMapping = CreateFileMapping;
-        extern const decltype(&CreateProcess) ProtectedCreateProcess = CreateProcess;
-        extern const decltype(&DuplicateHandle) ProtectedDuplicateHandle = DuplicateHandle;
-        extern const decltype(&FlushInstructionCache) ProtectedFlushInstructionCache = FlushInstructionCache;
-        extern const decltype(&GetExitCodeProcess) ProtectedGetExitCodeProcess = GetExitCodeProcess;
-        extern const decltype(&GetLastError) ProtectedGetLastError = GetLastError;
-        extern const decltype(&GetModuleHandleEx) ProtectedGetModuleHandleEx = GetModuleHandleEx;
-        extern const decltype(&GetProcAddress) ProtectedGetProcAddress = GetProcAddress;
-        extern const decltype(&IsDebuggerPresent) ProtectedIsDebuggerPresent = IsDebuggerPresent;
-        extern const decltype(&LoadLibrary) ProtectedLoadLibrary = LoadLibrary;
-        extern const decltype(&MapViewOfFile) ProtectedMapViewOfFile = MapViewOfFile;
-        extern const decltype(&MessageBox) ProtectedMessageBox = MessageBox;
-        extern const decltype(&OutputDebugString) ProtectedOutputDebugString = OutputDebugString;
-        extern const decltype(&ResumeThread) ProtectedResumeThread = ResumeThread;
-        extern const decltype(&SetLastError) ProtectedSetLastError = SetLastError;
-        extern const decltype(&TerminateProcess) ProtectedTerminateProcess = TerminateProcess;
-        extern const decltype(&UnmapViewOfFile) ProtectedUnmapViewOfFile = UnmapViewOfFile;
-        extern const decltype(&VirtualAlloc) ProtectedVirtualAlloc = VirtualAlloc;
-        extern const decltype(&VirtualFree) ProtectedVirtualFree = VirtualFree;
-        extern const decltype(&VirtualQuery) ProtectedVirtualQuery = VirtualQuery;
-        extern const decltype(&VirtualProtect) ProtectedVirtualProtect = VirtualProtect;
-        extern const decltype(&WaitForSingleObject) ProtectedWaitForSingleObject = WaitForSingleObject;
+        extern const volatile decltype(&CloseHandle) ProtectedCloseHandle = CloseHandle;
+        extern const volatile decltype(&CreateFileMapping) ProtectedCreateFileMapping = CreateFileMapping;
+        extern const volatile decltype(&CreateProcess) ProtectedCreateProcess = CreateProcess;
+        extern const volatile decltype(&DuplicateHandle) ProtectedDuplicateHandle = DuplicateHandle;
+        extern const volatile decltype(&FlushInstructionCache) ProtectedFlushInstructionCache = FlushInstructionCache;
+        extern const volatile decltype(&GetExitCodeProcess) ProtectedGetExitCodeProcess = GetExitCodeProcess;
+        extern const volatile decltype(&GetLastError) ProtectedGetLastError = GetLastError;
+        extern const volatile decltype(&GetModuleHandleEx) ProtectedGetModuleHandleEx = GetModuleHandleEx;
+        extern const volatile decltype(&GetProcAddress) ProtectedGetProcAddress = GetProcAddress;
+        extern const volatile decltype(&IsDebuggerPresent) ProtectedIsDebuggerPresent = IsDebuggerPresent;
+        extern const volatile decltype(&LoadLibrary) ProtectedLoadLibrary = LoadLibrary;
+        extern const volatile decltype(&MapViewOfFile) ProtectedMapViewOfFile = MapViewOfFile;
+        extern const volatile decltype(&MessageBox) ProtectedMessageBox = MessageBox;
+        extern const volatile decltype(&OutputDebugString) ProtectedOutputDebugString = OutputDebugString;
+        extern const volatile decltype(&ResumeThread) ProtectedResumeThread = ResumeThread;
+        extern const volatile decltype(&SetLastError) ProtectedSetLastError = SetLastError;
+        extern const volatile decltype(&TerminateProcess) ProtectedTerminateProcess = TerminateProcess;
+        extern const volatile decltype(&UnmapViewOfFile) ProtectedUnmapViewOfFile = UnmapViewOfFile;
+        extern const volatile decltype(&VirtualAlloc) ProtectedVirtualAlloc = VirtualAlloc;
+        extern const volatile decltype(&VirtualFree) ProtectedVirtualFree = VirtualFree;
+        extern const volatile decltype(&VirtualQuery) ProtectedVirtualQuery = VirtualQuery;
+        extern const volatile decltype(&VirtualProtect) ProtectedVirtualProtect = VirtualProtect;
+        extern const volatile decltype(&WaitForSingleObject) ProtectedWaitForSingleObject = WaitForSingleObject;
     }
 
 
     // -------- INTERNAL VARIABLES ----------------------------------------- //
 
-    static std::unordered_map<const void*, const void**> protectedDependencies = {
-        {(const void*)Windows::ProtectedCloseHandle, (const void**)&Windows::ProtectedCloseHandle},
-        {(const void*)Windows::ProtectedCreateFileMapping, (const void**)&Windows::ProtectedCreateFileMapping},
-        {(const void*)Windows::ProtectedDuplicateHandle, (const void**)&Windows::ProtectedDuplicateHandle},
-        {(const void*)Windows::ProtectedFlushInstructionCache, (const void**)&Windows::ProtectedFlushInstructionCache},
-        {(const void*)Windows::ProtectedGetExitCodeProcess, (const void**)&Windows::ProtectedGetExitCodeProcess},
-        {(const void*)Windows::ProtectedGetLastError, (const void**)&Windows::ProtectedGetLastError},
-        {(const void*)Windows::ProtectedGetModuleHandleEx, (const void**)&Windows::ProtectedGetModuleHandleEx},
-        {(const void*)Windows::ProtectedGetProcAddress, (const void**)&Windows::ProtectedGetProcAddress},
-        {(const void*)Windows::ProtectedIsDebuggerPresent, (const void**)&Windows::ProtectedIsDebuggerPresent},
-        {(const void*)Windows::ProtectedLoadLibrary, (const void**)&Windows::ProtectedLoadLibrary},
-        {(const void*)Windows::ProtectedMapViewOfFile, (const void**)&Windows::ProtectedMapViewOfFile},
-        {(const void*)Windows::ProtectedMessageBox, (const void**)&Windows::ProtectedMessageBox},
-        {(const void*)Windows::ProtectedOutputDebugString, (const void**)&Windows::ProtectedOutputDebugString},
-        {(const void*)Windows::ProtectedResumeThread, (const void**)&Windows::ProtectedResumeThread},
-        {(const void*)Windows::ProtectedSetLastError, (const void**)&Windows::ProtectedSetLastError},
-        {(const void*)Windows::ProtectedTerminateProcess, (const void**)&Windows::ProtectedTerminateProcess},
-        {(const void*)Windows::ProtectedUnmapViewOfFile, (const void**)&Windows::ProtectedUnmapViewOfFile},
-        {(const void*)Windows::ProtectedVirtualAlloc, (const void**)&Windows::ProtectedVirtualAlloc},
-        {(const void*)Windows::ProtectedVirtualFree, (const void**)&Windows::ProtectedVirtualFree},
-        {(const void*)Windows::ProtectedVirtualQuery, (const void**)&Windows::ProtectedVirtualQuery},
-        {(const void*)Windows::ProtectedVirtualProtect, (const void**)&Windows::ProtectedVirtualProtect},
-        {(const void*)Windows::ProtectedWaitForSingleObject, (const void**)&Windows::ProtectedWaitForSingleObject},
+    static std::unordered_map<const void*, const void* volatile*> protectedDependencies = {
+        {Windows::ProtectedCloseHandle, (const void* volatile*)&Windows::ProtectedCloseHandle},
+        {Windows::ProtectedCreateFileMapping, (const void* volatile*)&Windows::ProtectedCreateFileMapping},
+        {Windows::ProtectedDuplicateHandle, (const void* volatile*)&Windows::ProtectedDuplicateHandle},
+        {Windows::ProtectedFlushInstructionCache, (const void* volatile*)&Windows::ProtectedFlushInstructionCache},
+        {Windows::ProtectedGetExitCodeProcess, (const void* volatile*)&Windows::ProtectedGetExitCodeProcess},
+        {Windows::ProtectedGetLastError, (const void* volatile*)&Windows::ProtectedGetLastError},
+        {Windows::ProtectedGetModuleHandleEx, (const void* volatile*)&Windows::ProtectedGetModuleHandleEx},
+        {Windows::ProtectedGetProcAddress, (const void* volatile*)&Windows::ProtectedGetProcAddress},
+        {Windows::ProtectedIsDebuggerPresent, (const void* volatile*)&Windows::ProtectedIsDebuggerPresent},
+        {Windows::ProtectedLoadLibrary, (const void* volatile*)&Windows::ProtectedLoadLibrary},
+        {Windows::ProtectedMapViewOfFile, (const void* volatile*)&Windows::ProtectedMapViewOfFile},
+        {Windows::ProtectedMessageBox, (const void* volatile*)&Windows::ProtectedMessageBox},
+        {Windows::ProtectedOutputDebugString, (const void* volatile*)&Windows::ProtectedOutputDebugString},
+        {Windows::ProtectedResumeThread, (const void* volatile*)&Windows::ProtectedResumeThread},
+        {Windows::ProtectedSetLastError, (const void* volatile*)&Windows::ProtectedSetLastError},
+        {Windows::ProtectedTerminateProcess, (const void* volatile*)&Windows::ProtectedTerminateProcess},
+        {Windows::ProtectedUnmapViewOfFile, (const void* volatile*)&Windows::ProtectedUnmapViewOfFile},
+        {Windows::ProtectedVirtualAlloc, (const void* volatile*)&Windows::ProtectedVirtualAlloc},
+        {Windows::ProtectedVirtualFree, (const void* volatile*)&Windows::ProtectedVirtualFree},
+        {Windows::ProtectedVirtualQuery, (const void* volatile*)&Windows::ProtectedVirtualQuery},
+        {Windows::ProtectedVirtualProtect, (const void* volatile*)&Windows::ProtectedVirtualProtect},
+        {Windows::ProtectedWaitForSingleObject, (const void* volatile*)&Windows::ProtectedWaitForSingleObject},
     };
 
 
@@ -87,7 +87,7 @@ namespace Hookshot
     {
         if (0 != protectedDependencies.count(oldAddress))
         {
-            const void** const pointerToUpdate = protectedDependencies.at(oldAddress);
+            const void* volatile* const pointerToUpdate = protectedDependencies.at(oldAddress);
 
             protectedDependencies.erase(oldAddress);
             protectedDependencies.insert({newAddress, pointerToUpdate});
