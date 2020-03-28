@@ -16,6 +16,8 @@
 #include "LibraryInterface.h"
 #include "Message.h"
 
+#include <string_view>
+
 using namespace Hookshot;
 
 
@@ -40,13 +42,17 @@ namespace Hookshot
 
     // --------
 
-    __declspec(dllexport) void __fastcall CreateHookOrDie(void* originalFunc, const void* hookFunc)
+    __declspec(dllexport) void __fastcall CreateHookOrDie(void* originalFunc, const void* hookFunc, std::wstring_view additionalInfo)
     {
         const EResult result = CreateHook(originalFunc, hookFunc);
 
         if (true != SuccessfulResult(result))
         {
-            Message::OutputFormatted(Message::ESeverity::Error, L"EResult %d - Terminating process due to CreateHook failure.", (int)result);
+            if (0 != additionalInfo.size())
+                Message::OutputFormatted(Message::ESeverity::Error, L"EResult %d - Terminating process due to CreateHook failure: %s", (int)result, additionalInfo.data());
+            else
+                Message::OutputFormatted(Message::ESeverity::Error, L"EResult %d - Terminating process due to CreateHook failure.", (int)result);
+
             Windows::ProtectedTerminateProcess(Globals::GetCurrentProcessHandle(), (UINT)result);
         }
     }

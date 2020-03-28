@@ -10,13 +10,13 @@
  *   External users should include Hookshot.h instead of this file.
  *****************************************************************************/
 
-
 #pragma once
 
 #include "HookshotTypes.h"
 
 #include <cstddef>
 #include <cstdint>
+#include <string_view>
 
 
 namespace Hookshot
@@ -31,7 +31,8 @@ namespace Hookshot
     /// On failure, the current process is terminated with a message.
     /// @param [in] originalFunc Address of the function that should be hooked.
     /// @param [in] hookFunc Hook function that should be invoked instead of the original function.
-    __declspec(dllimport) void __fastcall CreateHookOrDie(void* originalFunc, const void* hookFunc);
+    /// @param [in] additionalInfo Additional information to include in the message when terminating the process.  Defaults to the empty string if not specified.
+    __declspec(dllimport) void __fastcall CreateHookOrDie(void* originalFunc, const void* hookFunc, std::wstring_view additionalInfo = L"");
 
     /// Disables the hook function associated with the specified hook.
     /// On success, going forward all invocations of the original function will execute as if not hooked at all, and Hookshot no longer associates the hook function with the hook.

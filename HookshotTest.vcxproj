@@ -241,6 +241,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Hookshot\Hookshot.h" />
+    <ClInclude Include="Include\Hookshot\HookshotFunctions.h" />
+    <ClInclude Include="Include\Hookshot\HookshotTypes.h" />
     <ClInclude Include="Include\Hookshot\Test\CpuInfo.h" />
     <ClInclude Include="Include\Hookshot\Test\Harness.h" />
     <ClInclude Include="Include\Hookshot\Test\TestCase.h" />
