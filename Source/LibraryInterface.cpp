@@ -11,9 +11,9 @@
 
 #include "DependencyProtect.h"
 #include "Configuration.h"
-#include "HookshotConfigReader.h"
-#include "HookStore.h"
 #include "Globals.h"
+#include "HookshotConfigReader.h"
+#include "HookshotTypes.h"
 #include "HookStore.h"
 #include "InjectLanding.h"
 #include "LibraryInterface.h"
@@ -27,6 +27,12 @@
 
 namespace Hookshot
 {
+    // -------- INTERNAL TYPES --------------------------------------------- //
+
+    /// Function signature for the hook module initialization function.
+    typedef void(__fastcall* THookModuleInitProc)(IHookshot*);
+
+
     // -------- CLASS VARIABLES -------------------------------------------- //
     // See "LibraryInterface.h" for documentation.
 
@@ -137,7 +143,7 @@ namespace Hookshot
             return false;
         }
 
-        initProc();
+        initProc(&GetHookStore());
 
         Message::OutputFormatted(Message::ESeverity::Info, L"%s - Successfully loaded hook module.", hookModuleFileName.data());
         return true;

@@ -17,12 +17,6 @@
 #include <cstddef>
 
 
- // -------- TYPE DEFINITIONS ----------------------------------------------- //
-
-/// Function signature for the hook module initialization function.
-typedef void(__fastcall* THookModuleInitProc)(void);
-
-
 // -------- FUNCTIONS ------------------------------------------------------ //
 
 /// Entry point for the landing code.

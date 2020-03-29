@@ -58,7 +58,7 @@ namespace Hookshot
 #ifdef HOOKSHOT64
         static constexpr std::string_view kStrHookLibraryInitFuncName = "HookshotMain";
 #else
-        static constexpr std::string_view kStrHookLibraryInitFuncName = "@HookshotMain@0";
+        static constexpr std::string_view kStrHookLibraryInitFuncName = "@HookshotMain@4";
 #endif
 
         /// Configuration file setting name for specifying a library to load only but not initialize.

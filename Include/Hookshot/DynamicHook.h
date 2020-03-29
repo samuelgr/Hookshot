@@ -69,7 +69,7 @@
         public: \
             static ReturnType callingConvention Hook(ArgumentTypes...); \
             static inline ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))DynamicHookBase<kOriginalFunctionName>::GetOriginalFunctionAddress())(args...); } \
-            static inline EResult SetHook(ReturnType(callingConvention * originalFunc)(ArgumentTypes...)) { return DynamicHookBase<kOriginalFunctionName>::SetHook(originalFunc, &Hook); } \
+            static inline EResult SetHook(IHookshot* const hookshot, ReturnType(callingConvention * originalFunc)(ArgumentTypes...)) { return DynamicHookBase<kOriginalFunctionName>::SetHook(hookshot, originalFunc, &Hook); } \
         }; \
     }
 
@@ -88,15 +88,15 @@ namespace Hookshot
             return originalFunction;
         }
 
-        static inline EResult SetHook(void* originalFunc, const void* hookFunc)
+        static inline EResult SetHook(IHookshot* const hookshot, void* originalFunc, const void* hookFunc)
         {
             if (nullptr != originalFunction)
                 return EResult::NoEffect;
 
-            const EResult result = CreateHook(originalFunc, hookFunc);
+            const EResult result = hookshot->CreateHook(originalFunc, hookFunc);
 
             if (SuccessfulResult(result))
-                originalFunction = GetOriginalFunction(originalFunc);
+                originalFunction = hookshot->GetOriginalFunction(originalFunc);
 
             return result;
         }

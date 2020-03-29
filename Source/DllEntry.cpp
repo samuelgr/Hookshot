@@ -21,74 +21,13 @@
 using namespace Hookshot;
 
 
-namespace Hookshot
-{
-    // -------- INTERNAL VARIABLES ----------------------------------------- //
+// -------- INTERNAL VARIABLES --------------------------------------------- //
 
-    /// Flag that specifies if this library was initialized.
-    static bool isInitialized = false;
+/// Flag that specifies if this library was initialized.
+static bool isInitialized = false;
 
 
-    // -------- EXPORTED FUNCTIONS ----------------------------------------- //
-    // See "HookshotFunctions.h" for documentation.
-
-    __declspec(dllexport) EResult __fastcall CreateHook(void* originalFunc, const void* hookFunc)
-    {
-        if (false == isInitialized)
-            return EResult::FailBadState;
-
-        return LibraryInterface::GetHookStore().CreateHook(originalFunc, hookFunc);
-    }
-
-    // --------
-
-    __declspec(dllexport) EResult __fastcall DisableHookFunction(const void* originalOrHookFunc)
-    {
-        if (false == isInitialized)
-            return EResult::FailBadState;
-
-        return LibraryInterface::GetHookStore().DisableHookFunction(originalOrHookFunc);
-    }
-
-    // --------
-
-    __declspec(dllexport) void __fastcall InitializeLibrary(void)
-    {
-        if (false == isInitialized)
-        {
-            Globals::SetHookshotLoadMethod(EHookshotLoadMethod::LibraryLoaded);
-            LibraryInterface::Initialize();
-
-            if (false == LibraryInterface::IsConfigurationDataValid())
-                Message::Output(Message::ESeverity::Warning, LibraryInterface::GetConfigurationErrorMessage().data());
-
-            isInitialized = true;
-        }
-    }
-
-    // --------
-    
-    __declspec(dllexport) const void* __fastcall GetOriginalFunction(const void* originalOrHookFunc)
-    {
-        if (false == isInitialized)
-            return nullptr;
-
-        return LibraryInterface::GetHookStore().GetOriginalFunction(originalOrHookFunc);
-    }
-
-    // --------
-
-    __declspec(dllexport) EResult __fastcall ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc)
-    {
-        if (false == isInitialized)
-            return EResult::FailBadState;
-
-        return LibraryInterface::GetHookStore().ReplaceHookFunction(originalOrHookFunc, newHookFunc);
-    }
-}
-
-
-// -------- ENTRY POINT ---------------------------------------------------- //
+// -------- ENTRY POINT FUNCTIONS ------------------------------------------ //
 
 /// Performs library initialization and teardown functions.
 /// Invoked automatically by the operating system.
@@ -138,4 +77,22 @@ extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
     }
 
     return (void*)InjectLanding;
+}
+
+/// Invoked when Hookshot is loaded as a library.  See "HookshotFunctions.h" for more information.
+/// @return Hookshot interface pointer, or `nullptr` on failure.
+extern "C" __declspec(dllexport) IHookshot* __fastcall HookshotLibraryInitialize(void)
+{
+    if (false == isInitialized)
+    {
+        Globals::SetHookshotLoadMethod(EHookshotLoadMethod::LibraryLoaded);
+        LibraryInterface::Initialize();
+
+        if (false == LibraryInterface::IsConfigurationDataValid())
+            Message::Output(Message::ESeverity::Warning, LibraryInterface::GetConfigurationErrorMessage().data());
+
+        isInitialized = true;
+    }
+
+    return &LibraryInterface::GetHookStore();
 }
