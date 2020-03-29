@@ -42,23 +42,6 @@ namespace Hookshot
 
     // --------
 
-    __declspec(dllexport) void __fastcall CreateHookOrDie(void* originalFunc, const void* hookFunc, std::wstring_view additionalInfo)
-    {
-        const EResult result = CreateHook(originalFunc, hookFunc);
-
-        if (true != SuccessfulResult(result))
-        {
-            if (0 != additionalInfo.size())
-                Message::OutputFormatted(Message::ESeverity::Error, L"EResult %d - Terminating process due to CreateHook failure: %s", (int)result, additionalInfo.data());
-            else
-                Message::OutputFormatted(Message::ESeverity::Error, L"EResult %d - Terminating process due to CreateHook failure.", (int)result);
-
-            Windows::ProtectedTerminateProcess(Globals::GetCurrentProcessHandle(), (UINT)result);
-        }
-    }
-
-    // --------
-
     __declspec(dllexport) EResult __fastcall DisableHookFunction(const void* originalOrHookFunc)
     {
         if (false == isInitialized)
