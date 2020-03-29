@@ -72,7 +72,7 @@
         { \
         public: \
             static ReturnType callingConvention Hook(ArgumentTypes...); \
-            static inline ReturnType callingConvention Original(ArgumentTypes...) { return ((ReturnType(callingConvention *)(ArgumentTypes...))DynamicHookBase<kOriginalFunctionName>::GetOriginalFunctionAddress())(ArgumentTypes...); } \
+            static inline ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))DynamicHookBase<kOriginalFunctionName>::GetOriginalFunctionAddress())(args...); } \
             static inline EResult SubmitOriginalFunction(ReturnType(callingConvention * originalFunc)(ArgumentTypes...)) { return DynamicHookBase<kOriginalFunctionName>::SetHook(originalFunc, &Hook); } \
         }; \
     }

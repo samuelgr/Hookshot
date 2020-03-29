@@ -68,7 +68,7 @@
             static ReturnType(callingConvention * const originalFunction)(ArgumentTypes...); \
         public: \
             static ReturnType callingConvention Hook(ArgumentTypes...); \
-            static inline ReturnType callingConvention Original(ArgumentTypes...) { return originalFunction(ArgumentTypes...); } \
+            static inline ReturnType callingConvention Original(ArgumentTypes... args) { return originalFunction(args...); } \
         }; \
         template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress, typename ReturnType, typename... ArgumentTypes> ReturnType(callingConvention * const StaticHook<kOriginalFunctionName, kOriginalFunctionAddress, ReturnType callingConventionInBrackets (ArgumentTypes...)>::originalFunction)(ArgumentTypes...) = (CreateHookOrDie(kOriginalFunctionAddress, &Hook, (std::wstring(L"StaticHook failed for function ") + std::wstring(kOriginalFunctionName) + std::wstring(L"."))), (ReturnType(callingConvention *)(ArgumentTypes...))GetOriginalFunction(kOriginalFunctionAddress)); \
     }
