@@ -12,9 +12,6 @@
 #include "DependencyProtect.h"
 #include "TrampolineStore.h"
 
-#include <cstddef>
-#include <cstdint>
-
 
 namespace Hookshot
 {

@@ -14,10 +14,10 @@
 
 #include "HookshotTypes.h"
 
-#include <cstddef>
-#include <cstdint>
-#include <string_view>
 
+// Define this preprocessor symbol if linking directly with the Hookshot library and loading it by normal means.
+// Projects that build hook modules and projects that load the Hookshot library at runtime (i.e. via LoadLibrary) should leave this preprocessor symbol undefined.
+#ifdef HOOKSHOT_LINK_WITH_LIBRARY
 
 /// Initializes the Hookshot library.
 /// Hook modules do not need to invoke this function because Hookshot initializes itself before loading them.
@@ -26,8 +26,22 @@
 /// @return Hookshot interface pointer on success, or `nullptr` on failure.
 extern "C" __declspec(dllimport) Hookshot::IHookshot* __fastcall HookshotLibraryInitialize(void);
 
+#else
 
 /// Convenient definition for the entry point of a Hookshot hook module.
 /// If building a hook module, use this macro to create a hook module entry point.
 /// Macro parameter is the desired name of the entry point's function parameter, namely the Hookshot interface object pointer.
 #define HOOKSHOT_HOOK_MODULE_ENTRY(param)   extern "C" __declspec(dllexport) void __fastcall HookshotMain(Hookshot::IHookshot* param)
+
+/// Type definition for a pointer to #HookshotLibraryInitialize, whose address can be retrieved via a call to a function like `GetProcAddress`.
+typedef Hookshot::IHookshot*(__fastcall * THookshotLibraryInitializeProc)(void);
+
+#ifdef _WIN64
+/// Name of the Hookshot initialization function, valid in 64-bit mode, which can be passed directly to a function like `GetProcAddress`.
+inline constexpr char kHookshotLibraryInitializeProcName[] = "HookshotLibraryInitialize";
+#else
+/// Name of the Hookshot initialization function, valid in 32-bit mode, which can be passed directly to a function like `GetProcAddress`.
+inline constexpr char kHookshotLibraryInitializeProcName[] = "@HookshotLibraryInitialize@0";
+#endif
+
+#endif

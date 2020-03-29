@@ -103,7 +103,7 @@
       <SupportJustMyCode>false</SupportJustMyCode>
       <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test;$(SolutionDir)ThirdParty\CpuFeatures\cpu_features\include</AdditionalIncludeDirectories>
       <OmitFramePointers>false</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AssemblerOutput>All</AssemblerOutput>
@@ -135,7 +135,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test;$(SolutionDir)ThirdParty\CpuFeatures\cpu_features\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AssemblerOutput>All</AssemblerOutput>
@@ -168,7 +168,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test;$(SolutionDir)ThirdParty\CpuFeatures\cpu_features\include</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AssemblerOutput>All</AssemblerOutput>
@@ -203,7 +203,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test;$(SolutionDir)ThirdParty\CpuFeatures\cpu_features\include</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AssemblerOutput>All</AssemblerOutput>

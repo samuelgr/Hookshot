@@ -15,9 +15,8 @@
 #include "Hookshot/Hookshot.h"
 
 #include <cstdarg>
-#include <cstddef>
+#include <cstdio>
 #include <map>
-#include <string>
 #include <windows.h>
 
 

@@ -25,23 +25,23 @@ namespace Hookshot
         // Can safely be used at any time, including to perform static initialization.
         
         /// Character that occurs at the start of a command-line argument to indicate it is a file mapping handle rather than an executable name.
-        static constexpr wchar_t kCharCmdlineIndicatorFileMappingHandle = L'|';
+        inline constexpr wchar_t kCharCmdlineIndicatorFileMappingHandle = L'|';
 
         /// Name of the section in the injection binary that contains injection code.
         /// PE header encodes section name strings in UTF-8, so each character must directly be specified as being one byte.
         /// Per PE header specs, maximum string length is 8 including terminating null character.
 #ifdef HOOKSHOT64
-        static constexpr std::string_view kStrInjectCodeSectionName = "_CODE64";
+        inline constexpr std::string_view kStrInjectCodeSectionName = "_CODE64";
 #else
-        static constexpr std::string_view kStrInjectCodeSectionName = "_CODE32";
+        inline constexpr std::string_view kStrInjectCodeSectionName = "_CODE32";
 #endif
 
         /// Name of the section in the injection binary that contains injection code metadata.
         /// PE header encodes section name strings in UTF-8, so each character must directly be specified as being one byte.
 #ifdef HOOKSHOT64
-        static constexpr std::string_view kStrInjectMetaSectionName = "_META64";
+        inline constexpr std::string_view kStrInjectMetaSectionName = "_META64";
 #else
-        static constexpr std::string_view kStrInjectMetaSectionName = "_META32";
+        inline constexpr std::string_view kStrInjectMetaSectionName = "_META32";
 #endif
         
         // Per PE header specs, maximum string length is 8 including terminating null character.
@@ -49,28 +49,28 @@ namespace Hookshot
 
         /// Function name of the initialization procedure exported by the Hookshot library that gets injected.
 #ifdef HOOKSHOT64
-        static constexpr std::string_view kStrLibraryInitializationProcName = "HookshotInjectInitialize";
+        inline constexpr std::string_view kStrLibraryInitializationProcName = "HookshotInjectInitialize";
 #else
-        static constexpr std::string_view kStrLibraryInitializationProcName = "@HookshotInjectInitialize@0";
+        inline constexpr std::string_view kStrLibraryInitializationProcName = "@HookshotInjectInitialize@0";
 #endif
 
         /// Function name of the hook module's exported initialization routine.
 #ifdef HOOKSHOT64
-        static constexpr std::string_view kStrHookLibraryInitFuncName = "HookshotMain";
+        inline constexpr std::string_view kStrHookLibraryInitFuncName = "HookshotMain";
 #else
-        static constexpr std::string_view kStrHookLibraryInitFuncName = "@HookshotMain@4";
+        inline constexpr std::string_view kStrHookLibraryInitFuncName = "@HookshotMain@4";
 #endif
 
         /// Configuration file setting name for specifying a library to load only but not initialize.
         /// Useful when Hookshot is used only to perform injection.
-        static constexpr std::wstring_view kStrConfigurationSettingNameInject = L"Inject";
+        inline constexpr std::wstring_view kStrConfigurationSettingNameInject = L"Inject";
         
         /// Configuration file setting name for specifying a hook module to load and initialize as a hook module.
         /// Useful when Hookshot is both performing injection and setting hooks.
-        static constexpr std::wstring_view kStrConfigurationSettingNameHookModule = L"HookModule";
+        inline constexpr std::wstring_view kStrConfigurationSettingNameHookModule = L"HookModule";
 
         /// Configuration file setting name for enabling and specifying the verbosity of output to the log file.
-        static constexpr std::wstring_view kStrConfigurationSettingNameLogLevel = L"LogLevel";
+        inline constexpr std::wstring_view kStrConfigurationSettingNameLogLevel = L"LogLevel";
 
 
         // -------- RUN-TIME CONSTANTS ------------------------------------- //

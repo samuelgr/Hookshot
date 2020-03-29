@@ -11,10 +11,6 @@
 
 #pragma once
 
-#include <cstdarg>
-#include <cstddef>
-#include <cstdio>
-
 
 namespace Hookshot
 {
