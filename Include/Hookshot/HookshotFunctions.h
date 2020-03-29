@@ -20,9 +20,9 @@
 #ifdef HOOKSHOT_LINK_WITH_LIBRARY
 
 /// Initializes the Hookshot library.
-/// Hook modules do not need to invoke this function because Hookshot initializes itself before loading them.
-/// If linking directly against the Hookshot library, this function must be invoked before other Hookshot functions.
-/// The returned Hookshot interface pointer remains valid throughout the lifetime of the process and owned by Hookshot.
+/// Hook modules must not invoke this function because Hookshot initializes itself before loading them.  If they do, this function will emit a warning message and fail with `nullptr`.
+/// When linking directly against the Hookshot library, this function must be invoked once to obtain the Hookshot interface pointer.  If invoked multiple times, this function will emit a warning message and fail with `nullptr` beginning with the second invocation.
+/// The returned Hookshot interface pointer remains valid throughout the lifetime of the process and owned by Hookshot.  It can only be obtained once and therefore should be cached by the caller.
 /// @return Hookshot interface pointer on success, or `nullptr` on failure.
 extern "C" __declspec(dllimport) Hookshot::IHookshot* __fastcall HookshotLibraryInitialize(void);
 
@@ -31,17 +31,21 @@ extern "C" __declspec(dllimport) Hookshot::IHookshot* __fastcall HookshotLibrary
 /// Convenient definition for the entry point of a Hookshot hook module.
 /// If building a hook module, use this macro to create a hook module entry point.
 /// Macro parameter is the desired name of the entry point's function parameter, namely the Hookshot interface object pointer.
+/// The Hookshot interface object pointer can only be obtained this way and therefore should be cached by the hook module.
 #define HOOKSHOT_HOOK_MODULE_ENTRY(param)   extern "C" __declspec(dllexport) void __fastcall HookshotMain(Hookshot::IHookshot* param)
 
-/// Type definition for a pointer to #HookshotLibraryInitialize, whose address can be retrieved via a call to a function like `GetProcAddress`.
-typedef Hookshot::IHookshot*(__fastcall * THookshotLibraryInitializeProc)(void);
+namespace Hookshot
+{
+    /// Type definition for a pointer to #HookshotLibraryInitialize, whose address can be retrieved via a call to a function like `GetProcAddress`.
+    typedef Hookshot::IHookshot*(__fastcall * TLibraryInitializeProc)(void);
 
 #ifdef _WIN64
-/// Name of the Hookshot initialization function, valid in 64-bit mode, which can be passed directly to a function like `GetProcAddress`.
-inline constexpr char kHookshotLibraryInitializeProcName[] = "HookshotLibraryInitialize";
+    /// Name of the Hookshot library initialization function, which can be passed directly to a function like `GetProcAddress`.  Valid in 64-bit mode.
+    inline constexpr char kLibraryInitializeProcName[] = "HookshotLibraryInitialize";
 #else
-/// Name of the Hookshot initialization function, valid in 32-bit mode, which can be passed directly to a function like `GetProcAddress`.
-inline constexpr char kHookshotLibraryInitializeProcName[] = "@HookshotLibraryInitialize@0";
+    /// Name of the Hookshot library initialization function, which can be passed directly to a function like `GetProcAddress`.  Valid in 32-bit mode.
+    inline constexpr char kLibraryInitializeProcName[] = "@HookshotLibraryInitialize@0";
 #endif
+}
 
 #endif

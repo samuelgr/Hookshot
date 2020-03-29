@@ -15,6 +15,7 @@
 #include "InjectLanding.h"
 #include "LibraryInterface.h"
 #include "Message.h"
+#include "Strings.h"
 
 #include <string_view>
 
@@ -74,9 +75,14 @@ extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
             Message::Output(Message::ESeverity::Error, LibraryInterface::GetConfigurationErrorMessage().data());
 
         isInitialized = true;
-    }
 
-    return (void*)InjectLanding;
+        return (void*)InjectLanding;
+    }
+    else
+    {
+        Message::OutputFormatted(Message::ESeverity::Error, L"Detected an improper attempt to initialize %s by invoking %s.", Strings::kStrProductName.data(), __FUNCTIONW__);
+        return nullptr;
+    }
 }
 
 /// Invoked when Hookshot is loaded as a library.  See "HookshotFunctions.h" for more information.
@@ -92,7 +98,12 @@ extern "C" __declspec(dllexport) IHookshot* __fastcall HookshotLibraryInitialize
             Message::Output(Message::ESeverity::Warning, LibraryInterface::GetConfigurationErrorMessage().data());
 
         isInitialized = true;
-    }
 
-    return &LibraryInterface::GetHookStore();
+        return &LibraryInterface::GetHookStore();
+    }
+    else
+    {
+        Message::OutputFormatted(Message::ESeverity::Warning, L"Detected an improper attempt to initialize %s by invoking %s.", Strings::kStrProductName.data(), __FUNCTIONW__);
+        return nullptr;
+    }
 }
