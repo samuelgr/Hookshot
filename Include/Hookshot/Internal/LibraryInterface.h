@@ -12,6 +12,7 @@
 #pragma once
 
 #include "Configuration.h"
+#include "HookshotTypes.h"
 #include "HookStore.h"
 
 #include <string_view>
@@ -62,11 +63,11 @@ namespace Hookshot
             return configuration.GetReadErrorMessage();
         }
 
-        /// Retrieves the hook data storage object.
-        /// @return Hook storage object.
-        static inline HookStore& GetHookStore(void)
+        /// Retrieves the Hookshot interface object pointer that can be passed to external clients.
+        /// @return Hook interface object pointer.
+        static inline IHookshot* GetHookshotInterfacePointer(void)
         {
-            return hookStore;
+            return &hookStore;
         }
 
         /// Performs common top-level initialization operations. Idempotent.

@@ -143,7 +143,7 @@ namespace Hookshot
             return false;
         }
 
-        initProc(&GetHookStore());
+        initProc(GetHookshotInterfacePointer());
 
         Message::OutputFormatted(Message::ESeverity::Info, L"%s - Successfully loaded hook module.", hookModuleFileName.data());
         return true;

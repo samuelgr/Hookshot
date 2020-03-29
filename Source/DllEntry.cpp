@@ -99,7 +99,7 @@ extern "C" __declspec(dllexport) IHookshot* __fastcall HookshotLibraryInitialize
 
         isInitialized = true;
 
-        return &LibraryInterface::GetHookStore();
+        return LibraryInterface::GetHookshotInterfacePointer();
     }
     else
     {
