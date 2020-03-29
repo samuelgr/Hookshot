@@ -43,15 +43,22 @@
 /// Note that Hookshot might fail to create the requested hook.  Therefore, the return code from `SubmitOriginalFunction` should be checked.
 /// Once `SubmitOriginalFunction` has been invoked successfully, further invocations have no effect and simply return #EResult::NoEffect.
 /// Unlike static hooks, dynamic hooks do not require explicit instantiation.  This is because instantiation happens automatically as a result of the call to `SubmitOriginalFunction`.
-#define HOOKSHOT_DECLARE_DYNAMIC_HOOK_FROM_PROTOTYPE(func) \
+#define HOOKSHOT_DECLARE_DYNAMIC_HOOK_FROM_DECLARATION(func) \
     static constexpr wchar_t kHookName__##func[] = _CRT_WIDE(#func); \
     using DynamicHook_##func = ::Hookshot::DynamicHook<kHookName__##func, decltype(func)>
 
-/// Equivalent to #HOOKSHOT_DECLARE_DYNAMIC_HOOK_FROM_PROTOTYPE, but accepts a typed function pointer instead of a function prototype.
+/// Equivalent to #HOOKSHOT_DECLARE_DYNAMIC_HOOK_FROM_PROTOTYPE, but accepts a typed function pointer instead of a function prototype declaration.
 /// A function name to associate with the dynamic hook must also be supplied.
 #define HOOKSHOT_DECLARE_DYNAMIC_HOOK_FROM_POINTER(name, ptr) \
     static constexpr wchar_t kHookName__##name[] = _CRT_WIDE(#name); \
     using DynamicHook_##name = ::Hookshot::DynamicHook<kHookName__##name, std::remove_pointer<decltype(ptr)>::type>;
+
+/// Equivalent to #HOOKSHOT_DECLARE_DYNAMIC_HOOK_FROM_PROTOTYPE, but accepts a manually-specified function type instead of a function prototype declaration.
+/// The `typespec` parameter is syntactically the same as a type definition for a function pointer type, with or without the asterisk.
+/// A function name to associate with the dynamic hook must also be supplied.
+#define HOOKSHOT_DECLARE_DYNAMIC_HOOK_FROM_TYPESPEC(name, typespec) \
+    static constexpr wchar_t kHookName__##name[] = _CRT_WIDE(#name); \
+    using DynamicHook_##name = ::Hookshot::DynamicHook<kHookName__##name, std::remove_pointer<typespec>::type>;
 
 
 // -------- IMPLEMENTATION DETAILS ----------------------------------------- //
