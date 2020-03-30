@@ -34,7 +34,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
     if (2 > __argc)
     {
-        Message::OutputFormatted(Message::ESeverity::Error, L"Usage: %s <command-line> [<arg1> <arg2>...]", Strings::kStrExecutableBaseName.data());
+        Message::OutputFormatted(Message::ESeverity::Error, L"Usage: %s <command> [<arg1> <arg2>...]", Strings::kStrExecutableBaseName.data());
         return __LINE__;
     }
 
