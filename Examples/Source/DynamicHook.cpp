@@ -71,7 +71,7 @@ int DynamicHook_MessageBoxFunction::Hook(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCa
 
 #endif
 {
-    // The original MessageBoxW function pointer, which Hookshot provides, is automatically saved by the dynamic hook.
+    // The pointer for accessing original (i.e. un-hooked) MessageBoxW functionality, which Hookshot provides, is automatically saved by the dynamic hook.
     // Per dynamic hook conventions (see "DynamicHook.h"), such functionality is exposed via the dynamic hook's Original method.
     // Method signature is derived from the dynamic hook declaration, so any incorrect parameter types would result in a compiler error.
     // For the purposes of this example, the test program's message box is modified by overriding the text and the title and adding a warning icon.
@@ -83,7 +83,7 @@ int DynamicHook_MessageBoxFunction::Hook(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCa
 /// See "HookshotFunctions.h" for documentation.
 HOOKSHOT_HOOK_MODULE_ENTRY(hookshot)
 {
-    // Figure out the address of MessageBoxW.  How this is done does not matter.
+    // Figure out the address of MessageBoxW.  How this is done does not matter to Hookshot.
     // Since it is known that the test program calls MessageBoxW, it is also known that the DLL containing MessageBoxW (user32.dll) is already loaded.
     HMODULE user32ModuleHandle = GetModuleHandle(L"user32.dll");
     if (nullptr == user32ModuleHandle)
@@ -92,7 +92,7 @@ HOOKSHOT_HOOK_MODULE_ENTRY(hookshot)
         return;
     }
 
-    void* const messageBoxProcAddress = GetProcAddress(user32ModuleHandle, "MessageBoxW");
+    void* messageBoxProcAddress = GetProcAddress(user32ModuleHandle, "MessageBoxW");
     if (nullptr == messageBoxProcAddress)
     {
         MessageBoxW(nullptr, L"Failed to locate MessageBoxW in user32.dll.", L"DynamicHook Example", MB_ICONERROR);

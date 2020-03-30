@@ -29,7 +29,7 @@ HOOKSHOT_STATIC_HOOK(MessageBoxW);
 /// Even though not directly specified, the calling convention of the hook function below is also automatically defined by the static hook type definition.  Attempting to override it here would result in a compiler error.
 int StaticHook_MessageBoxW::Hook(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType)
 {
-    // The original MessageBoxW function pointer, which Hookshot provides, is automatically saved by the static hook.
+    // The pointer for accessing original (i.e. un-hooked) MessageBoxW functionality, which Hookshot provides, is automatically saved by the static hook.
     // Per static hook conventions (see "StaticHook.h"), such functionality is exposed via the static hook's Original method.
     // Method signature is derived from the static hook declaration, so any incorrect parameter types would result in a compiler error.
     // For the purposes of this example, the test program's message box is modified by overriding the text and the title and adding an error icon.

@@ -16,17 +16,18 @@
 
 
 /// Function pointer, which will hold the address that Hookshot will provide that can be invoked to get the original (i.e. un-hooked) version of `MessageBoxW`.
-/// Pointer type, including target function calling convention, needs to be specified manually and be identical to that of `MessageBoxW`.
-static int(__stdcall * originalMessageBoxW)(HWND, LPCWSTR, LPCWSTR, UINT) = nullptr;
+/// Pointer type, including calling convention, needs to be specified manually and be identical to that of `MessageBoxW`.
+/// In this case, the correct type for the function pointer can be obtained by making use of the `MessageBoxW` function prototype declaration available via the `Windows.h` header file.
+static decltype(&MessageBoxW) originalMessageBoxW = nullptr;
 
 
-/// Hook function for `MessageBoxW`.  Intended to replace all invocations of `MessageBoxW`.
+/// Hook function for `MessageBoxW`.
+/// This function contains the code that executes anytime the `MessageBoxW` function is called by any module in the current process, once Hookshot has successfully created a hook for `MessageBoxW` as is requested in the hook module entry point below.
 /// Function name can be arbitrary.  However, its prototype, including calling convention, needs to be specified manually and be identical to that of `MessageBoxW`.
 static int __stdcall HookMessageBoxW(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType)
 {
-    // This function contains the code that executes anytime the MessageBoxW function is called by any module in the current process, once Hookshot has successfully created a hook for MessageBoxW as below in the entry point.
-    // For the purposes of this example, the test program's message box is modified by overriding the text and the title and adding a question mark icon.
-    return originalMessageBoxW(hWnd, L"Modified using Hookshot functions.", L"HookshotFunctions Example", MB_ICONQUESTION);
+    // For the purposes of this example, the test program's message box is modified by overriding the text and the title and adding an information icon.
+    return originalMessageBoxW(hWnd, L"Modified using Hookshot functions.", L"HookshotFunctions Example", MB_ICONINFORMATION);
 }
 
 
