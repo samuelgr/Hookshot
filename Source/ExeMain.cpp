@@ -84,7 +84,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         TemporaryBuffer<wchar_t> commandLine;
         size_t commandLinePos = 0;
 
-        for (size_t argIndex = 1; argIndex < __argc; ++argIndex)
+        for (size_t argIndex = 1; argIndex < (size_t)__argc; ++argIndex)
         {
             const wchar_t* const argString = __wargv[argIndex];
             const size_t argLen = wcslen(argString);
