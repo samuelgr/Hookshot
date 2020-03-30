@@ -69,22 +69,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\</IntDir>
+    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName).HookModule.$(PlatformArchitecture)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\</IntDir>
+    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName).HookModule.$(PlatformArchitecture)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\</IntDir>
+    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName).HookModule.$(PlatformArchitecture)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\</IntDir>
+    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(ProjectName).HookModule.$(PlatformArchitecture)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -99,6 +99,9 @@
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AssemblerOutput>All</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
     </ClCompile>
     <Link />
   </ItemDefinitionGroup>
@@ -115,6 +118,9 @@
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AssemblerOutput>All</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
     </ClCompile>
     <Link />
   </ItemDefinitionGroup>
@@ -130,6 +136,9 @@
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AssemblerOutput>All</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -148,6 +157,9 @@
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AssemblerOutput>All</AssemblerOutput>
+      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -155,7 +167,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Empty\Empty.cpp" />
+    <ClCompile Include="Source\Empty.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="TestProgram.vcxproj">
+      <Project>{1045f622-3d04-449e-a3c2-12983a29859b}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

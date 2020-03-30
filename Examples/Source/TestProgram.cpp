@@ -9,7 +9,7 @@
  *   Test program used to demonstrate the example hook modules.
  *****************************************************************************/
 
-#include <windows.h>
+#include <Windows.h>
 
  
 // -------- INTERNAL VARIABLES --------------------------------------------- //
