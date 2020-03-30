@@ -9,7 +9,6 @@
  *   Test cases that follow the CUSTOM pattern.
  *****************************************************************************/
 
-#include "CpuInfo.h"
 #include "TestPattern.h"
 
 #include "Hookshot/Hookshot.h"
