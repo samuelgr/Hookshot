@@ -24,7 +24,8 @@
 HOOKSHOT_STATIC_HOOK(MessageBoxW);
 
 
-/// Hook function for `MessageBoxW`.  Intended to replace all invocations of `MessageBoxW`.
+/// Hook function for `MessageBoxW`.
+/// This function contains the code that executes anytime the `MessageBoxW` function is called by any module in the current process, once Hookshot has successfully created a hook for `MessageBoxW` as is requested in the hook module entry point below.
 /// Class name and method name both follow the static hook naming convention (see "StaticHook.h"), and the return and parameter types are all defined by the static hook type definition.  Any deviations would result in a compiler error.
 /// Even though not directly specified, the calling convention of the hook function below is also automatically defined by the static hook type definition.  Attempting to override it here would result in a compiler error.
 int StaticHook_MessageBoxW::Hook(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType)
