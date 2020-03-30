@@ -68,7 +68,7 @@
         public: \
             static ReturnType callingConvention Hook(ArgumentTypes...); \
             static inline ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))DynamicHookBase<kOriginalFunctionName>::GetOriginalFunctionAddress())(args...); } \
-            static inline EResult SetHook(IHookshot* const hookshot, ReturnType(callingConvention * originalFunc)(ArgumentTypes...)) { return DynamicHookBase<kOriginalFunctionName>::SetHook(hookshot, originalFunc, &Hook); } \
+            static inline EResult SetHook(IHookshot* const hookshot, void* const originalFunc) { return DynamicHookBase<kOriginalFunctionName>::SetHook(hookshot, originalFunc, &Hook); } \
         }; \
     }
 
@@ -105,7 +105,7 @@ namespace Hookshot
     /// Primary dynamic hook template.  Specialized using #HOOKSHOT_DYNAMIC_HOOK_TEMPLATE.
     template <const wchar_t* kOriginalFunctionName, typename T> class DynamicHook
     {
-        static_assert(std::is_function<T>::value);
+        static_assert(std::is_function<T>::value, "Supplied argument in DynamicHook declaration must map to a function type.");
     };
 }
 

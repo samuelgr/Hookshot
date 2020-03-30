@@ -33,7 +33,7 @@ int StaticHook_MessageBoxW::Hook(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, U
     // Per static hook conventions (see "StaticHook.h"), such functionality is exposed via the static hook's Original method.
     // Method signature is derived from the static hook declaration, so any incorrect parameter types would result in a compiler error.
     // For the purposes of this example, the test program's message box is modified by overriding the text and the title and adding an error icon.
-    return Original(hWnd, L"MODIFIED USING A STATIC HOOK", L"StaticHook Example", MB_ICONERROR);
+    return Original(hWnd, L"MODIFIED USING A STATIC HOOK.", L"StaticHook Example", MB_ICONERROR);
 }
 
 

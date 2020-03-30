@@ -25,8 +25,8 @@ static int(__stdcall * originalMessageBoxW)(HWND, LPCWSTR, LPCWSTR, UINT) = null
 static int __stdcall HookMessageBoxW(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType)
 {
     // This function contains the code that executes anytime the MessageBoxW function is called by any module in the current process, once Hookshot has successfully created a hook for MessageBoxW as below in the entry point.
-    // For the purposes of this example, simply call the underlying version of MessageBoxW, but modify the title to match the name of this hook module example and add a question mark icon.
-    return originalMessageBoxW(hWnd, lpText, L"HookshotFunctions Example", MB_ICONQUESTION);
+    // For the purposes of this example, the test program's message box is modified by overriding the text and the title and adding a question mark icon.
+    return originalMessageBoxW(hWnd, L"Modified using Hookshot functions.", L"HookshotFunctions Example", MB_ICONQUESTION);
 }
 
 

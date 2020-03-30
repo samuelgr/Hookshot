@@ -92,7 +92,7 @@ namespace Hookshot
     /// Primary static hook template.  Specialized using #HOOKSHOT_STATIC_HOOK_TEMPLATE.
     template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress, typename T> class StaticHook
     {
-        static_assert(std::is_function<T>::value);
+        static_assert(std::is_function<T>::value, "Supplied argument in StaticHook declaration must map to a function type.");
     };
 }
 
