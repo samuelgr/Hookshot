@@ -15,6 +15,7 @@
 #include "Message.h"
 #include "ProcessInjector.h"
 #include "Strings.h"
+#include "TemporaryBuffer.h"
 
 using namespace Hookshot;
 
@@ -31,13 +32,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 {
     Globals::SetHookshotLoadMethod(EHookshotLoadMethod::Executed);
 
-    if (2 != __argc)
+    if (2 > __argc)
     {
-        Message::Output(Message::ESeverity::Error, L"This program requires exactly one argument that specifies command-line of the executable to run and inject.");
+        Message::OutputFormatted(Message::ESeverity::Error, L"Usage: %s <command-line> [<arg1> <arg2>...]", Strings::kStrExecutableBaseName.data());
         return __LINE__;
     }
 
-    if (Strings::kCharCmdlineIndicatorFileMappingHandle == __wargv[1][0])
+    if ((2 == __argc) && (Strings::kCharCmdlineIndicatorFileMappingHandle == __wargv[1][0]))
     {
         // A file mapping handle was specified.
         // This is a special situation, in which this program was invoked to assist with injecting an already-created process.
@@ -77,13 +78,61 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         // An executable was specified.
         // This is the normal situation, in which Hookshot is used to bootstrap an injection process.
         
+        // First step is to combine all the command-line arguments into a single mutable string buffer, including the executable to launch.
+        // Mutability is required per documentation of CreateProcessW.
+        // Each individual argument must be placed in quotes (to preserve spaces within), and each quote character in the argument must be escaped.
+        TemporaryBuffer<wchar_t> commandLine;
+        size_t commandLinePos = 0;
+
+        for (size_t argIndex = 1; argIndex < __argc; ++argIndex)
+        {
+            const wchar_t* const argString = __wargv[argIndex];
+            const size_t argLen = wcslen(argString);
+            size_t argNumQuoteChars = 0;
+
+            for (size_t i = 0; i < argLen; ++i)
+            {
+                if (L'\"' == argString[i])
+                    argNumQuoteChars += 1;
+            }
+
+            // Compute the number of characters needed to represent the argument.
+            // Each quote character requires an additional character for the escape backslash.
+            // There must also be room for a whitespace separator, a quote character at the start, a quote character at the end, and possibly a terminal null character.
+            const size_t argNumCharsNeeded = argLen + argNumQuoteChars + 4;
+
+            if ((commandLinePos + argNumCharsNeeded) >= commandLine.Count())
+            {
+                Message::OutputFormatted(Message::ESeverity::Error, L"Specified command line exceeds the limit of %d characters.", (int)commandLine.Count());
+                return __LINE__;
+            }
+
+            // Copy one character at a time from the command-line argument to the accumulating string.
+            // Enclose the whole thing in quotes, add a whitespace separator at the end, and add a backslash in front of any quote characters found in the argument string.
+            commandLine[commandLinePos++] = L'\"';
+
+            for (size_t i = 0; i < argLen; ++i)
+            {
+                if (L'\"' == argString[i])
+                    commandLine[commandLinePos++] = L'\\';
+
+                commandLine[commandLinePos++] = argString[i];
+            }
+
+            commandLine[commandLinePos++] = L'\"';
+            commandLine[commandLinePos++] = L' ';
+        }
+
+        commandLine[commandLinePos] = L'\0';
+
+        // Second step is to create and inject the new process using the assembled command line string.
         STARTUPINFO startupInfo;
         PROCESS_INFORMATION processInfo;
 
         memset((void*)&startupInfo, 0, sizeof(startupInfo));
         memset((void*)&processInfo, 0, sizeof(processInfo));
-
-        const EInjectResult result = ProcessInjector::CreateInjectedProcess(nullptr, __wargv[1], nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInfo);
+        
+        const EInjectResult result = ProcessInjector::CreateInjectedProcess(nullptr, commandLine, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInfo);
 
         switch (result)
         {
