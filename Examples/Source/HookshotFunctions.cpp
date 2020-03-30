@@ -15,14 +15,10 @@
 #include <Windows.h>
 
 
-// -------- INTERNAL VARIABLES --------------------------------------------- //
-
 /// Function pointer, which will hold the address that Hookshot will provide that can be invoked to get the original (i.e. un-hooked) version of `MessageBoxW`.
 /// Pointer type, including target function calling convention, needs to be specified manually and be identical to that of `MessageBoxW`.
 static int(__stdcall * originalMessageBoxW)(HWND, LPCWSTR, LPCWSTR, UINT) = nullptr;
 
-
-// -------- INTERNAL FUNCTIONS --------------------------------------------- //
 
 /// Hook function for `MessageBoxW`.  Intended to replace all invocations of `MessageBoxW`.
 /// Function name can be arbitrary.  However, its prototype, including calling convention, needs to be specified manually and be identical to that of `MessageBoxW`.
@@ -34,9 +30,8 @@ static int __stdcall HookMessageBoxW(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaptio
 }
 
 
-// -------- ENTRY POINT ---------------------------------------------------- //
-// See "HookshotFunctions.h" for documentation.
-
+/// Hook module entry point.
+/// See "HookshotFunctions.h" for documentation.
 HOOKSHOT_HOOK_MODULE_ENTRY(hookshot)
 {
     // Request that Hookshot hook MessageBoxW using the hook function HookMessageBoxW defined above.
