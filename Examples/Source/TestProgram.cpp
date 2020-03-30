@@ -33,8 +33,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 {
     // This test program simply generates a message box and then exits.
     // Hook module examples use Hookshot to hook `MessageBoxW` and modify the message box that is displayed.
-    // Examine the code for each one to see what modification is performed.
-    // Unmodified, the message box has a single OK button and no icon.  It displays the contents of the variables defined at the top of this file.
+    // Unmodified, the message box has a single OK button and no icon.  It displays the text contained in the variables defined at the top of this file.
 
     MessageBoxW(nullptr, kMessageBoxText, kMessageBoxTitle, MB_OK);
     return 0;

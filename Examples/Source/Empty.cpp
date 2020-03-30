@@ -8,8 +8,7 @@
  * @file Empty.cpp
  *   "Empty" hook module example.
  *   This example shows an empty hook module project.  It contains the minimum
- *   code required to generate a hook module that Hookshot will load
- *   successfully.
+ *   required to produce a hook module that Hookshot will load successfully.
  *****************************************************************************/
 
 #include "Hookshot/Hookshot.h"
