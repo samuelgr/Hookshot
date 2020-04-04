@@ -50,7 +50,7 @@ namespace Hookshot
         /// In 64-bit mode, TrampolineStore objects are placed close to target functions.
         /// For each target function, the base address of its associated memory region is computed and used as a key to this map.
         /// TrampolineStore objects are appended to the storage vector as normal, and the index of each such created TrampolineStore object is the value.
-        static std::unordered_map<void*, int> trampolineStoreMap;
+        static std::unordered_map<void*, std::vector<int>> trampolineStoreMap;
 #endif
 
 

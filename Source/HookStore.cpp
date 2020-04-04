@@ -97,7 +97,7 @@ namespace Hookshot
     std::vector<TrampolineStore> HookStore::trampolines;
 
 #ifdef HOOKSHOT64
-    std::unordered_map<void*, int> HookStore::trampolineStoreMap;
+    std::unordered_map<void*, std::vector<int>> HookStore::trampolineStoreMap;
 #endif
 
     
@@ -124,18 +124,22 @@ namespace Hookshot
         if (nullptr == baseAddress)
             return EResult::FailInternal;
 
-        // If this is the first target function for the specified base address, attempt to place a TrampolineStore buffer.
-        // Do this by repeatedly moving backward in memory from the base address by the size of the TrampolineStore buffer until either too many attempts were made or a location is identified.
-        if (0 == trampolineStoreMap.count(baseAddress))
+        // If this is the first target function for the specified base address, or all existing TrampolineStore objects for that base address are full, attempt to place a new TrampolineStore buffer.
+        // Do this by repeatedly moving backward in memory from the base address by the size of the TrampolineStore buffer until either too many attempts were made or a possible location is identified.
+        // Permissible addresses are aligned on a boundary equal to the size of a TrampolineStore buffer.
+        if (0 == trampolineStoreMap.count(baseAddress) || 0 == trampolines[trampolineStoreMap.at(baseAddress).back()].FreeCount())
         {
-            size_t proposedTrampolineStoreAddress = (size_t)baseAddress - TrampolineStore::kTrampolineStoreSizeBytes;
+            size_t proposedTrampolineStoreAddress = ((size_t)baseAddress - TrampolineStore::kTrampolineStoreSizeBytes) & ~(TrampolineStore::kTrampolineStoreSizeBytes - 1);
+            const size_t numAddressesAlreadyTried = (0 == trampolineStoreMap.count(baseAddress)) ? (0) : (1 + ((proposedTrampolineStoreAddress - (size_t)&(trampolines[trampolineStoreMap.at(baseAddress).back()][0])) / TrampolineStore::kTrampolineStoreSizeBytes));
 
-            for (int i = 0; i < 100; ++i)
+            proposedTrampolineStoreAddress -= (numAddressesAlreadyTried * TrampolineStore::kTrampolineStoreSizeBytes);
+
+            for (int i = (int)numAddressesAlreadyTried; i < ((INT_MAX / TrampolineStore::kTrampolineStoreSizeBytes) / 4); ++i)
             {
                 TrampolineStore newTrampolineStore((void*)proposedTrampolineStoreAddress);
                 if (true == newTrampolineStore.IsInitialized())
                 {
-                    trampolineStoreMap[baseAddress] = (int)trampolines.size();
+                    trampolineStoreMap[baseAddress].push_back((int)trampolines.size());
                     trampolines.push_back(std::move(newTrampolineStore));
                     break;
                 }
@@ -147,7 +151,7 @@ namespace Hookshot
         if (0 == trampolineStoreMap.count(baseAddress))
             return EResult::FailAllocation;
 
-        const size_t trampolineStoreIndex = trampolineStoreMap.at(baseAddress);
+        const size_t trampolineStoreIndex = trampolineStoreMap.at(baseAddress).back();
 #else
         // In 32-bit mode, all trampolines are stored in a central location.
         // Therefore, it is sufficient to keep appending new TrampolineStore objects as existing ones fill up.

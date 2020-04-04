@@ -38,6 +38,9 @@ namespace Hookshot
         /// Method by which Hookshot was loaded into the current process.
         EHookshotLoadMethod gLoadMethod;
 
+        /// Holds information about the current system, as retrieved from Windows.
+        SYSTEM_INFO gSystemInformation;
+
 
     private:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
@@ -47,9 +50,11 @@ namespace Hookshot
             gCurrentProcessHandle(GetCurrentProcess()),
             gCurrentProcessId(GetProcessId(GetCurrentProcess())),
             gInstanceHandle(nullptr),
-            gLoadMethod(EHookshotLoadMethod::Executed)
+            gLoadMethod(EHookshotLoadMethod::Executed),
+            gSystemInformation()
         {
             GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)&GlobalData::GetInstance, &gInstanceHandle);
+            GetNativeSystemInfo(&gSystemInformation);
         }
 
         /// Copy constructor. Should never be invoked.
@@ -116,6 +121,13 @@ namespace Hookshot
     HINSTANCE Globals::GetInstanceHandle(void)
     {
         return GlobalData::GetInstance().gInstanceHandle;
+    }
+
+    // --------
+
+    const SYSTEM_INFO& Globals::GetSystemInformation(void)
+    {
+        return GlobalData::GetInstance().gSystemInformation;
     }
 
     // --------

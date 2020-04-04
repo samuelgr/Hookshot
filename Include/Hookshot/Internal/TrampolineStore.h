@@ -29,10 +29,10 @@ namespace Hookshot
         // -------- CONSTANTS ---------------------------------------------- //
 
         /// Amount of memory reserved for holding trampoline objects per instance of this object.
-        static constexpr size_t kTrampolineStoreSizeBytes = (2 * 1024 * 1024);
+        static const int kTrampolineStoreSizeBytes;
 
         /// Maximum number of trampoline objects that can be held in this object.
-        static constexpr size_t kTrampolineStoreCount = kTrampolineStoreSizeBytes / sizeof(Trampoline);
+        static const int kTrampolineStoreCount;
 
 
     private:

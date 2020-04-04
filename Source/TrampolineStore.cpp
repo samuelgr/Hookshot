@@ -10,6 +10,7 @@
  *****************************************************************************/
 
 #include "DependencyProtect.h"
+#include "Globals.h"
 #include "TrampolineStore.h"
 
 
@@ -25,7 +26,15 @@ namespace Hookshot
         return (Trampoline*)Windows::ProtectedVirtualAlloc(baseAddress, TrampolineStore::kTrampolineStoreSizeBytes, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     }
 
-    
+
+    // -------- CONSTANTS ---------------------------------------------- //
+    // See "TrampolineStore.h" for documentation.
+
+    const int TrampolineStore::kTrampolineStoreSizeBytes = Globals::GetSystemInformation().dwPageSize;
+
+    const int TrampolineStore::kTrampolineStoreCount = kTrampolineStoreSizeBytes / sizeof(Trampoline);
+
+
     // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
     // See "TrampolineStore.h" for documentation.
 

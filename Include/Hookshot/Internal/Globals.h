@@ -60,6 +60,10 @@ namespace Hookshot
         /// @return Instance handle for the loaded module.
         static HINSTANCE GetInstanceHandle(void);
 
+        /// Retrieves information on the current system.  This includes architecture, page size, and so on.
+        /// @return Reference to a read-only structure containing system information.
+        static const SYSTEM_INFO& GetSystemInformation(void);
+
         /// Sets the method by which this form of Hookshot was loaded.
         /// @param [in] loadMethod Method by which Hookshot was loadedl
         static void SetHookshotLoadMethod(const EHookshotLoadMethod loadMethod);
