@@ -32,7 +32,7 @@ namespace Hookshot
     public:
         // -------- CONSTANTS ---------------------------------------------- //
         
-        /// Maximum number of bytes that the trampoline code is allowed to required.
+        /// Maximum number of bytes that the trampoline code is allowed to require.
         static constexpr unsigned int kMaxTrampolineCodeBytes = 128;
 
         
@@ -111,7 +111,7 @@ namespace Hookshot
 
         /// Validates all of the parameters specified at object creation time.
         /// Sources of possible errors include null pointers and insufficiently-sized code or data regions.
-        /// @return Indictor of the result of the operation.
+        /// @return Indicator of the result of the operation.
         EInjectResult Check(void) const;
 
         /// Computes the number of bytes needed to represent the injected code.
@@ -135,12 +135,12 @@ namespace Hookshot
         bool LocateFunctions(void*& addrGetLastError, void*& addrGetProcAddress, void*& addrLoadLibraryA) const;
         
         /// Runs the injected process once the injected code has been set.
-        /// @return Indictor of the result of the operation.
+        /// @return Indicator of the result of the operation.
         EInjectResult Run(void);
 
         /// Sets the injected code into the injected process, performing all required operations.
         /// @param [in] enableDebugFeatures If `true`, signals to the injected process that a debugger is present, so certain debug features should be enabled.
-        /// @return Indictor of the result of the operation.
+        /// @return Indicator of the result of the operation.
         EInjectResult Set(const bool enableDebugFeatures);
 
         /// Returns the code region occupied by the trampoline to its original content.

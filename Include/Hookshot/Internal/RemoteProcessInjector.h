@@ -48,7 +48,7 @@ namespace Hookshot
         /// @param [in] processHandle Handle to the process to inject.
         /// @param [in] threadHandle Handle to the main thread of the process to inject.
         /// @param [in] switchArchitecture If `true`, specifies that the injection must cross a processor architecture boundary (i.e. 32-bit -> 64-bit or vice versa).
-        /// @return Indictor of the result of the operation.
+        /// @return Indicator of the result of the operation.
         static EInjectResult RemoteInjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool switchArchitecture, const bool enableDebugFeatures);
     };
 }

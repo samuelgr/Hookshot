@@ -49,14 +49,14 @@ namespace Hookshot
 
         /// Creates a new process using the specified parameters and attempts to inject Hookshot code into it before it is allowed to run.
         /// Refer to Microsoft's documentation on CreateProcess for information on parameters.
-        /// @return Indictor of the result of the operation.
+        /// @return Indicator of the result of the operation.
         static EInjectResult CreateInjectedProcess(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 
         /// Attempts to inject a process with Hookshot code.
         /// @param [in] processHandle Handle to the process to inject.
         /// @param [in] threadHandle Handle to the main thread of the process to inject.
         /// @param [in] enableDebugFeatures If `true`, signals to the injected process that a debugger is present, so certain debug features should be enabled.
-        /// @return Indictor of the result of the operation.
+        /// @return Indicator of the result of the operation.
         static EInjectResult InjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool enableDebugFeatures);
 
         /// Injects a process created by another instance of Hookshot.
@@ -79,14 +79,14 @@ namespace Hookshot
         /// @param [in] processHandle Handle to the process for which information is requested.
         /// @param [in] baseAddress Base address of the process' executable image.
         /// @param [out] entryPoint Address of the pointer that receives the entry point address.
-        /// @return Indictor of the result of the operation.
+        /// @return Indicator of the result of the operation.
         static EInjectResult GetProcessEntryPointAddress(const HANDLE processHandle, const void* const baseAddress, void** const entryPoint);
         
         /// Attempts to determine the base address of the primary executable image for the given process.
         /// All addresses used by this method are in the virtual address space of the target process.
         /// @param [in] processHandle Handle to the process for which information is requested.
         /// @param [out] baseAddress Address of the pointer that receives the image base address.
-        /// @return Indictor of the result of the operation.
+        /// @return Indicator of the result of the operation.
         static EInjectResult GetProcessImageBaseAddress(const HANDLE processHandle, void** const baseAddress);
 
         /// Common code to handle the result of an injection attempt.
@@ -94,7 +94,7 @@ namespace Hookshot
         /// @param [in] shouldKeepSuspended Indicates whether or not the newly-created process should be kept in suspended state once injection is complete.
         /// @param [in] processHandle Handle to the newly-created process.
         /// @param [in] threadHandle Handle to the main thread of the newly-created process.
-        /// @return Indictor of the result of the operation.
+        /// @return Indicator of the result of the operation.
         static EInjectResult HandleInjectionResult(const EInjectResult result, const bool shouldKeepSuspended, const HANDLE processHandle, const HANDLE threadHandle);
 
         /// Verifies that the architecture of the target process matches the architecture of this running binary.
