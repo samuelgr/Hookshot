@@ -52,13 +52,6 @@ namespace Hookshot
         /// @return Indicator of the result of the operation.
         static EInjectResult CreateInjectedProcess(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 
-        /// Attempts to inject a process with Hookshot code.
-        /// @param [in] processHandle Handle to the process to inject.
-        /// @param [in] threadHandle Handle to the main thread of the process to inject.
-        /// @param [in] enableDebugFeatures If `true`, signals to the injected process that a debugger is present, so certain debug features should be enabled.
-        /// @return Indicator of the result of the operation.
-        static EInjectResult InjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool enableDebugFeatures);
-
         /// Injects a process created by another instance of Hookshot.
         /// Communication between instances occurs by means of shared memory using the handle passed in, including more detailed error information than is directly returned.
         /// @param [in,out] remoteInjectionData Data structure holding information exchanged between this Hookshot process and the Hookshot process that requested injection.
@@ -96,6 +89,13 @@ namespace Hookshot
         /// @param [in] threadHandle Handle to the main thread of the newly-created process.
         /// @return Indicator of the result of the operation.
         static EInjectResult HandleInjectionResult(const EInjectResult result, const bool shouldKeepSuspended, const HANDLE processHandle, const HANDLE threadHandle);
+
+        /// Attempts to inject a process with Hookshot code.
+        /// @param [in] processHandle Handle to the process to inject.
+        /// @param [in] threadHandle Handle to the main thread of the process to inject.
+        /// @param [in] enableDebugFeatures If `true`, signals to the injected process that a debugger is present, so certain debug features should be enabled.
+        /// @return Indicator of the result of the operation.
+        static EInjectResult InjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool enableDebugFeatures);
 
         /// Verifies that the architecture of the target process matches the architecture of this running binary.
         /// @param [in] processHandle Handle to the process to check.

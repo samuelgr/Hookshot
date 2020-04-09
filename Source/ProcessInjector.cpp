@@ -62,71 +62,6 @@ namespace Hookshot
 
     // --------
 
-    EInjectResult ProcessInjector::InjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool enableDebugFeatures)
-    {
-        // First make sure the architectures match between this process and the process being injected.
-        // If not, spawn a version of Hookshot that does match and request that it inject the process on behalf of this process.
-        EInjectResult operationResult = VerifyMatchingProcessArchitecture(processHandle);
-
-        switch (operationResult)
-        {
-        case EInjectResult::InjectResultSuccess:
-            break;
-
-        case EInjectResult::InjectResultErrorArchitectureMismatch:
-            return RemoteProcessInjector::RemoteInjectProcess(processHandle, threadHandle, true, enableDebugFeatures);
-
-        default:
-            return operationResult;
-        }
-
-        // Architecture matches, so it is safe to proceed.
-        const size_t allocationGranularity = GetSystemAllocationGranularity();
-        const size_t kEffectiveInjectRegionSize = (InjectInfo::kMaxInjectBinaryFileSize < allocationGranularity) ? allocationGranularity : InjectInfo::kMaxInjectBinaryFileSize;
-        void* processBaseAddress = nullptr;
-        void* processEntryPoint = nullptr;
-        void* injectedCodeBase = nullptr;
-        void* injectedDataBase = nullptr;
-
-        // Attempt to obtain the base address of the executable image of the new process.
-        operationResult = GetProcessImageBaseAddress(processHandle, &processBaseAddress);
-        if (EInjectResult::InjectResultSuccess != operationResult)
-            return operationResult;
-
-        // Attempt to obtain the entry point address of the new process.
-        operationResult = GetProcessEntryPointAddress(processHandle, processBaseAddress, &processEntryPoint);
-        if (EInjectResult::InjectResultSuccess != operationResult)
-            return operationResult;
-
-        // Allocate code and data areas in the target process.
-        // Code first, then data.
-        injectedCodeBase = VirtualAllocEx(processHandle, nullptr, ((SIZE_T)kEffectiveInjectRegionSize * (SIZE_T)2), MEM_RESERVE | MEM_COMMIT, PAGE_NOACCESS);
-        injectedDataBase = (void*)((size_t)injectedCodeBase + kEffectiveInjectRegionSize);
-
-        if (nullptr == injectedCodeBase)
-            return EInjectResult::InjectResultErrorVirtualAllocFailed;
-
-        // Set appropriate protection values onto the new areas individually.
-        {
-            DWORD unusedOldProtect = 0;
-
-            if (FALSE == VirtualProtectEx(processHandle, injectedCodeBase, kEffectiveInjectRegionSize, PAGE_EXECUTE_READ, &unusedOldProtect))
-                return EInjectResult::InjectResultErrorVirtualProtectFailed;
-
-            if (FALSE == VirtualProtectEx(processHandle, injectedDataBase, kEffectiveInjectRegionSize, PAGE_READWRITE, &unusedOldProtect))
-                return EInjectResult::InjectResultErrorVirtualProtectFailed;
-        }
-
-        // Inject code and data.
-        // Only mark the code buffer as requiring cleanup because both code and data buffers are from the same single allocation.
-        CodeInjector injector(injectedCodeBase, injectedDataBase, true, false, processEntryPoint, kEffectiveInjectRegionSize, kEffectiveInjectRegionSize, processHandle, threadHandle);
-        operationResult = injector.SetAndRun(enableDebugFeatures);
-
-        return operationResult;
-    }
-
-    // --------
-
     bool ProcessInjector::PerformRequestedRemoteInjection(SRemoteProcessInjectionData* const remoteInjectionData)
     {
         EInjectResult operationResult = ProcessInjector::InjectProcess((HANDLE)remoteInjectionData->processHandle, (HANDLE)remoteInjectionData->threadHandle, remoteInjectionData->enableDebugFeatures);
@@ -246,7 +181,72 @@ namespace Hookshot
     }
 
     // --------
-    
+
+    EInjectResult ProcessInjector::InjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool enableDebugFeatures)
+    {
+        // First make sure the architectures match between this process and the process being injected.
+        // If not, spawn a version of Hookshot that does match and request that it inject the process on behalf of this process.
+        EInjectResult operationResult = VerifyMatchingProcessArchitecture(processHandle);
+
+        switch (operationResult)
+        {
+        case EInjectResult::InjectResultSuccess:
+            break;
+
+        case EInjectResult::InjectResultErrorArchitectureMismatch:
+            return RemoteProcessInjector::RemoteInjectProcess(processHandle, threadHandle, true, enableDebugFeatures);
+
+        default:
+            return operationResult;
+        }
+
+        // Architecture matches, so it is safe to proceed.
+        const size_t allocationGranularity = GetSystemAllocationGranularity();
+        const size_t kEffectiveInjectRegionSize = (InjectInfo::kMaxInjectBinaryFileSize < allocationGranularity) ? allocationGranularity : InjectInfo::kMaxInjectBinaryFileSize;
+        void* processBaseAddress = nullptr;
+        void* processEntryPoint = nullptr;
+        void* injectedCodeBase = nullptr;
+        void* injectedDataBase = nullptr;
+
+        // Attempt to obtain the base address of the executable image of the new process.
+        operationResult = GetProcessImageBaseAddress(processHandle, &processBaseAddress);
+        if (EInjectResult::InjectResultSuccess != operationResult)
+            return operationResult;
+
+        // Attempt to obtain the entry point address of the new process.
+        operationResult = GetProcessEntryPointAddress(processHandle, processBaseAddress, &processEntryPoint);
+        if (EInjectResult::InjectResultSuccess != operationResult)
+            return operationResult;
+
+        // Allocate code and data areas in the target process.
+        // Code first, then data.
+        injectedCodeBase = VirtualAllocEx(processHandle, nullptr, ((SIZE_T)kEffectiveInjectRegionSize * (SIZE_T)2), MEM_RESERVE | MEM_COMMIT, PAGE_NOACCESS);
+        injectedDataBase = (void*)((size_t)injectedCodeBase + kEffectiveInjectRegionSize);
+
+        if (nullptr == injectedCodeBase)
+            return EInjectResult::InjectResultErrorVirtualAllocFailed;
+
+        // Set appropriate protection values onto the new areas individually.
+        {
+            DWORD unusedOldProtect = 0;
+
+            if (FALSE == VirtualProtectEx(processHandle, injectedCodeBase, kEffectiveInjectRegionSize, PAGE_EXECUTE_READ, &unusedOldProtect))
+                return EInjectResult::InjectResultErrorVirtualProtectFailed;
+
+            if (FALSE == VirtualProtectEx(processHandle, injectedDataBase, kEffectiveInjectRegionSize, PAGE_READWRITE, &unusedOldProtect))
+                return EInjectResult::InjectResultErrorVirtualProtectFailed;
+        }
+
+        // Inject code and data.
+        // Only mark the code buffer as requiring cleanup because both code and data buffers are from the same single allocation.
+        CodeInjector injector(injectedCodeBase, injectedDataBase, true, false, processEntryPoint, kEffectiveInjectRegionSize, kEffectiveInjectRegionSize, processHandle, threadHandle);
+        operationResult = injector.SetAndRun(enableDebugFeatures);
+
+        return operationResult;
+    }
+
+    // --------
+
     EInjectResult ProcessInjector::VerifyMatchingProcessArchitecture(const HANDLE processHandle)
     {
         USHORT machineTargetProcess = 0;
