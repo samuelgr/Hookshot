@@ -54,8 +54,10 @@
         { \
         public: \
             static ReturnType callingConvention Hook(ArgumentTypes...); \
-            static inline ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::GetOriginalFunctionAddress())(args...); } \
+            static inline ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::GetOriginalFunction())(args...); } \
             static inline EResult SetHook(IHookshot* const hookshot) { return StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::SetHook(hookshot, &Hook); } \
+            static inline EResult DisableHook(IHookshot* const hookshot) { return hookshot->DisableHookFunction(&Hook); } \
+            static inline EResult EnableHook(IHookshot* const hookshot) { return hookshot->ReplaceHookFunction(kOriginalFunctionAddress, &Hook); } \
         }; \
     }
 
@@ -69,7 +71,7 @@ namespace Hookshot
         static const void* originalFunction;
 
     protected:
-        static inline const void* GetOriginalFunctionAddress(void)
+        static inline const void* GetOriginalFunction(void)
         {
             return originalFunction;
         }

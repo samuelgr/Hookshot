@@ -48,7 +48,7 @@ HOOKSHOT_DYNAMIC_HOOK_FROM_POINTER(MessageBoxFunction, functionPointerOfTypeMess
 // With this option, the function return type, parameter types, and calling convention of the function to hook are all specified manually and must exactly match those of the function being hooked.
 // However, once specified, these types and conventions are enforced whenever the resulting dynamic hook class is used.
 // A name must also be specified as the first parameter to the macro.
-HOOKSHOT_DYNAMIC_HOOK_FROM_TYPESPEC(MessageBoxFunction, int(__stdcall)(HWND, LPCWSTR, LPCWSTR, UINT))
+HOOKSHOT_DYNAMIC_HOOK_FROM_TYPESPEC(MessageBoxFunction, int(__stdcall)(HWND, LPCWSTR, LPCWSTR, UINT));
 
 #else
 
