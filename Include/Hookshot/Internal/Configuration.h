@@ -28,6 +28,15 @@ namespace Hookshot
     {
         // -------- TYPE DEFINITIONS --------------------------------------- //
 
+        /// Enumerates the possible results of reading a configuration file.
+        enum class EFileReadResult
+        {
+            InvalidResult = -1,                                             ///< Not used as a value.  Used just for initialization to a value that should be replaced.
+            Success,                                                        ///< Configuration file was read successfully.
+            FileNotFound,                                                   ///< Configuration file does not exist.
+            Malformed,                                                      ///< Configuration file is malformed.
+        };
+
         /// Enumerates all supported actions for configuration sections.
         /// Used when checking with a subclass for guidance on what to do when a particular named section is encountered.
         enum class ESectionAction
@@ -523,7 +532,7 @@ namespace Hookshot
             // -------- INSTANCE METHODS ----------------------------------- //
 
             /// Retrieves and returns the error message that arose during the last unsuccessful attempt at reading a configuration file.
-            /// The error message is valid if #ReadConfigurationFile returns `false`.
+            /// The error message is valid if #ReadConfigurationFile returns anything other than success.
             /// @return Error message from last unsuccessful read attempt.
             inline std::wstring_view GetReadErrorMessage(void)
             {
@@ -534,8 +543,8 @@ namespace Hookshot
             /// Intended to be invoked externally. Subclasses should not override this method.
             /// @param [in] configFileName Name of the configuration file to read.
             /// @param [out] configToFill Configuration object to fill with configuration data (contents are only valid if this method succeeds).
-            /// @return `true` on success, `false` on failure.
-            bool ReadConfigurationFile(std::wstring_view configFileName, ConfigurationData& configToFill);
+            /// @return Indicator of the result of the operation.
+            EFileReadResult ReadConfigurationFile(std::wstring_view configFileName, ConfigurationData& configToFill);
 
 
         private:
@@ -602,14 +611,14 @@ namespace Hookshot
             ConfigurationData configData;
 
             /// Holds the result of the last attempt at reading a configuration file.
-            bool settingsReadSuccessfully;
+            EFileReadResult fileReadResult;
 
 
         public:
             // -------- CONSTRUCTION AND DESTRUCTION ----------------------- //
 
             /// Initialization constructor. Requires a reader at construction time.
-            inline Configuration(std::unique_ptr<ConfigurationFileReader> reader) : reader(std::move(reader)), configData(), settingsReadSuccessfully(false)
+            inline Configuration(std::unique_ptr<ConfigurationFileReader> reader) : reader(std::move(reader)), configData(), fileReadResult(EFileReadResult::InvalidResult)
             {
                 // Nothing to do here.
             }
@@ -619,23 +628,23 @@ namespace Hookshot
 
             // -------- INSTANCE METHODS ----------------------------------- //
 
-            /// Determines if the contents of the object that holds all of Hookshot's configuration settings are valid.
-            /// If a previous attempt to read the Hookshot configuration file failed, 
-            /// @return `true` if the contents are valid, `false` otherwise.
-            inline bool IsDataValid(void)
-            {
-                return settingsReadSuccessfully;
-            }
-
             /// Retrieves and returns a reference to the object that holds all of Hookshot's configuration settings.
             /// @return Configuration settings object.
             inline const ConfigurationData& GetData(void)
             {
                 return configData;
             }
-            
+
+            /// Determines if the contents of the object that holds all of Hookshot's configuration settings are valid.
+            /// If a previous attempt to read the Hookshot configuration file failed, 
+            /// @return `true` if the contents are valid, `false` otherwise.
+            inline EFileReadResult GetFileReadResult(void)
+            {
+                return fileReadResult;
+            }
+
             /// Retrieves and returns the error message that arose during the last unsuccessful attempt at reading a configuration file.
-            /// The error message is valid as long as #IsDataValid returns `false`.
+            /// The error message is valid as long as #GetFileReadResult returns anything other than success.
             /// @return Error message from last unsuccessful read attempt.
             inline std::wstring_view GetReadErrorMessage(void)
             {
@@ -648,7 +657,7 @@ namespace Hookshot
             /// @param [in] configFileName Name of the configuration file to read.
             inline void ReadConfigurationFile(std::wstring_view configFileName)
             {
-                settingsReadSuccessfully = reader->ReadConfigurationFile(configFileName, configData);
+                fileReadResult = reader->ReadConfigurationFile(configFileName, configData);
             }
         };
 

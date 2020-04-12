@@ -45,6 +45,13 @@ namespace Hookshot
 
         // -------- CLASS METHODS ------------------------------------------ //
 
+        /// Determines if the configuration file exists, irrespective of whether or not it is correctly formed.
+        /// @return `true` if the configuration file exists, `false` if not.
+        static inline bool DoesConfigurationFileExist(void)
+        {
+            return (Configuration::EFileReadResult::FileNotFound != configuration.GetFileReadResult());
+        }
+
         /// Enables the log, if it is configured in the configuration file.
         static void EnableLogIfConfigured(void);
         
@@ -78,7 +85,7 @@ namespace Hookshot
         /// @return `true` if it contains valid data, `false` if not.
         static inline bool IsConfigurationDataValid(void)
         {
-            return configuration.IsDataValid();
+            return (Configuration::EFileReadResult::Success == configuration.GetFileReadResult());
         }
 
         /// Attempts to load and initialize the hook modules named in the Hookshot configuration file.

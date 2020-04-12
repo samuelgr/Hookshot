@@ -71,8 +71,15 @@ extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
         Globals::SetHookshotLoadMethod(EHookshotLoadMethod::Injected);
         LibraryInterface::Initialize();
 
-        if (false == LibraryInterface::IsConfigurationDataValid())
-            Message::Output(Message::ESeverity::Error, LibraryInterface::GetConfigurationErrorMessage().data());
+        if (true == LibraryInterface::DoesConfigurationFileExist())
+        {
+            if (false == LibraryInterface::IsConfigurationDataValid())
+                Message::Output(Message::ESeverity::Error, LibraryInterface::GetConfigurationErrorMessage().data());
+        }
+        else
+        {
+            Message::Output(Message::ESeverity::Warning, LibraryInterface::GetConfigurationErrorMessage().data());
+        }
 
         isInitialized = true;
 
@@ -94,8 +101,15 @@ extern "C" __declspec(dllexport) IHookshot* __fastcall HookshotLibraryInitialize
         Globals::SetHookshotLoadMethod(EHookshotLoadMethod::LibraryLoaded);
         LibraryInterface::Initialize();
 
-        if (false == LibraryInterface::IsConfigurationDataValid())
+        if (true == LibraryInterface::DoesConfigurationFileExist())
+        {
+            if (false == LibraryInterface::IsConfigurationDataValid())
+                Message::Output(Message::ESeverity::Error, LibraryInterface::GetConfigurationErrorMessage().data());
+        }
+        else
+        {
             Message::Output(Message::ESeverity::Warning, LibraryInterface::GetConfigurationErrorMessage().data());
+        }
 
         isInitialized = true;
 

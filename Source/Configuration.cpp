@@ -398,7 +398,7 @@ namespace Hookshot
         // -------- INSTANCE METHODS --------------------------------------- //
         // See "Configuration.h" for documentation.
 
-        bool ConfigurationFileReader::ReadConfigurationFile(std::wstring_view configFileName, ConfigurationData& configToFill)
+        EFileReadResult ConfigurationFileReader::ReadConfigurationFile(std::wstring_view configFileName, ConfigurationData& configToFill)
         {
             FileHandle configFileHandle;
             _wfopen_s(&configFileHandle, configFileName.data(), L"r");
@@ -406,7 +406,7 @@ namespace Hookshot
             if (nullptr == configFileHandle)
             {
                 FormatString(readErrorMessage, L"%s - Unable to open configuration file.", configFileName.data());
-                return false;
+                return EFileReadResult::FileNotFound;
             }
 
             PrepareForRead();
@@ -426,7 +426,7 @@ namespace Hookshot
                 {
                 case ELineClassification::Error:
                     FormatString(readErrorMessage, L"%s:%d - Unable to parse line.", configFileName.data(), configLineNumber);
-                    return false;
+                    return EFileReadResult::Malformed;
 
                 case ELineClassification::Ignore:
                     break;
@@ -439,7 +439,7 @@ namespace Hookshot
                     if (0 != seenSections.count(section))
                     {
                         FormatString(readErrorMessage, L"%s:%d - Section \"%s\" is duplicated.", configFileName.data(), configLineNumber, section.c_str());
-                        return false;
+                        return EFileReadResult::Malformed;
                     }
 
                     const ESectionAction sectionAction = ActionForSection(section);
@@ -447,7 +447,7 @@ namespace Hookshot
                     {
                     case ESectionAction::Error:
                         FormatString(readErrorMessage, L"%s:%d - Section \"%s\" is invalid.", configFileName.data(), configLineNumber, section.c_str());
-                        return false;
+                        return EFileReadResult::Malformed;
 
                     case ESectionAction::Read:
                         thisSection = std::move(section);
@@ -461,7 +461,7 @@ namespace Hookshot
 
                     default:
                         FormatString(readErrorMessage, L"%s:%d - Internal error while processing section name.", configFileName.data(), configLineNumber);
-                        return false;
+                        return EFileReadResult::Malformed;
                     }
                 }
                 break;
@@ -484,7 +484,7 @@ namespace Hookshot
                             if (configToFill.SectionNamePairExists(thisSection, name))
                             {
                                 FormatString(readErrorMessage, L"%s:%d - Configuration setting \"%s\" only supports a single value.", configFileName.data(), configLineNumber, name.c_str());
-                                return false;
+                                return EFileReadResult::Malformed;
                             }
 
                         default:
@@ -496,7 +496,7 @@ namespace Hookshot
                         {
                         case EValueType::Error:
                             FormatString(readErrorMessage, L"%s:%d - Configuration setting \"%s\" is invalid.", configFileName.data(), configLineNumber, name.c_str());
-                            return false;
+                            return EFileReadResult::Malformed;
 
                         case EValueType::Integer:
                         case EValueType::IntegerMultiValue:
@@ -506,19 +506,19 @@ namespace Hookshot
                             if (false == ParseInteger(value, &intValue))
                             {
                                 FormatString(readErrorMessage, L"%s:%d - Value \"%s\" is not a valid integer.", configFileName.data(), configLineNumber, value.c_str());
-                                return false;
+                                return EFileReadResult::Malformed;
                             }
 
                             if (false == CheckValue(thisSection, name, intValue))
                             {
                                 FormatString(readErrorMessage, L"%s:%d - Configuration setting \"%s\" with value \"%s\" is invalid.", configFileName.data(), configLineNumber, name.c_str(), value.c_str());
-                                return false;
+                                return EFileReadResult::Malformed;
                             }
                             
                             if (false == configToFill.Insert(thisSection, name, intValue))
                             {
                                 FormatString(readErrorMessage, L"%s:%d - Value \"%s\" for configuration setting \"%s\" is duplicated.", configFileName.data(), configLineNumber, value.c_str(), name.c_str());
-                                return false;
+                                return EFileReadResult::Malformed;
                             }
                         }
                         break;
@@ -531,19 +531,19 @@ namespace Hookshot
                             if (false == ParseBoolean(value, &boolValue))
                             {
                                 FormatString(readErrorMessage, L"%s:%d - Value \"%s\" is not a valid Boolean.", configFileName.data(), configLineNumber, value.c_str());
-                                return false;
+                                return EFileReadResult::Malformed;
                             }
 
                             if (false == CheckValue(thisSection, name, boolValue))
                             {
                                 FormatString(readErrorMessage, L"%s:%d - Configuration setting \"%s\" with value \"%s\" is invalid.", configFileName.data(), configLineNumber, name.c_str(), value.c_str());
-                                return false;
+                                return EFileReadResult::Malformed;
                             }
 
                             if (false == configToFill.Insert(thisSection, name, boolValue))
                             {
                                 FormatString(readErrorMessage, L"%s:%d - Value \"%s\" for configuration setting \"%s\" is duplicated.", configFileName.data(), configLineNumber, value.c_str(), name.c_str());
-                                return false;
+                                return EFileReadResult::Malformed;
                             }
                         }
                         break;
@@ -553,26 +553,26 @@ namespace Hookshot
                             if (false == CheckValue(thisSection, name, value))
                             {
                                 FormatString(readErrorMessage, L"%s:%d - Configuration setting \"%s\" with value \"%s\" is invalid.", configFileName.data(), configLineNumber, name.c_str(), value.c_str());
-                                return false;
+                                return EFileReadResult::Malformed;
                             }
                             
                             if (false == configToFill.Insert(thisSection, name, value))
                             {
                                 FormatString(readErrorMessage, L"%s:%d - Value \"%s\" for configuration setting \"%s\" is duplicated.", configFileName.data(), configLineNumber, value.c_str(), name.c_str());
-                                return false;
+                                return EFileReadResult::Malformed;
                             }
                             break;
 
                         default:
                             FormatString(readErrorMessage, L"%s:%d - Internal error while processing configuration setting.", configFileName.data(), configLineNumber);
-                            return false;
+                            return EFileReadResult::Malformed;
                         }
                     }
                     break;
 
                 default:
                     FormatString(readErrorMessage, L"%s:%d - Internal error while processing line.", configFileName.data(), configLineNumber);
-                    return false;
+                    return EFileReadResult::Malformed;
                 }
 
                 configLineLength = ReadAndTrimLine(configFileHandle, configLineBuffer, configLineBuffer.Count());
@@ -587,17 +587,17 @@ namespace Hookshot
                 if (ferror(configFileHandle))
                 {
                     FormatString(readErrorMessage, L"%s - I/O error while reading.", configFileName.data(), configLineNumber);
-                    return false;
+                    return EFileReadResult::Malformed;
 
                 }
                 else if (configLineLength < 0)
                 {
                     FormatString(readErrorMessage, L"%s:%d - Line is too long.", configFileName.data(), configLineNumber);
-                    return false;
+                    return EFileReadResult::Malformed;
                 }
             }
 
-            return true;
+            return EFileReadResult::Success;
         }
 
         

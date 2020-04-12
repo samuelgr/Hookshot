@@ -48,10 +48,8 @@ extern "C" void __fastcall InjectLandingLoadHookModules(const SInjectData* const
     if ((0 != injectData->enableDebugFeatures) && (0 == Windows::ProtectedIsDebuggerPresent()))
         Message::OutputFormatted(Message::ESeverity::ForcedInteractiveInfo, L"Attach to \"%s\" (PID %d) to continue debugging.", Strings::kStrExecutableBaseName.data(), Globals::GetCurrentProcessId());
 
-    if (true == LibraryInterface::IsConfigurationDataValid())
-    {
-        const int numHookModulesLoaded = LibraryInterface::LoadConfiguredHookModules();
-        const int numInjectOnlyLibrariesLoaded = LibraryInterface::LoadConfiguredInjectOnlyLibraries();
-        Message::OutputFormatted(Message::ESeverity::Info, L"Loaded %d hook module%s and %d injection-only librar%s.", numHookModulesLoaded, (1 == numHookModulesLoaded ? L"" : L"s"), numInjectOnlyLibrariesLoaded, (1 == numInjectOnlyLibrariesLoaded ? L"y" : L"ies"));
-    }
+    const int numHookModulesLoaded = LibraryInterface::LoadConfiguredHookModules();
+    const int numInjectOnlyLibrariesLoaded = LibraryInterface::LoadConfiguredInjectOnlyLibraries();
+
+    Message::OutputFormatted(Message::ESeverity::Info, L"Loaded %d hook module%s and %d injection-only librar%s.", numHookModulesLoaded, (1 == numHookModulesLoaded ? L"" : L"s"), numInjectOnlyLibrariesLoaded, (1 == numInjectOnlyLibrariesLoaded ? L"y" : L"ies"));
 }

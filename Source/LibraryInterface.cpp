@@ -19,6 +19,7 @@
 #include "LibraryInterface.h"
 #include "Message.h"
 #include "Strings.h"
+#include "TemporaryBuffer.h"
 #include "X86Instruction.h"
 
 #include <memory>
@@ -82,18 +83,45 @@ namespace Hookshot
     {
         int numHookModulesLoaded = 0;
 
-        if (true == IsConfigurationDataValid())
+        if (true == DoesConfigurationFileExist())
         {
-            auto hookModulesToLoad = GetConfigurationData().SectionsWithName(Strings::kStrConfigurationSettingNameHookModule);
-
-            for (auto& sectionsWithHookModules : *hookModulesToLoad)
+            if (true == IsConfigurationDataValid())
             {
-                for (auto& hookModule : sectionsWithHookModules.name.Values())
+                auto hookModulesToLoad = GetConfigurationData().SectionsWithName(Strings::kStrConfigurationSettingNameHookModule);
+
+                for (auto& sectionsWithHookModules : *hookModulesToLoad)
                 {
-                    if (true == LoadHookModule(Strings::MakeHookModuleFilename(hookModule.GetStringValue())))
-                        numHookModulesLoaded += 1;
+                    for (auto& hookModule : sectionsWithHookModules.name.Values())
+                    {
+                        if (true == LoadHookModule(Strings::MakeHookModuleFilename(hookModule.GetStringValue())))
+                            numHookModulesLoaded += 1;
+                    }
                 }
             }
+        }
+        else
+        {
+            std::wstring hookModuleSearchString = Strings::MakeHookModuleFilename(L"*");
+            
+            WIN32_FIND_DATA hookModuleFileData;
+            HANDLE hookModuleFind = FindFirstFileEx(L"C:\\Users\\sam\\Desktop\\FileReader\\Debug\\*.HookModule.32.dll", FindExInfoBasic, &hookModuleFileData, FindExSearchNameMatch, NULL, 0);
+            BOOL moreHookModulesExist = (INVALID_HANDLE_VALUE != hookModuleFind);
+
+            TemporaryBuffer<wchar_t> hookModuleFileName;
+            wcscpy_s(hookModuleFileName, hookModuleFileName.Count(), Strings::kStrExecutableDirectoryName.data());
+
+            while (TRUE == moreHookModulesExist)
+            {
+                wcscpy_s(&hookModuleFileName[Strings::kStrExecutableDirectoryName.length()], hookModuleFileName.Count() - Strings::kStrExecutableDirectoryName.length(), hookModuleFileData.cFileName);
+
+                if (true == LoadHookModule(&hookModuleFileName[0]))
+                    numHookModulesLoaded += 1;
+
+                moreHookModulesExist = FindNextFile(hookModuleFind, &hookModuleFileData);
+            }
+
+            if (INVALID_HANDLE_VALUE != hookModuleFind)
+                FindClose(hookModuleFind);
         }
 
         return numHookModulesLoaded;
