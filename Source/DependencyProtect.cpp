@@ -30,6 +30,9 @@ namespace Hookshot
         extern const volatile decltype(&CreateFileMapping) ProtectedCreateFileMapping = CreateFileMapping;
         extern const volatile decltype(&CreateProcess) ProtectedCreateProcess = CreateProcess;
         extern const volatile decltype(&DuplicateHandle) ProtectedDuplicateHandle = DuplicateHandle;
+        extern const volatile decltype(&FindClose) ProtectedFindClose = FindClose;
+        extern const volatile decltype(&FindFirstFileEx) ProtectedFindFirstFileEx = FindFirstFileEx;
+        extern const volatile decltype(&FindNextFile) ProtectedFindNextFile = FindNextFile;
         extern const volatile decltype(&FlushInstructionCache) ProtectedFlushInstructionCache = FlushInstructionCache;
         extern const volatile decltype(&GetExitCodeProcess) ProtectedGetExitCodeProcess = GetExitCodeProcess;
         extern const volatile decltype(&GetLastError) ProtectedGetLastError = GetLastError;
@@ -58,6 +61,9 @@ namespace Hookshot
         {Windows::ProtectedCloseHandle, (const void* volatile*)&Windows::ProtectedCloseHandle},
         {Windows::ProtectedCreateFileMapping, (const void* volatile*)&Windows::ProtectedCreateFileMapping},
         {Windows::ProtectedDuplicateHandle, (const void* volatile*)&Windows::ProtectedDuplicateHandle},
+        {Windows::ProtectedFindClose, (const void* volatile*)&Windows::ProtectedFindClose},
+        {Windows::ProtectedFindFirstFileEx, (const void* volatile*)&Windows::ProtectedFindFirstFileEx},
+        {Windows::ProtectedFindNextFile, (const void* volatile*)&Windows::ProtectedFindNextFile},
         {Windows::ProtectedFlushInstructionCache, (const void* volatile*)&Windows::ProtectedFlushInstructionCache},
         {Windows::ProtectedGetExitCodeProcess, (const void* volatile*)&Windows::ProtectedGetExitCodeProcess},
         {Windows::ProtectedGetLastError, (const void* volatile*)&Windows::ProtectedGetLastError},

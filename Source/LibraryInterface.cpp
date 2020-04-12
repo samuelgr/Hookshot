@@ -104,7 +104,7 @@ namespace Hookshot
             std::wstring hookModuleSearchString = Strings::MakeHookModuleFilename(L"*");
             
             WIN32_FIND_DATA hookModuleFileData;
-            HANDLE hookModuleFind = FindFirstFileEx(L"C:\\Users\\sam\\Desktop\\FileReader\\Debug\\*.HookModule.32.dll", FindExInfoBasic, &hookModuleFileData, FindExSearchNameMatch, NULL, 0);
+            HANDLE hookModuleFind = Windows::ProtectedFindFirstFileEx(hookModuleSearchString.c_str(), FindExInfoBasic, &hookModuleFileData, FindExSearchNameMatch, NULL, 0);
             BOOL moreHookModulesExist = (INVALID_HANDLE_VALUE != hookModuleFind);
 
             TemporaryBuffer<wchar_t> hookModuleFileName;
@@ -117,11 +117,11 @@ namespace Hookshot
                 if (true == LoadHookModule(&hookModuleFileName[0]))
                     numHookModulesLoaded += 1;
 
-                moreHookModulesExist = FindNextFile(hookModuleFind, &hookModuleFileData);
+                moreHookModulesExist = Windows::ProtectedFindNextFile(hookModuleFind, &hookModuleFileData);
             }
 
             if (INVALID_HANDLE_VALUE != hookModuleFind)
-                FindClose(hookModuleFind);
+                Windows::ProtectedFindClose(hookModuleFind);
         }
 
         return numHookModulesLoaded;

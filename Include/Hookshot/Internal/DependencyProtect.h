@@ -29,6 +29,9 @@ namespace Hookshot
         extern const volatile decltype(&CreateFileMapping) ProtectedCreateFileMapping;
         extern const volatile decltype(&CreateProcess) ProtectedCreateProcess;
         extern const volatile decltype(&DuplicateHandle) ProtectedDuplicateHandle;
+        extern const volatile decltype(&FindClose) ProtectedFindClose;
+        extern const volatile decltype(&FindFirstFileEx) ProtectedFindFirstFileEx;
+        extern const volatile decltype(&FindNextFile) ProtectedFindNextFile;
         extern const volatile decltype(&FlushInstructionCache) ProtectedFlushInstructionCache;
         extern const volatile decltype(&GetExitCodeProcess) ProtectedGetExitCodeProcess;
         extern const volatile decltype(&GetLastError) ProtectedGetLastError;
