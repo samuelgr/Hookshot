@@ -211,7 +211,7 @@ namespace Hookshot
 
         return ((nullptr != addrGetLastError) && (nullptr != addrGetProcAddress) && (nullptr != addrLoadLibraryA));
     }
-    
+
     // --------
 
     EInjectResult CodeInjector::Run(void)

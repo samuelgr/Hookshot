@@ -56,8 +56,21 @@ namespace Hookshot
 
         *lpProcessInformation = processInfo;
 
-        // Attempt to inject the newly-created process and handle the result.
-        return HandleInjectionResult(InjectProcess(processInfo.hProcess, processInfo.hThread, (IsDebuggerPresent() ? true : false)), shouldCreateSuspended, processInfo.hProcess, processInfo.hThread);
+        const EInjectResult result = InjectProcess(processInfo.hProcess, processInfo.hThread, (IsDebuggerPresent() ? true : false));
+
+        if (EInjectResult::InjectResultSuccess == result)
+        {
+            if (false == shouldCreateSuspended)
+                ResumeThread(processInfo.hThread);
+        }
+        else
+        {
+            const DWORD systemErrorCode = GetLastError();
+            TerminateProcess(processInfo.hProcess, UINT_MAX);
+            SetLastError(systemErrorCode);
+        }
+
+        return result;
     }
 
     // --------
@@ -95,10 +108,7 @@ namespace Hookshot
         if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)((size_t)baseAddress + (size_t)ntHeadersOffset + (size_t)offsetof(IMAGE_NT_HEADERS, OptionalHeader.AddressOfEntryPoint)), (LPVOID)&entryPointOffset, sizeof(entryPointOffset), (SIZE_T*)&numBytesRead)) || (sizeof(entryPointOffset) != numBytesRead))
             return EInjectResult::InjectResultErrorReadNTHeadersFailed;
 
-        // Compute the absolute entry point address.
         *entryPoint = (void*)((size_t)baseAddress + (size_t)entryPointOffset);
-
-        // Success.
         return EInjectResult::InjectResultSuccess;
     }
 
@@ -106,7 +116,10 @@ namespace Hookshot
 
     EInjectResult ProcessInjector::GetProcessImageBaseAddress(const HANDLE processHandle, void** const baseAddress)
     {
-        // Verify that "ntdll.dll" is loaded.
+        // This method uses the documented, but internal, Windows API function NtQueryInformationProcess and accesses an undocumented member of the PEB structure.
+        // See https://docs.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntqueryinformationprocess and https://docs.microsoft.com/en-us/windows/win32/api/winternl/ns-winternl-peb for official documentation.
+        // While unlikely, if NtQueryInformationProcess or PEB are modified or made unavailable in a future version of Windows, this method might need to branch based on Windows version.
+
         if (nullptr == ntdllModuleHandle)
         {
             ntdllModuleHandle = LoadLibraryEx(L"ntdll.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
@@ -117,7 +130,6 @@ namespace Hookshot
             ntdllQueryInformationProcessProc = nullptr;
         }
 
-        // Verify that "NtQueryInformationProcess" is available.
         if (nullptr == ntdllQueryInformationProcessProc)
         {
             ntdllQueryInformationProcessProc = (decltype(ntdllQueryInformationProcessProc))GetProcAddress(ntdllModuleHandle, "NtQueryInformationProcess");
@@ -132,52 +144,22 @@ namespace Hookshot
         if (0 != ntdllQueryInformationProcessProc(processHandle, ProcessBasicInformation, &processBasicInfo, sizeof(processBasicInfo), nullptr))
             return EInjectResult::InjectResultErrorNtQueryInformationProcessFailed;
 
+        // The field of interest in the PEB structure is ImageBaseAddress, whose offset is undocumented but has remained stable over multiple Windows generations and continues to do so.
+        // See http://terminus.rewolf.pl/terminus/structures/ntdll/_PEB_combined.html for a visualization.
+        // If the offset is modified in a future version of Windows, this constant might need to have a different value for different Windows versions.
+#ifdef HOOKSHOT64
+        constexpr size_t kOffsetPebImageBaseAddress = 16;
+#else
+        constexpr size_t kOffsetPebImageBaseAddress = 8;
+#endif
+        
         // Read the desired information from the PEB in the process' address space.
         size_t numBytesRead = 0;
 
-        if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)((size_t)processBasicInfo.PebBaseAddress + (size_t)offsetof(PEB, Reserved3[1])), (LPVOID)baseAddress, sizeof(baseAddress), (SIZE_T*)&numBytesRead)) || (sizeof(baseAddress) != numBytesRead))
+        if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)((size_t)processBasicInfo.PebBaseAddress + kOffsetPebImageBaseAddress), (LPVOID)baseAddress, sizeof(baseAddress), (SIZE_T*)&numBytesRead)) || (sizeof(baseAddress) != numBytesRead))
             return EInjectResult::InjectResultErrorReadProcessPEBFailed;
 
         return EInjectResult::InjectResultSuccess;
-    }
-
-    // --------
-
-    size_t ProcessInjector::GetSystemAllocationGranularity(void)
-    {
-        if (0 == systemAllocationGranularity)
-        {
-            SYSTEM_INFO systemInfo;
-            GetSystemInfo(&systemInfo);
-
-            systemAllocationGranularity = (size_t)systemInfo.dwPageSize;
-        }
-
-        return systemAllocationGranularity;
-    }
-
-    // --------
-
-    EInjectResult ProcessInjector::HandleInjectionResult(const EInjectResult result, const bool shouldKeepSuspended, const HANDLE processHandle, const HANDLE threadHandle)
-    {
-        if (EInjectResult::InjectResultSuccess != result)
-        {
-            // If injection failed for a reason other than CreateProcess failing, kill the new process because there is no guarantee it will run correctly.
-            if (EInjectResult::InjectResultErrorCreateProcess != result)
-            {
-                const DWORD systemErrorCode = GetLastError();
-                TerminateProcess(processHandle, UINT_MAX);
-                SetLastError(systemErrorCode);
-            }
-        }
-        else
-        {
-            // If injection succeeded and the process was not supposed to be kept suspended, resume it.
-            if (false == shouldKeepSuspended)
-                ResumeThread(threadHandle);
-        }
-
-        return result;
     }
 
     // --------
@@ -201,7 +183,7 @@ namespace Hookshot
         }
 
         // Architecture matches, so it is safe to proceed.
-        const size_t allocationGranularity = GetSystemAllocationGranularity();
+        const size_t allocationGranularity = Globals::GetSystemInformation().dwPageSize;
         const size_t kEffectiveInjectRegionSize = (InjectInfo::kMaxInjectBinaryFileSize < allocationGranularity) ? allocationGranularity : InjectInfo::kMaxInjectBinaryFileSize;
         void* processBaseAddress = nullptr;
         void* processEntryPoint = nullptr;

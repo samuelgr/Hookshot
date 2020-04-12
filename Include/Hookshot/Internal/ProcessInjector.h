@@ -62,11 +62,6 @@ namespace Hookshot
     private:
         // -------- HELPERS ------------------------------------------------ //
         
-        /// Retrieves and returns the system's virtual memory allocation granularity.
-        /// This is usually the system page size.
-        /// @return Allocation granularity in bytes. Note that the underlying Windows API function does not fail.
-        static size_t GetSystemAllocationGranularity(void);
-        
         /// Attempts to determine the address of the entry point of the given process.
         /// All addresses used by this method are in the virtual address space of the target process.
         /// @param [in] processHandle Handle to the process for which information is requested.
@@ -81,14 +76,6 @@ namespace Hookshot
         /// @param [out] baseAddress Address of the pointer that receives the image base address.
         /// @return Indicator of the result of the operation.
         static EInjectResult GetProcessImageBaseAddress(const HANDLE processHandle, void** const baseAddress);
-
-        /// Common code to handle the result of an injection attempt.
-        /// @param [in] result Injection attempt result.
-        /// @param [in] shouldKeepSuspended Indicates whether or not the newly-created process should be kept in suspended state once injection is complete.
-        /// @param [in] processHandle Handle to the newly-created process.
-        /// @param [in] threadHandle Handle to the main thread of the newly-created process.
-        /// @return Indicator of the result of the operation.
-        static EInjectResult HandleInjectionResult(const EInjectResult result, const bool shouldKeepSuspended, const HANDLE processHandle, const HANDLE threadHandle);
 
         /// Attempts to inject a process with Hookshot code.
         /// @param [in] processHandle Handle to the process to inject.
