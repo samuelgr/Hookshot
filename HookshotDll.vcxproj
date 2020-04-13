@@ -48,6 +48,7 @@
     <ClInclude Include="Include\Hookshot\Internal\HookStore.h" />
     <ClInclude Include="Include\Hookshot\Internal\InjectLanding.h" />
     <ClInclude Include="Include\Hookshot\Internal\InjectResult.h" />
+    <ClInclude Include="Include\Hookshot\Internal\InternalHook.h" />
     <ClInclude Include="Include\Hookshot\Internal\LibraryInterface.h" />
     <ClInclude Include="Include\Hookshot\Internal\Message.h" />
     <ClInclude Include="Include\Hookshot\Internal\DependencyProtect.h" />
