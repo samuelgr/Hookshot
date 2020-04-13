@@ -62,17 +62,15 @@
 /// Implements dynamic hook template specialization so that function prototypes and calling conventions are automatically extracted based on the supplied function.
 /// Parameters are just different syntactic representations of calling conventions, which are used to create one template specialization for calling convention.
 #define HOOKSHOT_DYNAMIC_HOOK_TEMPLATE(callingConvention, callingConventionInBrackets) \
-    namespace Hookshot { \
-        template <const wchar_t* kOriginalFunctionName, typename ReturnType, typename... ArgumentTypes> class DynamicHook<kOriginalFunctionName, ReturnType callingConventionInBrackets (ArgumentTypes...)> : public DynamicHookBase<kOriginalFunctionName> \
-        { \
-        public: \
-            static ReturnType callingConvention Hook(ArgumentTypes...); \
-            static inline ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))DynamicHookBase<kOriginalFunctionName>::GetOriginalFunction())(args...); } \
-            static inline EResult SetHook(IHookshot* const hookshot, void* const originalFunc) { return DynamicHookBase<kOriginalFunctionName>::SetHook(hookshot, originalFunc, &Hook); } \
-            static inline EResult DisableHook(IHookshot* const hookshot) { return hookshot->DisableHookFunction(&Hook); } \
-            static inline EResult EnableHook(IHookshot* const hookshot) { return hookshot->ReplaceHookFunction(DynamicHookBase<kOriginalFunctionName>::GetOriginalFunctionAddress(), &Hook); } \
-        }; \
-    }
+    template <const wchar_t* kOriginalFunctionName, typename ReturnType, typename... ArgumentTypes> class DynamicHook<kOriginalFunctionName, ReturnType callingConventionInBrackets (ArgumentTypes...)> : public DynamicHookBase<kOriginalFunctionName> \
+    { \
+    public: \
+        static ReturnType callingConvention Hook(ArgumentTypes...); \
+        static inline ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))DynamicHookBase<kOriginalFunctionName>::GetOriginalFunction())(args...); } \
+        static inline EResult SetHook(IHookshot* const hookshot, void* const originalFunc) { return DynamicHookBase<kOriginalFunctionName>::SetHook(hookshot, originalFunc, &Hook); } \
+        static inline EResult DisableHook(IHookshot* const hookshot) { return hookshot->DisableHookFunction(&Hook); } \
+        static inline EResult EnableHook(IHookshot* const hookshot) { return hookshot->ReplaceHookFunction(DynamicHookBase<kOriginalFunctionName>::GetOriginalFunctionAddress(), &Hook); } \
+    };
 
 namespace Hookshot
 {
@@ -119,13 +117,13 @@ namespace Hookshot
     {
         static_assert(std::is_function<T>::value, "Supplied argument in DynamicHook declaration must map to a function type.");
     };
-}
 
 #ifdef _WIN64
-HOOKSHOT_DYNAMIC_HOOK_TEMPLATE( , );
+    HOOKSHOT_DYNAMIC_HOOK_TEMPLATE( , );
 #else
-HOOKSHOT_DYNAMIC_HOOK_TEMPLATE(__cdecl, (__cdecl));
-HOOKSHOT_DYNAMIC_HOOK_TEMPLATE(__fastcall, (__fastcall));
-HOOKSHOT_DYNAMIC_HOOK_TEMPLATE(__stdcall, (__stdcall));
-HOOKSHOT_DYNAMIC_HOOK_TEMPLATE(__vectorcall, (__vectorcall));
+    HOOKSHOT_DYNAMIC_HOOK_TEMPLATE(__cdecl, (__cdecl));
+    HOOKSHOT_DYNAMIC_HOOK_TEMPLATE(__fastcall, (__fastcall));
+    HOOKSHOT_DYNAMIC_HOOK_TEMPLATE(__stdcall, (__stdcall));
+    HOOKSHOT_DYNAMIC_HOOK_TEMPLATE(__vectorcall, (__vectorcall));
 #endif
+}
