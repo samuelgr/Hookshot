@@ -91,13 +91,25 @@ namespace Hookshot
             return (Configuration::EFileReadResult::Success == configuration.GetFileReadResult());
         }
 
-        /// Attempts to load and initialize the hook modules named in the Hookshot configuration file.
+        /// Attempts to load and initialize all applicable hook modules.
+        /// @return Number of hook modules successfully loaded.
+        static int LoadHookModules(void);
+
+        /// Attempts to load and initialize all applicable inject-only libraries.
+        /// @return Number of inject-only libraries successfully loaded.
+        static int LoadInjectOnlyLibraries(void);
+
+
+    private:
+        // -------- HELPERS ------------------------------------------------ //
+
+        /// Attempts to load and initialize whatever hook modules are specified in the configuration file.
         /// @return Number of hook modules successfully loaded.
         static int LoadConfiguredHookModules(void);
 
-        /// Attempts to load and initialize the inject-only libraries named in the Hookshot configuration file.
-        /// @return Number of inject-only libraries successfully loaded.
-        static int LoadConfiguredInjectOnlyLibraries(void);
+        /// Attempts to load and initialize hook modules according to default behavior (i.e. all hook modules in the same directory as the executable).
+        /// @return Number of hook modules successfully loaded.
+        static int LoadDefaultHookModules(void);
 
         /// Attempts to load and initialize the named hook module.
         /// Useful if hooks to be set are contained in an external hook module.

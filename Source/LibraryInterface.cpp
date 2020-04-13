@@ -108,57 +108,21 @@ namespace Hookshot
 
     // --------
 
-    int LibraryInterface::LoadConfiguredHookModules(void)
+    int LibraryInterface::LoadHookModules(void)
     {
-        int numHookModulesLoaded = 0;
-
         if (true == DoesConfigurationFileExist())
         {
-            if (true == IsConfigurationDataValid())
-            {
-                auto hookModulesToLoad = GetConfigurationData().SectionsWithName(Strings::kStrConfigurationSettingNameHookModule);
-
-                for (auto& sectionsWithHookModules : *hookModulesToLoad)
-                {
-                    for (auto& hookModule : sectionsWithHookModules.name.Values())
-                    {
-                        if (true == LoadHookModule(Strings::MakeHookModuleFilename(hookModule.GetStringValue())))
-                            numHookModulesLoaded += 1;
-                    }
-                }
-            }
+            return LoadConfiguredHookModules();
         }
         else
         {
-            std::wstring hookModuleSearchString = Strings::MakeHookModuleFilename(L"*");
-            
-            WIN32_FIND_DATA hookModuleFileData;
-            HANDLE hookModuleFind = Windows::ProtectedFindFirstFileEx(hookModuleSearchString.c_str(), FindExInfoBasic, &hookModuleFileData, FindExSearchNameMatch, NULL, 0);
-            BOOL moreHookModulesExist = (INVALID_HANDLE_VALUE != hookModuleFind);
-
-            TemporaryBuffer<wchar_t> hookModuleFileName;
-            wcscpy_s(hookModuleFileName, hookModuleFileName.Count(), Strings::kStrExecutableDirectoryName.data());
-
-            while (TRUE == moreHookModulesExist)
-            {
-                wcscpy_s(&hookModuleFileName[Strings::kStrExecutableDirectoryName.length()], hookModuleFileName.Count() - Strings::kStrExecutableDirectoryName.length(), hookModuleFileData.cFileName);
-
-                if (true == LoadHookModule(&hookModuleFileName[0]))
-                    numHookModulesLoaded += 1;
-
-                moreHookModulesExist = Windows::ProtectedFindNextFile(hookModuleFind, &hookModuleFileData);
-            }
-
-            if (INVALID_HANDLE_VALUE != hookModuleFind)
-                Windows::ProtectedFindClose(hookModuleFind);
+            return LoadDefaultHookModules();
         }
-
-        return numHookModulesLoaded;
     }
 
     // --------
 
-    int LibraryInterface::LoadConfiguredInjectOnlyLibraries(void)
+    int LibraryInterface::LoadInjectOnlyLibraries(void)
     {
         int numInjectOnlyLibrariesLoaded = 0;
 
@@ -177,6 +141,62 @@ namespace Hookshot
         }
 
         return numInjectOnlyLibrariesLoaded;
+    }
+
+
+    // -------- HELPERS ------------------------------------------------ //
+    // See "LibraryInterface.h" for documentation.
+
+    int LibraryInterface::LoadConfiguredHookModules(void)
+    {
+        int numHookModulesLoaded = 0;
+
+        if (true == IsConfigurationDataValid())
+        {
+            auto hookModulesToLoad = GetConfigurationData().SectionsWithName(Strings::kStrConfigurationSettingNameHookModule);
+
+            for (auto& sectionsWithHookModules : *hookModulesToLoad)
+            {
+                for (auto& hookModule : sectionsWithHookModules.name.Values())
+                {
+                    if (true == LoadHookModule(Strings::MakeHookModuleFilename(hookModule.GetStringValue())))
+                        numHookModulesLoaded += 1;
+                }
+            }
+        }
+
+        return numHookModulesLoaded;
+    }
+
+    // --------
+
+    int LibraryInterface::LoadDefaultHookModules(void)
+    {
+        int numHookModulesLoaded = 0;
+
+        const std::wstring hookModuleSearchString = Strings::MakeHookModuleFilename(L"*");
+
+        WIN32_FIND_DATA hookModuleFileData;
+        HANDLE hookModuleFind = Windows::ProtectedFindFirstFileEx(hookModuleSearchString.c_str(), FindExInfoBasic, &hookModuleFileData, FindExSearchNameMatch, NULL, 0);
+        BOOL moreHookModulesExist = (INVALID_HANDLE_VALUE != hookModuleFind);
+
+        TemporaryBuffer<wchar_t> hookModuleFileName;
+        wcscpy_s(hookModuleFileName, hookModuleFileName.Count(), Strings::kStrExecutableDirectoryName.data());
+
+        while (TRUE == moreHookModulesExist)
+        {
+            wcscpy_s(&hookModuleFileName[Strings::kStrExecutableDirectoryName.length()], hookModuleFileName.Count() - Strings::kStrExecutableDirectoryName.length(), hookModuleFileData.cFileName);
+
+            if (true == LoadHookModule(&hookModuleFileName[0]))
+                numHookModulesLoaded += 1;
+
+            moreHookModulesExist = Windows::ProtectedFindNextFile(hookModuleFind, &hookModuleFileData);
+        }
+
+        if (INVALID_HANDLE_VALUE != hookModuleFind)
+            Windows::ProtectedFindClose(hookModuleFind);
+
+        return numHookModulesLoaded;
     }
 
     // --------
