@@ -22,12 +22,6 @@
 using namespace Hookshot;
 
 
-// -------- INTERNAL VARIABLES --------------------------------------------- //
-
-/// Flag that specifies if this library was initialized.
-static bool isInitialized = false;
-
-
 // -------- ENTRY POINT FUNCTIONS ------------------------------------------ //
 
 /// Performs library initialization and teardown functions.
@@ -66,28 +60,13 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvRe
 /// @return Address to which to jump to continue running the injected process, or `nullptr` on failure.
 extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
 {
-    if (false == isInitialized)
+    if (true == LibraryInterface::Initialize(EHookshotLoadMethod::Injected))
     {
-        Globals::SetHookshotLoadMethod(EHookshotLoadMethod::Injected);
-        LibraryInterface::Initialize();
-
-        if (true == LibraryInterface::DoesConfigurationFileExist())
-        {
-            if (false == LibraryInterface::IsConfigurationDataValid())
-                Message::Output(Message::ESeverity::Error, LibraryInterface::GetConfigurationErrorMessage().data());
-        }
-        else
-        {
-            Message::Output(Message::ESeverity::Warning, LibraryInterface::GetConfigurationErrorMessage().data());
-        }
-
-        isInitialized = true;
-
-        return (void*)InjectLanding;
+        return (void*)InjectLanding;;
     }
     else
     {
-        Message::OutputFormatted(Message::ESeverity::Error, L"Detected an improper attempt to initialize %s by invoking %s.", Strings::kStrProductName.data(), __FUNCTIONW__);
+        Message::OutputFormatted(Message::ESeverity::Warning, L"Detected an improper attempt to initialize %s by invoking %s.", Strings::kStrProductName.data(), __FUNCTIONW__);
         return nullptr;
     }
 }
@@ -96,23 +75,8 @@ extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
 /// @return Hookshot interface pointer, or `nullptr` on failure.
 extern "C" __declspec(dllexport) IHookshot* __fastcall HookshotLibraryInitialize(void)
 {
-    if (false == isInitialized)
+    if (true == LibraryInterface::Initialize(EHookshotLoadMethod::LibraryLoaded))
     {
-        Globals::SetHookshotLoadMethod(EHookshotLoadMethod::LibraryLoaded);
-        LibraryInterface::Initialize();
-
-        if (true == LibraryInterface::DoesConfigurationFileExist())
-        {
-            if (false == LibraryInterface::IsConfigurationDataValid())
-                Message::Output(Message::ESeverity::Error, LibraryInterface::GetConfigurationErrorMessage().data());
-        }
-        else
-        {
-            Message::Output(Message::ESeverity::Warning, LibraryInterface::GetConfigurationErrorMessage().data());
-        }
-
-        isInitialized = true;
-
         return LibraryInterface::GetHookshotInterfacePointer();
     }
     else

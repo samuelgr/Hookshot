@@ -79,7 +79,10 @@ namespace Hookshot
 
         /// Performs common top-level initialization operations. Idempotent.
         /// Any initialization steps that must happen irrespective of how this library was loaded should go here.
-        static void Initialize(void);
+        /// Will fail if the initialization attempt is inappropriate, duplicate, and so on.
+        /// @param [in] loadMethod Hookshot library load method.
+        /// @return `true` if successful, `false` otherwise.
+        static bool Initialize(const EHookshotLoadMethod loadMethod);
 
         /// Determines if the configuration data object contains valid data (i.e. the configuration file was read and parsed successfully).
         /// @return `true` if it contains valid data, `false` if not.

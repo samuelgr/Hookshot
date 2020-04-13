@@ -23,6 +23,7 @@
 #include "X86Instruction.h"
 
 #include <memory>
+#include <mutex>
 #include <string_view>
 
 
@@ -67,14 +68,40 @@ namespace Hookshot
 
     // --------
     
-    void LibraryInterface::Initialize(void)
+    bool LibraryInterface::Initialize(const EHookshotLoadMethod loadMethod)
     {
-        X86Instruction::Initialize();
+        static volatile bool isInitialized = false;
 
-        if (false == IsConfigurationDataValid())
-            configuration.ReadConfigurationFile(Strings::kStrHookshotConfigurationFilename);
+        if (false == isInitialized)
+        {
+            static std::mutex initializeMutex;
+            std::lock_guard<std::mutex> lock(initializeMutex);
 
-        EnableLogIfConfigured();
+            if (false == isInitialized)
+            {
+                Globals::SetHookshotLoadMethod(loadMethod);
+                X86Instruction::Initialize();
+
+                configuration.ReadConfigurationFile(Strings::kStrHookshotConfigurationFilename);
+
+                if (true == LibraryInterface::DoesConfigurationFileExist())
+                {
+                    if (false == LibraryInterface::IsConfigurationDataValid())
+                        Message::Output(Message::ESeverity::Error, LibraryInterface::GetConfigurationErrorMessage().data());
+                }
+                else
+                {
+                    Message::Output(Message::ESeverity::Warning, LibraryInterface::GetConfigurationErrorMessage().data());
+                }
+
+                EnableLogIfConfigured();
+
+                isInitialized = true;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // --------
