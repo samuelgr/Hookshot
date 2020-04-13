@@ -66,10 +66,10 @@
     { \
     public: \
         static ReturnType callingConvention Hook(ArgumentTypes...); \
-        static inline ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))DynamicHookBase<kOriginalFunctionName>::GetOriginalFunction())(args...); } \
-        static inline EResult SetHook(IHookshot* const hookshot, void* const originalFunc) { return DynamicHookBase<kOriginalFunctionName>::SetHook(hookshot, originalFunc, &Hook); } \
-        static inline EResult DisableHook(IHookshot* const hookshot) { return hookshot->DisableHookFunction(&Hook); } \
-        static inline EResult EnableHook(IHookshot* const hookshot) { return hookshot->ReplaceHookFunction(DynamicHookBase<kOriginalFunctionName>::GetOriginalFunctionAddress(), &Hook); } \
+        static ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))DynamicHookBase<kOriginalFunctionName>::GetOriginalFunction())(args...); } \
+        static EResult SetHook(IHookshot* const hookshot, void* const originalFunc) { return DynamicHookBase<kOriginalFunctionName>::SetHook(hookshot, originalFunc, &Hook); } \
+        static EResult DisableHook(IHookshot* const hookshot) { return hookshot->DisableHookFunction(&Hook); } \
+        static EResult EnableHook(IHookshot* const hookshot) { return hookshot->ReplaceHookFunction(DynamicHookBase<kOriginalFunctionName>::GetOriginalFunctionAddress(), &Hook); } \
     };
 
 namespace Hookshot

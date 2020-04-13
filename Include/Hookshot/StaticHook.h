@@ -53,10 +53,10 @@
     { \
     public: \
         static ReturnType callingConvention Hook(ArgumentTypes...); \
-        static inline ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::GetOriginalFunction())(args...); } \
-        static inline EResult SetHook(IHookshot* const hookshot) { return StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::SetHook(hookshot, &Hook); } \
-        static inline EResult DisableHook(IHookshot* const hookshot) { return hookshot->DisableHookFunction(&Hook); } \
-        static inline EResult EnableHook(IHookshot* const hookshot) { return hookshot->ReplaceHookFunction(kOriginalFunctionAddress, &Hook); } \
+        static ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::GetOriginalFunction())(args...); } \
+        static EResult SetHook(IHookshot* const hookshot) { return StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::SetHook(hookshot, &Hook); } \
+        static EResult DisableHook(IHookshot* const hookshot) { return hookshot->DisableHookFunction(&Hook); } \
+        static EResult EnableHook(IHookshot* const hookshot) { return hookshot->ReplaceHookFunction(kOriginalFunctionAddress, &Hook); } \
     };
 
 namespace Hookshot
