@@ -55,6 +55,18 @@ namespace Hookshot
 
 
     public:
+        // -------- CLASS METHODS ------------------------------------------ //
+
+        /// Internal version of #CreateHook.  Intended to be used within Hookshot only.
+        /// Can be used to create hooks that are for internal Hookshot use and hooks requested by API users.
+        /// @param [in] originalFunc Address of the function that should be hooked.
+        /// @param [in] hookFunc Hook function that should be invoked instead of the original function.
+        /// @param [in] isInternal If `true`, identifies the requested hook as being for internal Hookshot use.
+        /// @param [out] originalFuncAfterHook For internal hooks only, this is a pointer to be filled with what would ordinarily be returned by #GetOriginalFunction.
+        /// @return Result of the operation.
+        static EResult __fastcall CreateHookInternal(void* originalFunc, const void* hookFunc, const bool isInternal, const void** originalFuncAfterHook);
+
+
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See "HookshotTypes.h" for documentation.
 

@@ -101,10 +101,7 @@ namespace Hookshot
 #endif
 
     
-    // -------- CONCRETE INSTANCE METHODS ------------------------------ //
-    // See "HookshotTypes.h" for documentation.
-
-    EResult HookStore::CreateHook(void* originalFunc, const void* hookFunc)
+    EResult HookStore::CreateHookInternal(void* originalFunc, const void* hookFunc, const bool isInternal, const void** originalFuncAfterHook)
     {
         if (false == IsHookSpecValid(originalFunc, hookFunc))
             return EResult::FailInvalidArgument;
@@ -182,7 +179,10 @@ namespace Hookshot
             return EResult::FailCannotSetHook;
         }
 
-        UpdateProtectedDependencyAddress(originalFunc, trampoline.GetOriginalFunction());
+        // Internal hooks are intended to present the illusion that Hookshot's hook function is the original function.
+        // Therefore, Hookshot should not be able to bypass this hook.
+        if (false == isInternal)
+            UpdateProtectedDependencyAddress(originalFunc, trampoline.GetOriginalFunction());
 
         if (false == RedirectExecution(originalFunc, trampoline.GetHookFunction()))
         {
@@ -192,11 +192,31 @@ namespace Hookshot
             return EResult::FailCannotSetHook;
         }
 
-        functionToTrampoline[originalFunc] = &trampolineStore[allocatedIndex];
-        functionToTrampoline[hookFunc] = &trampolineStore[allocatedIndex];
-        trampolineToOriginalFunction[&trampoline] = originalFunc;
+        // Internal hooks are intended to be invisible to the Hookshot API user.
+        // Therefore, they are not inserted into Hookshot data structures.
+        // However, this means that methods like GetOriginalFunction are not available, hence the need to save out the address of the trampoline's "original" region immediately.
+        if (false == isInternal)
+        {
+            functionToTrampoline[originalFunc] = &trampolineStore[allocatedIndex];
+            functionToTrampoline[hookFunc] = &trampolineStore[allocatedIndex];
+            trampolineToOriginalFunction[&trampoline] = originalFunc;
+        }
+        else
+        {
+            if (nullptr != originalFuncAfterHook)
+                *originalFuncAfterHook = trampoline.GetOriginalFunction();
+        }
 
         return EResult::Success;
+    }
+
+
+    // -------- CONCRETE INSTANCE METHODS ------------------------------ //
+    // See "HookshotTypes.h" for documentation.
+
+    EResult HookStore::CreateHook(void* originalFunc, const void* hookFunc)
+    {
+        return CreateHookInternal(originalFunc, hookFunc, false, nullptr);
     }
 
     // --------
