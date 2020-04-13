@@ -8,13 +8,15 @@
  * @file InternalHook.h
  *   Convenience wrapper types and definitions for creating hooks for
  *   Hookshot's own use.  Similar to the StaticHook interface made available
- *   for external use.
+ *   for external use.  Additionally supports automatic registration so that
+ *   a single call is sufficient to attempt to set all internal hooks.
  *****************************************************************************/
 
 #pragma once
 
 #include "HookStore.h"
 
+#include <string_view>
 #include <type_traits>
 
 
@@ -23,6 +25,7 @@
 /// See StaticHook interface documentation for more information.
 #define HOOKSHOT_INTERNAL_HOOK(func) \
     static constexpr wchar_t kInternalHookName__##func[] = _CRT_WIDE(#func); \
+    static const bool kInternalHookIsRegistered__##func = ::Hookshot::RegisterInternalHook(kInternalHookName__##func, &::Hookshot::InternalHook<kInternalHookName__##func, (void*)(&(func)), decltype(func)>::SetHook); \
     using InternalHook_##func = ::Hookshot::InternalHook<kInternalHookName__##func, (void*)(&(func)), decltype(func)>
 
 /// Implements internal hook template specialization so that function prototypes and calling conventions are automatically extracted based on the supplied function.
@@ -32,8 +35,8 @@
     { \
     public: \
         static ReturnType callingConvention Hook(ArgumentTypes...); \
-        static inline ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))InternalHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::GetOriginalFunction())(args...); } \
-        static inline EResult SetHook(void) { return InternalHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::SetHook(&Hook); } \
+        static ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))InternalHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::GetOriginalFunction())(args...); } \
+        static EResult SetHook(void) { return InternalHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::SetHook(&Hook); } \
     }; \
 
 namespace Hookshot
@@ -71,4 +74,17 @@ namespace Hookshot
     HOOKSHOT_INTERNAL_HOOK_TEMPLATE(__stdcall, (__stdcall));
     HOOKSHOT_INTERNAL_HOOK_TEMPLATE(__vectorcall, (__vectorcall));
 #endif
+
+    /// Registers an internal hook so that it is automatically set when #SetAllInternalHooks is called.
+    /// Intended to be invoked automatically by the #HOOKSHOT_INTERNAL_HOOK macro, and will fail once #SetAllInternalHooks has been called.
+    /// Not concurrency-safe.
+    /// @param [in] funcName Name associated with the hook to be set.
+    /// @param [in] setHookFunc Address of the internal hook's `SetHook` class method.
+    /// @return `true` after registration is complete.
+    bool RegisterInternalHook(std::wstring_view hookName, EResult(*setHookFunc)(void));
+
+    /// Sets all internal hooks that have been registered.
+    /// Can only be called once.  Subsequent calls have no effect.
+    /// Not concurrency-safe.
+    void SetAllInternalHooks(void);
 }

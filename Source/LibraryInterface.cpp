@@ -16,6 +16,7 @@
 #include "HookshotTypes.h"
 #include "HookStore.h"
 #include "InjectLanding.h"
+#include "InternalHook.h"
 #include "LibraryInterface.h"
 #include "Message.h"
 #include "Strings.h"
@@ -95,6 +96,7 @@ namespace Hookshot
                 }
 
                 EnableLogIfConfigured();
+                SetAllInternalHooks();
 
                 isInitialized = true;
                 return true;

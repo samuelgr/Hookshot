@@ -26,6 +26,7 @@
     <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\HookStore.cpp" />
     <ClCompile Include="Source\InjectLanding.cpp" />
+    <ClCompile Include="Source\InternalHook.cpp" />
     <ClCompile Include="Source\LibraryInterface.cpp" />
     <ClCompile Include="Source\Message.cpp" />
     <ClCompile Include="Source\RemoteProcessInjector.cpp" />
