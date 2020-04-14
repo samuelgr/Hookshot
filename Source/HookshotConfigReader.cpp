@@ -30,6 +30,7 @@ namespace Hookshot
             ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameHookModule, Configuration::EValueType::StringMultiValue),
             ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameInject, Configuration::EValueType::StringMultiValue),
             ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameLogLevel, Configuration::EValueType::Integer),
+            ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameUseConfiguredHookModules, Configuration::EValueType::Boolean),
         }),
     };
 
@@ -82,7 +83,7 @@ namespace Hookshot
 
     bool HookshotConfigReader::CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TBooleanValue& value)
     {
-        return false;
+        return true;
     }
 
     // --------

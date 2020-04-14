@@ -110,14 +110,29 @@ namespace Hookshot
 
     int LibraryInterface::LoadHookModules(void)
     {
+        bool useConfigurationFileHookModules = false;
+        
         if (true == DoesConfigurationFileExist())
         {
+            // If a configuration file is present, load the hook modules it specifies unless it specifically requests the default behavior.
+            useConfigurationFileHookModules = true;
+
+            if (true == IsConfigurationDataValid())
+            {
+                if (true == GetConfigurationData().SectionNamePairExists(Configuration::ConfigurationData::kSectionNameGlobal, Strings::kStrConfigurationSettingNameUseConfiguredHookModules))
+                {
+                    if (false == GetConfigurationData().SectionByName(Configuration::ConfigurationData::kSectionNameGlobal).NameByName(Strings::kStrConfigurationSettingNameUseConfiguredHookModules).FirstValue().GetBooleanValue())
+                    {
+                        useConfigurationFileHookModules = false;
+                    }
+                }
+            }
+        }
+
+        if (true == useConfigurationFileHookModules)
             return LoadConfiguredHookModules();
-        }
         else
-        {
             return LoadDefaultHookModules();
-        }
     }
 
     // --------
@@ -151,6 +166,8 @@ namespace Hookshot
     {
         int numHookModulesLoaded = 0;
 
+        Message::Output(Message::ESeverity::Info, L"Loading hook modules specified in the configuration file.");
+
         if (true == IsConfigurationDataValid())
         {
             auto hookModulesToLoad = GetConfigurationData().SectionsWithName(Strings::kStrConfigurationSettingNameHookModule);
@@ -174,8 +191,9 @@ namespace Hookshot
     {
         int numHookModulesLoaded = 0;
 
-        const std::wstring hookModuleSearchString = Strings::MakeHookModuleFilename(L"*");
+        Message::Output(Message::ESeverity::Info, L"Loading all hook modules in the same directory as the executable.");
 
+        const std::wstring hookModuleSearchString = Strings::MakeHookModuleFilename(L"*");
         WIN32_FIND_DATA hookModuleFileData;
         HANDLE hookModuleFind = Windows::ProtectedFindFirstFileEx(hookModuleSearchString.c_str(), FindExInfoBasic, &hookModuleFileData, FindExSearchNameMatch, NULL, 0);
         BOOL moreHookModulesExist = (INVALID_HANDLE_VALUE != hookModuleFind);

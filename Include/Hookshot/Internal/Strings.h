@@ -61,16 +61,17 @@ namespace Hookshot
         inline constexpr std::string_view kStrHookLibraryInitFuncName = "@HookshotMain@4";
 #endif
 
-        /// Configuration file setting name for specifying a library to load only but not initialize.
-        /// Useful when Hookshot is used only to perform injection.
+        /// Configuration file setting name for specifying an injected library to load.
         inline constexpr std::wstring_view kStrConfigurationSettingNameInject = L"Inject";
         
-        /// Configuration file setting name for specifying a hook module to load and initialize as a hook module.
-        /// Useful when Hookshot is both performing injection and setting hooks.
+        /// Configuration file setting name for specifying a hook module to load.
         inline constexpr std::wstring_view kStrConfigurationSettingNameHookModule = L"HookModule";
 
         /// Configuration file setting name for enabling and specifying the verbosity of output to the log file.
         inline constexpr std::wstring_view kStrConfigurationSettingNameLogLevel = L"LogLevel";
+
+        /// Configuration file setting name for specifying that Hookshot should use the configuration file to know which hook modules to load.
+        inline constexpr std::wstring_view kStrConfigurationSettingNameUseConfiguredHookModules = L"UseConfiguredHookModules";
 
 
         // -------- RUN-TIME CONSTANTS ------------------------------------- //
