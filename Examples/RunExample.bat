@@ -17,6 +17,7 @@ set out_dir=%3
 set project_name=%4
 
 echo HookModule = %project_name% > %out_dir%Hookshot.ini
+echo > NUL 2> %test_program_exe%.hookshot
 
 if exist %hookshot_exe% (
     %hookshot_exe% %test_program_exe%
