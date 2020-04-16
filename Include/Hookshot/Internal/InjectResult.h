@@ -30,6 +30,9 @@ namespace Hookshot
         InjectResultErrorDetermineMachineProcess,                   ///< Determination of the machine type of the new process failed.
         InjectResultErrorArchitectureMismatch,                      ///< New process cannot be injected due to an architecture mismatch with the running Hookshot binary.
 
+        // Issues that require user intervention.
+        InjectResultErrorNotAuthorized,                             ///< Hookshot is not authorized to act on the new process.
+
         // Issues determining the base address of the process' executable image
         InjectResultErrorLoadNtDll,                                 ///< Attempt to dynamically load `ntdll.dll` failed.
         InjectResultErrorNtQueryInformationProcessUnavailable,      ///< Attempt to locate `NtQueryInformationProcess` within `ntdll.dll` failed.

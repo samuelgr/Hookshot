@@ -62,7 +62,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         if (L'\0' != *parseEnd)
             return __LINE__;
 
-        SRemoteProcessInjectionData* const remoteInjectionData = (SRemoteProcessInjectionData*)MapViewOfFile(sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+        RemoteProcessInjector::SInjectRequest* const remoteInjectionData = (RemoteProcessInjector::SInjectRequest*)MapViewOfFile(sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
         if (nullptr == remoteInjectionData)
             return __LINE__;
 
