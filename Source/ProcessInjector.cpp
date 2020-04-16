@@ -246,7 +246,7 @@ namespace Hookshot
             const bool shouldCreateSuspended = (0 != (dwCreationFlags & CREATE_SUSPENDED)) ? true : false;
 
             // Attempt to create the new process in suspended state and capture information about it.
-            PROCESS_INFORMATION processInfo;
+            PROCESS_INFORMATION processInfo = *lpProcessInformation;
             if (0 == CreateProcessW(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, (dwCreationFlags | CREATE_SUSPENDED), lpEnvironment, lpCurrentDirectory, lpStartupInfo, &processInfo))
                 return EInjectResult::InjectResultErrorCreateProcess;
 

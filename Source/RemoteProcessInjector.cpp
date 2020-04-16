@@ -5,8 +5,8 @@
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2020
  **************************************************************************//**
- * @file ProcessInjector.cpp
- *   Implementation of all process creation and injection functionality.
+ * @file RemoteProcessInjector.cpp
+ *   Implementation of requesting IPC-based process injection.
  *****************************************************************************/
 
 #include "DependencyProtect.h"

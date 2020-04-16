@@ -6,7 +6,7 @@
  * Copyright (c) 2019-2020
  **************************************************************************//**
  * @file RemoteProcessInjector.h
- *   Interface declaration for IPC-based process injection.
+ *   Interface declaration for requesting IPC-based process injection.
  *****************************************************************************/
 
 #pragma once

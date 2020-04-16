@@ -42,6 +42,7 @@ namespace Hookshot
         extern const volatile decltype(&MessageBox) ProtectedMessageBox;
         extern const volatile decltype(&MapViewOfFile) ProtectedMapViewOfFile;
         extern const volatile decltype(&OutputDebugString) ProtectedOutputDebugString;
+        extern const volatile decltype(&QueryFullProcessImageName) ProtectedQueryFullProcessImageName;
         extern const volatile decltype(&ResumeThread) ProtectedResumeThread;
         extern const volatile decltype(&SetLastError) ProtectedSetLastError;
         extern const volatile decltype(&TerminateProcess) ProtectedTerminateProcess;

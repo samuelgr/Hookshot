@@ -43,6 +43,7 @@ namespace Hookshot
         extern const volatile decltype(&MapViewOfFile) ProtectedMapViewOfFile = MapViewOfFile;
         extern const volatile decltype(&MessageBox) ProtectedMessageBox = MessageBox;
         extern const volatile decltype(&OutputDebugString) ProtectedOutputDebugString = OutputDebugString;
+        extern const volatile decltype(&QueryFullProcessImageName) ProtectedQueryFullProcessImageName = QueryFullProcessImageName;
         extern const volatile decltype(&ResumeThread) ProtectedResumeThread = ResumeThread;
         extern const volatile decltype(&SetLastError) ProtectedSetLastError = SetLastError;
         extern const volatile decltype(&TerminateProcess) ProtectedTerminateProcess = TerminateProcess;
@@ -74,6 +75,7 @@ namespace Hookshot
         {Windows::ProtectedMapViewOfFile, (const void* volatile*)&Windows::ProtectedMapViewOfFile},
         {Windows::ProtectedMessageBox, (const void* volatile*)&Windows::ProtectedMessageBox},
         {Windows::ProtectedOutputDebugString, (const void* volatile*)&Windows::ProtectedOutputDebugString},
+        {Windows::ProtectedQueryFullProcessImageName, (const void* volatile*)&Windows::ProtectedQueryFullProcessImageName},
         {Windows::ProtectedResumeThread, (const void* volatile*)&Windows::ProtectedResumeThread},
         {Windows::ProtectedSetLastError, (const void* volatile*)&Windows::ProtectedSetLastError},
         {Windows::ProtectedTerminateProcess, (const void* volatile*)&Windows::ProtectedTerminateProcess},
