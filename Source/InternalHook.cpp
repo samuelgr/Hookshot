@@ -19,13 +19,47 @@
 
 namespace Hookshot
 {
-    // -------- INTERNAL VARIABLES ----------------------------------------- //
+    // -------- INTERNAL TYPES --------------------------------------------- //
 
-    /// Flag used to indicate if internal hooks have been specified.
-    static bool areInternalHooksSet = false;
+    /// Holds all registered internal hooks, and offers the ability to set them.
+    /// Used to ensure internal hooks are available during dynamic initialization.
+    /// Implemented as a singleton object.
+    class InternalHookRegistry
+    {
+    public:
+        // -------- INSTANCE VARIABLES ------------------------------------- //
 
-    /// Registry of all hooks that need to be set.
-    static std::map<std::wstring_view, EResult(*)(void)> hookRegistry;
+        /// Flag used to indicate if internal hooks have been specified.
+        bool areInternalHooksSet; // = false;
+
+        /// Registry of all hooks that need to be set.
+        std::map<std::wstring_view, EResult(*)(void)> hookRegistry;
+
+
+    private:
+        // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
+
+        /// Default constructor.  Objects cannot be constructed externally.
+        InternalHookRegistry(void) : areInternalHooksSet(false), hookRegistry()
+        {
+            // Nothing to do here.
+        }
+
+        /// Copy constructor. Should never be invoked.
+        InternalHookRegistry(const InternalHookRegistry& other) = delete;
+
+
+    public:
+        // -------- CLASS METHODS ------------------------------------------ //
+
+        /// Returns a reference to the singleton instance of this class.
+        /// @return Reference to the singleton instance.
+        static InternalHookRegistry& GetInstance(void)
+        {
+            static InternalHookRegistry internalHookRegistry;
+            return internalHookRegistry;
+        }
+    };
 
 
     // -------- FUNCTIONS -------------------------------------------------- //
@@ -33,10 +67,12 @@ namespace Hookshot
     
     bool RegisterInternalHook(std::wstring_view hookName, EResult(*setHookFunc)(void))
     {
-        if (true == areInternalHooksSet)
+        InternalHookRegistry& registry = InternalHookRegistry::GetInstance();
+        
+        if (true == registry.areInternalHooksSet)
             return false;
 
-        hookRegistry[hookName] = setHookFunc;
+        registry.hookRegistry[hookName] = setHookFunc;
 
         return true;
     }
@@ -45,10 +81,12 @@ namespace Hookshot
 
     void SetAllInternalHooks(void)
     {
-        if (true == areInternalHooksSet)
+        InternalHookRegistry& registry = InternalHookRegistry::GetInstance();
+
+        if (true == registry.areInternalHooksSet)
             return;
 
-        for (auto hook = hookRegistry.cbegin(); hook != hookRegistry.cend(); ++hook)
+        for (auto hook = registry.hookRegistry.cbegin(); hook != registry.hookRegistry.cend(); ++hook)
         {
             const EResult result = hook->second();
 
@@ -58,7 +96,7 @@ namespace Hookshot
                 Message::OutputFormatted(Message::ESeverity::Warning, L"Failed to set internal hook for %s.  Hookshot features that use this hook will not work.", hook->first.data());
         }
 
-        areInternalHooksSet = true;
-        hookRegistry.clear();
+        registry.areInternalHooksSet = true;
+        registry.hookRegistry.clear();
     }
 }

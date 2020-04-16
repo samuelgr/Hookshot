@@ -24,8 +24,8 @@
 /// Type name is of the format "InternalHook_[function name]" and is created in whatever namespace encloses the invocation of this macro.
 /// See StaticHook interface documentation for more information.
 #define HOOKSHOT_INTERNAL_HOOK(func) \
-    static constexpr wchar_t kInternalHookName__##func[] = _CRT_WIDE(#func); \
-    static const bool kInternalHookIsRegistered__##func = ::Hookshot::RegisterInternalHook(kInternalHookName__##func, &::Hookshot::InternalHook<kInternalHookName__##func, (void*)(&(func)), decltype(func)>::SetHook); \
+    inline constexpr wchar_t kInternalHookName__##func[] = _CRT_WIDE(#func); \
+    inline const bool kInternalHookIsRegistered__##func = ::Hookshot::RegisterInternalHook(kInternalHookName__##func, &::Hookshot::InternalHook<kInternalHookName__##func, (void*)(&(func)), decltype(func)>::SetHook); \
     using InternalHook_##func = ::Hookshot::InternalHook<kInternalHookName__##func, (void*)(&(func)), decltype(func)>
 
 /// Implements internal hook template specialization so that function prototypes and calling conventions are automatically extracted based on the supplied function.

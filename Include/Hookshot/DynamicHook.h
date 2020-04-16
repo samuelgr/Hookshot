@@ -39,7 +39,7 @@
 /// Note that Hookshot might fail to create the requested hook.  Therefore, the return code from `SetHook` should be checked.
 /// Once `SetHook` has been invoked successfully, further invocations have no effect and simply return #EResult::NoEffect.
 #define HOOKSHOT_DYNAMIC_HOOK_FROM_FUNCTION(func) \
-    static constexpr wchar_t kHookName__##func[] = _CRT_WIDE(#func); \
+    inline constexpr wchar_t kHookName__##func[] = _CRT_WIDE(#func); \
     using DynamicHook_##func = ::Hookshot::DynamicHook<kHookName__##func, decltype(func)>
 
 /// Equivalent to #HOOKSHOT_DYNAMIC_HOOK_FROM_FUNCTION, but accepts a typed function pointer instead of a function prototype declaration.
