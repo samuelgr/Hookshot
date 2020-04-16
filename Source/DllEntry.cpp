@@ -60,7 +60,7 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvRe
 /// @return Address to which to jump to continue running the injected process, or `nullptr` on failure.
 extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
 {
-    if (true == LibraryInterface::Initialize(EHookshotLoadMethod::Injected))
+    if (true == LibraryInterface::Initialize(ELoadMethod::Injected))
     {
         return (void*)InjectLanding;;
     }
@@ -75,7 +75,7 @@ extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
 /// @return Hookshot interface pointer, or `nullptr` on failure.
 extern "C" __declspec(dllexport) IHookshot* __fastcall HookshotLibraryInitialize(void)
 {
-    if (true == LibraryInterface::Initialize(EHookshotLoadMethod::LibraryLoaded))
+    if (true == LibraryInterface::Initialize(ELoadMethod::LibraryLoaded))
     {
         return LibraryInterface::GetHookshotInterfacePointer();
     }

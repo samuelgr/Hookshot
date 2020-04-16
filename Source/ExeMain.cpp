@@ -30,7 +30,7 @@ using namespace Hookshot;
 /// @return Exit code from this program.
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
 {
-    Globals::SetHookshotLoadMethod(EHookshotLoadMethod::Executed);
+    Globals::SetHookshotLoadMethod(ELoadMethod::Executed);
 
     if (2 > __argc)
     {

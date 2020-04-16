@@ -209,7 +209,7 @@ namespace Hookshot
 
         // --------
 
-        bool Initialize(const EHookshotLoadMethod loadMethod)
+        bool Initialize(const ELoadMethod loadMethod)
         {
             static volatile bool isInitialized = false;
 

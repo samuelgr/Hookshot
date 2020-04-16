@@ -16,124 +16,122 @@
 
 namespace Hookshot
 {
-    // -------- INTERNAL TYPES --------------------------------------------- //
-
-    /// Holds all static data that falls under the global category.
-    /// Used to make sure that globals are initialized as early as possible so that values are available during dynamic initialization.
-    /// Implemented as a singleton object.
-    class GlobalData
+    namespace Globals
     {
-    public:
-        // -------- INSTANCE VARIABLES ------------------------------------- //
+        // -------- INTERNAL TYPES ----------------------------------------- //
 
-        /// Pseudohandle of the current process.
-        HANDLE gCurrentProcessHandle;
-
-        /// PID of the current process.
-        DWORD gCurrentProcessId;
-
-        /// Handle of the instance that represents the running form of Hookshot.
-        HINSTANCE gInstanceHandle;
-
-        /// Method by which Hookshot was loaded into the current process.
-        EHookshotLoadMethod gLoadMethod;
-
-        /// Holds information about the current system, as retrieved from Windows.
-        SYSTEM_INFO gSystemInformation;
-
-
-    private:
-        // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
-
-        /// Default constructor.  Objects cannot be constructed externally.
-        GlobalData(void) :
-            gCurrentProcessHandle(GetCurrentProcess()),
-            gCurrentProcessId(GetProcessId(GetCurrentProcess())),
-            gInstanceHandle(nullptr),
-            gLoadMethod(EHookshotLoadMethod::Executed),
-            gSystemInformation()
+        /// Holds all static data that falls under the global category.
+        /// Used to make sure that globals are initialized as early as possible so that values are available during dynamic initialization.
+        /// Implemented as a singleton object.
+        class GlobalData
         {
-            GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)&GlobalData::GetInstance, &gInstanceHandle);
-            GetNativeSystemInfo(&gSystemInformation);
+        public:
+            // -------- INSTANCE VARIABLES --------------------------------- //
+
+            /// Pseudohandle of the current process.
+            HANDLE gCurrentProcessHandle;
+
+            /// PID of the current process.
+            DWORD gCurrentProcessId;
+
+            /// Handle of the instance that represents the running form of Hookshot.
+            HINSTANCE gInstanceHandle;
+
+            /// Method by which Hookshot was loaded into the current process.
+            ELoadMethod gLoadMethod;
+
+            /// Holds information about the current system, as retrieved from Windows.
+            SYSTEM_INFO gSystemInformation;
+
+
+        private:
+            // -------- CONSTRUCTION AND DESTRUCTION ----------------------- //
+
+            /// Default constructor.  Objects cannot be constructed externally.
+            GlobalData(void) : gCurrentProcessHandle(GetCurrentProcess()), gCurrentProcessId(GetProcessId(GetCurrentProcess())), gInstanceHandle(nullptr), gLoadMethod(ELoadMethod::Executed), gSystemInformation()
+            {
+                GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)&GlobalData::GetInstance, &gInstanceHandle);
+                GetNativeSystemInfo(&gSystemInformation);
+            }
+
+            /// Copy constructor. Should never be invoked.
+            GlobalData(const GlobalData& other) = delete;
+
+
+        public:
+            // -------- CLASS METHODS -------------------------------------- //
+
+            /// Returns a reference to the singleton instance of this class.
+            /// @return Reference to the singleton instance.
+            static GlobalData& GetInstance(void)
+            {
+                static GlobalData globalData;
+                return globalData;
+            }
+        };
+
+
+        // -------- FUNCTIONS ---------------------------------------------- //
+        // See "Globals.h" for documentation.
+
+        HANDLE GetCurrentProcessHandle(void)
+        {
+            return GlobalData::GetInstance().gCurrentProcessHandle;
         }
 
-        /// Copy constructor. Should never be invoked.
-        GlobalData(const GlobalData& other) = delete;
+        // --------
 
-
-    public:
-        // -------- CLASS METHODS ------------------------------------------ //
-
-        /// Returns a reference to the singleton instance of this class.
-        /// @return Reference to the singleton instance.
-        static GlobalData& GetInstance(void)
+        DWORD GetCurrentProcessId(void)
         {
-            static GlobalData globalData;
-            return globalData;
+            return GlobalData::GetInstance().gCurrentProcessId;
         }
-    };
 
+        // --------
 
-    // -------- CLASS METHODS ---------------------------------------------- //
-    // See "Globals.h" for documentation.
-
-    HANDLE Globals::GetCurrentProcessHandle(void)
-    {
-        return GlobalData::GetInstance().gCurrentProcessHandle;
-    }
-
-    // --------
-
-    DWORD Globals::GetCurrentProcessId(void)
-    {
-        return GlobalData::GetInstance().gCurrentProcessId;
-    }
-
-    // --------
-
-    EHookshotLoadMethod Globals::GetHookshotLoadMethod(void)
-    {
-        return GlobalData::GetInstance().gLoadMethod;
-    }
-
-    // --------
-
-    std::wstring_view Globals::GetHookshotLoadMethodString(void)
-    {
-        switch (GlobalData::GetInstance().gLoadMethod)
+        ELoadMethod GetHookshotLoadMethod(void)
         {
-        case EHookshotLoadMethod::Executed:
-            return L"EXECUTED";
-
-        case EHookshotLoadMethod::Injected:
-            return L"INJECTED";
-
-        case EHookshotLoadMethod::LibraryLoaded:
-            return L"LIBRARY_LOADED";
-
-        default:
-            return L"UNKNOWN";
+            return GlobalData::GetInstance().gLoadMethod;
         }
-    }
 
-    // --------
+        // --------
 
-    HINSTANCE Globals::GetInstanceHandle(void)
-    {
-        return GlobalData::GetInstance().gInstanceHandle;
-    }
+        std::wstring_view GetHookshotLoadMethodString(void)
+        {
+            switch (GlobalData::GetInstance().gLoadMethod)
+            {
+            case ELoadMethod::Executed:
+                return L"EXECUTED";
 
-    // --------
+            case ELoadMethod::Injected:
+                return L"INJECTED";
 
-    const SYSTEM_INFO& Globals::GetSystemInformation(void)
-    {
-        return GlobalData::GetInstance().gSystemInformation;
-    }
+            case ELoadMethod::LibraryLoaded:
+                return L"LIBRARY_LOADED";
 
-    // --------
+            default:
+                return L"UNKNOWN";
+            }
+        }
 
-    void Globals::SetHookshotLoadMethod(const EHookshotLoadMethod loadMethod)
-    {
-        GlobalData::GetInstance().gLoadMethod = loadMethod;
+        // --------
+
+        HINSTANCE GetInstanceHandle(void)
+        {
+            return GlobalData::GetInstance().gInstanceHandle;
+        }
+
+        // --------
+
+        const SYSTEM_INFO& GetSystemInformation(void)
+        {
+            return GlobalData::GetInstance().gSystemInformation;
+        }
+
+        // --------
+
+        void SetHookshotLoadMethod(const ELoadMethod loadMethod)
+        {
+            GlobalData::GetInstance().gLoadMethod = loadMethod;
+        }
     }
 }

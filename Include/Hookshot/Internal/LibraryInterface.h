@@ -50,7 +50,7 @@ namespace Hookshot
         /// Will fail if the initialization attempt is inappropriate, duplicate, and so on.
         /// @param [in] loadMethod Hookshot library load method.
         /// @return `true` if successful, `false` otherwise.
-        bool Initialize(const EHookshotLoadMethod loadMethod);
+        bool Initialize(const ELoadMethod loadMethod);
 
         /// Determines if the configuration data object contains valid data (i.e. the configuration file was read and parsed successfully).
         /// @return `true` if it contains valid data, `false` if not.

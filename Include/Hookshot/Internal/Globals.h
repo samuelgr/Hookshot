@@ -20,52 +20,44 @@
 namespace Hookshot
 {
     /// Enumerates the possible ways Hookshot can be loaded.
-    enum class EHookshotLoadMethod
+    enum class ELoadMethod
     {
         Executed,                                                           ///< Executed directly.  This is the default value and is applicable for the executable form of Hookshot.
         Injected,                                                           ///< Injected.  An executable form of Hookshot injected this form of Hookshot into the current process.
         LibraryLoaded,                                                      ///< Loaded as a library.  Some executable loaded Hookshot using a standard dynamic library loading technique.
     };
 
-    /// Encapsulates all miscellaneous global data elements with no other suitable location.
-    /// Not intended to be instantiated.
-    class Globals
+    /// Provides access to miscellanous global data elements with no other suitable location.
+    namespace Globals
     {
-    public:
-        // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
-
-        /// Default constructor. Should never be invoked.
-        Globals(void) = delete;
-
-
-        // -------- CLASS METHODS ------------------------------------------ //
+        // -------- FUNCTIONS ---------------------------------------------- //
 
         /// Retrieves a pseudohandle to the current process.
         /// @return Current process pseudohandle.
-        static HANDLE GetCurrentProcessHandle(void);
+        HANDLE GetCurrentProcessHandle(void);
 
         /// Retrieves the PID of the current process.
         /// @return Current process PID.
-        static DWORD GetCurrentProcessId(void);
+        DWORD GetCurrentProcessId(void);
 
         /// Retrieves the method by which this form of Hookshot was loaded.
         /// @return Method by which Hookshot was loaded.
-        static EHookshotLoadMethod GetHookshotLoadMethod(void);
+        ELoadMethod GetHookshotLoadMethod(void);
 
         /// Retrieves a string representation of the method by which this form of Hookshot was loaded.
         /// @return String representation of the method by which Hookshot was loaded.
-        static std::wstring_view GetHookshotLoadMethodString(void);
+        std::wstring_view GetHookshotLoadMethodString(void);
 
         /// Retrieves the handle of the instance that represents the current running form of Hookshot, be it the library or the bootstrap executable.
         /// @return Instance handle for the loaded module.
-        static HINSTANCE GetInstanceHandle(void);
+        HINSTANCE GetInstanceHandle(void);
 
         /// Retrieves information on the current system.  This includes architecture, page size, and so on.
         /// @return Reference to a read-only structure containing system information.
-        static const SYSTEM_INFO& GetSystemInformation(void);
+        const SYSTEM_INFO& GetSystemInformation(void);
 
         /// Sets the method by which this form of Hookshot was loaded.
         /// @param [in] loadMethod Method by which Hookshot was loadedl
-        static void SetHookshotLoadMethod(const EHookshotLoadMethod loadMethod);
+        void SetHookshotLoadMethod(const ELoadMethod loadMethod);
     };
 }
