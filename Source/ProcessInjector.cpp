@@ -17,6 +17,7 @@
 #include "Message.h"
 #include "ProcessInjector.h"
 #include "RemoteProcessInjector.h"
+#include "TemporaryBuffer.h"
 
 #include <cstddef>
 #include <cstdio>
@@ -123,6 +124,30 @@ namespace Hookshot
             return EInjectResult::InjectResultSuccess;
         }
 
+        /// Verifies that Hookshot was given explicit authorization from the end user to inject the specified process.
+        /// @param [in] processHandle Handle to the process to check.
+        /// @return Indicator of the result of the operation.
+        static EInjectResult VerifyAuthorizedToInjectProcess(const HANDLE processHandle)
+        {
+            static constexpr wchar_t kAuthorizationFileSuffix[] = L".hookshot";
+            
+            TemporaryBuffer<wchar_t> authorizationFileName;
+            DWORD authorizationFileNameBaseLength = authorizationFileName.Count();
+
+            if (0 == QueryFullProcessImageName(processHandle, 0, authorizationFileName, &authorizationFileNameBaseLength))
+                return EInjectResult::InjectResultErrorCannotDetermineAuthorization;
+
+            if (0 != wcscpy_s(&authorizationFileName[authorizationFileNameBaseLength], authorizationFileName.Count() - authorizationFileNameBaseLength, kAuthorizationFileSuffix))
+                return EInjectResult::InjectResultErrorCannotDetermineAuthorization;
+
+            const HANDLE authorizationFileHandle = CreateFile(authorizationFileName, 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+            if (INVALID_HANDLE_VALUE == authorizationFileHandle)
+                return EInjectResult::InjectResultErrorNotAuthorized;
+
+            CloseHandle(authorizationFileHandle);
+            return EInjectResult::InjectResultSuccess;
+        }
+
         /// Verifies that the architecture of the target process matches the architecture of this running binary.
         /// @param [in] processHandle Handle to the process to check.
         /// @return Indicator of the result of the operation.
@@ -147,9 +172,12 @@ namespace Hookshot
         /// @return Indicator of the result of the operation.
         static EInjectResult InjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool enableDebugFeatures)
         {
-            // First make sure the architectures match between this process and the process being injected.
-            // If not, spawn a version of Hookshot that does match and request that it inject the process on behalf of this process.
-            EInjectResult operationResult = VerifyMatchingProcessArchitecture(processHandle);
+            // Verify that Hookshot is authorized to act on the process.
+            EInjectResult operationResult = VerifyAuthorizedToInjectProcess(processHandle);
+
+            // Make sure the architectures match between this process and the process being injected.
+            if (EInjectResult::InjectResultSuccess == operationResult)
+                operationResult = VerifyMatchingProcessArchitecture(processHandle);
 
             switch (operationResult)
             {
@@ -162,9 +190,6 @@ namespace Hookshot
             default:
                 return operationResult;
             }
-
-            // Verify that Hookshot is authorized to act on the process.
-            // TODO
 
             const size_t allocationGranularity = Globals::GetSystemInformation().dwPageSize;
             const size_t kEffectiveInjectRegionSize = (InjectInfo::kMaxInjectBinaryFileSize < allocationGranularity) ? allocationGranularity : InjectInfo::kMaxInjectBinaryFileSize;
