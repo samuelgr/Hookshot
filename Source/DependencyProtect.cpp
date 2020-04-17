@@ -61,6 +61,7 @@ namespace Hookshot
     static std::unordered_map<const void*, const void* volatile*> protectedDependencies = {
         {Windows::ProtectedCloseHandle, (const void* volatile*)&Windows::ProtectedCloseHandle},
         {Windows::ProtectedCreateFileMapping, (const void* volatile*)&Windows::ProtectedCreateFileMapping},
+        {Windows::ProtectedCreateProcess, (const void* volatile*)&Windows::ProtectedCreateProcess},
         {Windows::ProtectedDuplicateHandle, (const void* volatile*)&Windows::ProtectedDuplicateHandle},
         {Windows::ProtectedFindClose, (const void* volatile*)&Windows::ProtectedFindClose},
         {Windows::ProtectedFindFirstFileEx, (const void* volatile*)&Windows::ProtectedFindFirstFileEx},

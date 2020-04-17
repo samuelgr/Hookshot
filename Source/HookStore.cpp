@@ -179,10 +179,7 @@ namespace Hookshot
             return EResult::FailCannotSetHook;
         }
 
-        // Internal hooks are intended to present the illusion that Hookshot's hook function is the original function.
-        // Therefore, Hookshot should not be able to bypass this hook.
-        if (false == isInternal)
-            UpdateProtectedDependencyAddress(originalFunc, trampoline.GetOriginalFunction());
+        UpdateProtectedDependencyAddress(originalFunc, trampoline.GetOriginalFunction());
 
         if (false == RedirectExecution(originalFunc, trampoline.GetHookFunction()))
         {
