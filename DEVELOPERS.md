@@ -382,4 +382,4 @@ If linking with the HookshotDll import library, define the preprocessor symbol `
 
 If loading HookshotDll dynamically at runtime, do not define the preprocessor symbol `HOOKSHOT_LINK_WITH_LIBRARY`.  Instead, make use of the `Hookshot::TLibraryInitializeProc` type definition to create a function pointer.  Save to that function pointer the result of a call to `GetProcAddress` using the string constant `Hookshot::kLibraryInitializeProcName` as the procedure name parameter.
 
-When HookshotDll is loaded as a library, it does not attempt to load any hook modules or load any injected DLLs, and it does not attempt to inject itself into child processes.  HookshotDll still looks for and attempts to read a configuration file, but the only setting it applies from the configuraition file is `LogLevel`.
+When HookshotDll is loaded as a library, it does not attempt to load any hook modules or injected DLLs, and it does not attempt to inject itself into child processes.  HookshotDll still looks for and attempts to read a configuration file, but the only setting it applies from the configuraition file is `LogLevel`.

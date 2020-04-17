@@ -236,7 +236,9 @@ namespace Hookshot
                     }
 
                     EnableLogIfConfigured();
-                    SetAllInternalHooks();
+
+                    if (ELoadMethod::Injected == loadMethod)
+                        SetAllInternalHooks();
 
                     isInitialized = true;
                     return true;
