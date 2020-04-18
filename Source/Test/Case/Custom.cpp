@@ -620,12 +620,28 @@ namespace HookshotTest
         return FALSE;
     }
 
+    // Resolves the correct address to use for the original VirtualProtect function.
+    // If this function exists in the low-level binary KernelBase.dll, get it from there.
+    // If not, obtain its address statically.
+    static void* GetVirtualProtectAddress(void)
+    {
+        HMODULE hmodKernelBase = LoadLibrary(L"KernelBase.dll");
+        if (nullptr == hmodKernelBase)
+            return &VirtualProtect;
+
+        void* const virtualProtectKernelBase = GetProcAddress(hmodKernelBase, "VirtualProtect");
+        if (nullptr == virtualProtectKernelBase)
+            return &VirtualProtect;
+
+        return virtualProtectKernelBase;
+    }
+
     // Main test case logic.
     HOOKSHOT_CUSTOM_TEST(WindowsApiUsedByHookshot)
     {
         // Hook the VirtualProtect Windows API function.
         // This is used internally by Hookshot to set memory permissions while setting hooks.
-        HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(&VirtualProtect, &HookVirtualProtect)));
+        HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(GetVirtualProtectAddress(), &HookVirtualProtect)));
 
         // Standard hook operations follow.  These are expected to succeed.
         GENERATE_AND_ASSIGN_FUNCTION(originalFunc);
