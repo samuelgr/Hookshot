@@ -137,8 +137,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         switch (result)
         {
         case EInjectResult::InjectResultSuccess:
-            CloseHandle(processInfo.hProcess);
-            CloseHandle(processInfo.hThread);
             Message::OutputFormatted(Message::ESeverity::Info, L"Successfully injected %s.", __wargv[1]);
             return 0;
 

@@ -48,20 +48,31 @@ namespace Hookshot
 
             HANDLE sharedMemoryHandle = Protected::Windows_CreateFileMapping(INVALID_HANDLE_VALUE, &sharedMemorySecurityAttributes, PAGE_READWRITE, 0, sizeof(RemoteProcessInjector::SInjectRequest), nullptr);
 
-            if ((nullptr == sharedMemoryHandle) || (INVALID_HANDLE_VALUE == sharedMemoryHandle))
+            if (nullptr == sharedMemoryHandle)
                 return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
 
             RemoteProcessInjector::SInjectRequest* const sharedInfo = (RemoteProcessInjector::SInjectRequest*)Protected::Windows_MapViewOfFile(sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 
             if (nullptr == sharedInfo)
+            {
+                const DWORD extendedResult = Protected::Windows_GetLastError();
+                Protected::Windows_CloseHandle(sharedMemoryHandle);
+                Protected::Windows_SetLastError(extendedResult);
                 return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
+            }
 
             // Append the command-line argument to pass to the new Hookshot instance and convert to a mutable string, as required by CreateProcess.
             executableCommandLine << L' ' << Strings::kCharCmdlineIndicatorFileMappingHandle << std::hex << (uint64_t)sharedMemoryHandle;
 
             TemporaryBuffer<wchar_t> executableCommandLineMutableString;
             if (0 != wcscpy_s(executableCommandLineMutableString, executableCommandLineMutableString.Count(), executableCommandLine.str().c_str()))
+            {
+                const DWORD extendedResult = Protected::Windows_GetLastError();
+                Protected::Windows_UnmapViewOfFile(sharedInfo);
+                Protected::Windows_CloseHandle(sharedMemoryHandle);
+                Protected::Windows_SetLastError(extendedResult);
                 return EInjectResult::InjectResultErrorCannotGenerateExecutableFilename;
+            }
 
             // Create the new instance of Hookshot.
             STARTUPINFO startupInfo;
@@ -70,7 +81,13 @@ namespace Hookshot
             memset((void*)&processInfo, 0, sizeof(processInfo));
 
             if (FALSE == Protected::Windows_CreateProcess(nullptr, executableCommandLineMutableString, nullptr, nullptr, TRUE, CREATE_SUSPENDED, nullptr, nullptr, &startupInfo, &processInfo))
+            {
+                const DWORD extendedResult = Protected::Windows_GetLastError();
+                Protected::Windows_UnmapViewOfFile(sharedInfo);
+                Protected::Windows_CloseHandle(sharedMemoryHandle);
+                Protected::Windows_SetLastError(extendedResult);
                 return EInjectResult::InjectResultErrorCreateHookshotProcessFailed;
+            }
 
             // Fill in the required inputs to the new instance of Hookshot.
             HANDLE duplicateProcessHandle = INVALID_HANDLE_VALUE;
@@ -78,7 +95,13 @@ namespace Hookshot
 
             if ((FALSE == Protected::Windows_DuplicateHandle(Globals::GetCurrentProcessHandle(), processHandle, processInfo.hProcess, &duplicateProcessHandle, 0, FALSE, DUPLICATE_SAME_ACCESS)) || (FALSE == Protected::Windows_DuplicateHandle(Globals::GetCurrentProcessHandle(), threadHandle, processInfo.hProcess, &duplicateThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS)))
             {
+                const DWORD extendedResult = Protected::Windows_GetLastError();
                 Protected::Windows_TerminateProcess(processInfo.hProcess, (UINT)-1);
+                Protected::Windows_CloseHandle(processInfo.hProcess);
+                Protected::Windows_CloseHandle(processInfo.hThread);
+                Protected::Windows_UnmapViewOfFile(sharedInfo);
+                Protected::Windows_CloseHandle(sharedMemoryHandle);
+                Protected::Windows_SetLastError(extendedResult);
                 return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
             }
 
@@ -91,25 +114,37 @@ namespace Hookshot
             // Let the new instance of Hookshot run and wait for it to finish.
             Protected::Windows_ResumeThread(processInfo.hThread);
 
-            if (WAIT_OBJECT_0 != Protected::Windows_WaitForSingleObject(processInfo.hProcess, INFINITE))
+            if (WAIT_OBJECT_0 != Protected::Windows_WaitForSingleObject(processInfo.hProcess, 10000))
             {
+                const DWORD extendedResult = Protected::Windows_GetLastError();
                 Protected::Windows_TerminateProcess(processInfo.hProcess, (UINT)-1);
+                Protected::Windows_CloseHandle(processInfo.hProcess);
+                Protected::Windows_CloseHandle(processInfo.hThread);
+                Protected::Windows_UnmapViewOfFile(sharedInfo);
+                Protected::Windows_CloseHandle(sharedMemoryHandle);
+                Protected::Windows_SetLastError(extendedResult);
                 return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
             }
 
             // Obtain results from the new instance of Hookshot, clean up, and return.
             DWORD injectExitCode = 0;
             if ((FALSE == Protected::Windows_GetExitCodeProcess(processInfo.hProcess, &injectExitCode)) || (0 != injectExitCode))
+            {
+                const DWORD extendedResult = Protected::Windows_GetLastError();
+                Protected::Windows_CloseHandle(processInfo.hProcess);
+                Protected::Windows_CloseHandle(processInfo.hThread);
+                Protected::Windows_UnmapViewOfFile(sharedInfo);
+                Protected::Windows_CloseHandle(sharedMemoryHandle);
+                Protected::Windows_SetLastError(extendedResult);
                 return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
+            }
 
-            const DWORD extendedResult = (DWORD)sharedInfo->extendedInjectionResult;
             const EInjectResult operationResult = (EInjectResult)sharedInfo->injectionResult;
-
-            Protected::Windows_UnmapViewOfFile(sharedInfo);
-            Protected::Windows_CloseHandle(sharedMemoryHandle);
+            const DWORD extendedResult = (DWORD)sharedInfo->extendedInjectionResult;
             Protected::Windows_CloseHandle(processInfo.hProcess);
             Protected::Windows_CloseHandle(processInfo.hThread);
-
+            Protected::Windows_UnmapViewOfFile(sharedInfo);
+            Protected::Windows_CloseHandle(sharedMemoryHandle);
             Protected::Windows_SetLastError(extendedResult);
             return operationResult;
         }
