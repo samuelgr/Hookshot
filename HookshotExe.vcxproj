@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\ApiWindows.cpp" />
     <ClCompile Include="Source\CodeInjector.cpp" />
     <ClCompile Include="Source\DependencyProtect.cpp" />
     <ClCompile Include="Source\ExeMain.cpp" />

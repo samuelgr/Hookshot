@@ -9,6 +9,7 @@
  *   Implementation of internal hooks for injecting child processes.
  *****************************************************************************/
 
+#include "ApiWindows.h"
 #include "DependencyProtect.h"
 #include "InjectResult.h"
 #include "InternalHook.h"
@@ -52,7 +53,14 @@ namespace Hookshot
 
 
     // -------- FUNCTIONS -------------------------------------------------- //
-    // These are the hook functions for the CreateProcess family of functions.
+    // These implement the internal hooks for the CreateProcess family of Windows API functions.
+
+    void* InternalHook_CreateProcessA::OriginalFunctionAddress(void)
+    {
+        return GetWindowsApiFunctionAddress("CreateProcessA", &CreateProcessA);
+    }
+
+    // --------
 
     BOOL InternalHook_CreateProcessA::Hook(LPCSTR lpApplicationName, LPSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCSTR lpCurrentDirectory, LPSTARTUPINFOA lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation)
     {
@@ -69,6 +77,13 @@ namespace Hookshot
             Protected::Windows_ResumeThread(processInfo.hThread);
 
         return createProcessResult;
+    }
+
+    // --------
+
+    void* InternalHook_CreateProcessW::OriginalFunctionAddress(void)
+    {
+        return GetWindowsApiFunctionAddress("CreateProcessW", &CreateProcessW);
     }
 
     // --------

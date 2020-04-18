@@ -30,17 +30,17 @@ namespace Hookshot
         // -------- INSTANCE VARIABLES ------------------------------------- //
 
         /// Flag used to indicate if internal hooks have been specified.
-        bool areInternalHooksSet; // = false;
+        bool areInternalHooksSet;
 
         /// Registry of all hooks that need to be set.
-        std::map<std::wstring_view, EResult(*)(void)> hookRegistry;
+        std::map<std::wstring_view, EResult(*)(void)> internalHooks;
 
 
     private:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
         /// Default constructor.  Objects cannot be constructed externally.
-        InternalHookRegistry(void) : areInternalHooksSet(false), hookRegistry()
+        InternalHookRegistry(void) : areInternalHooksSet(false), internalHooks()
         {
             // Nothing to do here.
         }
@@ -72,7 +72,7 @@ namespace Hookshot
         if (true == registry.areInternalHooksSet)
             return false;
 
-        registry.hookRegistry[hookName] = setHookFunc;
+        registry.internalHooks[hookName] = setHookFunc;
 
         return true;
     }
@@ -86,7 +86,7 @@ namespace Hookshot
         if (true == registry.areInternalHooksSet)
             return;
 
-        for (auto hook = registry.hookRegistry.cbegin(); hook != registry.hookRegistry.cend(); ++hook)
+        for (auto hook = registry.internalHooks.cbegin(); hook != registry.internalHooks.cend(); ++hook)
         {
             const EResult result = hook->second();
 
@@ -97,6 +97,6 @@ namespace Hookshot
         }
 
         registry.areInternalHooksSet = true;
-        registry.hookRegistry.clear();
+        registry.internalHooks.clear();
     }
 }

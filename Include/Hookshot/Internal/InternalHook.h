@@ -22,27 +22,29 @@
 
 /// Declares an internal hook.  Defines a type to represent a hook for the specified function.  Parameter is the name of the function being hooked.
 /// Type name is of the format "InternalHook_[function name]" and is created in whatever namespace encloses the invocation of this macro.
+/// There is an additional method, `GetOriginalFunctionAddress`, which allows resolution of the original function address at runtime.
 /// See StaticHook interface documentation for more information.
 #define HOOKSHOT_INTERNAL_HOOK(func) \
     inline constexpr wchar_t kInternalHookName__##func[] = _CRT_WIDE(#func); \
-    inline const bool kInternalHookIsRegistered__##func = ::Hookshot::RegisterInternalHook(kInternalHookName__##func, &::Hookshot::InternalHook<kInternalHookName__##func, (void*)(&(func)), decltype(func)>::SetHook); \
-    using InternalHook_##func = ::Hookshot::InternalHook<kInternalHookName__##func, (void*)(&(func)), decltype(func)>
+    inline const bool kInternalHookIsRegistered__##func = ::Hookshot::RegisterInternalHook(kInternalHookName__##func, &::Hookshot::InternalHook<kInternalHookName__##func, decltype(func)>::SetHook); \
+    using InternalHook_##func = ::Hookshot::InternalHook<kInternalHookName__##func, decltype(func)>
 
 /// Implements internal hook template specialization so that function prototypes and calling conventions are automatically extracted based on the supplied function.
 /// Parameters are just different syntactic representations of calling conventions, which are used to create one template specialization for calling convention.
 #define HOOKSHOT_INTERNAL_HOOK_TEMPLATE(callingConvention, callingConventionInBrackets) \
-    template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress, typename ReturnType, typename... ArgumentTypes> class InternalHook<kOriginalFunctionName, kOriginalFunctionAddress, ReturnType callingConventionInBrackets (ArgumentTypes...)> : public InternalHookBase<kOriginalFunctionName, kOriginalFunctionAddress> \
+    template <const wchar_t* kOriginalFunctionName, typename ReturnType, typename... ArgumentTypes> class InternalHook<kOriginalFunctionName, ReturnType callingConventionInBrackets (ArgumentTypes...)> : public InternalHookBase<kOriginalFunctionName> \
     { \
     public: \
         static ReturnType callingConvention Hook(ArgumentTypes...); \
-        static ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))InternalHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::GetOriginalFunction())(args...); } \
-        static EResult SetHook(void) { return InternalHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::SetHook(&Hook); } \
-    }; \
+        static ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))InternalHookBase<kOriginalFunctionName>::GetOriginalFunction())(args...); } \
+        static void* OriginalFunctionAddress(void); \
+        static EResult SetHook(void) { return InternalHookBase<kOriginalFunctionName>::SetHook(&OriginalFunctionAddress, &Hook); } \
+    };
 
 namespace Hookshot
 {
     /// Base class for all internal hooks.
-    template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress> class InternalHookBase
+    template <const wchar_t* kOriginalFunctionName> class InternalHookBase
     {
     private:
         static const void* originalFunction;
@@ -53,15 +55,15 @@ namespace Hookshot
             return originalFunction;
         }
 
-        static inline EResult SetHook(const void* hookFunc)
+        static inline EResult SetHook(void*(*funcGetOriginalFunctionAddress)(void), const void* hookFunc)
         {
-            return HookStore::CreateHookInternal(kOriginalFunctionAddress, hookFunc, true, &originalFunction);
+            return HookStore::CreateHookInternal(funcGetOriginalFunctionAddress(), hookFunc, true, &originalFunction);
         }
     };
-    template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress> const void* InternalHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::originalFunction = nullptr;
+    template <const wchar_t* kOriginalFunctionName> const void* InternalHookBase<kOriginalFunctionName>::originalFunction = nullptr;
     
     /// Primary template.  Specialized using #HOOKSHOT_INTERNAL_HOOK_TEMPLATE.
-    template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress, typename T> class InternalHook
+    template <const wchar_t* kOriginalFunctionName, typename T> class InternalHook
     {
         static_assert(std::is_function<T>::value, "Supplied argument in InternalHook declaration must map to a function type.");
     };
