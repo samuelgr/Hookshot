@@ -37,7 +37,7 @@ extern "C" void __fastcall InjectLandingCleanup(const SInjectData* const injectD
     for (size_t i = 0; i < _countof(cleanupBaseAddress); ++i)
     {
         if (nullptr != cleanupBaseAddress[i])
-            Windows::ProtectedVirtualFree(cleanupBaseAddress[i], 0, MEM_RELEASE);
+            Protected::Windows_VirtualFree(cleanupBaseAddress[i], 0, MEM_RELEASE);
     }
 }
 
@@ -45,7 +45,7 @@ extern "C" void __fastcall InjectLandingCleanup(const SInjectData* const injectD
 
 extern "C" void __fastcall InjectLandingLoadHookModules(const SInjectData* const injectData)
 {
-    if ((0 != injectData->enableDebugFeatures) && (0 == Windows::ProtectedIsDebuggerPresent()))
+    if ((0 != injectData->enableDebugFeatures) && (0 == Protected::Windows_IsDebuggerPresent()))
         Message::OutputFormatted(Message::ESeverity::ForcedInteractiveInfo, L"Attach to \"%s\" (PID %d) to continue debugging.", Strings::kStrExecutableBaseName.data(), Globals::GetCurrentProcessId());
 
     const int numHookModulesLoaded = LibraryInterface::LoadHookModules();

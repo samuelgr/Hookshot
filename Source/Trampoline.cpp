@@ -80,7 +80,7 @@ namespace Hookshot
     {
         Message::OutputFormatted(Message::ESeverity::Info, L"Trampoline at 0x%llx is being set up with hook function 0x%llx.", (long long)this, (long long)hookFunc);
         code.hook.ptr[_countof(code.hook.ptr) - 1] = ValueForHookAddress(hookFunc);
-        Windows::ProtectedFlushInstructionCache(Globals::GetCurrentProcessHandle(), &code.hook, sizeof(code.hook));
+        Protected::Windows_FlushInstructionCache(Globals::GetCurrentProcessHandle(), &code.hook, sizeof(code.hook));
     }
 
     // --------
@@ -245,7 +245,7 @@ namespace Hookshot
             }
         }
 
-        Windows::ProtectedFlushInstructionCache(Globals::GetCurrentProcessHandle(), &code.original, sizeof(code.original));
+        Protected::Windows_FlushInstructionCache(Globals::GetCurrentProcessHandle(), &code.original, sizeof(code.original));
         return true;
     }
 }

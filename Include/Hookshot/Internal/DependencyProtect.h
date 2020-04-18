@@ -17,48 +17,65 @@
 #include "ApiWindows.h"
 
 
+// -------- MACROS --------------------------------------------------------- //  
+
+// This preprocessor symbol is defined in "DependencyProtect.cpp" because that file replaces the definition of the macro.
+// As a result, adding a declaration below is sufficient to make the protected dependency work.
+#ifndef NODECLARE_PROTECTED_DEPENDENCIES
+
+/// Declares a type-safe protected dependency pointer.
+/// First parameter specifies the desired namespace for the protected dependency pointer.
+/// Second parameter specifies the function's namespace qualifier path, (i.e. where to find the function).
+/// Third parameter specifies the function name within its qualifying namespace.
+#define PROTECTED_DEPENDENCY(qualpath, nspace, func) \
+    extern const volatile decltype(&qualpath::func) nspace##_##func
+
+#endif
+
+
 namespace Hookshot
 {
-    // -------- CONSTANTS -------------------------------------------------- //
-    // Pointers to protected versions of various API functions.
-    // Namespaced by API.
-
-    namespace Windows
+    namespace Protected
     {
-        extern const volatile decltype(&CloseHandle) ProtectedCloseHandle;
-        extern const volatile decltype(&CreateFileMapping) ProtectedCreateFileMapping;
-        extern const volatile decltype(&CreateProcess) ProtectedCreateProcess;
-        extern const volatile decltype(&DuplicateHandle) ProtectedDuplicateHandle;
-        extern const volatile decltype(&FindClose) ProtectedFindClose;
-        extern const volatile decltype(&FindFirstFileEx) ProtectedFindFirstFileEx;
-        extern const volatile decltype(&FindNextFile) ProtectedFindNextFile;
-        extern const volatile decltype(&FlushInstructionCache) ProtectedFlushInstructionCache;
-        extern const volatile decltype(&GetExitCodeProcess) ProtectedGetExitCodeProcess;
-        extern const volatile decltype(&GetLastError) ProtectedGetLastError;
-        extern const volatile decltype(&GetModuleHandleEx) ProtectedGetModuleHandleEx;
-        extern const volatile decltype(&GetProcAddress) ProtectedGetProcAddress;
-        extern const volatile decltype(&IsDebuggerPresent) ProtectedIsDebuggerPresent;
-        extern const volatile decltype(&LoadLibrary) ProtectedLoadLibrary;
-        extern const volatile decltype(&MessageBox) ProtectedMessageBox;
-        extern const volatile decltype(&MapViewOfFile) ProtectedMapViewOfFile;
-        extern const volatile decltype(&OutputDebugString) ProtectedOutputDebugString;
-        extern const volatile decltype(&QueryFullProcessImageName) ProtectedQueryFullProcessImageName;
-        extern const volatile decltype(&ResumeThread) ProtectedResumeThread;
-        extern const volatile decltype(&SetLastError) ProtectedSetLastError;
-        extern const volatile decltype(&TerminateProcess) ProtectedTerminateProcess;
-        extern const volatile decltype(&UnmapViewOfFile) ProtectedUnmapViewOfFile;
-        extern const volatile decltype(&VirtualAlloc) ProtectedVirtualAlloc;
-        extern const volatile decltype(&VirtualFree) ProtectedVirtualFree;
-        extern const volatile decltype(&VirtualQuery) ProtectedVirtualQuery;
-        extern const volatile decltype(&VirtualProtect) ProtectedVirtualProtect;
-        extern const volatile decltype(&WaitForSingleObject) ProtectedWaitForSingleObject;
+        // -------- GLOBALS ---------------------------------------------------- //
+        // Pointers to protected versions of various API functions.
+        // Each declaration produces a read-only (but updated behind-the-scenes) function pointer.
+        // Naming convention is "[second macro parameter]_[third macro parameter]" for each function pointer.
+
+        PROTECTED_DEPENDENCY(, Windows, CloseHandle);
+        PROTECTED_DEPENDENCY(, Windows, CreateFileMapping);
+        PROTECTED_DEPENDENCY(, Windows, CreateProcess);
+        PROTECTED_DEPENDENCY(, Windows, DuplicateHandle);
+        PROTECTED_DEPENDENCY(, Windows, FindClose);
+        PROTECTED_DEPENDENCY(, Windows, FindFirstFileEx);
+        PROTECTED_DEPENDENCY(, Windows, FindNextFile);
+        PROTECTED_DEPENDENCY(, Windows, FlushInstructionCache);
+        PROTECTED_DEPENDENCY(, Windows, GetExitCodeProcess);
+        PROTECTED_DEPENDENCY(, Windows, GetLastError);
+        PROTECTED_DEPENDENCY(, Windows, GetModuleHandleEx);
+        PROTECTED_DEPENDENCY(, Windows, GetProcAddress);
+        PROTECTED_DEPENDENCY(, Windows, IsDebuggerPresent);
+        PROTECTED_DEPENDENCY(, Windows, LoadLibrary);
+        PROTECTED_DEPENDENCY(, Windows, MessageBox);
+        PROTECTED_DEPENDENCY(, Windows, MapViewOfFile);
+        PROTECTED_DEPENDENCY(, Windows, OutputDebugString);
+        PROTECTED_DEPENDENCY(, Windows, QueryFullProcessImageName);
+        PROTECTED_DEPENDENCY(, Windows, ResumeThread);
+        PROTECTED_DEPENDENCY(, Windows, SetLastError);
+        PROTECTED_DEPENDENCY(, Windows, TerminateProcess);
+        PROTECTED_DEPENDENCY(, Windows, UnmapViewOfFile);
+        PROTECTED_DEPENDENCY(, Windows, VirtualAlloc);
+        PROTECTED_DEPENDENCY(, Windows, VirtualFree);
+        PROTECTED_DEPENDENCY(, Windows, VirtualQuery);
+        PROTECTED_DEPENDENCY(, Windows, VirtualProtect);
+        PROTECTED_DEPENDENCY(, Windows, WaitForSingleObject);
     }
 
 
     // -------- FUNCTIONS -------------------------------------------------- //
 
     /// Updates the address of a protected dependency.
-    /// Behind the scenes, this modifies one of the above seemingly-constant function pointers to point somewhere else.
+    /// Behind the scenes, this modifies one of the above function pointers to point somewhere else.
     /// Has no effect if the specified old address is not actually one of the protected dependencies.
     /// @param [in] dependency Address of one of the above function pointers whose value needs to be updated.
     /// @param [in] newAddress New address to which the function pointer should point.

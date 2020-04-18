@@ -122,7 +122,7 @@ namespace Hookshot
 
                 selectedOutputModes[numOutputModes++] = EOutputMode::GraphicalMessageBox;
             }
-            else if (Windows::ProtectedIsDebuggerPresent())
+            else if (Protected::Windows_IsDebuggerPresent())
             {
                 // If a debugger is present, #WillOutputMessageOfSeverity will always return `true`.
                 // The goal is tn ensure that debug strings are sent for all messages irrespective of severity (assuming they are not forced interactive).
@@ -167,7 +167,7 @@ namespace Hookshot
             outputString << message << L"\n";
 
             // Output to the debugger.
-            Windows::ProtectedOutputDebugString(outputString.str().c_str());
+            Protected::Windows_OutputDebugString(outputString.str().c_str());
         }
 
         /// Outputs the specified message to the log file.
@@ -232,7 +232,7 @@ namespace Hookshot
                 break;
             }
 
-            Windows::ProtectedMessageBox(nullptr, message, Strings::kStrProductName.data(), messageBoxType);
+            Protected::Windows_MessageBox(nullptr, message, Strings::kStrProductName.data(), messageBoxType);
         }
 
         /// Outputs the specified message.
@@ -347,7 +347,7 @@ namespace Hookshot
         {
             // Messages of all severities are output unconditionally if a debugger is present.
             // #DetermineOutputModes takes care of selecting the appropriate modes, given the message severity.
-            if (Windows::ProtectedIsDebuggerPresent())
+            if (Protected::Windows_IsDebuggerPresent())
                 return true;
 
             if ((severity < ESeverity::ForcedInteractiveBoundaryValue) || (severity <= minimumSeverityForOutput))

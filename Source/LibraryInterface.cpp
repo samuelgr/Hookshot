@@ -58,19 +58,19 @@ namespace Hookshot
         static bool LoadHookModule(std::wstring_view hookModuleFileName)
         {
             Message::OutputFormatted(Message::ESeverity::Info, L"%s - Attempting to load hook module.", hookModuleFileName.data());
-            const HMODULE hookModule = Windows::ProtectedLoadLibrary(hookModuleFileName.data());
+            const HMODULE hookModule = Protected::Windows_LoadLibrary(hookModuleFileName.data());
 
             if (nullptr == hookModule)
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load hook module (system error %d).", hookModuleFileName.data(), Windows::ProtectedGetLastError());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load hook module (system error %d).", hookModuleFileName.data(), Protected::Windows_GetLastError());
                 return false;
             }
 
-            const THookModuleInitProc initProc = (THookModuleInitProc)Windows::ProtectedGetProcAddress(hookModule, Strings::kStrHookLibraryInitFuncName.data());
+            const THookModuleInitProc initProc = (THookModuleInitProc)Protected::Windows_GetProcAddress(hookModule, Strings::kStrHookLibraryInitFuncName.data());
 
             if (nullptr == initProc)
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to locate required procedure in hook module (system error %d).", hookModuleFileName.data(), Windows::ProtectedGetLastError());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to locate required procedure in hook module (system error %d).", hookModuleFileName.data(), Protected::Windows_GetLastError());
                 return false;
             }
 
@@ -86,11 +86,11 @@ namespace Hookshot
         static bool LoadInjectOnlyLibrary(std::wstring_view injectOnlyLibraryFileName)
         {
             Message::OutputFormatted(Message::ESeverity::Info, L"%s - Attempting to load library.", injectOnlyLibraryFileName.data());
-            const HMODULE hookModule = Windows::ProtectedLoadLibrary(injectOnlyLibraryFileName.data());
+            const HMODULE hookModule = Protected::Windows_LoadLibrary(injectOnlyLibraryFileName.data());
 
             if (nullptr == hookModule)
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load library (system error %d).", injectOnlyLibraryFileName.data(), Windows::ProtectedGetLastError());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load library (system error %d).", injectOnlyLibraryFileName.data(), Protected::Windows_GetLastError());
                 return false;
             }
 
@@ -133,7 +133,7 @@ namespace Hookshot
 
             const std::wstring hookModuleSearchString = Strings::MakeHookModuleFilename(L"*");
             WIN32_FIND_DATA hookModuleFileData;
-            HANDLE hookModuleFind = Windows::ProtectedFindFirstFileEx(hookModuleSearchString.c_str(), FindExInfoBasic, &hookModuleFileData, FindExSearchNameMatch, NULL, 0);
+            HANDLE hookModuleFind = Protected::Windows_FindFirstFileEx(hookModuleSearchString.c_str(), FindExInfoBasic, &hookModuleFileData, FindExSearchNameMatch, NULL, 0);
             BOOL moreHookModulesExist = (INVALID_HANDLE_VALUE != hookModuleFind);
 
             TemporaryBuffer<wchar_t> hookModuleFileName;
@@ -146,11 +146,11 @@ namespace Hookshot
                 if (true == LoadHookModule(&hookModuleFileName[0]))
                     numHookModulesLoaded += 1;
 
-                moreHookModulesExist = Windows::ProtectedFindNextFile(hookModuleFind, &hookModuleFileData);
+                moreHookModulesExist = Protected::Windows_FindNextFile(hookModuleFind, &hookModuleFileData);
             }
 
             if (INVALID_HANDLE_VALUE != hookModuleFind)
-                Windows::ProtectedFindClose(hookModuleFind);
+                Protected::Windows_FindClose(hookModuleFind);
 
             return numHookModulesLoaded;
         }

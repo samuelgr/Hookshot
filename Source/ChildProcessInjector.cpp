@@ -38,10 +38,10 @@ namespace Hookshot
         TemporaryBuffer<wchar_t> childProcessExecutable;
         DWORD childProcessExecutableLength = childProcessExecutable.Count();
 
-        if (0 == Windows::ProtectedQueryFullProcessImageName(processHandle, 0, childProcessExecutable, &childProcessExecutableLength))
+        if (0 == Protected::Windows_QueryFullProcessImageName(processHandle, 0, childProcessExecutable, &childProcessExecutableLength))
             childProcessExecutableLength = 0;
 
-        const EInjectResult result = RemoteProcessInjector::InjectProcess(processHandle, threadHandle, false, Windows::ProtectedIsDebuggerPresent());
+        const EInjectResult result = RemoteProcessInjector::InjectProcess(processHandle, threadHandle, false, Protected::Windows_IsDebuggerPresent());
 
         if (EInjectResult::InjectResultSuccess == result)
             Message::OutputFormatted(Message::ESeverity::Info, L"Successfully injected child process %s.", (0 == childProcessExecutableLength ? L"(error determining executable file name)" : &childProcessExecutable[0]));
@@ -65,7 +65,7 @@ namespace Hookshot
             InjectChildProcess(processInfo.hProcess, processInfo.hThread);
 
         if (false == shouldCreateSuspended)
-            Windows::ProtectedResumeThread(processInfo.hThread);
+            Protected::Windows_ResumeThread(processInfo.hThread);
 
         return createProcessResult;
     }
@@ -84,7 +84,7 @@ namespace Hookshot
             InjectChildProcess(processInfo.hProcess, processInfo.hThread);
 
         if (false == shouldCreateSuspended)
-            Windows::ProtectedResumeThread(processInfo.hThread);
+            Protected::Windows_ResumeThread(processInfo.hThread);
 
         return createProcessResult;
     }

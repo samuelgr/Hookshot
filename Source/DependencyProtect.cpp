@@ -11,8 +11,6 @@
 
 #pragma once
 
-#include "ApiWindows.h"
-
 #include <cstdint>
 #include <intrin.h>
 #include <unordered_map>
@@ -20,75 +18,61 @@
 
 namespace Hookshot
 {
-    // -------- GLOBALS ---------------------------------------------------- //
-    // See "DependencyProtect.h" for documentation.
-    // Despite being declared const, these are updated behind-the-scenes.
-
-    namespace Windows
+    namespace Protected
     {
-        extern const volatile decltype(&CloseHandle) ProtectedCloseHandle = CloseHandle;
-        extern const volatile decltype(&CreateFileMapping) ProtectedCreateFileMapping = CreateFileMapping;
-        extern const volatile decltype(&CreateProcess) ProtectedCreateProcess = CreateProcess;
-        extern const volatile decltype(&DuplicateHandle) ProtectedDuplicateHandle = DuplicateHandle;
-        extern const volatile decltype(&FindClose) ProtectedFindClose = FindClose;
-        extern const volatile decltype(&FindFirstFileEx) ProtectedFindFirstFileEx = FindFirstFileEx;
-        extern const volatile decltype(&FindNextFile) ProtectedFindNextFile = FindNextFile;
-        extern const volatile decltype(&FlushInstructionCache) ProtectedFlushInstructionCache = FlushInstructionCache;
-        extern const volatile decltype(&GetExitCodeProcess) ProtectedGetExitCodeProcess = GetExitCodeProcess;
-        extern const volatile decltype(&GetLastError) ProtectedGetLastError = GetLastError;
-        extern const volatile decltype(&GetModuleHandleEx) ProtectedGetModuleHandleEx = GetModuleHandleEx;
-        extern const volatile decltype(&GetProcAddress) ProtectedGetProcAddress = GetProcAddress;
-        extern const volatile decltype(&IsDebuggerPresent) ProtectedIsDebuggerPresent = IsDebuggerPresent;
-        extern const volatile decltype(&LoadLibrary) ProtectedLoadLibrary = LoadLibrary;
-        extern const volatile decltype(&MapViewOfFile) ProtectedMapViewOfFile = MapViewOfFile;
-        extern const volatile decltype(&MessageBox) ProtectedMessageBox = MessageBox;
-        extern const volatile decltype(&OutputDebugString) ProtectedOutputDebugString = OutputDebugString;
-        extern const volatile decltype(&QueryFullProcessImageName) ProtectedQueryFullProcessImageName = QueryFullProcessImageName;
-        extern const volatile decltype(&ResumeThread) ProtectedResumeThread = ResumeThread;
-        extern const volatile decltype(&SetLastError) ProtectedSetLastError = SetLastError;
-        extern const volatile decltype(&TerminateProcess) ProtectedTerminateProcess = TerminateProcess;
-        extern const volatile decltype(&UnmapViewOfFile) ProtectedUnmapViewOfFile = UnmapViewOfFile;
-        extern const volatile decltype(&VirtualAlloc) ProtectedVirtualAlloc = VirtualAlloc;
-        extern const volatile decltype(&VirtualFree) ProtectedVirtualFree = VirtualFree;
-        extern const volatile decltype(&VirtualQuery) ProtectedVirtualQuery = VirtualQuery;
-        extern const volatile decltype(&VirtualProtect) ProtectedVirtualProtect = VirtualProtect;
-        extern const volatile decltype(&WaitForSingleObject) ProtectedWaitForSingleObject = WaitForSingleObject;
+        // -------- INTERNAL TYPES ----------------------------------------- //
+
+        /// Used to guard against accidentally defining multiple protected dependency pointers with the same initial address.
+        /// The macro #PROTECTED_DEPENDENCY declared in this file turns multiple definitions with the same address into compiler errors.
+        template <void* address> class MultipleDefinitionGuard
+        {
+            static bool multipleProtectedDependencyDefinitionGuard;
+        };
     }
 
 
     // -------- INTERNAL VARIABLES ----------------------------------------- //
 
-    static std::unordered_map<const void*, const void* volatile*> protectedDependencies = {
-        {Windows::ProtectedCloseHandle, (const void* volatile*)&Windows::ProtectedCloseHandle},
-        {Windows::ProtectedCreateFileMapping, (const void* volatile*)&Windows::ProtectedCreateFileMapping},
-        {Windows::ProtectedCreateProcess, (const void* volatile*)&Windows::ProtectedCreateProcess},
-        {Windows::ProtectedDuplicateHandle, (const void* volatile*)&Windows::ProtectedDuplicateHandle},
-        {Windows::ProtectedFindClose, (const void* volatile*)&Windows::ProtectedFindClose},
-        {Windows::ProtectedFindFirstFileEx, (const void* volatile*)&Windows::ProtectedFindFirstFileEx},
-        {Windows::ProtectedFindNextFile, (const void* volatile*)&Windows::ProtectedFindNextFile},
-        {Windows::ProtectedFlushInstructionCache, (const void* volatile*)&Windows::ProtectedFlushInstructionCache},
-        {Windows::ProtectedGetExitCodeProcess, (const void* volatile*)&Windows::ProtectedGetExitCodeProcess},
-        {Windows::ProtectedGetLastError, (const void* volatile*)&Windows::ProtectedGetLastError},
-        {Windows::ProtectedGetModuleHandleEx, (const void* volatile*)&Windows::ProtectedGetModuleHandleEx},
-        {Windows::ProtectedGetProcAddress, (const void* volatile*)&Windows::ProtectedGetProcAddress},
-        {Windows::ProtectedIsDebuggerPresent, (const void* volatile*)&Windows::ProtectedIsDebuggerPresent},
-        {Windows::ProtectedLoadLibrary, (const void* volatile*)&Windows::ProtectedLoadLibrary},
-        {Windows::ProtectedMapViewOfFile, (const void* volatile*)&Windows::ProtectedMapViewOfFile},
-        {Windows::ProtectedMessageBox, (const void* volatile*)&Windows::ProtectedMessageBox},
-        {Windows::ProtectedOutputDebugString, (const void* volatile*)&Windows::ProtectedOutputDebugString},
-        {Windows::ProtectedQueryFullProcessImageName, (const void* volatile*)&Windows::ProtectedQueryFullProcessImageName},
-        {Windows::ProtectedResumeThread, (const void* volatile*)&Windows::ProtectedResumeThread},
-        {Windows::ProtectedSetLastError, (const void* volatile*)&Windows::ProtectedSetLastError},
-        {Windows::ProtectedTerminateProcess, (const void* volatile*)&Windows::ProtectedTerminateProcess},
-        {Windows::ProtectedUnmapViewOfFile, (const void* volatile*)&Windows::ProtectedUnmapViewOfFile},
-        {Windows::ProtectedVirtualAlloc, (const void* volatile*)&Windows::ProtectedVirtualAlloc},
-        {Windows::ProtectedVirtualFree, (const void* volatile*)&Windows::ProtectedVirtualFree},
-        {Windows::ProtectedVirtualQuery, (const void* volatile*)&Windows::ProtectedVirtualQuery},
-        {Windows::ProtectedVirtualProtect, (const void* volatile*)&Windows::ProtectedVirtualProtect},
-        {Windows::ProtectedWaitForSingleObject, (const void* volatile*)&Windows::ProtectedWaitForSingleObject},
-    };
+    /// Registry of all protected dependencies.
+    /// Key is the current known address of the protected dependency.
+    /// Value is the address of the protected dependency pointer.
+    static std::unordered_map<const void*, const void* volatile*> protectedDependencies;
 
 
+    // -------- INTERNAL FUNCTIONS ----------------------------------------- //
+
+    /// Initializes a protected dependency pointer.
+    /// Returns the address passed in after registering the protected dependency in the registry.
+    /// @param [in] address Initial address of the protected dependency function.
+    /// @param [in] protectedDependencyPointer Address of the protected dependency function pointer.
+    static inline const void* InitializeProtectedDependencyAddress(const void* address, const void* volatile* protectedDependencyPointer)
+    {
+        protectedDependencies[address] = protectedDependencyPointer;
+        return address;
+    }
+}
+
+
+// -------- MACROS --------------------------------------------------------- //
+
+/// Defines and initializes a type-safe protected dependency pointer.
+/// First parameter specifies the namespace path, and second the function name.
+#define PROTECTED_DEPENDENCY(qualpath, nspace, func) \
+    bool MultipleDefinitionGuard<(void*)&qualpath::func>::multipleProtectedDependencyDefinitionGuard = true; \
+    extern const volatile decltype(&qualpath::func) nspace##_##func = (decltype(&qualpath::func))InitializeProtectedDependencyAddress(&qualpath::func, (const void* volatile*)&nspace##_##func)
+
+/// Ensures that the protected dependency function pointers use the above macro so they are defined instead of simply declared.
+#define NODECLARE_PROTECTED_DEPENDENCIES
+
+
+// -------- GLOBALS -------------------------------------------------------- //
+// Variables are imported from "DependencyProtect.h" and defined.
+
+#include "DependencyProtect.h"
+
+
+namespace Hookshot
+{
     // -------- FUNCTIONS -------------------------------------------------- //
     // See "DependencyProtect.h" for documentation.
 
