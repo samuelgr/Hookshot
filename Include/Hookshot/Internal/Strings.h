@@ -136,6 +136,11 @@ namespace Hookshot
         /// Hook module filename = (executable directory)\(hook module name).(hook module suffix)
         /// @param [in] moduleName Hook module name to use when generating the filename.
         /// @return Hook module filename.
-        std::wstring MakeHookModuleFilename(std::wstring_view moduleName);
+        std::wstring HookModuleFilename(std::wstring_view moduleName);
+
+        /// Generates a string representation of a system error code.
+        /// @param [in] systemErrorCode System error code for which to generate a string.
+        /// @return String representation of the system error code.
+        std::wstring SystemErrorCodeString(const unsigned long systemErrorCode);
     }
 }

@@ -320,11 +320,11 @@ namespace Hookshot
             memset((void*)&injectDataStrings, 0, sizeof(injectDataStrings));
 
             injectData.enableDebugFeatures = (true == enableDebugFeatures ? 1 : 0);
-            injectData.injectionResultCodeSuccess = EInjectResult::InjectResultSuccess;
-            injectData.injectionResultCodeLoadLibraryFailed = EInjectResult::InjectResultErrorCannotLoadLibrary;
-            injectData.injectionResultCodeGetProcAddressFailed = EInjectResult::InjectResultErrorMalformedLibrary;
-            injectData.injectionResultCodeInitializationFailed = EInjectResult::InjectResultErrorLibraryInitFailed;
-            injectData.injectionResult = EInjectResult::InjectResultFailure;
+            injectData.injectionResultCodeSuccess = (uint32_t)EInjectResult::InjectResultSuccess;
+            injectData.injectionResultCodeLoadLibraryFailed = (uint32_t)EInjectResult::InjectResultErrorCannotLoadLibrary;
+            injectData.injectionResultCodeGetProcAddressFailed = (uint32_t)EInjectResult::InjectResultErrorMalformedLibrary;
+            injectData.injectionResultCodeInitializationFailed = (uint32_t)EInjectResult::InjectResultErrorLibraryInitFailed;
+            injectData.injectionResult = (uint32_t)EInjectResult::InjectResultFailure;
 
             strcpy_s(injectDataStrings, Strings::kStrLibraryInitializationProcName.data());
 

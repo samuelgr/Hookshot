@@ -10,6 +10,7 @@
  *****************************************************************************/
 
 #include "ApiWindows.h"
+#include "DependencyProtect.h"
 #include "Globals.h"
 #include "TemporaryBuffer.h"
 
@@ -328,9 +329,34 @@ namespace Hookshot
         // -------- FUNCTIONS ---------------------------------------------- //
         // See "Strings.h" for documentation.
         
-        std::wstring MakeHookModuleFilename(std::wstring_view moduleName)
+        std::wstring HookModuleFilename(std::wstring_view moduleName)
         {
             return kStrExecutableDirectoryNameImpl + moduleName.data() + kStrHookModuleExtension.data();
+        }
+
+        // --------
+
+        std::wstring SystemErrorCodeString(const unsigned long systemErrorCode)
+        {
+            TemporaryBuffer<wchar_t> systemErrorString;
+            DWORD systemErrorLength = Protected::Windows_FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, systemErrorCode, 0, systemErrorString, systemErrorString.Count(), nullptr);
+            
+            if (0 == systemErrorLength)
+            {
+                swprintf_s(systemErrorString, systemErrorString.Count(), L"System error %u.", (unsigned int)systemErrorCode);
+            }
+            else
+            {
+                for (; systemErrorLength > 0; --systemErrorLength)
+                {
+                    if (L'\0' != systemErrorString[systemErrorLength] && !iswspace(systemErrorString[systemErrorLength]))
+                        break;
+
+                    systemErrorString[systemErrorLength] = L'\0';
+                }
+            }
+
+            return std::wstring(systemErrorString);
         }
     }
 }

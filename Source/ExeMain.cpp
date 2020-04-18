@@ -143,7 +143,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
             return 0;
 
         default:
-            Message::OutputFormatted(Message::ESeverity::Error, L"EInjectResult %d.%d - Failed to inject %s.", (int)result, (int)GetLastError(), __wargv[1]);
+            Message::OutputFormatted(Message::ESeverity::Error, L"%s - Failed to inject: %s: %s", __wargv[1], InjectResultString(result).data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
             return __LINE__;
         }
     }

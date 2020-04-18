@@ -50,6 +50,7 @@ namespace Hookshot
         PROTECTED_DEPENDENCY(, Windows, FindFirstFileEx);
         PROTECTED_DEPENDENCY(, Windows, FindNextFile);
         PROTECTED_DEPENDENCY(, Windows, FlushInstructionCache);
+        PROTECTED_DEPENDENCY(, Windows, FormatMessage);
         PROTECTED_DEPENDENCY(, Windows, GetExitCodeProcess);
         PROTECTED_DEPENDENCY(, Windows, GetLastError);
         PROTECTED_DEPENDENCY(, Windows, GetModuleHandleEx);

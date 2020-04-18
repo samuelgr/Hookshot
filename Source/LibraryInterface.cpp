@@ -62,7 +62,7 @@ namespace Hookshot
 
             if (nullptr == hookModule)
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load hook module (system error %d).", hookModuleFileName.data(), Protected::Windows_GetLastError());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load hook module: %s", hookModuleFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
                 return false;
             }
 
@@ -70,7 +70,7 @@ namespace Hookshot
 
             if (nullptr == initProc)
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to locate required procedure in hook module (system error %d).", hookModuleFileName.data(), Protected::Windows_GetLastError());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to locate required procedure in hook module: %s", hookModuleFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
                 return false;
             }
 
@@ -90,7 +90,7 @@ namespace Hookshot
 
             if (nullptr == hookModule)
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load library (system error %d).", injectOnlyLibraryFileName.data(), Protected::Windows_GetLastError());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load library: %s", injectOnlyLibraryFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
                 return false;
             }
 
@@ -114,7 +114,7 @@ namespace Hookshot
                 {
                     for (auto& hookModule : sectionsWithHookModules.name.Values())
                     {
-                        if (true == LoadHookModule(Strings::MakeHookModuleFilename(hookModule.GetStringValue())))
+                        if (true == LoadHookModule(Strings::HookModuleFilename(hookModule.GetStringValue())))
                             numHookModulesLoaded += 1;
                     }
                 }
@@ -131,7 +131,7 @@ namespace Hookshot
 
             Message::Output(Message::ESeverity::Info, L"Loading all hook modules in the same directory as the executable.");
 
-            const std::wstring hookModuleSearchString = Strings::MakeHookModuleFilename(L"*");
+            const std::wstring hookModuleSearchString = Strings::HookModuleFilename(L"*");
             WIN32_FIND_DATA hookModuleFileData;
             HANDLE hookModuleFind = Protected::Windows_FindFirstFileEx(hookModuleSearchString.c_str(), FindExInfoBasic, &hookModuleFileData, FindExSearchNameMatch, NULL, 0);
             BOOL moreHookModulesExist = (INVALID_HANDLE_VALUE != hookModuleFind);

@@ -11,13 +11,15 @@
 
 #pragma once
 
-#include <cstdint>
+#include <string_view>
 
 
 namespace Hookshot
 {
+    // -------- TYPE DEFINITIONS ------------------------------------------- //
+
     /// Enumeration of possible error conditions that arise when attempting to create and inject a process.
-    enum EInjectResult : uint32_t
+    enum class EInjectResult
     {
         // Success
         InjectResultSuccess = 0,                                    ///< All operations succeeded.
@@ -79,4 +81,12 @@ namespace Hookshot
         // Maximum value in this enumeration
         InjectResultMaximumValue                                    ///< Sentinel value, not used as an error code.
     };
+
+
+    // -------- FUNCTIONS -------------------------------------------------- //
+
+    /// Retrieves a string that explains the injection result code.
+    /// @param [in] injectResult Injection result code.
+    /// @return Explanatory string.
+    std::wstring_view InjectResultString(EInjectResult injectResult);
 }
