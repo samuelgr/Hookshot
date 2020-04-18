@@ -38,7 +38,9 @@ Other available documents are listed in the [top-level document](README.md).
 
 1. Use HookshotExe to run the application.
    - If both the 32-bit and 64-bit versions of HookshotExe and HookshotDll are present, then it does not matter which version is used to launch the application.  Hookshot will automatically switch to the correct version.
-   - For example, to run the application `C:\Directory\Application.exe`, execute or create a shortcut that runs `Hookshot.32.exe C:\Directory\Application.exe` or `Hookshot.64.exe C:\Directory\Application.exe`.
+   - For example, to run the application `C:\Directory\Application.exe`, do one of these two things:
+       - In File Explorer, drag and drop `C:\Directory\Application.exe` onto `Hookshot.32.exe` or `Hookshot.64.exe`.
+       - Execute or create a shortcut that runs `Hookshot.32.exe C:\Directory\Application.exe` or `Hookshot.64.exe C:\Directory\Application.exe`.
    - If the application's path contains spaces, enclose it in quotes.  Example: `Hookshot.64.exe "C:\Directory with Spaces\Application with Spaces.exe"`
    - Command line arguments can be passed to the application.  Example: `Hookshot.32.exe C:\Directory\Application.exe --arg=val1 "--arg2=value with spaces"`
 
