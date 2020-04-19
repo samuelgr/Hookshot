@@ -35,13 +35,15 @@ Once the prerequisites have been met, Hookshot can be built using the following 
 
 1. Build Hookshot's dependencies using `ThirdParty\ThirdParty.sln`.
     - `ThirdParty.sln` and the associated Visual C++ projects act as a simple way of building all the third party dependencies from within Visual Studio.
-    - It is recommended that bulk building be used to build multiple configurations at the same time: at least Release Win32/x64, and optionally Debug Win32/x64.
+    - It is recommended that batch building be used to build multiple configurations at the same time: at least Release Win32/x64, and optionally Debug Win32/x64.
+    - There is no need to move or copy any of the build output files.  Hookshot's build system will automatically locate them in place.
     - Hookshot depends on two third-party libraries:
       - [XED](https://github.com/intelxed/xed) from Intel, for understanding and manipulating x86 instructions.  Used in HookshotDll.
       - [cpu_features](https://github.com/google/cpu_features) from Google, for checking which features the system's CPU supports.  Used in HookshotTest.
 
 1. Build Hookshot itself using `Hookshot.sln`.
-    - It is recommended that bulk building be used to build multiple configurations at the same time: at least Release Win32/x64, and optionally Debug Win32/x64.
+    - It is recommended that batch building be used to build multiple configurations at the same time: at least Release Win32/x64, and optionally Debug Win32/x64.
+    - Output files are placed into the `Output\` subdirectory.
     - After the builds complete, optionally run HookshotTest and verify that all the tests pass.
       - It is acceptable for some tests to be skipped.
       - Certain tests are only valid in 64-bit mode, and others depend on features present only on very modern CPUs.
