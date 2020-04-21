@@ -13,10 +13,12 @@ rem +--------------------------------------------------------------------------
 
 set project_name=Hookshot
 set project_has_sdk=yes
+set project_has_third_party_license=yes
 
 set files_release=LICENSE *.md Output\Release\Hookshot.32.exe Output\Release\Hookshot.64.exe Output\Release\Hookshot.32.dll Output\Release\Hookshot.64.dll
 set files_sdk_lib=Output\Release\Hookshot.32.lib Output\Release\Hookshot.64.lib
 set files_sdk_include=Include\Hookshot\*.h
+set third_party_license=IntelXED
 
 rem ---------------------------------------------------------------------------
 
@@ -57,6 +59,14 @@ for %%F in (%files_release% %files_sdk_lib% %files_sdk_include%) do (
         set files_are_missing=yes
     )
 )
+if not ""=="%project_has_third_party_license%" (
+    for %%T in (%third_party_license%) do (
+        if not exist ThirdParty\%%T\LICENSE (
+            echo Missing file: ThirdParty\%%T\LICENSE
+            set files_are_missing=yes
+        )
+    )
+)
 popd
 
 if "yes"=="%files_are_missing%" exit /b
@@ -85,6 +95,14 @@ if not ""=="%project_has_sdk%" (
         for %%F in (%files_sdk_include%) do (
             echo %%F
             copy %%F %output_dir%\SDK\Include\%project_name%
+        )
+    )
+    
+    if not ""=="%project_has_third_party_license%" (
+        md %output_dir%\ThirdParty
+        for %%T in (%third_party_license%) do (
+            echo ThirdParty\%%T\LICENSE
+            copy ThirdParty\%%T\LICENSE %output_dir%\ThirdParty\%%T_LICENSE
         )
     )
 )
