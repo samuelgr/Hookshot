@@ -9,7 +9,7 @@ This document is organized as follows.
 
 - [Getting Started](#gettingstarted)
 - [File and Directories](#files)
-- [Allowing Hookshot to Inject an Application](#permission)
+- [Authorizing Hookshot](#permission)
 - [Configuring Hookshot](#configuration)
   - [Examples of Configuration Files](#configuration-example)
   - [Available Scopes and Settings](#configuration-definition)
@@ -68,11 +68,11 @@ Following the same scenario, if `C:\Directory\Application.exe` spawns a child pr
 
 ## Authorizing Hookshot{#permission}
 
-Because the modifications that Hookshot performs on a target application can be invasive, Hookshot requires explicit permission from the end user before it will act on an application.
+Because the modifications that Hookshot performs on a target application can be invasive, Hookshot requires explicit permission from the end user before it will act on any application.
 
 To give Hookshot the permission it needs, simply create a file with extension `.hookshot` with the same name, and in the same directory, as the target application.  For example, to authorize Hookshot to act on `C:\Directory\Application.exe`, create the file `Application.exe.hookshot` and place it in `C:\Directory`.  The contents of the file do not matter.  Hookshot only checks that the file exists.
 
-Hookshot can additionally act on any programs spawned as children of the target application.  It will do so only if authorized.  For example, while `C:\Directory\Application.exe` is running it might launch another program, `C:\Directory\App2.exe`.  If Hookshot is already acting on `C:\Directory\Application.exe`, it will automatically also act on `C:\Directory\App2.exe` if it is authorized to do so by the presence of the file `C:\Directory\App2.exe.hookshot`.
+Hookshot can additionally act on any programs spawned as children of the target application.  It will do so only if authorized.  For example, while `C:\Directory\Application.exe` is running it might launch another program, `C:\Directory\App2.exe`.  If Hookshot is already acting on `C:\Directory\Application.exe`, it will automatically also act on `C:\Directory\App2.exe`, but only if the file `C:\Directory\App2.exe.hookshot` exists.
 
 
 ## Configuring Hookshot{#configuration}
