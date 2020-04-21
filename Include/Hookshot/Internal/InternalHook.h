@@ -77,10 +77,10 @@ namespace Hookshot
     HOOKSHOT_INTERNAL_HOOK_TEMPLATE(__vectorcall, (__vectorcall));
 #endif
 
-    /// Registers an internal hook so that it is automatically set when #SetAllInternalHooks is called.
-    /// Intended to be invoked automatically by the #HOOKSHOT_INTERNAL_HOOK macro, and will fail once #SetAllInternalHooks has been called.
+    /// Registers an internal hook so that it is automatically set when all internal hooks are set.
+    /// Intended to be invoked automatically by the #HOOKSHOT_INTERNAL_HOOK macro, and will fail once internal hooks have already been set.
     /// Not concurrency-safe.
-    /// @param [in] funcName Name associated with the hook to be set.
+    /// @param [in] hookName Name associated with the hook to be set.
     /// @param [in] setHookFunc Address of the internal hook's `SetHook` class method.
     /// @return `true` after registration is complete.
     bool RegisterInternalHook(std::wstring_view hookName, EResult(*setHookFunc)(void));

@@ -19,8 +19,6 @@
 
 namespace Hookshot
 {
-    /// Encapsulates all supporting functionality for Hookshot's library interface.
-    /// The point of these functions is to offer consistent interaction with outisde code irrespective of how the Hookshot library was loaded (i.e. via injection or via linking and loading).
     namespace LibraryInterface
     {
         // -------- FUNCTIONS ---------------------------------------------- //
@@ -33,11 +31,11 @@ namespace Hookshot
         void EnableLogIfConfigured(void);
         
         /// Retrieves the Hookshot configuration data object.
-        /// Only useful if #IsConfigurationDataValid returns `true`.
+        /// Only useful if IsConfigurationDataValid returns `true`.
         const Configuration::ConfigurationData& GetConfigurationData(void);
 
         /// Retrieves a string containing a message that describes the error encountered while attempting to read the Hookshot configuration file.
-        /// Only useful if #IsConfigurationDataValid returns `false`.
+        /// Only useful if IsConfigurationDataValid returns `false`.
         /// @return String containing the configuration file read error message.
         std::wstring_view GetConfigurationErrorMessage(void);
 

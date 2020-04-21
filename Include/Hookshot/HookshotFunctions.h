@@ -36,7 +36,7 @@ extern "C" __declspec(dllimport) Hookshot::IHookshot* __fastcall HookshotLibrary
 
 namespace Hookshot
 {
-    /// Type definition for a pointer to #HookshotLibraryInitialize, whose address can be retrieved via a call to a function like `GetProcAddress`.
+    /// Type definition for a pointer to the Hookshot library initialization function, whose address can be retrieved via a call to a function like `GetProcAddress`.
     typedef Hookshot::IHookshot*(__fastcall * TLibraryInitializeProc)(void);
 
 #ifdef _WIN64

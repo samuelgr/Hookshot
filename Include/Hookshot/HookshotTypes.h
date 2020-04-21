@@ -81,6 +81,7 @@ namespace Hookshot
         /// The existing hook is identified either by the address of the original function or the address of the current hook function.
         /// On success, Hookshot associates the new hook function with the hook and forgets about the old hook function.
         /// @param [in] originalOrHookFunc Address of either the original function or the hook function (it does not matter which) currently associated with the hook.
+        /// @param [in] newHookFunc Address of the new hook function.
         /// @return Result of the operation.
         virtual EResult __fastcall ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc) = 0;
     };

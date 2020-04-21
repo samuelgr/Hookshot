@@ -20,7 +20,6 @@
 
 namespace Hookshot
 {
-    /// Provides all functionality related to creating processes and injecting them with Hookshot code.
     namespace ProcessInjector
     {
         // -------- FUNCTIONS ---------------------------------------------- //

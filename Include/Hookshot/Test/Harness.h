@@ -51,13 +51,13 @@ namespace HookshotTest
 
     public:
         /// Prints the specified message and appends a newline.
-        /// For use inside a test case, but print requests should be through the appropriate #ITestCase methods.
+        /// For use inside a test case, but print requests should be through the appropriate ITestCase methods.
         /// @param [in] testCase Test case object.
         /// @param [in] str Message string.
         static void PrintFromTestCase(const ITestCase* const testCase, const wchar_t* const str);
 
         /// Formats and prints the specified message and appends a newline.
-        /// For use inside a test case, but print requests should be through the appropriate #ITestCase methods.
+        /// For use inside a test case, but print requests should be through the appropriate ITestCase methods.
         /// @param [in] testCase Test case object.
         /// @param [in] format Message string, possibly with format specifiers.
         /// @param [in] args Variable argument list.

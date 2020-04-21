@@ -42,6 +42,7 @@ namespace Hookshot
         /// @param [in] processHandle Handle to the process to inject.
         /// @param [in] threadHandle Handle to the main thread of the process to inject.
         /// @param [in] switchArchitecture If `true`, specifies that the injection must cross a processor architecture boundary (i.e. 32-bit -> 64-bit or vice versa).
+        /// @param [in] enableDebugFeatures If `true`, signals to the injected process that a debugger is present, so certain debug features should be enabled.
         /// @return Indicator of the result of the operation.
         EInjectResult InjectProcess(const HANDLE processHandle, const HANDLE threadHandle, const bool switchArchitecture, const bool enableDebugFeatures);
     }

@@ -188,6 +188,7 @@ namespace Hookshot
 
         /// Attempts to encode this instruction to the specified address, overwriting a number of bytes equal to the length of this instruction.
         /// @param [out] buf Destination buffer.
+        /// @param [in] maxLengthBytes Maximum allowed encoding length, in bytes.
         /// @return Number of bytes written on success, 0 on failure.
         int EncodeInstruction(void* const buf, const int maxLengthBytes = kMaxInstructionLengthBytes) const;
         

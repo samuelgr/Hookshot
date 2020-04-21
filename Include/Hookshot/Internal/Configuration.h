@@ -470,7 +470,7 @@ namespace Hookshot
             }
 
             /// Determines if a configuration setting of the specified name exists in the specified section.
-            /// @param [in] name Section name to check.
+            /// @param [in] section Section name to check.
             /// @param [in] name Name of the configuration setting to check.
             /// @return `true` if the setting exists, `false` otherwise.
             inline bool SectionNamePairExists(std::wstring_view section, std::wstring_view name) const
@@ -652,7 +652,7 @@ namespace Hookshot
             }
 
             /// Reads and parses a configuration file, storing the settings in this object.
-            /// After this method returns, use #IsDataValid and #GetData to retrieve configuration settings.
+            /// After this method returns, use #GetFileReadResult and #GetData to retrieve configuration settings.
             /// In the event of a read error, #GetReadErrorMessage can be used to obtain a string describing the read error that occurred.
             /// @param [in] configFileName Name of the configuration file to read.
             inline void ReadConfigurationFile(std::wstring_view configFileName)
@@ -674,7 +674,7 @@ namespace Hookshot
 
 // -------- MACROS --------------------------------------------------------- //
 
-/// Convenience wrapper around initializer list syntax for defining a configuration file section in a layout object of type #TConfigurationFileLayout.
+/// Convenience wrapper around initializer list syntax for defining a configuration file section in a layout object.
 /// Specify a section name followed by a series of setting name and value type pairs.
 #define ConfigurationFileLayoutSection(section, ...)                    { (section), {__VA_ARGS__} }
 

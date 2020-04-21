@@ -66,7 +66,7 @@ namespace Hookshot
 
         // -------- INTERNAL FUNCTIONS ------------------------------------- //
 
-        /// Generates the value for #kStrProductName; see documentation of this run-time constant for more information.
+        /// Generates the value for kStrProductName; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetProductName(void)
         {
@@ -137,7 +137,7 @@ namespace Hookshot
             return (std::wstring(buf));
         }
         
-        /// Generates the value for #kStrExecutableBaseName; see documentation of this run-time constant for more information.
+        /// Generates the value for kStrExecutableBaseName; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetExecutableBaseName(void)
         {
@@ -153,7 +153,7 @@ namespace Hookshot
             return (std::wstring(executableBaseName));
         }
 
-        /// Generates the value for #kStrExecutableDirectoryName; see documentation of this run-time constant for more information.
+        /// Generates the value for kStrExecutableDirectoryName; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetExecutableDirectoryName(void)
         {
@@ -169,7 +169,7 @@ namespace Hookshot
             return (std::wstring(buf));
         }
 
-        /// Generates the value for #kStrExecutableCompleteFilename; see documentation of this run-time constant for more information.
+        /// Generates the value for kStrExecutableCompleteFilename; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetExecutableCompleteFilename(void)
         {
@@ -179,7 +179,7 @@ namespace Hookshot
             return (std::wstring(buf));
         }
 
-        /// Generates the value for #kStrHookshotBaseName; see documentation of this run-time constant for more information.
+        /// Generates the value for kStrHookshotBaseName; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetHookshotBaseName(void)
         {
@@ -195,7 +195,7 @@ namespace Hookshot
             return (std::wstring(hookshotBaseName));
         }
         
-        /// Generates the value for #kStrHookshotDirectoryName; see documentation of this run-time constant for more information.
+        /// Generates the value for kStrHookshotDirectoryName; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetHookshotDirectoryName(void)
         {
@@ -211,7 +211,7 @@ namespace Hookshot
             return (std::wstring(buf));
         }
 
-        /// Generates the value for #kStrHookshotCompleteFilename; see documentation of this run-time constant for more information.
+        /// Generates the value for kStrHookshotCompleteFilename; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetHookshotCompleteFilename(void)
         {
@@ -221,14 +221,14 @@ namespace Hookshot
             return (std::wstring(buf));
         }
         
-        /// Generates the value for #kStrHookshotConfigurationFilename; see documentation of this run-time constant for more information.
+        /// Generates the value for kStrHookshotConfigurationFilename; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetHookshotConfigurationFilename(void)
         {
             return GetExecutableDirectoryName() + GetHookshotBaseNameWithoutExtension() + kStrHookshotConfigurationFileExtension.data();
         }
 
-        /// Generates the value for #kStrHookshotLogFilename; see documentation of this run-time constant for more information.
+        /// Generates the value for kStrHookshotLogFilename; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetHookshotLogFilename(void)
         {
@@ -248,21 +248,21 @@ namespace Hookshot
             return logFilename.str();
         }
 
-        /// Generates the value for #kStrHookshotDynamicLinkLibraryFilename; see documentation of this run-time constant for more information.
+        /// Generates the value for kStrHookshotDynamicLinkLibraryFilename; see documentation of this run-time constant for more information.
         /// @return coorresponding run-time constant value.
         static std::wstring GetHookshotDynamicLinkLibraryFilename(void)
         {
             return GetHookshotCompleteFilenameWithoutExtension() + kStrHookshotDynamicLinkLibraryExtension.data();
         }
 
-        /// Generates the value for #kStrHookshotExecutableFilename; see documentation of this run-time constant for more information.
+        /// Generates the value for kStrHookshotExecutableFilename; see documentation of this run-time constant for more information.
         /// @return coorresponding run-time constant value.
         static std::wstring GetHookshotExecutableFilename(void)
         {
             return GetHookshotCompleteFilenameWithoutExtension() + kStrHookshotExecutableExtension.data();
         }
 
-        /// Generates the value for #kStrHookshotExecutableOtherArchitectureFilename; see documentation of this run-time constant for more information.
+        /// Generates the value for kStrHookshotExecutableOtherArchitectureFilename; see documentation of this run-time constant for more information.
         /// @return coorresponding run-time constant value.
         static std::wstring GetHookshotExecutableOtherArchitectureFilename(void)
         {

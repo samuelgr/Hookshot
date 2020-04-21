@@ -78,7 +78,7 @@ namespace Hookshot
     /// Updates the address of a protected dependency.
     /// Behind the scenes, this modifies one of the above function pointers to point somewhere else.
     /// Has no effect if the specified old address is not actually one of the protected dependencies.
-    /// @param [in] dependency Address of one of the above function pointers whose value needs to be updated.
+    /// @param [in] oldAddress Address of one of the above function pointers whose value needs to be updated.
     /// @param [in] newAddress New address to which the function pointer should point.
     void UpdateProtectedDependencyAddress(const void* oldAddress, const void* newAddress);
 }

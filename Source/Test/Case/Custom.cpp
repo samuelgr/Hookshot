@@ -18,11 +18,11 @@
 
 // -------- MACROS --------------------------------------------------------- //
 
-/// Generates a new function using #FunctionGenerator and returns a pointer to it.
+/// Generates a new function using FunctionGenerator and returns a pointer to it.
 /// A maximum of one instance of this macro can exist on each source code line.
 #define GENERATE_FUNCTION()                 &FunctionGenerator<__LINE__>
 
-/// Generates a new function using #FunctionGenerator and creates a pointer to it, using the specified name as the variable name.
+/// Generates a new function using FunctionGenerator and creates a pointer to it, using the specified name as the variable name.
 /// A maximum of one instance of this macro can exist on each source code line.
 #define GENERATE_AND_ASSIGN_FUNCTION(var)   const auto var = GENERATE_FUNCTION()
 
@@ -31,7 +31,7 @@ namespace HookshotTest
 {
     // -------- INTERNAL TYPES --------------------------------------------- //
 
-    /// Pointer-to-function type for the #FunctionGenerator function template.
+    /// Pointer-to-function type for the FunctionGenerator function template.
     typedef int(*TGeneratedTestFunction)(void);
 
 

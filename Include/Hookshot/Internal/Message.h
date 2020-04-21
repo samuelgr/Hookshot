@@ -76,8 +76,8 @@ namespace Hookshot
         void OutputFormatted(const ESeverity severity, const wchar_t* format, ...);
 
         /// Sets the minimum message severity required for a message to be output.
-        /// Compares the supplied severity level to #ESeverity::ForcedInteractiveBoundaryValue and, if not greater, sums them together and adds 1.
-        /// The effect of doing this is to map from forced severities to unforced severities (i.e. input is #ESeverity::ForcedInteractiveError, actual minimum severity is #ESeverity::Error).
+        /// Compares the supplied severity level to ESeverity::ForcedInteractiveBoundaryValue and, if not greater, sums them together and adds 1.
+        /// The effect of doing this is to map from forced severities to unforced severities (i.e. input is ESeverity::ForcedInteractiveError, actual minimum severity is ESeverity::Error).
         /// @param [in] severity New minimum severity setting.
         void SetMinimumSeverityForOutput(const ESeverity severity);
 

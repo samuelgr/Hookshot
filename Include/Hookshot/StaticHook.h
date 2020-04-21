@@ -37,7 +37,7 @@
 /// To define the hook function, simply provide a funciton body for `StaticHook_[function name]::Hook`.
 /// The invocation of this macro should be placed in a location visible wherever access to the underlying type is needed.  It is safe to place in a header file that is included in multiple places.
 /// Note that Hookshot might fail to create the requested hook.  Therefore, the return code from `SetHook` should be checked.
-/// Once `SetHook` has been invoked successfully, further invocations have no effect and simply return #EResult::NoEffect.
+/// Once `SetHook` has been invoked successfully, further invocations have no effect and simply return EResult::NoEffect.
 #define HOOKSHOT_STATIC_HOOK(func) \
     inline constexpr wchar_t kHookName__##func[] = _CRT_WIDE(#func); \
     using StaticHook_##func = ::Hookshot::StaticHook<kHookName__##func, (void*)(&(func)), decltype(func)>

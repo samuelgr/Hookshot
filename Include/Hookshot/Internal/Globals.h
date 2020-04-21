@@ -27,7 +27,6 @@ namespace Hookshot
         LibraryLoaded,                                                      ///< Loaded as a library.  Some executable loaded Hookshot using a standard dynamic library loading technique.
     };
 
-    /// Provides access to miscellanous global data elements with no other suitable location.
     namespace Globals
     {
         // -------- FUNCTIONS ---------------------------------------------- //

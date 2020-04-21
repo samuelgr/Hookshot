@@ -109,7 +109,7 @@ namespace Hookshot
 
         /// Determines the appropriate modes of output based on the current configuration and message severity.
         /// @param [in] severity Severity of the message for which an output mode is being chosen.
-        /// @param [out] selectedOutputModes Filled with the output modes that are selected.  Array should have #EOutputMode::UpperBoundValue elements.
+        /// @param [out] selectedOutputModes Filled with the output modes that are selected.  Array should have EOutputMode::UpperBoundValue elements.
         /// @return Number of output modes selected.
         static int DetermineOutputModes(const ESeverity severity, EOutputMode* selectedOutputModes)
         {

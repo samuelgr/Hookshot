@@ -155,7 +155,7 @@ namespace Hookshot
         }
         
         /// Computes the value to be inserted into the trampoline's hook address field.
-        /// Depending on the architecture and instruction sequence contained in #kHookCodeDefault, the address may require transformation before insertion into the trampoline.
+        /// Depending on the architecture, the address may require transformation before insertion into the trampoline.
         /// @param [in] hook Address of the hook function.
         /// @return Transformed value of the hook function address, to be inserted into the trampoline.
         inline size_t ValueForHookAddress(const void* hook) const
