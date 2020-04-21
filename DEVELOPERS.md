@@ -1,32 +1,32 @@
-# Developing with Hookshot{#top}
+# Developing with Hookshot
 
 This document describes how to write code that has access to, and uses, the Hookshot API.  Its target audience is developers who wish to use Hookshot in their projects.
 
 
-## Navigation{#navigation}
+## Navigation
 
 This document is organized as follows.
 
-- [Getting Started](#gettingstarted)
-- [Hookshot API](#api)
-  - [Low-Level API](#api-low)
-    - [CreateHook](#api-low-createhook)
-    - [DisableHookFunction](#api-low-disablehookfunction)
-    - [GetOriginalFunction](#api-low-getoriginalfunction)
-    - [ReplaceHookFunction](#api-low-replacehookfunction)
-  - [Higher-Level Wrappers](#api-high)
-    - [StaticHook](#api-high-static)
-    - [DynamicHook](#api-high-dynamic)
-- [Writing a Hook Module](#writing)  
-  - [Hook Module Interface](#writing-interface)
-  - [Debugging a Hook Module](#writing-debugging)
-  - [Examples of Hook Modules](#writing-examples)
-- [Loading HookshotDll Without Hook Modules](#loading)
+- [Getting Started](#getting-started)
+- [Hookshot API](#hookshot-api)
+  - [Low-Level API](#low-level-api)
+    - [CreateHook](#createhook)
+    - [DisableHookFunction](#disablehookfunction)
+    - [GetOriginalFunction](#getoriginalfunction)
+    - [ReplaceHookFunction](#replacehookfunction)
+  - [Higher-Level Wrappers](#higher-level-wrappers)
+    - [StaticHook](#statichook)
+    - [DynamicHook](#dynamichook)
+- [Writing a Hook Module](#writing-a-hook-module)  
+  - [Hook Module Interface](#hook-module-interface)
+  - [Debugging a Hook Module](#debugging-a-hook-module)
+  - [Examples of Hook Modules](#examples-of-hook-modules)
+- [Loading HookshotDll Without Hook Modules](#loading-hookshotdll-without-hook-modules)
 
 Other available documents are listed in the [top-level document](README.md).
 
 
-## Getting Started{#gettingstarted}
+## Getting Started
 
 1. If developing using tools other than Visual Studio 2017 or newer, ensure the [Visual C++ 2015, 2017, and 2019 Runtime](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) is installed.  Hookshot is linked against this runtime and will not run without it.  If running a 64-bit operating system, install both the x86 and the x64 versions of this runtime, otherwise install just the x86 version.
 
@@ -37,12 +37,12 @@ Other available documents are listed in the [top-level document](README.md).
 1. Either write, build, and debug a hook module or link against Hookshot in existing code.
 
 
-## Hookshot API{#api}
+## Hookshot API
 
 Function call hooks can be set and manipulated in one of two ways.  First, Hookshot makes available its raw low-level API, which is just a set of interface methods that can be invoked.  Second, Hookshot offers higher-level wrappers around its low-level API, which are intended to make the process of setting hooks more convenient and type-safe.  Wherever possible, it is recommended that the latter be used, although the former remains available.
 
 
-### Low-Level API{#api-low}
+### Low-Level API
 
 All Hookshot API functions are exposed as methods of an interface class.  The interface class declaration is shown below and can be accessed by including the `Hookshot.h` header file.  All methods are completely concurrency-safe.  `EResult` is an enumeration of possible result codes.  Refer to `HookshotTypes.h` to see the enumerators and their meanings.
 
@@ -60,7 +60,7 @@ namespace Hookshot {
 ```
 
 
-#### CreateHook{#api-low-createhook}
+#### CreateHook
 
 Causes Hookshot to attempt to hook the specified function.  Requires that an original function and a hook function be specified.
 
@@ -94,10 +94,10 @@ Other than failures due to invalid arguments, a failure during `CreateHook` is n
 
 Hookshot does not check that the prototypes (return value type, parameter types, calling convention, etc.) of the original function and the hook function match.  It is up to the developer to make sure they match exactly.  Failure to do so can lead to the function call hook not working correctly even if `CreateHook` succeeds, in some situations leading to an application crash.
 
-Hookshot does not offer the ability to remove a hook after it has been created.  However, a hook can be disabled using the [`DisableHookFunction`](#api-low-disablehookfunction) method and then re-enabled using the [`ReplaceHookFunction`](#api-low-replacehookfunction) method.
+Hookshot does not offer the ability to remove a hook after it has been created.  However, a hook can be disabled using the [`DisableHookFunction`](#disablehookfunction) method and then re-enabled using the [`ReplaceHookFunction`](#replacehookfunction) method.
 
 
-#### DisableHookFunction{#api-low-disablehookfunction}
+#### DisableHookFunction
 
 Disables the hook function associated with the specified hook.  This has the effect of disabling the function call hook entirely, so that all future calls to the original function act as though there is no function call hook at all.
 
@@ -117,10 +117,10 @@ This method will fail if `originalOrHookFunc` does not correspond to an existing
 
 If this method succeeds, then Hookshot no longer associates the hook function with this function call hook.  The hook function is free to be used with another function call hook.  Additionally, the hook function's address can no longer be used as the value of `originalOrHookFunc` parameters.
 
-To re-enable a function call hook after it has been disabled, invoke [`ReplaceHookFunction`](#api-low-replacehookfunction) and specify the hook function address as the `newHookFunc` parameter.
+To re-enable a function call hook after it has been disabled, invoke [`ReplaceHookFunction`](#replacehookfunction) and specify the hook function address as the `newHookFunc` parameter.
 
 
-#### GetOriginalFunction{#api-low-getoriginalfunction}
+#### GetOriginalFunction
 
 Retrieves and returns the address of a function that, when called, has the effect of invoking the original function as if it were not hooked.  This is useful for accessing the original behavior of the function being hooked.
 
@@ -143,7 +143,7 @@ This method will fail if `originalOrHookFunc` does not correspond to an existing
 Hookshot does not ensure that the prototype (return value type, parameter types, calling convention, etc.) at the time of invocation matches that of the original function.  It is up to the developer to make sure they match exactly, such as by saving the returned pointer into a typed function pointer.  Failure to do so can lead to unpredictable results, including an application crash in some situations.
 
 
-#### ReplaceHookFunction{#api-low-replacehookfunction}
+#### ReplaceHookFunction
 
 Modifies an existing function call hook by replacing its hook function.
 
@@ -170,7 +170,7 @@ Hookshot does not ensure that the prototype (return value type, parameter types,
 If this method succeeds, then the old hook function is no longer associated with this function call hook.  Future calls to methods with `originalOrHookFunc` parameters will accept either the original function address or the address supplied as `newHookFunc`.
 
 
-### Higher-Level Wrappers{#api-high}
+### Higher-Level Wrappers
 
 Despite its flexibility, one of the key limitations of the low-level Hookshot API is that it does not offer any type-safety.  In many situations it is up to the developer to ensure that all references to a function associated with a hook exactly match the original function's return type, parameter types, and calling convention.  Hookshot offers higher-level wrappers that trade off some flexibility in exchange for convenience and automatic compiler-enforced type safety.  For example, the higher-level wrappers do not support arbitrary replacement of hook functions, even though this is possible using the low level API method `ReplaceHookFunction`.  They do, however, offer the ability to disable and re-enable the function call hook with ease.
 
@@ -179,7 +179,7 @@ Hookshot offers two API wrappers, *StaticHook* and *DynamicHook*.  They both pro
 Both API wrappers are implemented as class templates whose template parameters are intended to form a unique way of identifying the original function.  The only public-facing members of these classes are methods declared `static`.  This is required so that each instantiation of a wrapper generates a new set of free functions, one set per function call hook.  Linker errors result from attempting to create multiple hooks for the same function or forgetting to implement the hook function.
 
 
-#### StaticHook{#api-high-static}
+#### StaticHook
 
 StaticHook is accessed via a macro declared in the `StaticHook.h` header file:
 
@@ -227,14 +227,14 @@ int StaticHook_MessageBoxW::Hook(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, U
 
 The function body should be placed in a source file that has access to the `HOOKSHOT_STATIC_HOOK` type definition.  Multiple implementations will result in a linker error.  Function signature is taken from Microsoft's documentation on the `MessageBoxW` function.  Note that it is not necessary to specify the calling convention here.  The compiler will use the `MessageBoxW` StaticHook template specialization and automatically determine the correct convention for this function.  Furthermore, the `Hook` method is typed, so an incorrect return value or parameter type will result in a compiler error.
 
-`Original` invokes the function pointer returned from Hookshot via [`GetOriginalFunction`](#api-low-getoriginalfunction).  In other words, this is how the original function is made available to the developer.  It can be invoked both within and outside of the hook function.  The method declaration is typed, meaning that the return value, number of parameters, and types of parameters are all enforced by the compiler.
+`Original` invokes the function pointer returned from Hookshot via [`GetOriginalFunction`](#getoriginalfunction).  In other words, this is how the original function is made available to the developer.  It can be invoked both within and outside of the hook function.  The method declaration is typed, meaning that the return value, number of parameters, and types of parameters are all enforced by the compiler.
 
-`SetHook` must be called at runtime once the `IHookshot` interface pointer is available.  Internally it invokes the [`CreateHook`](#api-low-createhook) method.  Failing to call `SetHook` means the hook will not be functional.
+`SetHook` must be called at runtime once the `IHookshot` interface pointer is available.  Internally it invokes the [`CreateHook`](#createhook) method.  Failing to call `SetHook` means the hook will not be functional.
 
-`DisableHook` and `EnableHook`, as their names suggest, respectively disable and re-enable the function call hook by invoking [`DisableHookFunction`](#api-low-disablehookfunction) and [`ReplaceHookFunction`](#api-low-replacehookfunction) with appropriate parameters.
+`DisableHook` and `EnableHook`, as their names suggest, respectively disable and re-enable the function call hook by invoking [`DisableHookFunction`](#disablehookfunction) and [`ReplaceHookFunction`](#replacehookfunction) with appropriate parameters.
 
 
-#### DynamicHook{#api-high-dynamic}
+#### DynamicHook
 
 DynamicHook is accessed via macros declared in the `DynamicHook.h` header file.  Only one of these macros is needed per DynamicHook; they differ based on how the function type is constructed.
 
@@ -295,12 +295,12 @@ int DynamicHook_MessageBoxW::Hook(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, 
 Note that, in the case of macro options 2 and 3, the name supplied as the first macro parameter (shown as `MessageBoxW` in the example) can be anything.  The name of the generated type would be modified accordingly.  For example, if `MyNiceMessageBox` were supplied as the first macro parameter instead of `MessageBoxW`, then the resulting type would be `DynamicHook_MyNiceMessageBox`.
 
 
-## Writing a Hook Module{#writing}
+## Writing a Hook Module
 
 A hook module is simply a DLL that complies with Hookshot-imposed interface requirements.  Developers can create hook modules to encapsulate the modifications they make to applications, and these hook modules can subsequently be distributed.  This section describes how hook modules are created and debugged.  The last of its subsections outlines the various examples of hook modules that are included with Hookshot.
 
 
-### Hook Module Interface{#writing-interface}
+### Hook Module Interface
 
 Hookshot requires that the hook module export an entry point function called `HookshotMain` using a specific calling convention and with a specific signature.  `HookshotMain` is invoked by HookshotDll after the hook module has been loaded and after any call to [`DllMain`](https://docs.microsoft.com/en-us/windows/win32/dlls/dllmain) has completed.  The complete prototype for `HookshotMain` is located in `Hookshot.h`, and an empty example implementation is shown below.
 
@@ -335,7 +335,7 @@ There are no restrictions on what it is safe to do inside the `HookshotMain` fun
 It is strongly recommended that all hooks be created during `HookshotMain` and not thereafter.  This is because, once the target application starts running, it is not possible to guarantee that no threads are executing the part of the original function being overwritten by Hookshot during a call to `CreateHook`.
 
 
-### Debugging a Hook Module{#writing-debugging}
+### Debugging a Hook Module
 
 Hookshot is designed with debuggability in mind.  To debug a hook module using a debugger:
 
@@ -355,7 +355,7 @@ The preceding steps have been verified with the debugger included with Visual St
 When running through a debugger, Hookshot outputs all internal messages, irrespective of severity, as debug strings that show up in the debugger's output window.  If logging is enabled while a debugger is attached, messages up to the configured severity will be written to the log file as usual.
 
 
-### Examples of Hook Modules{#writing-examples}
+### Examples of Hook Modules
 
 Included with Hookshot are some complete code and build system examples of simple hook modules.  They all demonstrate how to hook the `MessageBoxW` Windows API function to modify graphical message boxes in various ways.  A test program is also supplied, which just invokes `MessageBoxW` and then exits.  To run the examples from Visual Studio, follow the [instructions on how to build Hookshot from source](BUILD.md).  Otherwise they can be built and subsequently run manually by following the [instructions on how to use Hookshot](USERS.md).
 
@@ -363,12 +363,12 @@ All examples are contained within the `Examples\HookModuleExamples.sln` Visual S
 
 - `TestProgram` is the test program that calls `MessageBoxW`.  This program is the intended target application for the example hook modules.
 - `Empty` is a skeleton project, showing the minimum amount of code needed to produce a hook module.  The build system is set up to follow the correct DLL naming conventions.  This hook module does not create any hooks, so running it does not result in any modifications to the test program's displayed message box.
-- `HookshotFunctions` shows how to use the [low level API functions](#api-low) to hook `MessageBoxW`.
-- `StaticHook` shows how to use the [StaticHook higher-level wrapper](#api-high-static) to hook `MessageBoxW`.
-- `DynamicHook` shows how to use the [DynamicHook higher-level wrapper](#api-high-dynamic) to hook `MessageBoxW`.
+- `HookshotFunctions` shows how to use the [low level API functions](#low-level-api) to hook `MessageBoxW`.
+- `StaticHook` shows how to use the [StaticHook higher-level wrapper](#statichook) to hook `MessageBoxW`.
+- `DynamicHook` shows how to use the [DynamicHook higher-level wrapper](#dynamichook) to hook `MessageBoxW`.
 
 
-## Loading HookshotDll Without Hook Modules{#loading}
+## Loading HookshotDll Without Hook Modules
 
 While creating a hook module is the primary way of accessing the Hookshot API, it is also possible to use Hookshot without creating a hook module.  HookshotTest, the Visual C++ project that contains Hookshot's unit tests, is an example of a project that loads HookshotDll by linking with it directly rather than by offering it a hook module to load.  Loading HookshotDll as a library is useful when a larger application or library already exists that does not need Hookshot to inject HookshotDll into a new process but rather needs Hookshot for its implementation of function call hooks.
 

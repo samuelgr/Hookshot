@@ -1,19 +1,19 @@
-# Building Hookshot{#top}
+# Building Hookshot
 
 This document describes how to build Hookshot from its source code.
 
 
-## Navigation{#navigation}
+## Navigation
 
 This document is organized as follows.
 
-- [Prerequisites](#prereq)
+- [Prerequisites](#prerequisites)
 - [Steps](#steps)
 
 Other available documents are listed in the [top-level document](README.md).
 
 
-## Prerequisites{#prereq}
+## Prerequisites
 
 In order to build Hookshot, the following software must be installed on the system.
 
@@ -29,7 +29,7 @@ In order to build Hookshot, the following software must be installed on the syst
    - When installing Python for Windows, ensure Python is added to the PATH environment variable.  This is an option offered by the installer.
 
 
-## Steps{#steps}
+## Steps
 
 Once the prerequisites have been met, Hookshot can be built using the following steps.
 

@@ -1,23 +1,23 @@
-# Using Hookshot{#top}
+# Using Hookshot
 
 This document describes how to set up, configure, and run Hookshot.  It assumes the user is already in possession of any hook modules and DLLs and have one or more target applications in mind.  Its target audience is end users.
 
 
-## Navigation{#navigation}
+## Navigation
 
 This document is organized as follows.
 
-- [Getting Started](#gettingstarted)
-- [File and Directories](#files)
-- [Authorizing Hookshot](#permission)
-- [Configuring Hookshot](#configuration)
-  - [Examples of Configuration Files](#configuration-example)
-  - [Available Scopes and Settings](#configuration-definition)
+- [Getting Started](#getting-started)
+- [File and Directories](#files-and-directories)
+- [Authorizing Hookshot](#authorizing-hookshot)
+- [Configuring Hookshot](#configuring-hookshot)
+  - [Examples of Configuration Files](#examples-of-configuration-files)
+  - [Available Scopes and Settings](#available-scopes-and-settings)
 
 Other available documents are listed in the [top-level document](README.md).
 
 
-## Getting Started{#gettingstarted}
+## Getting Started
 
 1. Ensure the system is running Windows 10.  Hookshot is built to target Windows 10 and does not support older versions of Windows.
 
@@ -30,9 +30,9 @@ Other available documents are listed in the [top-level document](README.md).
    - If both 32-bit and 64-bit versions of a hook module is available, Hookshot will automatically load the correct version to match the target application.
    - If the correct version to match the target application is not available, Hookshot will be unable to load the hook module.
 
-1. [Authorize](#permission) Hookshot to act on the target application.
+1. [Authorize](#authorizing-hookshot) Hookshot to act on the target application.
 
-1. Optionally create or place a [configuration file](#configuration) into the same directory as the application's executable file.
+1. Optionally create or place a [configuration file](#configuring-hookshot) into the same directory as the application's executable file.
    - If Hookshot's default behavior is acceptable, then a configuration file is not necessary.
    - Hookshot's default behavior is to load all hook modules it finds in the same directory as the application's executable file.
 
@@ -45,7 +45,7 @@ Other available documents are listed in the [top-level document](README.md).
    - Command line arguments can be passed to the application.  Example: `Hookshot.32.exe C:\Directory\Application.exe --arg=val1 "--arg2=value with spaces"`
 
 
-## Files and Directories{#files}
+## Files and Directories
 
 HookshotExe and HookshotDll exist in both 32-bit (`Hookshot.32.exe` and `Hookshot.32.dll`) and 64-bit (`Hookshot.64.exe` and `Hookshot.64.dll`) forms.  These files can be placed into any directory as long as they remain together in the same directory.  This is because HookshotExe looks for HookshotDll in the same directory as itself, and when injecting itself into child processes spawned by a target process, HookshotDll likewise looks for HookshotExe in the same directory as itself.
 
@@ -66,7 +66,7 @@ In this scenario, `Hookshot.ini` would be located in `C:\Directory`, and both `S
 Following the same scenario, if `C:\Directory\Application.exe` spawns a child process `C:\SomeOtherDirectory\SomeOtherApplication.exe`, then HookshotDll will look for another configuration file in `C:\SomeOtherDirectory` and will expect to find hook modules to be loaded into the child process in `C:\SomeOtherDirectory`.  The key takeaway is that, from a configuration standpoint, HookshotDll treats being injected into a target process the same way irrespective of how that target process was spawned.
 
 
-## Authorizing Hookshot{#permission}
+## Authorizing Hookshot
 
 Because the modifications that Hookshot performs on a target application can be invasive, Hookshot requires explicit permission from the end user before it will act on any application.
 
@@ -75,7 +75,7 @@ To give Hookshot the permission it needs, simply create a file with extension `.
 Hookshot can additionally act on any programs spawned as children of the target application.  It will do so only if authorized.  For example, while `C:\Directory\Application.exe` is running it might launch another program, `C:\Directory\App2.exe`.  If Hookshot is already acting on `C:\Directory\Application.exe`, it will automatically also act on `C:\Directory\App2.exe`, but only if the file `C:\Directory\App2.exe.hookshot` exists.
 
 
-## Configuring Hookshot{#configuration}
+## Configuring Hookshot
 
 HookshotDll can read from an optional configuration file that lists the hook modules and injected DLLs it should load.  The configuration file, `Hookshot.ini`, follows standard INI format: name-value pairs scoped into different sections.
 
@@ -87,7 +87,7 @@ If HookshotDll cannot find a configuration file, it applies the following defaul
 If HookshotDll finds a malformed configuration file, it will output an error message indicating the problem, load no hook modules, load no injected DLLs, and disable logging.
 
 
-### Examples of Configuration Files{#configuration-example}
+### Examples of Configuration Files
 
 Suppose three applications, `App1.exe`, `App2.exe`, and `App3.exe`, all located in `C:\Directory\`, are to be configured for use with Hookshot.  The contents of `C:\Directory\Hookshot.ini` are shown below.
 
@@ -135,10 +135,10 @@ Inject = C:\LibB2.dll
 HookModule = HooksB
 ```
 
-In the example above, logging is enabled at [verbosity level](#configuration-definition) 2, and Hookshot will load all hook modules it finds, irrespective of the application's executable file name.  Injected DLLs can still be specified as in the previous example and are still effective the same way.
+In the example above, logging is enabled at [verbosity level](#available-scopes-and-settings) 2, and Hookshot will load all hook modules it finds, irrespective of the application's executable file name.  Injected DLLs can still be specified as in the previous example and are still effective the same way.
 
 
-### Available Scopes and Settings{#configuration-definition}
+### Available Scopes and Settings
 
 There are no settings that are required to be specified in a configuration file for said configuration file to be valid.  All settings are optional.  A completely empty configuration file is perfectly valid but would result in logging being disabled, no hook modules being loaded, and no DLLs being injected into the target application.
 

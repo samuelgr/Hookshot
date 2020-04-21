@@ -1,25 +1,25 @@
-﻿# Hookshot Internals{#top}
+﻿# Hookshot Internals
 
 This documentation covers the internals of Hookshot.  It is intended for those who wish to modify Hookshot itself or just learn about how Hookshot is designed and implemented.
 
 Function call hooking and code injection are very intricate and technical operations, and accordingly discussions about how Hookshot works tend to be very low-level.  This document assumes the reader has a basic understanding of virtual memory and assembly code on the x86 architecture.
 
 
-## Navigation{#navigation}
+## Navigation
 
 This document is organized as follows.
 
-- [Technical Design](#design)
-   - [Library Injection](#design-inject)
-   - [Function Call Hooking](#design-hook)
-- [Hookshot Implementation](#implementation)
-   - [Source Code Organization](#implementation-sln)
-   - [Key Operations](#implementation-ops)
+- [Technical Design](#technical-design)
+   - [Library Injection](#library-injection)
+   - [Function Call Hooking](#function-call-hooking)
+- [Hookshot Implementation](#hookshot-implementation)
+   - [Source Code Organization](#source-code-organization)
+   - [Key Operations](#key-operations)
 
 Other available documents are listed in the [top-level document](README.md).
 
 
-## Technical Design{#design}
+## Technical Design
 
 This section discusses the principles techniques Hookshot uses to support its feature set without specific reference to its source code.  Hookshot's most fundamental operations really boil down to achieving two key goals.  First, Hookshot must get its own code running inside the target process' address space.  Second, Hookshot's own code, which is now running in the target process, must be capable of hooking function calls.
 
@@ -28,7 +28,7 @@ Achieving the first key goal is challenging because the target application is ge
 The remainder of this section is split into two subsections, each covering one of the key goals in more detail.  The first, *Library Injection*, focuses on the specific mechanism by which HookshotExe injects HookshotDll into the target application's process.  The second, *Function Call Hooking*, explores how HookshotDll hooks a function call.  In both cases, various alternative designs are described, and the trade-offs between different possible designs are evaluated.
 
 
-### Library Injection{#design-inject}
+### Library Injection
 
 In selecting a mechanism by which HookshotExe forces the target process to load HookshotDll, we must be cognizant of the intended purpose of HookshotDll: to hook function calls.  While in theory hooking a function call is nothing more than editing the contents of memory in a specific way, in practice we must remember that we are editing regions of memory generally expected by the target application to be read-only.  This gives rise to concurrency control challenges.
 
@@ -105,7 +105,7 @@ To inject a process with HookshotDll, HookshotExe performs the following operati
 At this point, control has successfully transferred to HookshotDll after the Windows loader is finished but before the target application has started running.  Once HookshotDll has finished loading hook modules and injected DLLs, it executes a final `ret` instruction to allow the target process to run as intended.
 
 
-### Function Call Hooking{#design-hook}
+### Function Call Hooking
 
 In §5 of [*A Survey on Function and System Call Hooking Approaches*](https://www.researchgate.net/publication/319970632_A_Survey_on_Function_and_System_Call_Hooking_Approaches), Lopez, Babun, Aksu, and Uluagac describe various known techniques for hooking function calls.  Static hooks (§5.2) generally require changes to the operating system or runtime environment.  [Xidi](https://www.github.com/samuelgr/Xidi), for example, uses the "Injecting Proxy Libraries" technique (§5.2.1): it exploits the behavior of the dynamic library loader to cause it to load its own alternate versions of DLLs and, in doing so, intercepts all the calls made to the functions exported by those DLLs.  For this to work, however, Xidi must provide an implementation of every single function exported by those DLLs that are imported by the target application, and even when this does work Xidi's scope is limited to just the functions exported by the DLLs it proxies.
 
@@ -253,17 +253,17 @@ end:
 The first three instructions in this function would be moved into a trampoline if this function were hooked.  The `jmp loop` instruction targets the second of these instructions.  Once the first five bytes of this function are overwritten, the target of the `jmp loop` instruction is no longer the intended instruction.  We could scan the rest of this function for references to the first few instructions and patch those references to refer to the trampoline instead, but this does not sufficiently solve the problem for two reasons.  First, there could be additional references from outside the function.  Second, the new displacement value could be too wide for the instruction's encoding, and since there is no guaranteed slack space available we cannot use the jump assist technique here.
 
 
-## Hookshot Implementation{#implementation}
+## Hookshot Implementation
 
-This section describes the contents and organization of Hookshot's source code, with specific focus on how the principles and techniques developed [previously](#design) are implemented.  Accordingly, this section assumes the reader is familiar with the previous section.  First is a tour of Hookshot's Visual Studio solution file and all of its Visual C++ projects, including a brief description of the code modules (source and header file combinations).  Second is a sketch of the control flow that implements Hookshot's two primary goals of library injection and function call hooking.
+This section describes the contents and organization of Hookshot's source code, with specific focus on how the principles and techniques developed [previously](#technical-design) are implemented.  Accordingly, this section assumes the reader is familiar with the previous section.  First is a tour of Hookshot's Visual Studio solution file and all of its Visual C++ projects, including a brief description of the code modules (source and header file combinations).  Second is a sketch of the control flow that implements Hookshot's two primary goals of library injection and function call hooking.
 
 
-### Source Code Organization{#implementation-sln}
+### Source Code Organization
 
 This subsection details the specific contents of each Visual C++ project that is contained within the top-level Hookshot solution file.  It is organized by project.
 
 
-#### HookshotBin{#implementation-sln-bin}
+#### HookshotBin
 
 HookshotBin consists of a single source file, `Inject.asm`, which implements the entire contents of the injection payload code and data.  It is divided into two segments, which have non-standard names so that HookshotExe can easily identify the injection code and data sections separately and without confusing them for any code and data that the compiler or linker might insert.  The output from building this project is a binary file that is embedded into HookshotExe as a raw binary resource of type `RCDATA`.  Linker output is a specially-formatted DLL: the linker command-line option `/FILEALIGN:1` is used so that all of the relative virtual addresses included in the PE headers are equal to byte offsets within the file itself.  This makes Hookshot's job easier when it comes time to locate code and data within the file.
 
@@ -272,7 +272,7 @@ Using an assembly file with a metadata section is intended to make the injection
 Assembly header files are used to ensure that C++ code and assembly code agree on segment names and data type layouts.  They are also used to enable the assembly code to be written once and be valid for both 32-bit and 64-bit mode.  For example, `Registers.inc` defines register names using `s` as a prefix, and these names expand to the widest possible register given the execution mode, in the same vein as using the `size_t` data type in C++.
 
 
-#### HookshotDll{#implementation-sln-dll}
+#### HookshotDll
 
 HookshotDll compiles to a dynamic library.  Most commonly it is injected by HookshotExe into a process, but it also supports direct linking and loading by applications that only need Hookshot for its ability to hook function calls.  HookshotDll knows how it was loaded into the application and offers slightly different behavior depending whether it was injected or loaded normally as a library.  In the former case, HookshotDll loads hook modules and injected DLLs.  In the latter case, it provides the module that loaded it access to its API.
 
@@ -365,7 +365,7 @@ X86Instruction encapsulates all of the data and logic required to hold, decode, 
 Instances of X86Instruction are created in the `SetOriginalFunction` method of Trampoline, each used to represent one of the instructions loaded from the original function address. X86Instruction wraps [Intel's XED library](https://intelxed.github.io) with a convenient API for querying if an instruction is position-dependent and, if so, modifying its displacement value.
 
 
-#### HookshotExe{#implementation-sln-exe}
+#### HookshotExe
 
 HookshotExe compiles to an executable whose only job is to inject HookshotDll into a process. It supports two modes of execution:
 - **Execution with a command-line specified.**  In this mode, HookshotExe creates a new process using the given command-line, injects HookshotDll into the new process, and then exits.  This is the method documented for end users that bootstraps the process of running a target application with Hookshot.
@@ -422,7 +422,7 @@ Refer to the description of this module in HookshotDll.
 Refer to the description of this module in HookshotDll.
 
 
-#### HookshotTest{#implementation-sln-test}
+#### HookshotTest
 
 HookshotTest contains all of the unit tests that exercise Hookshot's ability to hook functions.  It is built as an executable that links against HookshotDll and simply runs through all of the tests that are valid given the current system's execution mode and CPU features.  Its three primary modules are `HookSetFail`, `HookSetSuccess`, and `Custom`, and these work as follows.
 - `HookSetFail` captures a common test pattern that exercises a situation in which Hookshot is expected to fail to set a hook.  The sequences of instructions with which Hookshot is presented are designed such that it should detect its inability to set the hook.
@@ -430,12 +430,12 @@ HookshotTest contains all of the unit tests that exercise Hookshot's ability to 
 - `Custom` are special one-off tests with their own implementations.  Each is described in the associated source file, `Custom.cpp`.
 
 
-### Key Operations{#implementation-ops}
+### Key Operations
 
 This subsection provides an overview of the control flow between the various modules in HookshotExe and HookshotDll, illustrating how they come together in a cohesive implementation that achieves Hookshot's two key goals of library injection and function call hooking.  It is organized by key goal.
 
 
-#### Library Injection{#implementation-ops-inject}
+#### Library Injection
 
 For the purpose of this description, we assume HookshotExe is executed in the first of its two supported modes: it is given the command line of a target application and tasked with both spawning a new process and injecting it with HookshotDll.
 
@@ -492,7 +492,7 @@ Library injection proceeds as follows.
 At this point the job of HookshotExe is completed: HookshotDll is loaded and running in the target process.  To implement automatic injection of target processes, HookshotDll internally hooks the `CreateProcessA` and `CreateProcessW` Windows API functions, and the hook functions HookshotDll provides uses RemoteProcessInjector.  These hooks are implemented transparently to developers using the Hookshot API, meaning that the Hookshot API can still be used to create hooks for these functions.
 
 
-#### Function Call Hooking{#implementation-ops-hook}
+#### Function Call Hooking
 
 Creation of a function call hook proceeds as follows.
 

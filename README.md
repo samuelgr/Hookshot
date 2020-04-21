@@ -1,20 +1,20 @@
-﻿# Hookshot{#top}
+﻿# Hookshot
 
 Hookshot enables compiled binary 32-bit (x86) and 64-bit (x64) applications to be modified by hooking function calls and injecting DLLs.  For developers, Hookshot offers an extremely simple API for hooking function calls.  These function call hooks can be encapsulated and distributed in the form of *hook modules* or they can included in a larger application that simply links against Hookshot.  For end users, Hookshot makes it easy to use hook modules, while at the same time offering a convenient way to inject DLLs should the need arise.  Because Hookshot acts in memory and at execution time, Hookshot does not make any changes to a target application's binary files on disk.
 
 
-## Navigation{#navigation}
+## Navigation
 
 This document is intended to provide an introduction to Hookshot at a very high level.  It is organized as follows.
 
-- [Key Features](#features)
+- [Key Features](#key-features)
 - [Limitations](#limitations)
-- [Concepts and Terminology](#concepts)
-  - [Roles of Developers and End Users](#concepts-audience)
-  - [Parts of Hookshot](#concepts-hookshot)
-- [Next Steps](#nextsteps)
+- [Concepts and Terminology](#concepts-and-terminology)
+  - [Roles of Developers and End Users](#roles-of-developers-and-end-users)
+  - [Parts of Hookshot](#parts-of-hookshot)
+- [Next Steps](#next-steps)
 
-Hookshot's documentation additionally includes the documents listed below.{#navigation-other}
+Hookshot's documentation additionally includes the documents listed below.
 
 - [Using Hookshot](USERS.md)
   - Topics include how to set up and configure Hookshot.
@@ -30,7 +30,7 @@ Hookshot's documentation additionally includes the documents listed below.{#navi
   - This is a very low-level and technical document.  It is assumed that the reader has a basic understanding of virtual memory and assembly code on the x86 architecture.
 
 
-## Key Features{#features}
+## Key Features
 
 Hookshot supports both 32-bit (x86) and 64-bit (x64) Windows applications and offers the ability to:
 
@@ -41,12 +41,12 @@ Hookshot supports both 32-bit (x86) and 64-bit (x64) Windows applications and of
 For developers, Hookshot offers a simple API for hooking functions, and for end users, Hookshot is easy to configure and use.
 
 
-## Limitations{#limitations}
+## Limitations
 
 **Hookshot cannot operate in any way whatsoever on existing, already-running processes.  This is by design.**  Hookshot can only hook function calls and inject DLLs into processes that Hookshot itself spawns under the control and direction of the end user.
 
 
-## Concepts and Terminology{#concepts}
+## Concepts and Terminology
 
 *Hooking a function call* means redirecting execution from any function (the *original function*) to a different function (the *hook function*).  Whenever a call is made to the original function, that call is transparently diverted to the hook function instead.  Developers retain the ability to invoke the original function even after it is hooked.
 
@@ -61,14 +61,14 @@ A hook function can be coded to do anything of the developer's choosing.  For ex
 *Injected DLLs* are arbitrary DLLs that the user asks Hookshot to load into the target application.  The difference between a hook module and an injected DLL is that Hookshot does not interact with injected DLLs in any way after loading them.  Hook modules have access to the Hookshot API, whereas injected DLLs do not.  Hookshot offers the ability to inject arbitrary DLLs as a convenience to users who are already in possession of self-contained DLLs and simply need an injection mechanism.
 
 
-### Roles of Developers and End Users{#concepts-audience}
+### Roles of Developers and End Users
 
 Developers who wish to use Hookshot do so in one of two ways.  First, developers can create hook modules, which can be distributed to end users.  A hook module can be built with the intention of targeting a single specific application or it can be built to work with multiple target applications.  Second, developers can use the Hookshot API in their own code by linking it with Hookshot.
 
 End users can use Hookshot to achieve one or both of the following goals.  First, end users can modify the behavior of applications by obtaining and using hook modules.  Second, end users can inject arbitrary DLLs into applications.  These should be performed only under the direction of the respective developers of the hook modules and DLLs.  It may also be the case that the end user and the developer are one and the same.
 
 
-### Parts of Hookshot{#concepts-hookshot}
+### Parts of Hookshot
 
 Hookshot itself consists of the following parts.
 - An executable, *HookshotExe*, which is used to bootstrap the process of hooking functions and injecting DLLs.  HookshotExe spawns a new process using the target application's executable file and injects HookshotDll into it.
@@ -78,6 +78,6 @@ Hookshot itself consists of the following parts.
    - Once HookshotDll is injected into a target process, and with the end user's permission, it will automatically attempt to cause itself to be injected into child processes spawned by the target process.
 
 
-## Next Steps{#nextsteps}
+## Next Steps
 
-Review some of the [other documents](#navigation-other) that make up Hookshot's documentation.  They are divided by target audience and intended to be reviewed in order, based on the reader's level of interest.
+Review some of the [other documents](#navigation) that make up Hookshot's documentation.  They are divided by target audience and intended to be reviewed in order, based on the reader's level of interest.
