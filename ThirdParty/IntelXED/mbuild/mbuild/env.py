@@ -19,6 +19,8 @@
 #  
 #END_LEGAL
 
+# Modified by Samuel Grossman: line 446
+
 """Environment support"""
 from __future__ import print_function
 import os

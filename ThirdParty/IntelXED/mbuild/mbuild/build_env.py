@@ -18,6 +18,8 @@
 #  
 #END_LEGAL
 
+# Modified by Samuel Grossman: line 57, line 58
+
 """Setup functions for the ms/gnu compiler environment"""
 
 import os
