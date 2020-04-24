@@ -12,12 +12,16 @@ rem |   building the Release configuration for both Win32 and x64 platforms.
 rem +--------------------------------------------------------------------------
 
 set project_name=Hookshot
+set project_platforms=Win32 x64
+
 set project_has_sdk=yes
 set project_has_third_party_license=yes
 
 set files_release=LICENSE *.md Output\Release\Hookshot.32.exe Output\Release\Hookshot.64.exe Output\Release\Hookshot.32.dll Output\Release\Hookshot.64.dll
+
 set files_sdk_lib=Output\Release\Hookshot.32.lib Output\Release\Hookshot.64.lib
 set files_sdk_include=Include\Hookshot\*.h
+
 set third_party_license=IntelXED
 
 rem ---------------------------------------------------------------------------
@@ -59,7 +63,17 @@ for %%F in (%files_release% %files_sdk_lib% %files_sdk_include%) do (
         set files_are_missing=yes
     )
 )
-if not ""=="%project_has_third_party_license%" (
+if not ""=="%files_release_build%" (
+    for %%P in (%project_platforms%) do (
+        for %%F in (%files_release_build%) do (
+            if not exist Output\%%P\Release\%%F (
+                echo Missing file: Output\%%P\Release\%%F
+                set files_are_missing=yes
+            )
+        )
+    )
+)
+if "yes"=="%project_has_third_party_license%" (
     for %%T in (%third_party_license%) do (
         if not exist ThirdParty\%%T\LICENSE (
             echo Missing file: ThirdParty\%%T\LICENSE
@@ -77,10 +91,19 @@ for %%F in (%files_release%) do (
     echo %%F
     copy %%F %output_dir%
 )
+if not ""=="%files_release_build%" (
+    for %%P in (%project_platforms%) do (
+        md %output_dir%\%%P
 
-if not ""=="%project_has_sdk%" (
+        for %%F in (%files_release_build%) do (
+            echo Output\%%P\Release\%%F
+            copy Output\%%P\Release\%%F %output_dir%\%%P
+        )
+    )
+)
+if "yes"=="%project_has_sdk%" (
     md %output_dir%\SDK
-    
+
     if not ""=="%files_sdk_lib%" (
         md %output_dir%\SDK\Lib
         for %%F in (%files_sdk_lib%) do (
@@ -97,13 +120,12 @@ if not ""=="%project_has_sdk%" (
             copy %%F %output_dir%\SDK\Include\%project_name%
         )
     )
-    
-    if not ""=="%project_has_third_party_license%" (
-        md %output_dir%\ThirdParty
-        for %%T in (%third_party_license%) do (
-            echo ThirdParty\%%T\LICENSE
-            copy ThirdParty\%%T\LICENSE %output_dir%\ThirdParty\%%T_LICENSE
-        )
+)
+if "yes"=="%project_has_third_party_license%" (
+    md %output_dir%\ThirdParty
+    for %%T in (%third_party_license%) do (
+        echo ThirdParty\%%T\LICENSE
+        copy ThirdParty\%%T\LICENSE %output_dir%\ThirdParty\%%T_LICENSE
     )
 )
 popd
