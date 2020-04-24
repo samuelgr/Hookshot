@@ -28,7 +28,7 @@ Other available documents are listed in the [top-level document](README.md).
 
 ## Getting Started
 
-1. If developing using tools other than Visual Studio 2017 or newer, ensure the [Visual C++ 2015, 2017, and 2019 Runtime](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) is installed.  Hookshot is linked against this runtime and will not run without it.  If running a 64-bit operating system, install both the x86 and the x64 versions of this runtime, otherwise install just the x86 version.
+1. If developing using tools other than Visual Studio 2019, ensure the [Visual C++ 2015, 2017, and 2019 Runtime](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) is installed.  Hookshot is linked against this runtime and will not run without it.  If running a 64-bit operating system, install both the x86 and the x64 versions of this runtime, otherwise install just the x86 version.
 
 1. Download the latest release of Hookshot and place all of the Hookshot executables and DLLs into any directory.  Unless running a 32-bit operating system, it is recommended that both 32-bit and 64-bit versions of HookshotExe and HookshotDll be placed into this directory.
 
@@ -350,7 +350,7 @@ Hookshot is designed with debuggability in mind.  To debug a hook module using a
    - Break points can be set anywhere that contains executable code in the hook module.  This includes within `HookshotMain` and within hook functions.
    - Break points should not be set close to the beginning of an original function because the technique Hookshot uses to implement function call hooks is not compatible with the technique debuggers typically use to implement break points.
 
-The preceding steps have been verified with the debugger included with Visual Studio 2017 Community Edition.  Other debugging tools might need some adjustments to make this process work.
+The preceding steps have been verified with the debugger included with Visual Studio 2019 Community Edition.  Other debugging tools might need some adjustments to make this process work.
 
 When running through a debugger, Hookshot outputs all internal messages, irrespective of severity, as debug strings that show up in the debugger's output window.  If logging is enabled while a debugger is attached, messages up to the configured severity will be written to the log file as usual.
 
