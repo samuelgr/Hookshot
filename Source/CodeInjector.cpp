@@ -41,13 +41,13 @@ namespace Hookshot
     {
         EInjectResult result = Check();
 
-        if (EInjectResult::InjectResultSuccess == result)
+        if (EInjectResult::Success == result)
             result = Set(enableDebugFeatures);
 
-        if (EInjectResult::InjectResultSuccess == result)
+        if (EInjectResult::Success == result)
             result = Run();
 
-        if (EInjectResult::InjectResultSuccess == result)
+        if (EInjectResult::Success == result)
             result = UnsetTrampoline();
         
         return result;
@@ -59,22 +59,22 @@ namespace Hookshot
 
     EInjectResult CodeInjector::Check(void) const
     {
-        if (EInjectResult::InjectResultSuccess != injectInfo.InitializationResult())
+        if (EInjectResult::Success != injectInfo.InitializationResult())
             return injectInfo.InitializationResult();
         
         if (GetTrampolineCodeSize() > sizeof(oldCodeAtTrampoline))
-            return EInjectResult::InjectResultErrorInsufficientTrampolineSpace;
+            return EInjectResult::ErrorInsufficientTrampolineSpace;
         
         if (GetRequiredCodeSize() > sizeCode)
-            return EInjectResult::InjectResultErrorInsufficientCodeSpace;
+            return EInjectResult::ErrorInsufficientCodeSpace;
 
         if (GetRequiredDataSize() > sizeData)
-            return EInjectResult::InjectResultErrorInsufficientDataSpace;
+            return EInjectResult::ErrorInsufficientDataSpace;
 
         if ((nullptr == baseAddressCode) || (nullptr == baseAddressData) || (nullptr == entryPoint) || (INVALID_HANDLE_VALUE == injectedProcess) || (INVALID_HANDLE_VALUE == injectedProcessMainThread))
-            return EInjectResult::InjectResultErrorInternalInvalidParams;
+            return EInjectResult::ErrorInternalInvalidParams;
         
-        return EInjectResult::InjectResultSuccess;
+        return EInjectResult::Success;
     }
 
     // --------
@@ -220,11 +220,11 @@ namespace Hookshot
         
         // Allow the injected code to start running.
         if (1 != ResumeThread(injectedProcessMainThread))
-            return EInjectResult::InjectResultErrorRunFailedResumeThread;
+            return EInjectResult::ErrorRunFailedResumeThread;
         
         // Synchronize with the injected code.
         if (false == injectSync())
-            return EInjectResult::InjectResultErrorRunFailedSync;
+            return EInjectResult::ErrorRunFailedSync;
 
         // Fill in some values that the injected process needs to perform required operations.
         {
@@ -233,43 +233,43 @@ namespace Hookshot
             void* addrLoadLibraryA;
 
             if (true != LocateFunctions(addrGetLastError, addrGetProcAddress, addrLoadLibraryA))
-                return EInjectResult::InjectResultErrorCannotLocateRequiredFunctions;
+                return EInjectResult::ErrorCannotLocateRequiredFunctions;
 
             if (false == injectDataFieldWrite(funcGetLastError, &addrGetLastError))
-                return EInjectResult::InjectResultErrorCannotWriteRequiredFunctionLocations;
+                return EInjectResult::ErrorCannotWriteRequiredFunctionLocations;
 
             if (false == injectDataFieldWrite(funcGetProcAddress, &addrGetProcAddress))
-                return EInjectResult::InjectResultErrorCannotWriteRequiredFunctionLocations;
+                return EInjectResult::ErrorCannotWriteRequiredFunctionLocations;
 
             if (false == injectDataFieldWrite(funcLoadLibraryA, &addrLoadLibraryA))
-                return EInjectResult::InjectResultErrorCannotWriteRequiredFunctionLocations;
+                return EInjectResult::ErrorCannotWriteRequiredFunctionLocations;
         }
         
         // Synchronize with the injected code.
         if (false == injectSync())
-            return EInjectResult::InjectResultErrorRunFailedSync;
+            return EInjectResult::ErrorRunFailedSync;
         
         // Wait for the injected code to reach completion and synchronize with it.
         // Once the injected code reaches this point, put the thread to sleep and then allow it to advance.
         // This way, upon waking, the thread will advance past the barrier and execute the process as normal.
         if (false == injectSyncWait())
-            return EInjectResult::InjectResultErrorRunFailedSync;
+            return EInjectResult::ErrorRunFailedSync;
 
         if (0 != SuspendThread(injectedProcessMainThread))
-            return EInjectResult::InjectResultErrorRunFailedSuspendThread;
+            return EInjectResult::ErrorRunFailedSuspendThread;
 
         if (false == injectSyncAdvance())
-            return EInjectResult::InjectResultErrorRunFailedSync;
+            return EInjectResult::ErrorRunFailedSync;
 
         // Read from the injected process to determine the result of the injection attempt.
         uint32_t injectionResult;
         uint32_t extendedInjectionResult;
 
         if (false == injectDataFieldRead(injectionResult, &injectionResult))
-            return EInjectResult::InjectResultErrorCannotReadStatus;
+            return EInjectResult::ErrorCannotReadStatus;
 
         if (false == injectDataFieldRead(extendedInjectionResult, &extendedInjectionResult))
-            return EInjectResult::InjectResultErrorCannotReadStatus;
+            return EInjectResult::ErrorCannotReadStatus;
 
         SetLastError((DWORD)extendedInjectionResult);
         return (EInjectResult)injectionResult;
@@ -283,11 +283,11 @@ namespace Hookshot
 
         // Back up the code currently at the trampoline's target location.
         if ((FALSE == ReadProcessMemory(injectedProcess, entryPoint, oldCodeAtTrampoline, GetTrampolineCodeSize(), &numBytes)) || (GetTrampolineCodeSize() != numBytes))
-            EInjectResult::InjectResultErrorSetFailedRead;
+            EInjectResult::ErrorSetFailedRead;
         
         // Write the trampoline code.
         if ((FALSE == WriteProcessMemory(injectedProcess, entryPoint, injectInfo.GetInjectTrampolineStart(), GetTrampolineCodeSize(), &numBytes)) || (GetTrampolineCodeSize() != numBytes) || (FALSE == FlushInstructionCache(injectedProcess, entryPoint, GetTrampolineCodeSize())))
-            EInjectResult::InjectResultErrorSetFailedWrite;
+            EInjectResult::ErrorSetFailedWrite;
 
         // Place the address of the main code entry point into the trampoline code at the correct location.
         {
@@ -295,12 +295,12 @@ namespace Hookshot
             const size_t sourceData = (size_t)baseAddressCode + ((size_t)injectInfo.GetInjectCodeBegin() - (size_t)injectInfo.GetInjectCodeStart());
             
             if ((FALSE == WriteProcessMemory(injectedProcess, targetAddress, &sourceData, sizeof(sourceData), &numBytes)) || (sizeof(sourceData) != numBytes) || (FALSE == FlushInstructionCache(injectedProcess, targetAddress, sizeof(sourceData))))
-                EInjectResult::InjectResultErrorSetFailedWrite;
+                EInjectResult::ErrorSetFailedWrite;
         }
 
         // Write the main code.
         if ((FALSE == WriteProcessMemory(injectedProcess, baseAddressCode, injectInfo.GetInjectCodeStart(), GetRequiredCodeSize(), &numBytes)) || (GetRequiredCodeSize() != numBytes) || (FALSE == FlushInstructionCache(injectedProcess, baseAddressCode, GetRequiredCodeSize())))
-            EInjectResult::InjectResultErrorSetFailedWrite;
+            EInjectResult::ErrorSetFailedWrite;
 
         // Place the pointer to the data region into the correct spot in the code region.
         {
@@ -308,7 +308,7 @@ namespace Hookshot
             const size_t sourceData = (size_t)baseAddressData;
 
             if ((FALSE == WriteProcessMemory(injectedProcess, targetAddress, &sourceData, sizeof(sourceData), &numBytes)) || (sizeof(sourceData) != numBytes) || (FALSE == FlushInstructionCache(injectedProcess, targetAddress, sizeof(sourceData))))
-                EInjectResult::InjectResultErrorSetFailedWrite;
+                EInjectResult::ErrorSetFailedWrite;
         }
 
         // Initialize the data region.
@@ -320,16 +320,16 @@ namespace Hookshot
             memset((void*)&injectDataStrings, 0, sizeof(injectDataStrings));
 
             injectData.enableDebugFeatures = (true == enableDebugFeatures ? 1 : 0);
-            injectData.injectionResultCodeSuccess = (uint32_t)EInjectResult::InjectResultSuccess;
-            injectData.injectionResultCodeLoadLibraryFailed = (uint32_t)EInjectResult::InjectResultErrorCannotLoadLibrary;
-            injectData.injectionResultCodeGetProcAddressFailed = (uint32_t)EInjectResult::InjectResultErrorMalformedLibrary;
-            injectData.injectionResultCodeInitializationFailed = (uint32_t)EInjectResult::InjectResultErrorLibraryInitFailed;
-            injectData.injectionResult = (uint32_t)EInjectResult::InjectResultFailure;
+            injectData.injectionResultCodeSuccess = (uint32_t)EInjectResult::Success;
+            injectData.injectionResultCodeLoadLibraryFailed = (uint32_t)EInjectResult::ErrorCannotLoadLibrary;
+            injectData.injectionResultCodeGetProcAddressFailed = (uint32_t)EInjectResult::ErrorMalformedLibrary;
+            injectData.injectionResultCodeInitializationFailed = (uint32_t)EInjectResult::ErrorLibraryInitFailed;
+            injectData.injectionResult = (uint32_t)EInjectResult::Failure;
 
             strcpy_s(injectDataStrings, Strings::kStrLibraryInitializationProcName.data());
 
             if (0 != wcstombs_s(nullptr, &injectDataStrings[Strings::kStrLibraryInitializationProcName.length() + 1], sizeof(injectDataStrings) - (Strings::kStrLibraryInitializationProcName.length() + 1) - 1, Strings::kStrHookshotDynamicLinkLibraryFilename.data(), sizeof(injectDataStrings) - (Strings::kStrLibraryInitializationProcName.length() + 1) - 2))
-                return EInjectResult::InjectResultErrorCannotGenerateLibraryFilename;
+                return EInjectResult::ErrorCannotGenerateLibraryFilename;
 
             injectData.strLibraryName = (const char*)((size_t)baseAddressData + sizeof(injectData) + (Strings::kStrLibraryInitializationProcName.length() + 1));
             injectData.strProcName = (const char*)((size_t)baseAddressData + sizeof(injectData));
@@ -347,13 +347,13 @@ namespace Hookshot
             }
             
             if ((FALSE == WriteProcessMemory(injectedProcess, baseAddressData, &injectData, sizeof(injectData), &numBytes)) || (sizeof(injectData) != numBytes))
-                EInjectResult::InjectResultErrorSetFailedWrite;
+                EInjectResult::ErrorSetFailedWrite;
 
             if ((FALSE == WriteProcessMemory(injectedProcess, (void*)((size_t)baseAddressData + sizeof(injectData)), injectDataStrings, sizeof(injectDataStrings), &numBytes)) || (sizeof(injectDataStrings) != numBytes))
-                EInjectResult::InjectResultErrorSetFailedWrite;
+                EInjectResult::ErrorSetFailedWrite;
         }
         
-        return EInjectResult::InjectResultSuccess;
+        return EInjectResult::Success;
     }
 
     // --------
@@ -363,8 +363,8 @@ namespace Hookshot
         SIZE_T numBytes = 0;
 
         if ((FALSE == WriteProcessMemory(injectedProcess, entryPoint, oldCodeAtTrampoline, GetTrampolineCodeSize(), &numBytes)) || (GetTrampolineCodeSize() != numBytes) || (FALSE == FlushInstructionCache(injectedProcess, entryPoint, GetTrampolineCodeSize())))
-            return EInjectResult::InjectResultErrorUnsetFailed;
+            return EInjectResult::ErrorUnsetFailed;
         
-        return EInjectResult::InjectResultSuccess;
+        return EInjectResult::Success;
     }
 }

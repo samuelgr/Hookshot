@@ -91,20 +91,20 @@ namespace Hookshot
     // -------- CONSTRUCTION AND DESTRUCTION ------------------------------- //
     // See "Inject.h" for documentation.
 
-    InjectInfo::InjectInfo(void) : injectTrampolineStart(nullptr), injectTrampolineAddressMarker(nullptr), injectTrampolineEnd(nullptr), injectCodeStart(nullptr), injectCodeBegin(nullptr), injectCodeEnd(nullptr), initializationResult(EInjectResult::InjectResultFailure)
+    InjectInfo::InjectInfo(void) : injectTrampolineStart(nullptr), injectTrampolineAddressMarker(nullptr), injectTrampolineEnd(nullptr), injectCodeStart(nullptr), injectCodeBegin(nullptr), injectCodeEnd(nullptr), initializationResult(EInjectResult::Failure)
     {
         void* injectBinaryBase = nullptr;
         size_t injectBinarySizeBytes = 0;
 
         if (false == LoadInjectCodeBinary(&injectBinaryBase, &injectBinarySizeBytes))
         {
-            initializationResult = EInjectResult::InjectResultErrorCannotLoadInjectCode;
+            initializationResult = EInjectResult::ErrorCannotLoadInjectCode;
             return;
         }
         
         if (kMaxInjectBinaryFileSize < injectBinarySizeBytes)
         {
-            initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
+            initializationResult = EInjectResult::ErrorMalformedInjectCodeFile;
             return;
         }
 
@@ -115,7 +115,7 @@ namespace Hookshot
             
             if (IMAGE_DOS_SIGNATURE != dosHeader->e_magic)
             {
-                initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
+                initializationResult = EInjectResult::ErrorMalformedInjectCodeFile;
                 return;
             }
             
@@ -124,7 +124,7 @@ namespace Hookshot
             
             if (IMAGE_NT_SIGNATURE != ntHeader->Signature)
             {
-                initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
+                initializationResult = EInjectResult::ErrorMalformedInjectCodeFile;
                 return;
             }
 
@@ -134,7 +134,7 @@ namespace Hookshot
             if (IMAGE_FILE_MACHINE_I386 != ntHeader->FileHeader.Machine)
 #endif
             {
-                initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
+                initializationResult = EInjectResult::ErrorMalformedInjectCodeFile;
                 return;
             }
 
@@ -153,7 +153,7 @@ namespace Hookshot
                     {
                         if (nullptr != sectionCode)
                         {
-                            initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
+                            initializationResult = EInjectResult::ErrorMalformedInjectCodeFile;
                             return;
                         }
 
@@ -163,7 +163,7 @@ namespace Hookshot
                     {
                         if (nullptr != sectionMeta)
                         {
-                            initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
+                            initializationResult = EInjectResult::ErrorMalformedInjectCodeFile;
                             return;
                         }
 
@@ -175,20 +175,20 @@ namespace Hookshot
             // Verify that both sections exist.
             if ((nullptr == sectionCode) || (nullptr == sectionMeta))
             {
-                initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
+                initializationResult = EInjectResult::ErrorMalformedInjectCodeFile;
                 return;
             }
 
             // Check the validity and version-correctness of the metadata section.
             if (kInjectionMetaMagicValue != sectionMeta->magic)
             {
-                initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
+                initializationResult = EInjectResult::ErrorMalformedInjectCodeFile;
                 return;
             }
 
             if (0 != sectionMeta->version)
             {
-                initializationResult = EInjectResult::InjectResultErrorMalformedInjectCodeFile;
+                initializationResult = EInjectResult::ErrorMalformedInjectCodeFile;
                 return;
             }
 
@@ -201,7 +201,7 @@ namespace Hookshot
             injectCodeEnd = (void*)((size_t)sectionCode + (size_t)sectionMeta->offsetInjectCodeEnd);
 
             // All operations completed successfully.
-            initializationResult = EInjectResult::InjectResultSuccess;
+            initializationResult = EInjectResult::Success;
         }
     }
 }

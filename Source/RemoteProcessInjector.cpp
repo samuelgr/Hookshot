@@ -49,7 +49,7 @@ namespace Hookshot
             HANDLE sharedMemoryHandle = Protected::Windows_CreateFileMapping(INVALID_HANDLE_VALUE, &sharedMemorySecurityAttributes, PAGE_READWRITE, 0, sizeof(RemoteProcessInjector::SInjectRequest), nullptr);
 
             if (nullptr == sharedMemoryHandle)
-                return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
+                return EInjectResult::ErrorInterProcessCommunicationFailed;
 
             RemoteProcessInjector::SInjectRequest* const sharedInfo = (RemoteProcessInjector::SInjectRequest*)Protected::Windows_MapViewOfFile(sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 
@@ -58,7 +58,7 @@ namespace Hookshot
                 const DWORD extendedResult = Protected::Windows_GetLastError();
                 Protected::Windows_CloseHandle(sharedMemoryHandle);
                 Protected::Windows_SetLastError(extendedResult);
-                return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
+                return EInjectResult::ErrorInterProcessCommunicationFailed;
             }
 
             // Append the command-line argument to pass to the new Hookshot instance and convert to a mutable string, as required by CreateProcess.
@@ -71,7 +71,7 @@ namespace Hookshot
                 Protected::Windows_UnmapViewOfFile(sharedInfo);
                 Protected::Windows_CloseHandle(sharedMemoryHandle);
                 Protected::Windows_SetLastError(extendedResult);
-                return EInjectResult::InjectResultErrorCannotGenerateExecutableFilename;
+                return EInjectResult::ErrorCannotGenerateExecutableFilename;
             }
 
             // Create the new instance of Hookshot.
@@ -86,7 +86,7 @@ namespace Hookshot
                 Protected::Windows_UnmapViewOfFile(sharedInfo);
                 Protected::Windows_CloseHandle(sharedMemoryHandle);
                 Protected::Windows_SetLastError(extendedResult);
-                return EInjectResult::InjectResultErrorCreateHookshotProcessFailed;
+                return EInjectResult::ErrorCreateHookshotProcessFailed;
             }
 
             // Fill in the required inputs to the new instance of Hookshot.
@@ -102,13 +102,13 @@ namespace Hookshot
                 Protected::Windows_UnmapViewOfFile(sharedInfo);
                 Protected::Windows_CloseHandle(sharedMemoryHandle);
                 Protected::Windows_SetLastError(extendedResult);
-                return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
+                return EInjectResult::ErrorInterProcessCommunicationFailed;
             }
 
             sharedInfo->processHandle = (uint64_t)duplicateProcessHandle;
             sharedInfo->threadHandle = (uint64_t)duplicateThreadHandle;
             sharedInfo->enableDebugFeatures = enableDebugFeatures;
-            sharedInfo->injectionResult = (uint64_t)EInjectResult::InjectResultFailure;
+            sharedInfo->injectionResult = (uint64_t)EInjectResult::Failure;
             sharedInfo->extendedInjectionResult = 0ull;
 
             // Let the new instance of Hookshot run and wait for it to finish.
@@ -123,7 +123,7 @@ namespace Hookshot
                 Protected::Windows_UnmapViewOfFile(sharedInfo);
                 Protected::Windows_CloseHandle(sharedMemoryHandle);
                 Protected::Windows_SetLastError(extendedResult);
-                return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
+                return EInjectResult::ErrorInterProcessCommunicationFailed;
             }
 
             // Obtain results from the new instance of Hookshot, clean up, and return.
@@ -136,7 +136,7 @@ namespace Hookshot
                 Protected::Windows_UnmapViewOfFile(sharedInfo);
                 Protected::Windows_CloseHandle(sharedMemoryHandle);
                 Protected::Windows_SetLastError(extendedResult);
-                return EInjectResult::InjectResultErrorInterProcessCommunicationFailed;
+                return EInjectResult::ErrorInterProcessCommunicationFailed;
             }
 
             const EInjectResult operationResult = (EInjectResult)sharedInfo->injectionResult;

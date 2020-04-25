@@ -59,16 +59,16 @@ namespace Hookshot
             decltype(IMAGE_DOS_HEADER::e_lfanew) ntHeadersOffset = 0;
 
             if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)((size_t)baseAddress + (size_t)offsetof(IMAGE_DOS_HEADER, e_lfanew)), (LPVOID)&ntHeadersOffset, sizeof(ntHeadersOffset), (SIZE_T*)&numBytesRead)) || (sizeof(ntHeadersOffset) != numBytesRead))
-                return EInjectResult::InjectResultErrorReadDOSHeadersFailed;
+                return EInjectResult::ErrorReadDOSHeadersFailed;
 
             // Next read the NT header to figure out the location of the entry point.
             decltype(IMAGE_NT_HEADERS::OptionalHeader.AddressOfEntryPoint) entryPointOffset = 0;
 
             if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)((size_t)baseAddress + (size_t)ntHeadersOffset + (size_t)offsetof(IMAGE_NT_HEADERS, OptionalHeader.AddressOfEntryPoint)), (LPVOID)&entryPointOffset, sizeof(entryPointOffset), (SIZE_T*)&numBytesRead)) || (sizeof(entryPointOffset) != numBytesRead))
-                return EInjectResult::InjectResultErrorReadNTHeadersFailed;
+                return EInjectResult::ErrorReadNTHeadersFailed;
 
             *entryPoint = (void*)((size_t)baseAddress + (size_t)entryPointOffset);
-            return EInjectResult::InjectResultSuccess;
+            return EInjectResult::Success;
         }
 
         /// Attempts to determine the base address of the primary executable image for the given process.
@@ -87,7 +87,7 @@ namespace Hookshot
                 ntdllModuleHandle = LoadLibraryEx(L"ntdll.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
 
                 if (nullptr == ntdllModuleHandle)
-                    return EInjectResult::InjectResultErrorLoadNtDll;
+                    return EInjectResult::ErrorLoadNtDll;
 
                 ntdllQueryInformationProcessProc = nullptr;
             }
@@ -97,14 +97,14 @@ namespace Hookshot
                 ntdllQueryInformationProcessProc = (decltype(ntdllQueryInformationProcessProc))GetProcAddress(ntdllModuleHandle, "NtQueryInformationProcess");
 
                 if (nullptr == ntdllQueryInformationProcessProc)
-                    return EInjectResult::InjectResultErrorNtQueryInformationProcessUnavailable;
+                    return EInjectResult::ErrorNtQueryInformationProcessUnavailable;
             }
 
             // Obtain the address of the process environment block (PEB) for the process, which is within the address space of the process.
             PROCESS_BASIC_INFORMATION processBasicInfo;
 
             if (0 != ntdllQueryInformationProcessProc(processHandle, ProcessBasicInformation, &processBasicInfo, sizeof(processBasicInfo), nullptr))
-                return EInjectResult::InjectResultErrorNtQueryInformationProcessFailed;
+                return EInjectResult::ErrorNtQueryInformationProcessFailed;
 
             // The field of interest in the PEB structure is ImageBaseAddress, whose offset is undocumented but has remained stable over multiple Windows generations and continues to do so.
             // See http://terminus.rewolf.pl/terminus/structures/ntdll/_PEB_combined.html for a visualization.
@@ -119,9 +119,9 @@ namespace Hookshot
             size_t numBytesRead = 0;
 
             if ((FALSE == ReadProcessMemory(processHandle, (LPCVOID)((size_t)processBasicInfo.PebBaseAddress + kOffsetPebImageBaseAddress), (LPVOID)baseAddress, sizeof(baseAddress), (SIZE_T*)&numBytesRead)) || (sizeof(baseAddress) != numBytesRead))
-                return EInjectResult::InjectResultErrorReadProcessPEBFailed;
+                return EInjectResult::ErrorReadProcessPEBFailed;
 
-            return EInjectResult::InjectResultSuccess;
+            return EInjectResult::Success;
         }
 
         /// Verifies that Hookshot was given explicit authorization from the end user to inject the specified process.
@@ -135,17 +135,17 @@ namespace Hookshot
             DWORD authorizationFileNameBaseLength = authorizationFileName.Count();
 
             if (0 == QueryFullProcessImageName(processHandle, 0, authorizationFileName, &authorizationFileNameBaseLength))
-                return EInjectResult::InjectResultErrorCannotDetermineAuthorization;
+                return EInjectResult::ErrorCannotDetermineAuthorization;
 
             if (0 != wcscpy_s(&authorizationFileName[authorizationFileNameBaseLength], authorizationFileName.Count() - authorizationFileNameBaseLength, kAuthorizationFileSuffix))
-                return EInjectResult::InjectResultErrorCannotDetermineAuthorization;
+                return EInjectResult::ErrorCannotDetermineAuthorization;
 
             const HANDLE authorizationFileHandle = CreateFile(authorizationFileName, 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
             if (INVALID_HANDLE_VALUE == authorizationFileHandle)
-                return EInjectResult::InjectResultErrorNotAuthorized;
+                return EInjectResult::ErrorNotAuthorized;
 
             CloseHandle(authorizationFileHandle);
-            return EInjectResult::InjectResultSuccess;
+            return EInjectResult::Success;
         }
 
         /// Verifies that the architecture of the target process matches the architecture of this running binary.
@@ -157,12 +157,12 @@ namespace Hookshot
             USHORT machineCurrentProcess = 0;
 
             if ((FALSE == IsWow64Process2(processHandle, &machineTargetProcess, nullptr)) || (FALSE == IsWow64Process2(Globals::GetCurrentProcessHandle(), &machineCurrentProcess, nullptr)))
-                return EInjectResult::InjectResultErrorDetermineMachineProcess;
+                return EInjectResult::ErrorDetermineMachineProcess;
 
             if (machineTargetProcess == machineCurrentProcess)
-                return EInjectResult::InjectResultSuccess;
+                return EInjectResult::Success;
             else
-                return EInjectResult::InjectResultErrorArchitectureMismatch;
+                return EInjectResult::ErrorArchitectureMismatch;
         }
 
         /// Attempts to inject a process with Hookshot code.
@@ -176,15 +176,15 @@ namespace Hookshot
             EInjectResult operationResult = VerifyAuthorizedToInjectProcess(processHandle);
 
             // Make sure the architectures match between this process and the process being injected.
-            if (EInjectResult::InjectResultSuccess == operationResult)
+            if (EInjectResult::Success == operationResult)
                 operationResult = VerifyMatchingProcessArchitecture(processHandle);
 
             switch (operationResult)
             {
-            case EInjectResult::InjectResultSuccess:
+            case EInjectResult::Success:
                 break;
 
-            case EInjectResult::InjectResultErrorArchitectureMismatch:
+            case EInjectResult::ErrorArchitectureMismatch:
                 return RemoteProcessInjector::InjectProcess(processHandle, threadHandle, true, enableDebugFeatures);
 
             default:
@@ -200,12 +200,12 @@ namespace Hookshot
 
             // Attempt to obtain the base address of the executable image of the new process.
             operationResult = GetProcessImageBaseAddress(processHandle, &processBaseAddress);
-            if (EInjectResult::InjectResultSuccess != operationResult)
+            if (EInjectResult::Success != operationResult)
                 return operationResult;
 
             // Attempt to obtain the entry point address of the new process.
             operationResult = GetProcessEntryPointAddress(processHandle, processBaseAddress, &processEntryPoint);
-            if (EInjectResult::InjectResultSuccess != operationResult)
+            if (EInjectResult::Success != operationResult)
                 return operationResult;
 
             // Allocate code and data areas in the target process.
@@ -214,17 +214,17 @@ namespace Hookshot
             injectedDataBase = (void*)((size_t)injectedCodeBase + kEffectiveInjectRegionSize);
 
             if (nullptr == injectedCodeBase)
-                return EInjectResult::InjectResultErrorVirtualAllocFailed;
+                return EInjectResult::ErrorVirtualAllocFailed;
 
             // Set appropriate protection values onto the new areas individually.
             {
                 DWORD unusedOldProtect = 0;
 
                 if (FALSE == VirtualProtectEx(processHandle, injectedCodeBase, kEffectiveInjectRegionSize, PAGE_EXECUTE_READ, &unusedOldProtect))
-                    return EInjectResult::InjectResultErrorVirtualProtectFailed;
+                    return EInjectResult::ErrorVirtualProtectFailed;
 
                 if (FALSE == VirtualProtectEx(processHandle, injectedDataBase, kEffectiveInjectRegionSize, PAGE_READWRITE, &unusedOldProtect))
-                    return EInjectResult::InjectResultErrorVirtualProtectFailed;
+                    return EInjectResult::ErrorVirtualProtectFailed;
             }
 
             // Inject code and data.
@@ -248,13 +248,13 @@ namespace Hookshot
             // Attempt to create the new process in suspended state and capture information about it.
             PROCESS_INFORMATION processInfo = *lpProcessInformation;
             if (0 == CreateProcessW(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, (dwCreationFlags | CREATE_SUSPENDED), lpEnvironment, lpCurrentDirectory, lpStartupInfo, &processInfo))
-                return EInjectResult::InjectResultErrorCreateProcess;
+                return EInjectResult::ErrorCreateProcess;
 
             *lpProcessInformation = processInfo;
 
             const EInjectResult result = InjectProcess(processInfo.hProcess, processInfo.hThread, (IsDebuggerPresent() ? true : false));
 
-            if (EInjectResult::InjectResultSuccess == result)
+            if (EInjectResult::Success == result)
             {
                 if (false == shouldCreateSuspended)
                     ResumeThread(processInfo.hThread);
