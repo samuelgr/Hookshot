@@ -77,7 +77,7 @@ namespace Hookshot
     {
     public:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
-        
+
         /// Default constructor.
         inline TemporaryBuffer(void) : TemporaryBufferBase()
         {
@@ -96,14 +96,14 @@ namespace Hookshot
 
 
         // -------- INSTANCE METHODS --------------------------------------- //
-        
+
         /// Retrieves the size of the buffer space, in number of elements of type T.
         /// @return Size of the buffer, in T-sized elements.
         constexpr inline unsigned int Count(void) const
         {
             return Size() / sizeof(T);
         }
-        
+
         /// Retrieves the size of the buffer space, in bytes.
         /// @return Size of the buffer, in bytes.
         constexpr inline unsigned int Size(void) const

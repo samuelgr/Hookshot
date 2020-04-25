@@ -134,7 +134,7 @@ namespace Hookshot
     }
 
     // --------
-    
+
     bool X86Instruction::WriteJumpInstruction(void* const where, const int whereSizeBytes, const void* const to)
     {
         if (whereSizeBytes < kJumpInstructionLengthBytes)
@@ -169,7 +169,7 @@ namespace Hookshot
     }
 
     // --------
-    
+
     bool X86Instruction::DecodeInstruction(void* const instruction, const int maxLengthBytes)
     {
         xed_decoded_inst_zero_set_mode(&decodedInstruction, &kXedMachineState);
@@ -195,10 +195,10 @@ namespace Hookshot
     int X86Instruction::EncodeInstruction(void* const buf, const int maxLengthBytes) const
     {
         const unsigned int decodedLength = GetLengthBytes();
-        
+
         if (false == valid || maxLengthBytes < 0 || (unsigned int)maxLengthBytes < decodedLength)
             return 0;
-        
+
         xed_encoder_request_t toEncode = decodedInstruction;
         xed_encoder_request_init_from_decode(&toEncode);
 
@@ -224,7 +224,7 @@ namespace Hookshot
                 ((uint8_t*)buf)[decodedLength - 1 - i] = ((uint8_t*)buf)[decodedLength - 1 - lengthDiscrepancy - i];
 
             FillWithNop(buf, lengthDiscrepancy);
-            
+
 #ifdef HOOKSHOT64
             // If the decoded instruction had a REX prefix and the newly-encoded instruction does not, this means the encoder removed it because it has no functional purpose.
             // However, REX prefixes are used for other things besides just functional changes.  For example, Windows uses "rex.w jmp" to indicate a function epilogue.
@@ -236,7 +236,7 @@ namespace Hookshot
 
             encodedLength = decodedLength;
         }
-        
+
         return (int)encodedLength;
     }
 
@@ -357,7 +357,7 @@ namespace Hookshot
     }
 
     // --------
-    
+
     bool X86Instruction::SetMemoryDisplacement(const int64_t displacement)
     {
         if (false == CanSetMemoryDisplacementTo(displacement))

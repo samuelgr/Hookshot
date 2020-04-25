@@ -40,7 +40,7 @@ namespace Hookshot
 
         /// Maps from trampoline address to original function address.
         static std::unordered_map<Trampoline*, const void*> trampolineToOriginalFunction;
-        
+
         /// Trampoline storage.
         /// Used internally to implement hooks.
         static std::vector<TrampolineStore> trampolines;

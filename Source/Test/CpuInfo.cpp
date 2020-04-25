@@ -24,7 +24,7 @@ namespace HookshotTest
         // Nothing to do here.
     }
 
-    
+
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "CpuInfo.h" for documentation.
 

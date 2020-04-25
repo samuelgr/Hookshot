@@ -130,7 +130,7 @@ namespace Hookshot
         static EInjectResult VerifyAuthorizedToInjectProcess(const HANDLE processHandle)
         {
             static constexpr wchar_t kAuthorizationFileSuffix[] = L".hookshot";
-            
+
             TemporaryBuffer<wchar_t> authorizationFileName;
             DWORD authorizationFileNameBaseLength = authorizationFileName.Count();
 

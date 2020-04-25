@@ -24,7 +24,7 @@
 namespace Hookshot
 {
     // -------- INTERNAL CONSTANTS ------------------------------------- //
-    
+
     /// Loaded into the hook region of the trampoline at initialization time.
     /// Provides the needed preamble and allows room for the hook function address to be specified after-the-fact.
     /// When the trampoline is set, the hook function address is filled in after the code contained here.
@@ -38,7 +38,7 @@ namespace Hookshot
             0xe9,                                                       // jmp rel32
 #endif
     };
-    
+
     // Used to verify that the amount of preamble code is just right.
     // If too much, a pointer to the hook function will not fit into the allowed space of the hook code region.  To fix, increase the size of the hook region of the trampoline or decrease the size of the code.
     // If too little, the code will not execute correctly because there will be a gap between the code and the pointer.  To fix, pad the hook code preamble with nop instructions.
@@ -50,7 +50,7 @@ namespace Hookshot
     /// When the trampoline is set, this region of the code is replaced by actual transplanted code.
     static constexpr uint16_t kOriginalCodeDefault = 0x0b0f;
 
-    
+
     // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
     // See "Trampoline.h" for documentation.
 
@@ -62,7 +62,7 @@ namespace Hookshot
 
     // -------- INSTANCE METHODS --------------------------------------- //
     // See "Trampoline.h" for documentation.
-    
+
     void Trampoline::Reset(void)
     {
         for (int i = 0; i < sizeof(kHookCodePreamble); ++i)
@@ -75,7 +75,7 @@ namespace Hookshot
     }
 
     // --------
-    
+
     void Trampoline::SetHookFunction(const void* hookFunc)
     {
         Message::OutputFormatted(Message::ESeverity::Info, L"Trampoline at 0x%llx is being set up with hook function 0x%llx.", (long long)this, (long long)hookFunc);
@@ -84,18 +84,18 @@ namespace Hookshot
     }
 
     // --------
-    
+
     bool Trampoline::SetOriginalFunction(const void* originalFunc)
     {
         Message::OutputFormatted(Message::ESeverity::Info, L"Trampoline at 0x%llx is being set up with original function 0x%llx.", (long long)this, (long long)originalFunc);
-        
+
         // Sanity check.  Make sure the original function is not too far away from this trampoline.
         if (false == X86Instruction::CanWriteJumpInstruction(originalFunc, &code.hook))
         {
             Message::OutputFormatted(Message::ESeverity::Warning, L"Set hook failed for function %llx because it is too far from the trampoline.", (long long)originalFunc);
             return false;
         }
-        
+
         // This operation requires transplanting code from the location of the original function into the original function part of the trampoline.  This is done in several sub-parts, and more details will be provided while executing each sub-part.
         // First, read and decode instructions until either enough bytes worth of instructions are decoded to hold an unconditional jump or a terminal instruction is hit.  If the latter happens strictly before the former, then setting this hook failed due to there not being enough bytes of function to transplant.
         // Second, iterate through all the decoded instructions and check for position-dependent memory references.  Update the displacements as needed for any such decoded instructions.  If that is not possible for even one instruction, then setting this hook failed.
@@ -114,7 +114,7 @@ namespace Hookshot
         {
             X86Instruction& decodedInstruction = originalInstructions.emplace_back();
             decodedInstruction.DecodeInstruction(&originalFunctionBytes[numOriginalFunctionBytes]);
-            
+
             if (false == decodedInstruction.IsValid())
             {
                 Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Invalid instruction.", instructionIndex);
@@ -132,7 +132,7 @@ namespace Hookshot
                 if (decodedInstruction.IsTerminal())
                     Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - This is a terminal instruction.", instructionIndex);
             }
-            
+
             numOriginalFunctionBytes += decodedInstruction.GetLengthBytes();
             instructionIndex += 1;
 
@@ -156,13 +156,13 @@ namespace Hookshot
         {
             const int numTrampolineBytesLeft = sizeof(code.original) - numTrampolineBytesWritten - numExtraTrampolineBytesUsed;
             void* const nextTrampolineAddressToWrite = &code.original.byte[numTrampolineBytesWritten];
-            
+
             // Second sub-part. Handle any position-dependent memory references.
             if (originalInstructions[i].HasPositionDependentMemoryReference())
             {
                 const int64_t originalDisplacement = originalInstructions[i].GetMemoryDisplacement();
                 Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Has a position-dependent memory reference with displacement 0x%llx.", i, (long long)originalDisplacement);
-                
+
                 // If the displacement is so small that it refers to another instruction that is also being transplanted, then there is no need to modify it.
                 // Note the need to check both forwards (positive) and backwards (negative) displacement directions.
                 const int64_t minForwardDisplacementNeedingModification = (int64_t)(numOriginalFunctionBytes - (numTrampolineBytesWritten + originalInstructions[i].GetLengthBytes()));
@@ -237,7 +237,7 @@ namespace Hookshot
         {
             const int numTrampolineBytesLeft = sizeof(code.original) - numTrampolineBytesWritten - numExtraTrampolineBytesUsed;
             Message::OutputFormatted(Message::ESeverity::Debug, L"Final encoded instruction is non-terminal, so adding a jump to 0x%llx with %d byte(s) free in the trampoline.", (long long)&originalFunctionBytes[numOriginalFunctionBytes], numTrampolineBytesLeft);
-            
+
             if (false == X86Instruction::WriteJumpInstruction(&code.original.byte[numTrampolineBytesWritten], numTrampolineBytesLeft, &originalFunctionBytes[numOriginalFunctionBytes]))
             {
                 Message::OutputFormatted(Message::ESeverity::Debug, L"Failed to write terminal jump instruction.");

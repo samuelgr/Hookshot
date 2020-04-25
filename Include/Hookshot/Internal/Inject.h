@@ -51,10 +51,10 @@ namespace Hookshot
     static inline bool injectDataFieldReadImpl(const HANDLE& processHandle, const void* const sourceAddress, void* const destAddress, const size_t size)
     {
         SIZE_T numBytesRead = 0;
-        
+
         if ((FALSE == ReadProcessMemory(processHandle, sourceAddress, destAddress, (SIZE_T)size, &numBytesRead)) || ((SIZE_T)size != numBytesRead))
             return false;
-        
+
         return true;
     }
 
@@ -69,7 +69,7 @@ namespace Hookshot
 
         return true;
     }
-    
+
     /// Implements the first part of the syncing logic.
     /// Waits until the injected process writes the expected value to the sync flag and then returns.
     /// Not intended to be invoked other than by using appropriate macros.
@@ -102,7 +102,7 @@ namespace Hookshot
 
         return true;
     }
-    
+
     /// Defines the structure of the data exchanged between the injecting and injected processes.
     /// One instance of this structure is placed into the data region and accessed by both the injecting and injected processes.
     /// A corresponding structure definition must appear in "Inject.inc" for the assembly code.
@@ -117,11 +117,11 @@ namespace Hookshot
         uint32_t injectionResultCodeGetProcAddressFailed;               ///< Result code to use to indicate that a GetProcAddress operation failed.  Set by the injecting process.
         uint32_t injectionResultCodeInitializationFailed;               ///< Result code to use to indicate that the loaded library failed to initialize.
         uint32_t unused3[(128 / sizeof(uint32_t)) - 4];                 ///< Padding for 128-byte alignment.
-        
+
         uint32_t injectionResult;                                       ///< Result of the injection operation.  Written by the injected process.
         uint32_t extendedInjectionResult;                               ///< Extended result of the injection operation.  Written by the injected process.
         uint32_t unused4[(128 / sizeof(uint32_t)) - 2];                 ///< Padding for 128-byte alignment.
-        
+
         const void* funcGetLastError;                                   ///< Address of the GetLastError function in the injected process.
         const void* funcGetProcAddress;                                 ///< Address of the GetProcAddress function in the injected process.
         const void* funcLoadLibraryA;                                   ///< Address of the LoadLibraryA function in the injected process.
@@ -139,7 +139,7 @@ namespace Hookshot
     {
     public:
         // -------- CONSTANTS ---------------------------------------------- //
-        
+
         /// Maximum size, in bytes, of the binary files that are loaded.
         static constexpr size_t kMaxInjectBinaryFileSize = 4096;
 
@@ -196,7 +196,7 @@ namespace Hookshot
         {
             return injectTrampolineAddressMarker;
         }
-        
+
         /// Provides read-only access to the correspondingly-named instance variable.
         /// @return Value of the corresponding instance variable.
         inline void* GetInjectTrampolineEnd(void) const

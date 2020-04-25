@@ -278,7 +278,7 @@ namespace Hookshot
             {
                 return *(values.begin());
             }
-            
+
             /// Stores a new value for the configuration setting represented by this object.
             /// Will fail if the value already exists.
             /// @tparam ValueType Type of value to insert.
@@ -425,7 +425,7 @@ namespace Hookshot
             {
                 sections.clear();
             }
-            
+
             /// Stores a new value for the specified configuration setting in the specified section.
             /// Will fail if the value already exists.
             /// @tparam ValueType Type of value to insert.
@@ -579,7 +579,7 @@ namespace Hookshot
             /// @param [in] value Value of the configuration setting, as read and parsed from the configuration file.
             /// @return `true` if the submitted value was acceptable (according to whatever arbitrary characteristics the subclass wishes), `false` otherwise.
             virtual bool CheckValue(std::wstring_view section, std::wstring_view name, const TStringValue& value) = 0;
-            
+
             /// Specifies the type of the value for the given configuration setting.
             /// In lines that are of the form "name = value" parameters identify both the enclosing section and the name part.
             /// Subclasses should override this method.
@@ -591,13 +591,13 @@ namespace Hookshot
 
 
             // -------- CONCRETE INSTANCE METHODS -------------------------- //
-            
+
             /// Invoked at the start of a configuration file read operation.
             /// Subclasses are given the opportunity to initialize or reset any stored state, as needed.
             /// Overriding this method is optional, as a default implementation exists that does nothing.
             virtual void PrepareForRead(void);
         };
-        
+
         /// Convenience wrapper object that combines a reader with a configuration data object and presents both with a unified interface.
         class Configuration
         {
@@ -622,7 +622,7 @@ namespace Hookshot
             {
                 // Nothing to do here.
             }
-            
+
             /// Copy constructor. Should never be invoked.
             Configuration(const Configuration& other) = delete;
 
@@ -636,7 +636,7 @@ namespace Hookshot
             }
 
             /// Determines if the contents of the object that holds all of Hookshot's configuration settings are valid.
-            /// If a previous attempt to read the Hookshot configuration file failed, 
+            /// If a previous attempt to read the Hookshot configuration file failed,
             /// @return `true` if the contents are valid, `false` otherwise.
             inline EFileReadResult GetFileReadResult(void)
             {

@@ -28,7 +28,7 @@ namespace Hookshot
     namespace Message
     {
         // -------- INTERNAL TYPES ----------------------------------------- //
-        
+
         /// Enumerates all supported modes of outputting messages.
         enum class EOutputMode
         {

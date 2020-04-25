@@ -101,7 +101,7 @@ namespace Hookshot
             initializationResult = EInjectResult::ErrorCannotLoadInjectCode;
             return;
         }
-        
+
         if (kMaxInjectBinaryFileSize < injectBinarySizeBytes)
         {
             initializationResult = EInjectResult::ErrorMalformedInjectCodeFile;
@@ -112,16 +112,16 @@ namespace Hookshot
         {
             // Verify a valid DOS header.
             const IMAGE_DOS_HEADER* const dosHeader = (IMAGE_DOS_HEADER*)injectBinaryBase;
-            
+
             if (IMAGE_DOS_SIGNATURE != dosHeader->e_magic)
             {
                 initializationResult = EInjectResult::ErrorMalformedInjectCodeFile;
                 return;
             }
-            
+
             // Verify a valid NT header and perform simple sanity checks.
             const IMAGE_NT_HEADERS* const ntHeader = (IMAGE_NT_HEADERS*)((size_t)dosHeader + (size_t)dosHeader->e_lfanew);
-            
+
             if (IMAGE_NT_SIGNATURE != ntHeader->Signature)
             {
                 initializationResult = EInjectResult::ErrorMalformedInjectCodeFile;

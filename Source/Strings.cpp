@@ -28,7 +28,7 @@ namespace Hookshot
     namespace Strings
     {
         // -------- INTERNAL CONSTANTS ------------------------------------- //
-        
+
         /// File extension of the dynamic-link library form of Hookshot.
 #ifdef HOOKSHOT64
         static constexpr std::wstring_view kStrHookshotDynamicLinkLibraryExtension = L".64.dll";
@@ -75,7 +75,7 @@ namespace Hookshot
 
             return (std::wstring(buf));
         }
-        
+
         /// Generates the base name of the current running form of Hookshot, minus the extension.
         /// For example: "C:\Directory\Program\Hookshot.32.dll" -> "Hookshot"
         /// @return Base name without extension.
@@ -89,7 +89,7 @@ namespace Hookshot
                 hookshotBaseName = buf;
             else
                 hookshotBaseName += 1;
-            
+
             // Hookshot module filenames are expected to end with a double-extension, the first specifying the platform and the second the actual file type.
             // Therefore, look for the last two dot characters and truncate them.
             wchar_t* const lastDot = wcsrchr(hookshotBaseName, L'.');
@@ -108,7 +108,7 @@ namespace Hookshot
 
             return (std::wstring(hookshotBaseName));
         }
-        
+
         /// Generates the fully-qualified path of the current running form of Hookshot, minus the extension.
         /// This is useful for determining the correct path of the next file or module to load.
         /// For example: "C:\Directory\Program\Hookshot.32.dll" -> "C:\Directory\Program\Hookshot"
@@ -136,7 +136,7 @@ namespace Hookshot
 
             return (std::wstring(buf));
         }
-        
+
         /// Generates the value for kStrExecutableBaseName; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetExecutableBaseName(void)
@@ -194,7 +194,7 @@ namespace Hookshot
 
             return (std::wstring(hookshotBaseName));
         }
-        
+
         /// Generates the value for kStrHookshotDirectoryName; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetHookshotDirectoryName(void)
@@ -220,7 +220,7 @@ namespace Hookshot
 
             return (std::wstring(buf));
         }
-        
+
         /// Generates the value for kStrHookshotConfigurationFilename; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static std::wstring GetHookshotConfigurationFilename(void)
@@ -233,7 +233,7 @@ namespace Hookshot
         static std::wstring GetHookshotLogFilename(void)
         {
             std::wstringstream logFilename;
-            
+
             PWSTR knownFolderPath;
             const HRESULT result = SHGetKnownFolderPath(FOLDERID_Desktop, 0, nullptr, &knownFolderPath);
 
@@ -328,7 +328,7 @@ namespace Hookshot
 
         // -------- FUNCTIONS ---------------------------------------------- //
         // See "Strings.h" for documentation.
-        
+
         std::wstring HookModuleFilename(std::wstring_view moduleName)
         {
             return kStrExecutableDirectoryNameImpl + moduleName.data() + kStrHookModuleExtension.data();
@@ -340,7 +340,7 @@ namespace Hookshot
         {
             TemporaryBuffer<wchar_t> systemErrorString;
             DWORD systemErrorLength = Protected::Windows_FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, systemErrorCode, 0, systemErrorString, systemErrorString.Count(), nullptr);
-            
+
             if (0 == systemErrorLength)
             {
                 swprintf_s(systemErrorString, systemErrorString.Count(), L"System error %u.", (unsigned int)systemErrorCode);

@@ -23,7 +23,7 @@ namespace Hookshot
     {
         // -------- COMPILE-TIME CONSTANTS --------------------------------- //
         // Can safely be used at any time, including to perform static initialization.
-        
+
         /// Character that occurs at the start of a command-line argument to indicate it is a file mapping handle rather than an executable name.
         inline constexpr wchar_t kCharCmdlineIndicatorFileMappingHandle = L'|';
 
@@ -43,7 +43,7 @@ namespace Hookshot
 #else
         inline constexpr std::string_view kStrInjectMetaSectionName = "_META32";
 #endif
-        
+
         // Per PE header specs, maximum string length is 8 including terminating null character.
         static_assert(kStrInjectMetaSectionName.length() < 8, "Length of PE section name is limited to 8 characters including terminating null.");
 
@@ -63,7 +63,7 @@ namespace Hookshot
 
         /// Configuration file setting name for specifying an injected library to load.
         inline constexpr std::wstring_view kStrConfigurationSettingNameInject = L"Inject";
-        
+
         /// Configuration file setting name for specifying a hook module to load.
         inline constexpr std::wstring_view kStrConfigurationSettingNameHookModule = L"HookModule";
 
@@ -80,12 +80,12 @@ namespace Hookshot
         /// Product name.
         /// Use this to identify Hookshot in areas of user interaction.
         extern const std::wstring_view kStrProductName;
-        
+
         /// Base name of the currently-running executable.
         /// For Hookshot's executable form, this will be the Hookshot executable.
         /// For Hookshot's library form, this will be the name of the executable that loaded it or into which it was injected.
         extern const std::wstring_view kStrExecutableBaseName;
-        
+
         /// Directory name of the currently-running executable, including trailing backslash if available.
         /// For Hookshot's executable form, this will be the Hookshot executable.
         /// For Hookshot's library form, this will be the name of the executable that loaded it or into which it was injected.
@@ -110,7 +110,7 @@ namespace Hookshot
         /// For Hookshot's executable form, this will be the same as kStrExecutableCompleteFilename.
         /// For Hookshot's library form, this will be the name of the library.
         extern const std::wstring_view kStrHookshotCompleteFilename;
-        
+
         /// Expected filename of a Hookshot configuration file.
         /// Hookshot configuration filename = (executable directory)\(base name of this form of Hookshot).ini
         extern const std::wstring_view kStrHookshotConfigurationFilename;

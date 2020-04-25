@@ -259,7 +259,7 @@ namespace Hookshot
 
             dest = buf;
         }
-        
+
         /// Parses a Boolean from the supplied input string.
         /// @param [in] source String from which to parse.
         /// @param [out] dest Filled with the result of the parse.
@@ -474,7 +474,7 @@ namespace Hookshot
                         ParseNameAndValue(configLineBuffer, name, value);
 
                         const EValueType valueType = TypeForValue(thisSection, name);
-                        
+
                         // If the value type does not identify it as multi-valued, make sure this is the first time the setting is seen.
                         switch (valueType)
                         {
@@ -514,7 +514,7 @@ namespace Hookshot
                                 FormatString(readErrorMessage, L"%s:%d - Configuration setting \"%s\" with value \"%s\" is invalid.", configFileName.data(), configLineNumber, name.c_str(), value.c_str());
                                 return EFileReadResult::Malformed;
                             }
-                            
+
                             if (false == configToFill.Insert(thisSection, name, intValue))
                             {
                                 FormatString(readErrorMessage, L"%s:%d - Value \"%s\" for configuration setting \"%s\" is duplicated.", configFileName.data(), configLineNumber, value.c_str(), name.c_str());
@@ -555,7 +555,7 @@ namespace Hookshot
                                 FormatString(readErrorMessage, L"%s:%d - Configuration setting \"%s\" with value \"%s\" is invalid.", configFileName.data(), configLineNumber, name.c_str(), value.c_str());
                                 return EFileReadResult::Malformed;
                             }
-                            
+
                             if (false == configToFill.Insert(thisSection, name, value))
                             {
                                 FormatString(readErrorMessage, L"%s:%d - Value \"%s\" for configuration setting \"%s\" is duplicated.", configFileName.data(), configLineNumber, value.c_str(), name.c_str());
@@ -600,7 +600,7 @@ namespace Hookshot
             return EFileReadResult::Success;
         }
 
-        
+
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See "Configuration.h" for documentation.
 

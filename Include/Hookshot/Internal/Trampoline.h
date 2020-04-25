@@ -29,10 +29,10 @@ namespace Hookshot
     {
     public:
         // -------- CONSTANTS ---------------------------------------------- //
-        
+
         /// Total size of the trampoline, in bytes.
         static constexpr size_t kTrampolineSizeBytes = 64;
-        
+
         /// Size, in bytes, of the portion of the trampoline that contains code for invoking the hook function.
         /// Must be divisible by the size of a pointer.
         static constexpr size_t kTrampolineSizeHookFunctionBytes = kTrampolineSizeBytes / 4;
@@ -57,7 +57,7 @@ namespace Hookshot
             uint64_t qword[kSizeBytes / sizeof(uint64_t)];              ///< Quadword-level access
             size_t ptr[kSizeBytes / sizeof(size_t)];                    ///< Pointer-sized access
         };
-        
+
         /// Layout definition for the trampoline code regions.
         struct STrampolineCode
         {
@@ -126,7 +126,7 @@ namespace Hookshot
 
     private:
         // -------- HELPERS ------------------------------------------------ //
-        
+
         /// Calculates the jump displacement for a relative jump instruction.
         /// @param [in] addressAfterJmpInstruction Byte address immediately following the jump instruction and its rel32 operand.
         /// @param [in] absoluteTarget Absolute address of the jump target.
@@ -153,7 +153,7 @@ namespace Hookshot
             return (void*)((size_t)(&code.hook.ptr[_countof(code.hook.ptr)]) + code.hook.ptr[_countof(code.hook.ptr) - 1]);
 #endif
         }
-        
+
         /// Computes the value to be inserted into the trampoline's hook address field.
         /// Depending on the architecture, the address may require transformation before insertion into the trampoline.
         /// @param [in] hook Address of the hook function.

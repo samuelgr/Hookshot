@@ -36,7 +36,7 @@ namespace Hookshot
         static constexpr uint8_t kJumpInstructionPreamble[] = {
             0xe9                                                            // jmp rel32
         };
-        
+
         /// Length of an unconditional jump instruction, in bytes, as written by #WriteJumpInstruction.
         /// Equal to the length of the binary preamble plus the size of a 32-bit displacement.
         static constexpr int kJumpInstructionLengthBytes = sizeof(kJumpInstructionPreamble) + sizeof(uint32_t);
@@ -102,7 +102,7 @@ namespace Hookshot
             {
                 operandLocation = kReferenceDoesNotExist;
             }
-            
+
             /// Retrieves the operand location, if any, of a position-dependent memory reference.
             /// @return Memory operand index, or one of the class-level constants defined previously.
             inline int GetOperandLocation(void) const
@@ -126,7 +126,7 @@ namespace Hookshot
         /// Holds the original address of the represented instruction.
         /// Used to convert IP-relative operands to absolute addresses.
         void* address;
-        
+
         /// Specifies if the represented instruction is valid.
         bool valid;
 
@@ -157,12 +157,12 @@ namespace Hookshot
         /// @param [in] to Proposed target address of the jump instruction.
         /// @return `true` if possible, `false` if not.
         static bool CanWriteJumpInstruction(const void* const from, const void* const to);
-        
+
         /// Fills the specified buffer with nop instructions.
         /// @param [out] buf Buffer to which nop instructions should be written.
         /// @param [in] numBytes Size of the buffer to fill, in bytes.
         static void FillWithNop(void* const buf, const size_t numBytes);
-        
+
         /// Places a jump instruction with the specified displacement at the specified location.
         /// Supplied buffer must be large enough to hold #kJumpInstructionLengthBytes bytes.
         /// @param [out] where Buffer to which the trampoline jump operation should be written.
@@ -173,12 +173,12 @@ namespace Hookshot
 
 
         // -------- INSTANCE METHODS --------------------------------------- //
-        
+
         /// If this instruction contains a position-dependent memory reference, determines if it is possible to set the displacement to the specified value.
         /// @param [in] displacement Desired displacement value to check.
         /// @return `true` if so, `false` if not or if either this instruction is invalid or no such memory reference exists.
         bool CanSetMemoryDisplacementTo(const int64_t displacement) const;
-        
+
         /// Attempts to decode the instruction at the specified address, reading up to a maximum of the specified number of bytes.
         /// On success, this object captures the decoded representation of the requested instruction.
         /// @param [in] instruction Address of the instruction to decode.
@@ -191,7 +191,7 @@ namespace Hookshot
         /// @param [in] maxLengthBytes Maximum allowed encoding length, in bytes.
         /// @return Number of bytes written on success, 0 on failure.
         int EncodeInstruction(void* const buf, const int maxLengthBytes = kMaxInstructionLengthBytes) const;
-        
+
         /// If this instruction contains a position-dependent memory reference, computes and returns the absolute target address of said reference.
         /// @return Absolute target address, or `nullptr` if either this instruction is invalid or no such memory reference exists.
         void* GetAbsoluteMemoryReferenceTarget(void) const;
@@ -202,11 +202,11 @@ namespace Hookshot
         {
             return address;
         }
-        
+
         /// Retrieves and returns the number of bytes that represent the instruction in its encoded form.
         /// @return Number of bytes, or -1 if the instruction is invalid.
         int GetLengthBytes(void) const;
-        
+
         /// If this instruction contains a position-dependent memory reference, computes and returns the maximum allowed displacement that can be incorporated into this instruction.
         /// @return Maximum displacement value, or #kInvalidMemoryDisplacement if either this instruction is invalid or no such memory reference exists.
         int64_t GetMaxMemoryDisplacement(void) const;
@@ -231,7 +231,7 @@ namespace Hookshot
         {
             return (PositionDependentMemoryReference::kReferenceDoesNotExist != positionDependentMemoryReference.GetOperandLocation());
         }
-        
+
         /// Determines if this instruction makes a memory reference, in the form of a relative branch displacement, whose target depends on this instruction's position.
         /// A memory reference for which this method returns `true` uses the value of the instruction pointer in computing the target of a possible jump.
         /// An instruction for which this method returns `false` but #HasPositionDependentMemoryReference returns `true` uses its position-dependent memory reference to access instruction operand data.
@@ -240,11 +240,11 @@ namespace Hookshot
         {
             return (PositionDependentMemoryReference::kReferenceIsRelativeBranchDisplacement == positionDependentMemoryReference.GetOperandLocation());
         }
-        
+
         /// Determines if this instruction marks the end of a control flow (i.e. end of a function, unconditional jump to someplace else, etc.)
         /// @return `true` if so, `false` otherwise or if this instruction is invalid.
         bool IsTerminal(void) const;
-        
+
         /// Specifies whether the instruction represented by this object is valid.
         /// If not, no other methods to obtain information about the instruction will produce valid results.
         inline bool IsValid(void) const

@@ -64,11 +64,11 @@ namespace Hookshot
 
     // -------- FUNCTIONS -------------------------------------------------- //
     // See "InternalHook.h" for documentation.
-    
+
     bool RegisterInternalHook(std::wstring_view hookName, EResult(*setHookFunc)(void))
     {
         InternalHookRegistry& registry = InternalHookRegistry::GetInstance();
-        
+
         if (true == registry.areInternalHooksSet)
             return false;
 

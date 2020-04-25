@@ -97,7 +97,7 @@ namespace HookshotTest
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == originalFunc());
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
         HOOKSHOT_TEST_ASSERT(nullptr == hookshot->GetOriginalFunction(hookFunc));
-        
+
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailNotFound == hookshot->ReplaceHookFunction(hookFunc, hookFunc));
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->ReplaceHookFunction(originalFunc, hookFunc)));
         HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
@@ -552,7 +552,7 @@ namespace HookshotTest
 
         HOOKSHOT_TEST_PASSED;
     }
-    
+
     // Attempts to replace a valid hook's hook function with another valid hook function.
     // Verifies that Hookshot performs this operation both successfully and correctly.
     HOOKSHOT_CUSTOM_TEST(ReplaceHookValid)

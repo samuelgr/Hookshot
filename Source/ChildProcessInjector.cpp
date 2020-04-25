@@ -28,7 +28,7 @@ namespace Hookshot
     HOOKSHOT_INTERNAL_HOOK(CreateProcessA);
     HOOKSHOT_INTERNAL_HOOK(CreateProcessW);
 
-    
+
     // -------- INTERNAL FUNCTIONS ----------------------------------------- //
 
     /// Injects a newly-created child process with HookshotDll.

@@ -57,7 +57,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         sharedMemoryHandle = (HANDLE)wcstoull(&__wargv[1][1], &parseEnd, 16);
 #else
         sharedMemoryHandle = (HANDLE)wcstoul(&__wargv[1][1], &parseEnd, 16);
-#endif  
+#endif
 
         if (L'\0' != *parseEnd)
             return __LINE__;
@@ -77,7 +77,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     {
         // An executable was specified.
         // This is the normal situation, in which Hookshot is used to bootstrap an injection process.
-        
+
         // First step is to combine all the command-line arguments into a single mutable string buffer, including the executable to launch.
         // Mutability is required per documentation of CreateProcessW.
         // Each individual argument must be placed in quotes (to preserve spaces within), and each quote character in the argument must be escaped.
@@ -131,7 +131,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
         memset((void*)&startupInfo, 0, sizeof(startupInfo));
         memset((void*)&processInfo, 0, sizeof(processInfo));
-        
+
         const EInjectResult result = ProcessInjector::CreateInjectedProcess(nullptr, commandLine, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInfo);
 
         switch (result)

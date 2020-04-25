@@ -61,7 +61,7 @@ namespace Hookshot
         }
     };
     template <const wchar_t* kOriginalFunctionName> const void* InternalHookBase<kOriginalFunctionName>::originalFunction = nullptr;
-    
+
     /// Primary template.  Specialized using #HOOKSHOT_INTERNAL_HOOK_TEMPLATE.
     template <const wchar_t* kOriginalFunctionName, typename T> class InternalHook
     {

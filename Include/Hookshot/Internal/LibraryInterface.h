@@ -29,7 +29,7 @@ namespace Hookshot
 
         /// Enables the log, if it is configured in the configuration file.
         void EnableLogIfConfigured(void);
-        
+
         /// Retrieves the Hookshot configuration data object.
         /// Only useful if IsConfigurationDataValid returns `true`.
         const Configuration::ConfigurationData& GetConfigurationData(void);

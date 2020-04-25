@@ -17,7 +17,7 @@
 #include "ApiWindows.h"
 
 
-// -------- MACROS --------------------------------------------------------- //  
+// -------- MACROS --------------------------------------------------------- //
 
 // This preprocessor symbol is defined in "DependencyProtect.cpp" because that file replaces the definition of the macro.
 // As a result, adding a declaration below is sufficient to make the protected dependency work.

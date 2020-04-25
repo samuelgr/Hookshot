@@ -32,7 +32,7 @@ namespace Hookshot
         HMODULE moduleHandle;
         if (0 != Protected::Windows_GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)originalFunc, &moduleHandle))
             return (void*)moduleHandle;
-        
+
         // If the target function is not part of a loaded module, the base address of the region needs to be queried.
         MEMORY_BASIC_INFORMATION virtualMemoryInfo;
         if (sizeof(virtualMemoryInfo) == Protected::Windows_VirtualQuery((LPCVOID)originalFunc, &virtualMemoryInfo, sizeof(virtualMemoryInfo)))
@@ -55,7 +55,7 @@ namespace Hookshot
         // Verify that the hook function is not located within the region of the original function that is guaranteed to be transplanted.
         if (((intptr_t)hookFunc >= (intptr_t)originalFunc) && ((intptr_t)hookFunc < (intptr_t)originalFunc + X86Instruction::kJumpInstructionLengthBytes))
             return false;
-        
+
         // Hooking Hookshot itself is forbidden.
         if (BaseAddressForOriginalFunc(originalFunc) == Globals::GetInstanceHandle())
             return false;
@@ -100,7 +100,7 @@ namespace Hookshot
     std::unordered_map<void*, std::vector<int>> HookStore::trampolineStoreMap;
 #endif
 
-    
+
     EResult HookStore::CreateHookInternal(void* originalFunc, const void* hookFunc, const bool isInternal, const void** originalFuncAfterHook)
     {
         if (false == IsHookSpecValid(originalFunc, hookFunc))
@@ -224,7 +224,7 @@ namespace Hookshot
     }
 
     // --------
-    
+
     const void* HookStore::GetOriginalFunction(const void* originalOrHookFunc)
     {
         std::shared_lock<std::shared_mutex> lock(hookStoreMutex);

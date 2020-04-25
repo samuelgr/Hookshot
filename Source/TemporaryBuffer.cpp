@@ -66,7 +66,7 @@ namespace Hookshot
         }
     };
 
-    
+
     // -------- CONSTRUCTION AND DESTRUCTION ------------------------------- //
     // See "TemporaryBuffers.h" for documentation.
 
@@ -79,7 +79,7 @@ namespace Hookshot
         {
             for (int i = 0; i < _countof(data.freeBuffers); ++i)
                 data.freeBuffers[i] = &data.staticBuffers[TemporaryBufferBase::kBytesPerBuffer * i];
-            
+
             data.nextFreeBuffer = _countof(data.freeBuffers) - 1;
             data.isInitialized = true;
         }

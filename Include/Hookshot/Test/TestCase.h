@@ -33,20 +33,20 @@ namespace HookshotTest
         /// Available to be called directly from the body of a test case.
         /// @param [in] str Message string.
         void Print(const wchar_t* const str) const;
-        
+
         /// Formats and prints the specified message and appends a newline.
         /// Available to be called directly from the body of a test case.
         /// @param [in] format Message string, possibly with format specifiers.
         void PrintFormatted(const wchar_t* const format, ...) const;
 
-        
+
         // -------- ABSTRACT INSTANCE METHODS ------------------------------ //
 
         /// Performs run-time checks to determine if the test case represented by this object can be run.
         /// If not, it will be skipped.
         virtual bool CanRun(void) const = 0;
 
-        
+
         /// Runs the test case represented by this object.
         /// Implementations are generated when test cases are created using the #HOOKSHOT_TEST_CASE macro.
         /// @param [in] hookshot Hookshot interface object, used to create hooks.

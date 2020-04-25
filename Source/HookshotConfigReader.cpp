@@ -22,7 +22,7 @@
 namespace Hookshot
 {
     // -------- INTERNAL VARIABLES ----------------------------------------- //
-    
+
     /// Holds the layout of the Hookshot configuration file that is known statically.
     /// At compile time, this encompasses all settings except for the dynamically-determined section whose name matches the file name of the currently-running executable, which is filled in at runtime.
     static Configuration::TConfigurationFileLayout configurationFileLayout = {
@@ -37,7 +37,7 @@ namespace Hookshot
     /// Holds the section name for the per-executable settings.
     /// This is dynamically set to the name of the currently-running executable.
     std::wstring executableSpecificSectionName;
-    
+
     /// If `true`, indicates that the hookshot configuration file layout definition has been augmented with runtime information.
     static bool configurationFileLayoutIsComplete = false;
 
@@ -101,7 +101,7 @@ namespace Hookshot
     }
 
     // --------
-    
+
     Configuration::EValueType HookshotConfigReader::TypeForValue(std::wstring_view section, std::wstring_view name)
     {
         auto sectionLayout = configurationFileLayout.find(section);

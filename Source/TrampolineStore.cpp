@@ -59,7 +59,7 @@ namespace Hookshot
     }
 
     // --------
-    
+
     TrampolineStore::TrampolineStore(TrampolineStore&& other) : count(other.count), trampolines(other.trampolines)
     {
         other.count = 0;

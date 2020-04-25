@@ -49,7 +49,7 @@ namespace HookshotTest
         vswprintf_s(formattedStringBuffer, _countof(formattedStringBuffer), format, args);
         Print(formattedStringBuffer);
     }
-    
+
     /// Formats and prints the specified message.
     /// @param [in] format Message string, possibly with format specifiers.
     static void PrintFormatted(const wchar_t* const format, ...)
@@ -60,7 +60,7 @@ namespace HookshotTest
         va_end(args);
     }
 
-    
+
     // -------- CLASS METHODS ---------------------------------------------- //
     // See "Harness.h" for documentation.
 
@@ -100,7 +100,7 @@ namespace HookshotTest
     {
         int numFailingTests = 0;
         int numSkippedTests = 0;
-        
+
         switch(testCases.size())
         {
         case 0:
@@ -117,13 +117,13 @@ namespace HookshotTest
         }
 
         Print(L"================================================================================");
-        
+
         for (auto testCaseIterator = testCases.begin(); testCaseIterator != testCases.end(); ++testCaseIterator)
         {
             const bool lastTestCase = (testCaseIterator == --testCases.end());
             const auto& name = testCaseIterator->first;
             const ITestCase* const testCase = testCaseIterator->second;
-            
+
             if (testCase->CanRun())
             {
                 PrintFormatted(L"[ %-9s ] %s", L"RUN", name.c_str());

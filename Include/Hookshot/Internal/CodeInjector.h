@@ -31,11 +31,11 @@ namespace Hookshot
     {
     public:
         // -------- CONSTANTS ---------------------------------------------- //
-        
+
         /// Maximum number of bytes that the trampoline code is allowed to require.
         static constexpr unsigned int kMaxTrampolineCodeBytes = 128;
 
-        
+
     private:
         // -------- INSTANCE VARIABLES ------------------------------------- //
 
@@ -130,10 +130,10 @@ namespace Hookshot
         /// These are required to be passed to the injected code so they may be invoked.
         /// @param [out] addrGetLastError On success, filled with the address of GetLastError.
         /// @param [out] addrGetProcAddress On success, filled with the address of GetProcAddress.
-        /// @param [out] addrLoadLibraryA On success, filled with the address of LoadLibraryA. 
+        /// @param [out] addrLoadLibraryA On success, filled with the address of LoadLibraryA.
         /// @return `true` on success, `false` on failure.
         bool LocateFunctions(void*& addrGetLastError, void*& addrGetProcAddress, void*& addrLoadLibraryA) const;
-        
+
         /// Runs the injected process once the injected code has been set.
         /// @return Indicator of the result of the operation.
         EInjectResult Run(void);
