@@ -26,7 +26,7 @@ namespace Hookshot
     /// Holds the layout of the Hookshot configuration file that is known statically.
     /// At compile time, this encompasses all settings except for the dynamically-determined section whose name matches the file name of the currently-running executable, which is filled in at runtime.
     static Configuration::TConfigurationFileLayout configurationFileLayout = {
-        ConfigurationFileLayoutSection(Configuration::ConfigurationData::kSectionNameGlobal, {
+        ConfigurationFileLayoutSection(Configuration::kSectionNameGlobal, {
             ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameHookModule, Configuration::EValueType::StringMultiValue),
             ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameInject, Configuration::EValueType::StringMultiValue),
             ConfigurationFileLayoutNameAndValueType(Strings::kStrConfigurationSettingNameLogLevel, Configuration::EValueType::Integer),

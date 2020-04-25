@@ -108,7 +108,7 @@ namespace Hookshot
 
             if (true == IsConfigurationDataValid())
             {
-                auto hookModulesToLoad = GetConfigurationData().SectionsWithName(Strings::kStrConfigurationSettingNameHookModule);
+                auto hookModulesToLoad = GetConfigurationData().SectionsContaining(Strings::kStrConfigurationSettingNameHookModule);
 
                 for (auto& sectionsWithHookModules : *hookModulesToLoad)
                 {
@@ -170,9 +170,9 @@ namespace Hookshot
         {
             if (true == IsConfigurationDataValid())
             {
-                if (true == GetConfigurationData().SectionNamePairExists(Configuration::ConfigurationData::kSectionNameGlobal, Strings::kStrConfigurationSettingNameLogLevel))
+                if (true == GetConfigurationData().SectionNamePairExists(Configuration::kSectionNameGlobal, Strings::kStrConfigurationSettingNameLogLevel))
                 {
-                    const int64_t requestedSeverity = GetConfigurationData().SectionByName(Configuration::ConfigurationData::kSectionNameGlobal).NameByName(Strings::kStrConfigurationSettingNameLogLevel).FirstValue().GetIntegerValue();
+                    const int64_t requestedSeverity = GetConfigurationData()[Configuration::kSectionNameGlobal][Strings::kStrConfigurationSettingNameLogLevel].FirstValue().GetIntegerValue();
 
                     // Offset the requested severity by subtracting 1 from it so that 0 = disabled, 1 = error, 2 = warning, etc.
                     if (requestedSeverity > 0)
@@ -268,9 +268,9 @@ namespace Hookshot
 
                 if (true == IsConfigurationDataValid())
                 {
-                    if (true == GetConfigurationData().SectionNamePairExists(Configuration::ConfigurationData::kSectionNameGlobal, Strings::kStrConfigurationSettingNameUseConfiguredHookModules))
+                    if (true == GetConfigurationData().SectionNamePairExists(Configuration::kSectionNameGlobal, Strings::kStrConfigurationSettingNameUseConfiguredHookModules))
                     {
-                        if (false == GetConfigurationData().SectionByName(Configuration::ConfigurationData::kSectionNameGlobal).NameByName(Strings::kStrConfigurationSettingNameUseConfiguredHookModules).FirstValue().GetBooleanValue())
+                        if (false == GetConfigurationData()[Configuration::kSectionNameGlobal][Strings::kStrConfigurationSettingNameUseConfiguredHookModules].FirstValue().GetBooleanValue())
                         {
                             useConfigurationFileHookModules = false;
                         }
@@ -292,7 +292,7 @@ namespace Hookshot
 
             if (true == IsConfigurationDataValid())
             {
-                auto injectOnlyLibrariesToLoad = GetConfigurationData().SectionsWithName(Strings::kStrConfigurationSettingNameInject);
+                auto injectOnlyLibrariesToLoad = GetConfigurationData().SectionsContaining(Strings::kStrConfigurationSettingNameInject);
 
                 for (auto& sectionsWithInjectOnlyLibraries : *injectOnlyLibrariesToLoad)
                 {

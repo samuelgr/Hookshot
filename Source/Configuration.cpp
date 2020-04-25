@@ -413,7 +413,7 @@ namespace Hookshot
 
             // Parse the configuration file, one line at a time.
             std::unordered_set<std::wstring> seenSections;
-            std::wstring thisSection = ConfigurationData::kSectionNameGlobal.data();
+            std::wstring thisSection = kSectionNameGlobal;
 
             int configLineNumber = 1;
             TemporaryBuffer<wchar_t> configLineBuffer;

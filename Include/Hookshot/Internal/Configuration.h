@@ -26,6 +26,12 @@ namespace Hookshot
 {
     namespace Configuration
     {
+        // -------- CONSTANTS ------------------------------------------ //
+
+        /// Section name for all settings that appear at global scope (i.e. outside of a section).
+        inline constexpr wchar_t kSectionNameGlobal[] = L"";
+
+
         // -------- TYPE DEFINITIONS --------------------------------------- //
 
         /// Enumerates the possible results of reading a configuration file.
@@ -322,6 +328,17 @@ namespace Hookshot
 
 
         public:
+            // -------- OPERATORS ------------------------------------------ //
+
+            /// Allows read-only access to individual configuration settings by name, without bounds checking.
+            /// @param [in] name Name of the configuration setting to retrieve.
+            /// @return Reference to the desired configuration setting.
+            inline const Name& operator[](std::wstring_view name) const
+            {
+                return names.find(name)->second;
+            }
+
+
             // -------- INSTANCE METHODS ----------------------------------- //
 
             /// Stores a new value for the specified configuration setting in the section represented by this object.
@@ -341,14 +358,6 @@ namespace Hookshot
                 }
 
                 return nameIterator->second.Insert(value);
-            }
-
-            /// Allows read-only access to individual configuration settings by name, without bounds checking.
-            /// @param [in] name Name of the configuration setting to retrieve.
-            /// @return Reference to the desired configuration setting.
-            inline const Name& NameByName(std::wstring_view name) const
-            {
-                return names.find(name)->second;
             }
 
             /// Retrieves the number of configuration settings present for the section represented by this object.
@@ -378,13 +387,6 @@ namespace Hookshot
         /// Top-level object used to represent all configuration data read from a configuration file.
         class ConfigurationData
         {
-        public:
-            // -------- CONSTANTS ------------------------------------------ //
-
-            /// Section name for all settings that appear at global scope (i.e. outside of a section).
-            static constexpr std::wstring_view kSectionNameGlobal = L"";
-
-
         private:
             // -------- TYPE DEFINITIONS ----------------------------------- //
 
@@ -417,6 +419,17 @@ namespace Hookshot
 
 
         public:
+            // -------- OPERATORS ------------------------------------------ //
+
+            /// Allows read-only access to individual sections by name, without bounds checking.
+            /// @param [in] section Name of the section to retrieve.
+            /// @return Reference to the desired section.
+            inline const Section& operator[](std::wstring_view section) const
+            {
+                return sections.find(section)->second;
+            }
+
+
             // -------- INSTANCE METHODS ----------------------------------- //
 
             /// Clears the contents of this object.
@@ -444,14 +457,6 @@ namespace Hookshot
                 }
 
                 return sectionIterator->second.Insert(name, value);
-            }
-
-            /// Allows read-only access to individual sections by name, without bounds checking.
-            /// @param [in] section Name of the section to retrieve.
-            /// @return Reference to the desired section.
-            inline const Section& SectionByName(std::wstring_view section) const
-            {
-                return sections.find(section)->second;
             }
 
             /// Retrieves the number of sections present in the configuration represented by this object.
@@ -496,14 +501,14 @@ namespace Hookshot
             /// If there are no matches, returns an empty container.
             /// @param [in] name Name of the configuration setting for which to search.
             /// @return Container holding the results.
-            inline std::unique_ptr<TSectionNamePairList> SectionsWithName(std::wstring_view name) const
+            inline std::unique_ptr<TSectionNamePairList> SectionsContaining(std::wstring_view name) const
             {
                 std::unique_ptr<TSectionNamePairList> sectionsWithName = std::make_unique<TSectionNamePairList>();
 
                 for (auto& section : sections)
                 {
                     if (section.second.NameExists(name))
-                        sectionsWithName->emplace_back(section.first, section.second.NameByName(name));
+                        sectionsWithName->emplace_back(section.first, section.second[name]);
                 }
 
                 return sectionsWithName;
