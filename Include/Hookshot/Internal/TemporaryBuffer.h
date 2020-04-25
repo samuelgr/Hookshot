@@ -16,8 +16,6 @@
 
 namespace Hookshot
 {
-    // -------- FRIENDS ------------------------------------------------ //
-
     /// Manages a global set of temporary buffers.
     /// These can be used for any purpose and are intended to replace large stack-allocated or heap-allocated buffers.
     /// Instead, memory is allocated statically at load-time and divided up as needed to various parts of the application.
