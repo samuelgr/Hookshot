@@ -66,7 +66,7 @@ namespace Hookshot
 /// Defines and initializes a type-safe protected dependency pointer.
 /// First parameter specifies the namespace path, and second the function name.
 /// Initial address is returned by a function GetInitialAddress_nspace(const char* const funcQualifiedName, const char* const funcBaseName, void* const funcStaticAddress).
-/// Therefore, this function must exists for each protected dependency namespace.  Simplest implementation is just to return funcStaticAddress.
+/// Therefore, this function must exists for each protected dependency namespace. Simplest implementation is just to return funcStaticAddress.
 #define PROTECTED_DEPENDENCY(qualpath, nspace, func) \
     extern const volatile decltype(&qualpath::func) nspace##_##func = (decltype(&qualpath::func))InitializeProtectedDependencyAddress(GetInitialAddress_##nspace(#qualpath "::" STRINGIFY(func), STRINGIFY(func), &qualpath::func), (const void* volatile*)&nspace##_##func)
 

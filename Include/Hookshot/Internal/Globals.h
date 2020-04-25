@@ -22,9 +22,9 @@ namespace Hookshot
     /// Enumerates the possible ways Hookshot can be loaded.
     enum class ELoadMethod
     {
-        Executed,                                                           ///< Executed directly.  This is the default value and is applicable for the executable form of Hookshot.
-        Injected,                                                           ///< Injected.  An executable form of Hookshot injected this form of Hookshot into the current process.
-        LibraryLoaded,                                                      ///< Loaded as a library.  Some executable loaded Hookshot using a standard dynamic library loading technique.
+        Executed,                                                           ///< Executed directly. This is the default value and is applicable for the executable form of Hookshot.
+        Injected,                                                           ///< Injected. An executable form of Hookshot injected this form of Hookshot into the current process.
+        LibraryLoaded,                                                      ///< Loaded as a library. Some executable loaded Hookshot using a standard dynamic library loading technique.
     };
 
     namespace Globals
@@ -51,7 +51,7 @@ namespace Hookshot
         /// @return Instance handle for the loaded module.
         HINSTANCE GetInstanceHandle(void);
 
-        /// Retrieves information on the current system.  This includes architecture, page size, and so on.
+        /// Retrieves information on the current system. This includes architecture, page size, and so on.
         /// @return Reference to a read-only structure containing system information.
         const SYSTEM_INFO& GetSystemInformation(void);
 

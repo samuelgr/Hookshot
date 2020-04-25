@@ -6,7 +6,7 @@
  * Copyright (c) 2019-2020
  **************************************************************************//**
  * @file DependencyProtect.h
- *   Declaration of dependency protection functionality.  This is intended to
+ *   Declaration of dependency protection functionality. This is intended to
  *   ensure that certain parts of Hookshot continue to function correctly even
  *   when they are hooked by Hookshot users so that users do not need to worry
  *   about how Hookshot is implemented (for the most part) when setting hooks.

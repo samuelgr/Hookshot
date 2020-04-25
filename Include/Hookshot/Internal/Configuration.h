@@ -31,7 +31,7 @@ namespace Hookshot
         /// Enumerates the possible results of reading a configuration file.
         enum class EFileReadResult
         {
-            InvalidResult = -1,                                             ///< Not used as a value.  Used just for initialization to a value that should be replaced.
+            InvalidResult = -1,                                             ///< Not used as a value. Used just for initialization to a value that should be replaced.
             Success,                                                        ///< Configuration file was read successfully.
             FileNotFound,                                                   ///< Configuration file does not exist.
             Malformed,                                                      ///< Configuration file is malformed.

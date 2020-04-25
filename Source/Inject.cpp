@@ -35,7 +35,7 @@ namespace Hookshot
     {
         // Fields present in all versions of Hookshot
         DWORD magic;                                                ///< Magic value.
-        DWORD version;                                              ///< Version number.  Currently not used and must be 0.
+        DWORD version;                                              ///< Version number. Currently not used and must be 0.
 
         // Fields that may change from one version to the next.
         // These correspond to labels in the assembly-written code.

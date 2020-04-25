@@ -146,7 +146,7 @@ namespace Hookshot
 
         // -------- CLASS METHODS ------------------------------------------ //
 
-        /// Initializes the X86 instruction subsystem.  Must be called once during program initialization.
+        /// Initializes the X86 instruction subsystem. Must be called once during program initialization.
         static inline void Initialize(void)
         {
             xed_tables_init();

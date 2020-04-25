@@ -57,7 +57,7 @@ namespace Hookshot
     public:
         // -------- CLASS METHODS ------------------------------------------ //
 
-        /// Internal version of #CreateHook.  Intended to be used within Hookshot only.
+        /// Internal version of #CreateHook. Intended to be used within Hookshot only.
         /// Can be used to create hooks that are for internal Hookshot use and hooks requested by API users.
         /// @param [in] originalFunc Address of the function that should be hooked.
         /// @param [in] hookFunc Hook function that should be invoked instead of the original function.

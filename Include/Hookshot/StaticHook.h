@@ -6,16 +6,16 @@
  * Copyright (c) 2019-2020
  **************************************************************************//**
  * @file StaticHook.h
- *   Convenience wrapper types and definitions for creating static hooks.  A
+ *   Convenience wrapper types and definitions for creating static hooks. A
  *   static hook is one whose original function address is available at
- *   compile or link time.  Examples include API functions declared in header
+ *   compile or link time. Examples include API functions declared in header
  *   files and defined in libraries against which a hook module links.
  *   Windows API functions, exported by system-supplied libraries, can
- *   generally be hooked this way.  A key advantage of using static hooks, as
+ *   generally be hooked this way. A key advantage of using static hooks, as
  *   opposed to calling Hookshot functions directly, is type safety: return
  *   type, calling convention, and argument types are automatically detected
  *   from the declaration of the function being hooked, and any accidental
- *   mismatches trigger compiler errors.  This file is intended to be
+ *   mismatches trigger compiler errors. This file is intended to be
  *   included externally.
  *****************************************************************************/
 
@@ -29,14 +29,14 @@
 // -------- MACROS --------------------------------------------------------- //
 // These provide the interface to static hooks.
 
-/// Declares a static hook.  Defines a type to represent a hook for the specified function.  Parameter is the name of the function being hooked.
+/// Declares a static hook. Defines a type to represent a hook for the specified function. Parameter is the name of the function being hooked.
 /// Type name is of the format "StaticHook_[function name]" and is created in whatever namespace encloses the invocation of this macro.
 /// Relevant static members of the created type are `Hook` (the hook function, which must be implemented) and `Original` (automatically implemented to provide access to the original un-hooked functionality of the specified function).
 /// To activate the static hook, the `SetHook` method must be invoked at runtime.
 /// Function prototypes for both `Hook` and `Original` are automatically set to match that of the specified function, including calling convention.
 /// To define the hook function, simply provide a funciton body for `StaticHook_[function name]::Hook`.
-/// The invocation of this macro should be placed in a location visible wherever access to the underlying type is needed.  It is safe to place in a header file that is included in multiple places.
-/// Note that Hookshot might fail to create the requested hook.  Therefore, the return code from `SetHook` should be checked.
+/// The invocation of this macro should be placed in a location visible wherever access to the underlying type is needed. It is safe to place in a header file that is included in multiple places.
+/// Note that Hookshot might fail to create the requested hook. Therefore, the return code from `SetHook` should be checked.
 /// Once `SetHook` has been invoked successfully, further invocations have no effect and simply return EResult::NoEffect.
 #define HOOKSHOT_STATIC_HOOK(func) \
     inline constexpr wchar_t kHookName__##func[] = _CRT_WIDE(#func); \
@@ -89,7 +89,7 @@ namespace Hookshot
     };
     template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress> const void* StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::originalFunction = nullptr;
     
-    /// Primary static hook template.  Specialized using #HOOKSHOT_STATIC_HOOK_TEMPLATE.
+    /// Primary static hook template. Specialized using #HOOKSHOT_STATIC_HOOK_TEMPLATE.
     template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress, typename T> class StaticHook
     {
         static_assert(std::is_function<T>::value, "Supplied argument in StaticHook declaration must map to a function type.");

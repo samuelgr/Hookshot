@@ -40,10 +40,10 @@ namespace Hookshot
     };
 
     // Used to verify that the amount of preamble code is just right.
-    // If too much, a pointer to the hook function will not fit into the allowed space of the hook code region.  To fix, increase the size of the hook region of the trampoline or decrease the size of the code.
-    // If too little, the code will not execute correctly because there will be a gap between the code and the pointer.  To fix, pad the hook code preamble with nop instructions.
-    static_assert(!(sizeof(kHookCodePreamble) + sizeof(void*) > Trampoline::kTrampolineSizeHookFunctionBytes), "Hook code preamble is too big.  Either increase the size of the hook region of the trampoline or decrease the size of the preamble code.");
-    static_assert(!(sizeof(kHookCodePreamble) + sizeof(void*) < Trampoline::kTrampolineSizeHookFunctionBytes), "Hook code preamble is too small.  Pad with nop instructions to increase the size.");
+    // If too much, a pointer to the hook function will not fit into the allowed space of the hook code region. To fix, increase the size of the hook region of the trampoline or decrease the size of the code.
+    // If too little, the code will not execute correctly because there will be a gap between the code and the pointer. To fix, pad the hook code preamble with nop instructions.
+    static_assert(!(sizeof(kHookCodePreamble) + sizeof(void*) > Trampoline::kTrampolineSizeHookFunctionBytes), "Hook code preamble is too big. Either increase the size of the hook region of the trampoline or decrease the size of the preamble code.");
+    static_assert(!(sizeof(kHookCodePreamble) + sizeof(void*) < Trampoline::kTrampolineSizeHookFunctionBytes), "Hook code preamble is too small. Pad with nop instructions to increase the size.");
 
     /// Loaded into the original function region of the trampoline at initialization time.
     /// This is the ud2 instruction, which acts as an "uninitialized poison" by causing the program to crash when executed.
@@ -89,17 +89,17 @@ namespace Hookshot
     {
         Message::OutputFormatted(Message::ESeverity::Info, L"Trampoline at 0x%llx is being set up with original function 0x%llx.", (long long)this, (long long)originalFunc);
 
-        // Sanity check.  Make sure the original function is not too far away from this trampoline.
+        // Sanity check. Make sure the original function is not too far away from this trampoline.
         if (false == X86Instruction::CanWriteJumpInstruction(originalFunc, &code.hook))
         {
             Message::OutputFormatted(Message::ESeverity::Warning, L"Set hook failed for function %llx because it is too far from the trampoline.", (long long)originalFunc);
             return false;
         }
 
-        // This operation requires transplanting code from the location of the original function into the original function part of the trampoline.  This is done in several sub-parts, and more details will be provided while executing each sub-part.
-        // First, read and decode instructions until either enough bytes worth of instructions are decoded to hold an unconditional jump or a terminal instruction is hit.  If the latter happens strictly before the former, then setting this hook failed due to there not being enough bytes of function to transplant.
-        // Second, iterate through all the decoded instructions and check for position-dependent memory references.  Update the displacements as needed for any such decoded instructions.  If that is not possible for even one instruction, then setting this hook failed.
-        // Third, encode the decoded instructions into this trampoline's original function region.  If needed (i.e. the last of the decoded instructions is non-terminal), append an unconditional jump instruction to the correct address within the original function.  This will be completed at the same time as the second sub-part.
+        // This operation requires transplanting code from the location of the original function into the original function part of the trampoline. This is done in several sub-parts, and more details will be provided while executing each sub-part.
+        // First, read and decode instructions until either enough bytes worth of instructions are decoded to hold an unconditional jump or a terminal instruction is hit. If the latter happens strictly before the former, then setting this hook failed due to there not being enough bytes of function to transplant.
+        // Second, iterate through all the decoded instructions and check for position-dependent memory references. Update the displacements as needed for any such decoded instructions. If that is not possible for even one instruction, then setting this hook failed.
+        // Third, encode the decoded instructions into this trampoline's original function region. If needed (i.e. the last of the decoded instructions is non-terminal), append an unconditional jump instruction to the correct address within the original function. This will be completed at the same time as the second sub-part.
 
         // First sub-part.
         uint8_t* const originalFunctionBytes = (uint8_t*)originalFunc;

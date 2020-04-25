@@ -47,7 +47,7 @@ namespace Hookshot
         private:
             // -------- CONSTRUCTION AND DESTRUCTION ----------------------- //
 
-            /// Default constructor.  Objects cannot be constructed externally.
+            /// Default constructor. Objects cannot be constructed externally.
             GlobalData(void) : gCurrentProcessHandle(GetCurrentProcess()), gCurrentProcessId(GetProcessId(GetCurrentProcess())), gInstanceHandle(nullptr), gLoadMethod(ELoadMethod::Executed), gSystemInformation()
             {
                 GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCWSTR)&GlobalData::GetInstance, &gInstanceHandle);

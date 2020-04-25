@@ -26,7 +26,7 @@ In order to build Hookshot, the following software must be installed on the syst
 
 - [Python for Windows](https://www.python.org/downloads/windows/) version 3.0 or newer
    - One of Hookshot's dependencies uses a build system implemented in Python.
-   - When installing Python for Windows, ensure Python is added to the PATH environment variable.  This is an option offered by the installer.
+   - When installing Python for Windows, ensure Python is added to the PATH environment variable. This is an option offered by the installer.
 
 
 ## Steps
@@ -36,10 +36,10 @@ Once the prerequisites have been met, Hookshot can be built using the following 
 1. Build Hookshot's dependencies using `ThirdParty\ThirdParty.sln`.
     - `ThirdParty.sln` and the associated Visual C++ projects act as a simple way of building all the third party dependencies from within Visual Studio.
     - It is recommended that batch building be used to build multiple configurations at the same time: at least Release Win32/x64, and optionally Debug Win32/x64.
-    - There is no need to move or copy any of the build output files.  Hookshot's build system will automatically locate them in place.
+    - There is no need to move or copy any of the build output files. Hookshot's build system will automatically locate them in place.
     - Hookshot depends on two third-party libraries:
-      - [XED](https://github.com/intelxed/xed) from Intel, for understanding and manipulating x86 instructions.  Used in HookshotDll.
-      - [cpu_features](https://github.com/google/cpu_features) from Google, for checking which features the system's CPU supports.  Used in HookshotTest.
+      - [XED](https://github.com/intelxed/xed) from Intel, for understanding and manipulating x86 instructions. Used in HookshotDll.
+      - [cpu_features](https://github.com/google/cpu_features) from Google, for checking which features the system's CPU supports. Used in HookshotTest.
 
 1. Build Hookshot itself using `Hookshot.sln`.
     - It is recommended that batch building be used to build multiple configurations at the same time: at least Release Win32/x64, and optionally Debug Win32/x64.
@@ -52,4 +52,4 @@ Once the prerequisites have been met, Hookshot can be built using the following 
    - These examples are demonstrations of the various ways that hook modules can be built to interact with the Hookshot API.
    - The test program can be run on its own first so that its unmodified behavior can be observed prior to using the example hook modules.
    - To run an example, right-click its project in Visual Studio, click "Set as StartUp Project," then press F5 or click "Local Windows Debugger" in the toolbar.
-   - Each example hook module is set up so that, when run this way, Visual Studio invokes the `RunExample.bat` script.  This script creates a configuration file and then uses HookshotExe to run the test program.
+   - Each example hook module is set up so that, when run this way, Visual Studio invokes the `RunExample.bat` script. This script creates a configuration file and then uses HookshotExe to run the test program.

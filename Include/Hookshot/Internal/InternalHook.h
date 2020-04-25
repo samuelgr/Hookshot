@@ -7,8 +7,8 @@
  **************************************************************************//**
  * @file InternalHook.h
  *   Convenience wrapper types and definitions for creating hooks for
- *   Hookshot's own use.  Similar to the StaticHook interface made available
- *   for external use.  Additionally supports automatic registration so that
+ *   Hookshot's own use. Similar to the StaticHook interface made available
+ *   for external use. Additionally supports automatic registration so that
  *   a single call is sufficient to attempt to set all internal hooks.
  *****************************************************************************/
 
@@ -20,7 +20,7 @@
 #include <type_traits>
 
 
-/// Declares an internal hook.  Defines a type to represent a hook for the specified function.  Parameter is the name of the function being hooked.
+/// Declares an internal hook. Defines a type to represent a hook for the specified function. Parameter is the name of the function being hooked.
 /// Type name is of the format "InternalHook_[function name]" and is created in whatever namespace encloses the invocation of this macro.
 /// There is an additional method, `GetOriginalFunctionAddress`, which allows resolution of the original function address at runtime.
 /// See StaticHook interface documentation for more information.
@@ -62,7 +62,7 @@ namespace Hookshot
     };
     template <const wchar_t* kOriginalFunctionName> const void* InternalHookBase<kOriginalFunctionName>::originalFunction = nullptr;
 
-    /// Primary template.  Specialized using #HOOKSHOT_INTERNAL_HOOK_TEMPLATE.
+    /// Primary template. Specialized using #HOOKSHOT_INTERNAL_HOOK_TEMPLATE.
     template <const wchar_t* kOriginalFunctionName, typename T> class InternalHook
     {
         static_assert(std::is_function<T>::value, "Supplied argument in InternalHook declaration must map to a function type.");
@@ -86,7 +86,7 @@ namespace Hookshot
     bool RegisterInternalHook(std::wstring_view hookName, EResult(*setHookFunc)(void));
 
     /// Sets all internal hooks that have been registered.
-    /// Can only be called once.  Subsequent calls have no effect.
+    /// Can only be called once. Subsequent calls have no effect.
     /// Not concurrency-safe.
     void SetAllInternalHooks(void);
 }

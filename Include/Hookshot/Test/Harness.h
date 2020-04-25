@@ -35,7 +35,7 @@ namespace HookshotTest
 
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
-        /// Default constructor.  Objects cannot be constructed externally.
+        /// Default constructor. Objects cannot be constructed externally.
         Harness(void) = default;
 
         /// Copy constructor. Should never be invoked.

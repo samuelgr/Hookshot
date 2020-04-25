@@ -11,7 +11,7 @@ INCLUDE TestDefinitions.inc
 
 ; Loop instruction whose target is not within the transplant window.
 ; Because loop instructions use rel8, a jump assist is required.
-; This test requires that the jump assist be calculated with the correct displacement.  Otherwise the return value will be incorrect.
+; This test requires that the jump assist be calculated with the correct displacement. Otherwise the return value will be incorrect.
 ; Hook function does nothing special for this test.
 
 

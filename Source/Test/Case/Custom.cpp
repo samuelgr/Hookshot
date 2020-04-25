@@ -374,7 +374,7 @@ namespace HookshotTest
 
         // Create and initialize synchronization objects.
         // This test uses a two-phase synchronization process.
-        // First, the test case body waits for all threads to be initialized.  Threads increment a thread counter, and the last thread sets the phase 1 event.
+        // First, the test case body waits for all threads to be initialized. Threads increment a thread counter, and the last thread sets the phase 1 event.
         // Second, all threads wait for an event that is set by the test case body once it is woken up by the phase 1 event.
         // This is done to ensure that all threads start hammering Hookshot with requests at around the same time.
         testData.syncThreadCounter = 0;
@@ -643,7 +643,7 @@ namespace HookshotTest
         // This is used internally by Hookshot to set memory permissions while setting hooks.
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(GetVirtualProtectAddress(), &HookVirtualProtect)));
 
-        // Standard hook operations follow.  These are expected to succeed.
+        // Standard hook operations follow. These are expected to succeed.
         GENERATE_AND_ASSIGN_FUNCTION(originalFunc);
         GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
 

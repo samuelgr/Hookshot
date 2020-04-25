@@ -10,7 +10,7 @@ INCLUDE TestDefinitions.inc
 
 
 ; Exercises Hookshot's instruction transplant ability with instructions that include backward rel32 branch displacements that target instructions well outside the area being transplanted.
-; This test requires that Hookshot correctly modify the branch displacement of a jump instruction.  If it gets the new displacement incorrect, the function's return value will also be incorrect.
+; This test requires that Hookshot correctly modify the branch displacement of a jump instruction. If it gets the new displacement incorrect, the function's return value will also be incorrect.
 ; Hook function does nothing special for this test.
 
 

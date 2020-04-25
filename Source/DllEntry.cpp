@@ -71,7 +71,7 @@ extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
     }
 }
 
-/// Invoked when Hookshot is loaded as a library.  See "HookshotFunctions.h" for more information.
+/// Invoked when Hookshot is loaded as a library. See "HookshotFunctions.h" for more information.
 /// @return Hookshot interface pointer, or `nullptr` on failure.
 extern "C" __declspec(dllexport) IHookshot* __fastcall HookshotLibraryInitialize(void)
 {

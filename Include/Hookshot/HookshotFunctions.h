@@ -20,9 +20,9 @@
 #ifdef HOOKSHOT_LINK_WITH_LIBRARY
 
 /// Initializes the Hookshot library.
-/// Hook modules must not invoke this function because Hookshot initializes itself before loading them.  If they do, this function will emit a warning message and fail with `nullptr`.
-/// When linking directly against the Hookshot library, this function must be invoked once to obtain the Hookshot interface pointer.  If invoked multiple times, this function will emit a warning message and fail with `nullptr` beginning with the second invocation.
-/// The returned Hookshot interface pointer remains valid throughout the lifetime of the process and owned by Hookshot.  It can only be obtained once and therefore should be cached by the caller.
+/// Hook modules must not invoke this function because Hookshot initializes itself before loading them. If they do, this function will emit a warning message and fail with `nullptr`.
+/// When linking directly against the Hookshot library, this function must be invoked once to obtain the Hookshot interface pointer. If invoked multiple times, this function will emit a warning message and fail with `nullptr` beginning with the second invocation.
+/// The returned Hookshot interface pointer remains valid throughout the lifetime of the process and owned by Hookshot. It can only be obtained once and therefore should be cached by the caller.
 /// @return Hookshot interface pointer on success, or `nullptr` on failure.
 extern "C" __declspec(dllimport) Hookshot::IHookshot* __fastcall HookshotLibraryInitialize(void);
 
@@ -40,10 +40,10 @@ namespace Hookshot
     typedef Hookshot::IHookshot*(__fastcall * TLibraryInitializeProc)(void);
 
 #ifdef _WIN64
-    /// Name of the Hookshot library initialization function, which can be passed directly to a function like `GetProcAddress`.  Valid in 64-bit mode.
+    /// Name of the Hookshot library initialization function, which can be passed directly to a function like `GetProcAddress`. Valid in 64-bit mode.
     inline constexpr char kLibraryInitializeProcName[] = "HookshotLibraryInitialize";
 #else
-    /// Name of the Hookshot library initialization function, which can be passed directly to a function like `GetProcAddress`.  Valid in 32-bit mode.
+    /// Name of the Hookshot library initialization function, which can be passed directly to a function like `GetProcAddress`. Valid in 32-bit mode.
     inline constexpr char kLibraryInitializeProcName[] = "@HookshotLibraryInitialize@0";
 #endif
 }

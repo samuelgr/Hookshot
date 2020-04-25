@@ -7,7 +7,7 @@ rem | Authored by Samuel Grossman
 rem | Copyright (c) 2019-2020
 rem +--------------------------------------------------------------------------
 rem | RunExample.bat
-rem |   Script for running hook module examples.  Invoked by Visual Studio
+rem |   Script for running hook module examples. Invoked by Visual Studio
 rem |   when attempting to run a hook module example project.
 rem +--------------------------------------------------------------------------
 

@@ -39,7 +39,7 @@ namespace Hookshot
         /// Procedure address for the "NtQueryInformationProcess" function within "ntdll.dll" which is used to detect information about the newly-created process.
         static NTSTATUS(WINAPI* ntdllQueryInformationProcessProc)(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG) = nullptr;
 
-        /// System allocation granularity.  Captured once and re-used as needed.
+        /// System allocation granularity. Captured once and re-used as needed.
         static size_t systemAllocationGranularity = 0;
 
 

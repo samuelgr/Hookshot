@@ -227,7 +227,7 @@ namespace Hookshot
 
 #ifdef HOOKSHOT64
             // If the decoded instruction had a REX prefix and the newly-encoded instruction does not, this means the encoder removed it because it has no functional purpose.
-            // However, REX prefixes are used for other things besides just functional changes.  For example, Windows uses "rex.w jmp" to indicate a function epilogue.
+            // However, REX prefixes are used for other things besides just functional changes. For example, Windows uses "rex.w jmp" to indicate a function epilogue.
             // Therefore, in this case the REX prefix should be reintroduced.
             // REX prefixes only exist in 64-bit mode.
             if ((true == CouldBeRexPrefix(possibleRexPrefix)) && (false == CouldBeRexPrefix(((uint8_t*)buf)[lengthDiscrepancy])))

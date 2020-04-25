@@ -48,7 +48,7 @@ namespace Hookshot
 
         /// Raw trampoline code type template.
         /// Large enough to hold the entire code region, and allows different access granularities.
-        /// @tparam kSizeBytes Total size in bytes of the code region.  Must be divisible by 8.
+        /// @tparam kSizeBytes Total size in bytes of the code region. Must be divisible by 8.
         template <size_t kSizeBytes> union UTrampolineCode
         {
             uint8_t byte[kSizeBytes / sizeof(uint8_t)];                 ///< Byte-level access

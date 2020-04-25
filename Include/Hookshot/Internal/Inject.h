@@ -113,13 +113,13 @@ namespace Hookshot
         size_t unused1[(128 / sizeof(size_t)) - 2];                     ///< Padding for 128-byte alignment.
 
         uint32_t injectionResultCodeSuccess;                            ///< Result code to use to indicate success.
-        uint32_t injectionResultCodeLoadLibraryFailed;                  ///< Result code to use to indicate that a LoadLibrary operation failed.  Set by the injecting process.
-        uint32_t injectionResultCodeGetProcAddressFailed;               ///< Result code to use to indicate that a GetProcAddress operation failed.  Set by the injecting process.
+        uint32_t injectionResultCodeLoadLibraryFailed;                  ///< Result code to use to indicate that a LoadLibrary operation failed. Set by the injecting process.
+        uint32_t injectionResultCodeGetProcAddressFailed;               ///< Result code to use to indicate that a GetProcAddress operation failed. Set by the injecting process.
         uint32_t injectionResultCodeInitializationFailed;               ///< Result code to use to indicate that the loaded library failed to initialize.
         uint32_t unused3[(128 / sizeof(uint32_t)) - 4];                 ///< Padding for 128-byte alignment.
 
-        uint32_t injectionResult;                                       ///< Result of the injection operation.  Written by the injected process.
-        uint32_t extendedInjectionResult;                               ///< Extended result of the injection operation.  Written by the injected process.
+        uint32_t injectionResult;                                       ///< Result of the injection operation. Written by the injected process.
+        uint32_t extendedInjectionResult;                               ///< Extended result of the injection operation. Written by the injected process.
         uint32_t unused4[(128 / sizeof(uint32_t)) - 2];                 ///< Padding for 128-byte alignment.
 
         const void* funcGetLastError;                                   ///< Address of the GetLastError function in the injected process.

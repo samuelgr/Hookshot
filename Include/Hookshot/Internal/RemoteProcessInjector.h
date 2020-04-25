@@ -28,10 +28,10 @@ namespace Hookshot
         /// To ensure safety, all values are 64-bit integers.
         struct SInjectRequest
         {
-            uint64_t processHandle;                                 ///< Handle of the process to inject, as a 64-bit integer.  Must be valid for the instance of Hookshot that performs the injection.
-            uint64_t threadHandle;                                  ///< Handle of the main thread in the process to inject, as a 64-bit integer.  Must be valid for the instance of Hookshot that performs the injection.
+            uint64_t processHandle;                                 ///< Handle of the process to inject, as a 64-bit integer. Must be valid for the instance of Hookshot that performs the injection.
+            uint64_t threadHandle;                                  ///< Handle of the main thread in the process to inject, as a 64-bit integer. Must be valid for the instance of Hookshot that performs the injection.
             bool enableDebugFeatures;                               ///< If `true`, signals to the injected process that a debugger is present, so certain debug features should be enabled.
-            uint64_t injectionResult;                               ///< EInjectionResult value, as a 64-bit integer.  Indicates the result of the injection attempt.
+            uint64_t injectionResult;                               ///< EInjectionResult value, as a 64-bit integer. Indicates the result of the injection attempt.
             uint64_t extendedInjectionResult;                       ///< Extended injection result, as a 64-bit integer.
         };
 

@@ -39,7 +39,7 @@ namespace Hookshot
     private:
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
 
-        /// Default constructor.  Objects cannot be constructed externally.
+        /// Default constructor. Objects cannot be constructed externally.
         InternalHookRegistry(void) : areInternalHooksSet(false), internalHooks()
         {
             // Nothing to do here.
@@ -93,7 +93,7 @@ namespace Hookshot
             if (SuccessfulResult(result))
                 Message::OutputFormatted(Message::ESeverity::Info, L"Successfully set internal hook for %s.", hook->first.data());
             else
-                Message::OutputFormatted(Message::ESeverity::Warning, L"Failed to set internal hook for %s.  Hookshot features that use this hook will not work.", hook->first.data());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"Failed to set internal hook for %s. Hookshot features that use this hook will not work.", hook->first.data());
         }
 
         registry.areInternalHooksSet = true;

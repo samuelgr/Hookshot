@@ -6,17 +6,17 @@
  * Copyright (c) 2019-2020
  **************************************************************************//**
  * @file DynamicHook.h
- *   Convenience wrapper types and definitions for creating dynamic hooks.  A
+ *   Convenience wrapper types and definitions for creating dynamic hooks. A
  *   dynamic hook is one whose original function signature is available at
  *   compile time but whose actual address is not known until runtime.
  *   Examples include functions exported by DLLs loaded dynamically using
  *   LoadLibrary and whose addresses are therefore obtained using
- *   GetProcAddress.  Dynamic hooks require the original function address to
- *   be specified at runtime.  Nevertheless, a key advantage of using dynamic
+ *   GetProcAddress. Dynamic hooks require the original function address to
+ *   be specified at runtime. Nevertheless, a key advantage of using dynamic
  *   hooks, as opposed to calling Hookshot functions directly, is type safety:
  *   return type, calling convention, and argument types are extracted from
  *   the provided function prototype, and any accidental mismatches trigger
- *   compiler errors.  This file is intended to be included externally.
+ *   compiler errors. This file is intended to be included externally.
  *****************************************************************************/
 
 #pragma once
@@ -29,14 +29,14 @@
 // -------- MACROS --------------------------------------------------------- //
 // These provide the interface to dynamic hooks.
 
-/// Declares a dynamic hook, given a function prototype that includes a function name.  Defines a type to represent a hook for the specified function.  Parameter is the name of the function being hooked.
+/// Declares a dynamic hook, given a function prototype that includes a function name. Defines a type to represent a hook for the specified function. Parameter is the name of the function being hooked.
 /// Type name is of the format "DynamicHook_[function name]" and is created in whatever namespace encloses the invocation of this macro.
 /// Relevant static members of the created type are `Hook` (the hook function, which must be implemented) and `Original` (automatically implemented to provide access to the original un-hooked functionality of the specified function).
 /// To activate the dynamic hook once the original function address is known, the `SetHook` method must be invoked successfully with the original function address supplied as a parameter.
 /// Function prototypes for both `Hook` and `Original` are automatically set to match that of the specified function, including calling convention.
 /// To define the hook function, simply provide a funciton body for `DynamicHook_[function name]::Hook`.
-/// The invocation of this macro should be placed in a location visible wherever access to the underlying type is needed.  It is safe to place in a header file that is included in multiple places.
-/// Note that Hookshot might fail to create the requested hook.  Therefore, the return code from `SetHook` should be checked.
+/// The invocation of this macro should be placed in a location visible wherever access to the underlying type is needed. It is safe to place in a header file that is included in multiple places.
+/// Note that Hookshot might fail to create the requested hook. Therefore, the return code from `SetHook` should be checked.
 /// Once `SetHook` has been invoked successfully, further invocations have no effect and simply return EResult::NoEffect.
 #define HOOKSHOT_DYNAMIC_HOOK_FROM_FUNCTION(func) \
     inline constexpr wchar_t kHookName__##func[] = _CRT_WIDE(#func); \
@@ -112,7 +112,7 @@ namespace Hookshot
     template <const wchar_t* kOriginalFunctionName> const void* DynamicHookBase<kOriginalFunctionName>::originalFunction = nullptr;
     template <const wchar_t* kOriginalFunctionName> const void* DynamicHookBase<kOriginalFunctionName>::originalFunctionAddress = nullptr;
     
-    /// Primary dynamic hook template.  Specialized using #HOOKSHOT_DYNAMIC_HOOK_TEMPLATE.
+    /// Primary dynamic hook template. Specialized using #HOOKSHOT_DYNAMIC_HOOK_TEMPLATE.
     template <const wchar_t* kOriginalFunctionName, typename T> class DynamicHook
     {
         static_assert(std::is_function<T>::value, "Supplied argument in DynamicHook declaration must map to a function type.");

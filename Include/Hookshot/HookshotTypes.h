@@ -27,7 +27,7 @@ namespace Hookshot
 
         // Failure codes.
         FailAllocation,                                                 ///< Unable to allocate a new hook data structure.
-        FailBadState,                                                   ///< Method was invoked at an inappropriate time.  Hook modules may not invoke Hookshot methods until their entry point.
+        FailBadState,                                                   ///< Method was invoked at an inappropriate time. Hook modules may not invoke Hookshot methods until their entry point.
         FailCannotSetHook,                                              ///< Failed to set the hook.
         FailDuplicate,                                                  ///< Specified function is already hooked.
         FailInvalidArgument,                                            ///< An argument that was supplied is invalid.
