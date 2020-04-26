@@ -18,7 +18,7 @@
 #  
 #END_LEGAL
 
-# Modified by Samuel Grossman: line 57, line 58
+# Modified by Samuel Grossman: lines 57 and 58
 
 """Setup functions for the ms/gnu compiler environment"""
 
