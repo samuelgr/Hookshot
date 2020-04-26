@@ -24,16 +24,19 @@ In order to build Hookshot, the following software must be installed on the syst
    - Hookshot's build system uses Visual Studio, and Hookshot releases were originally built using Visual Studio 2019 Community Edition.
    - Later versions of Visual Studio might also work, but this has not been tested.
 
-- [Python for Windows](https://www.python.org/downloads/windows/) version 3.0 or newer
+- [Python for Windows](https://docs.python.org/3/using/windows.html) version 3.0 or newer
    - One of Hookshot's dependencies uses a build system implemented in Python.
-   - When installing Python for Windows, ensure Python is added to the PATH environment variable. This is an option offered by the installer.
+   - Either the [full installer](https://www.python.org/downloads/windows) or the Microsoft Store package versions will work.
+   - When installing Python for Windows, ensure Python is added to the PATH environment variable.
+      - The full installer offers this option at install-time.
+      - The Microsoft Store package does this automatically.
 
 
 ## Steps
 
 Once the prerequisites have been met, Hookshot can be built using the following steps.
 
-1. Build Hookshot's dependencies using `ThirdParty\ThirdParty.sln`.
+1. Build Hookshot's external dependencies using `ThirdParty\ThirdParty.sln`.
     - `ThirdParty.sln` and the associated Visual C++ projects act as a simple way of building all the third party dependencies from within Visual Studio.
     - It is recommended that batch building be used to build multiple configurations at the same time: at least Release Win32/x64, and optionally Debug Win32/x64.
     - There is no need to move or copy any of the build output files. Hookshot's build system will automatically locate them in place.
@@ -45,8 +48,8 @@ Once the prerequisites have been met, Hookshot can be built using the following 
     - It is recommended that batch building be used to build multiple configurations at the same time: at least Release Win32/x64, and optionally Debug Win32/x64.
     - Output files are placed into the `Output\` subdirectory.
     - After the builds complete, optionally run HookshotTest and verify that all the tests pass.
-      - It is acceptable for some tests to be skipped.
-      - Certain tests are only valid in 64-bit mode, and others depend on features present only on very modern CPUs.
+       - It is acceptable for some tests to be skipped.
+       - Certain tests are only valid in 64-bit mode, and others depend on features present only on very modern CPUs.
 
 1. Optionally build and run the hook module examples using `Examples\HookModuleExamples.sln`.
    - These examples are demonstrations of the various ways that hook modules can be built to interact with the Hookshot API.
