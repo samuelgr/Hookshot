@@ -157,7 +157,6 @@
       <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Internal;$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\include</AdditionalIncludeDirectories>
       <OmitFramePointers>false</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT64;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <AssemblerOutput>All</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
@@ -194,7 +193,6 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Internal;$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT32;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <AssemblerOutput>All</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
@@ -234,7 +232,6 @@
       <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Internal;$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\include</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT32;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <AssemblerOutput>All</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
@@ -274,7 +271,6 @@
       <AdditionalIncludeDirectories>Include\$(SolutionName);Include\$(SolutionName)\Internal;$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\include</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT64;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <AssemblerOutput>All</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
