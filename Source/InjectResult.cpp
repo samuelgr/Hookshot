@@ -86,7 +86,7 @@ namespace Hookshot
         case EInjectResult::ErrorInterProcessCommunicationFailed:
             return L"Error communicating with the executable";
         case EInjectResult::ErrorCreateHookshotProcessFailed:
-            return L"Error creating a new process running the executable";
+            return L"Error creating a new Hookshot executable process";
         case EInjectResult::ErrorCannotLocateRequiredFunctions:
             return L"Error locating required API functions in the new process";
         case EInjectResult::ErrorCannotWriteRequiredFunctionLocations:

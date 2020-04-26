@@ -77,7 +77,7 @@ namespace Hookshot
         /// @return `true` if the severity is forced interactive, `false` otherwise.
         static inline bool IsSeverityForcedInteractive(const ESeverity severity)
         {
-            return (severity < ESeverity::ForcedInteractiveBoundaryValue);
+            return (severity < ESeverity::LowerBoundConfigurableValue);
         }
 
         /// Selects a character to represent each level of severity, for use when outputting messages.
@@ -100,6 +100,7 @@ namespace Hookshot
                 return L'I';
 
             case ESeverity::Debug:
+            case ESeverity::SuperDebug:
                 return L'D';
 
             default:
@@ -335,10 +336,8 @@ namespace Hookshot
 
         void SetMinimumSeverityForOutput(const ESeverity severity)
         {
-            if (severity > ESeverity::ForcedInteractiveBoundaryValue)
+            if (severity > ESeverity::LowerBoundConfigurableValue)
                 minimumSeverityForOutput = severity;
-            else
-                minimumSeverityForOutput = (ESeverity)((int)severity + (int)ESeverity::ForcedInteractiveBoundaryValue + 1);
         }
 
         // --------
@@ -350,7 +349,7 @@ namespace Hookshot
             if (Protected::Windows_IsDebuggerPresent())
                 return true;
 
-            if ((severity < ESeverity::ForcedInteractiveBoundaryValue) || (severity <= minimumSeverityForOutput))
+            if ((severity < ESeverity::LowerBoundConfigurableValue) || (severity <= minimumSeverityForOutput))
             {
                 // Counter-intuitive: severity *values* increase as severity *levels* decrease.
                 // This is checking if the actual severity *level* is above (*value* is below) the highest severity *level* that requires output be non-interactive.

@@ -174,10 +174,10 @@ namespace Hookshot
                 {
                     const int64_t requestedSeverity = GetConfigurationData()[Configuration::kSectionNameGlobal][Strings::kStrConfigurationSettingNameLogLevel].FirstValue().GetIntegerValue();
 
-                    // Offset the requested severity by subtracting 1 from it so that 0 = disabled, 1 = error, 2 = warning, etc.
+                    // Offset the requested severity so that 0 = disabled, 1 = error, 2 = warning, etc.
                     if (requestedSeverity > 0)
                     {
-                        const Message::ESeverity configureSeverity = (Message::ESeverity)(requestedSeverity - 1);
+                        const Message::ESeverity configureSeverity = (Message::ESeverity)(requestedSeverity + (int64_t)Message::ESeverity::LowerBoundConfigurableValue);
 
                         Message::CreateAndEnableLogFile();
                         Message::SetMinimumSeverityForOutput(configureSeverity);
