@@ -211,41 +211,34 @@ namespace Hookshot
 
         bool Initialize(const ELoadMethod loadMethod)
         {
-            static volatile bool isInitialized = false;
+            bool initializeResult = false;
+            
+            static std::once_flag initializeFlag;
+            std::call_once(initializeFlag, [loadMethod, &initializeResult]() {
+                Globals::SetHookshotLoadMethod(loadMethod);
+                X86Instruction::Initialize();
 
-            if (false == isInitialized)
-            {
-                static std::mutex initializeMutex;
-                std::lock_guard<std::mutex> lock(initializeMutex);
+                configuration.ReadConfigurationFile(Strings::kStrHookshotConfigurationFilename);
 
-                if (false == isInitialized)
+                if (true == DoesConfigurationFileExist())
                 {
-                    Globals::SetHookshotLoadMethod(loadMethod);
-                    X86Instruction::Initialize();
-
-                    configuration.ReadConfigurationFile(Strings::kStrHookshotConfigurationFilename);
-
-                    if (true == DoesConfigurationFileExist())
-                    {
-                        if (false == IsConfigurationDataValid())
-                            Message::Output(Message::ESeverity::Error, GetConfigurationErrorMessage().data());
-                    }
-                    else
-                    {
-                        Message::Output(Message::ESeverity::Warning, GetConfigurationErrorMessage().data());
-                    }
-
-                    EnableLogIfConfigured();
-
-                    if (ELoadMethod::Injected == loadMethod)
-                        SetAllInternalHooks();
-
-                    isInitialized = true;
-                    return true;
+                    if (false == IsConfigurationDataValid())
+                        Message::Output(Message::ESeverity::Error, GetConfigurationErrorMessage().data());
                 }
-            }
+                else
+                {
+                    Message::Output(Message::ESeverity::Warning, GetConfigurationErrorMessage().data());
+                }
 
-            return false;
+                EnableLogIfConfigured();
+
+                if (ELoadMethod::Injected == loadMethod)
+                    SetAllInternalHooks();
+
+                initializeResult = true;
+            });
+
+            return initializeResult;
         }
 
         // --------

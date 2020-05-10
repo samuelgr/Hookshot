@@ -332,7 +332,7 @@ namespace HookshotTest
 
         HANDLE syncEventPhase1;
         HANDLE syncEventPhase2;
-        volatile LONG syncThreadCounter;
+        LONG syncThreadCounter;
         int numThreads;
 
         TGeneratedTestFunction* originalFuncs;
