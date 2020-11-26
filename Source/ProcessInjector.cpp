@@ -140,11 +140,35 @@ namespace Hookshot
             if (0 != wcscpy_s(&authorizationFileName[authorizationFileNameBaseLength], authorizationFileName.Count() - authorizationFileNameBaseLength, kAuthorizationFileSuffix))
                 return EInjectResult::ErrorCannotDetermineAuthorization;
 
-            const HANDLE authorizationFileHandle = CreateFile(authorizationFileName, 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+            HANDLE authorizationFileHandle = CreateFile(authorizationFileName, 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
             if (INVALID_HANDLE_VALUE == authorizationFileHandle)
-                return EInjectResult::ErrorNotAuthorized;
+            {
+                Message::OutputFormatted(Message::ESeverity::Warning, L"Authorization: not granted, cannot open application-specific file %s.", &authorizationFileName[0]);
+
+                wchar_t* const lastBackslash = wcsrchr(authorizationFileName, L'\\');
+                if (nullptr == lastBackslash)
+                    authorizationFileName[0] = L'\0';
+                else
+                    lastBackslash[1] = L'\0';
+
+                if (0 == wcscat_s(authorizationFileName, authorizationFileName.Count(), kAuthorizationFileSuffix))
+                {
+                    authorizationFileHandle = CreateFile(authorizationFileName, 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+                    if (INVALID_HANDLE_VALUE == authorizationFileHandle)
+                    {
+                        Message::OutputFormatted(Message::ESeverity::Warning, L"Authorization: not granted, cannot open directory-wide file %s.", &authorizationFileName[0]);
+                        return EInjectResult::ErrorNotAuthorized;
+                    }
+                }
+                else
+                {
+                    Message::Output(Message::ESeverity::Warning, L"Authorization: not granted, cannot determine name of directory-wide file.");
+                    return EInjectResult::ErrorNotAuthorized;
+                }
+            }
 
             CloseHandle(authorizationFileHandle);
+            Message::OutputFormatted(Message::ESeverity::Info, L"Authorization: granted by presence of file %s.", &authorizationFileName[0]);
             return EInjectResult::Success;
         }
 
