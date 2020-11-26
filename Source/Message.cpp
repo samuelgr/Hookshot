@@ -311,18 +311,29 @@ namespace Hookshot
 
         void Output(const ESeverity severity, const wchar_t* message)
         {
+            const DWORD lastError = Protected::Windows_GetLastError();
+            
             if (false == WillOutputMessageOfSeverity(severity))
+            {
+                Protected::Windows_SetLastError(lastError);
                 return;
+            }
 
             OutputInternal(severity, message);
+            Protected::Windows_SetLastError(lastError);
         }
 
         // ---------
 
         void OutputFormatted(const ESeverity severity, const wchar_t* format, ...)
         {
+            const DWORD lastError = Protected::Windows_GetLastError();
+
             if (false == WillOutputMessageOfSeverity(severity))
+            {
+                Protected::Windows_SetLastError(lastError);
                 return;
+            }
 
             va_list args;
             va_start(args, format);
@@ -330,6 +341,8 @@ namespace Hookshot
             OutputFormattedInternal(severity, format, args);
 
             va_end(args);
+
+            Protected::Windows_SetLastError(lastError);
         }
 
         // --------
