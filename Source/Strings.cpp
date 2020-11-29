@@ -63,6 +63,8 @@ namespace Hookshot
         static constexpr std::wstring_view kStrHookModuleExtension = L".HookModule.32.dll";
 #endif
 
+        /// File extension for all files whose presence would be checked to determine if Hookshot is authorized to act on a process.
+        static constexpr wchar_t kStrAuthorizationFileExtension[] = L".hookshot";
 
         // -------- INTERNAL FUNCTIONS ------------------------------------- //
 
@@ -328,6 +330,25 @@ namespace Hookshot
 
         // -------- FUNCTIONS ---------------------------------------------- //
         // See "Strings.h" for documentation.
+
+        std::wstring AuthorizationFilenameApplicationSpecific(std::wstring_view executablePath)
+        {
+            return std::wstring(executablePath) + std::wstring(kStrAuthorizationFileExtension);
+        }
+
+        // --------
+
+        std::wstring AuthorizationFilenameDirectoryWide(std::wstring_view executablePath)
+        {
+            const wchar_t* const lastBackslash = wcsrchr(executablePath.data(), L'\\');
+
+            if (nullptr == lastBackslash)
+                return std::wstring(kStrAuthorizationFileExtension);
+            else
+                return std::wstring(&executablePath[0], &lastBackslash[1]) + std::wstring(kStrAuthorizationFileExtension);
+        }
+
+        // --------
 
         std::wstring HookModuleFilename(std::wstring_view moduleName)
         {

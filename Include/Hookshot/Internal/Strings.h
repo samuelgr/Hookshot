@@ -132,6 +132,18 @@ namespace Hookshot
 
         // -------- FUNCTIONS ---------------------------------------------- //
 
+        /// Generates and returns the application-specific authorization file name, given the full path to an executable file.
+        /// Authorization files are checked for existence before Hookshot acts on a process.
+        /// @param [in] Full absolute path of the application being checked for authorization.
+        /// @return Application-specific authorization filename.
+        std::wstring AuthorizationFilenameApplicationSpecific(std::wstring_view executablePath);
+
+        /// Generates and returns the directory-wide authorization file name, given the full path to an executable file.
+        /// Authorization files are checked for existence before Hookshot acts on a process.
+        /// @param [in] Full absolute path of the application being checked for authorization.
+        /// @return Directory-wide authorization filename.
+        std::wstring AuthorizationFilenameDirectoryWide(std::wstring_view executablePath);
+
         /// Generates the expected filename of a hook module of the specified name.
         /// Hook module filename = (executable directory)\(hook module name).(hook module suffix)
         /// @param [in] moduleName Hook module name to use when generating the filename.
