@@ -24,6 +24,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <psapi.h>
+#include <shlwapi.h>
 #include <winnt.h>
 #include <winternl.h>
 
@@ -137,21 +138,18 @@ namespace Hookshot
                 return EInjectResult::ErrorCannotDetermineAuthorization;
 
             std::wstring authorizationFileName = Strings::AuthorizationFilenameApplicationSpecific(&processExecutablePath[0]);
-            HANDLE authorizationFileHandle = CreateFile(authorizationFileName.c_str(), 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-            if (INVALID_HANDLE_VALUE == authorizationFileHandle)
+            if (FALSE == PathFileExists(authorizationFileName.c_str()))
             {
                 Message::OutputFormatted(Message::ESeverity::Warning, L"Authorization not granted, cannot open application-specific file %s.", authorizationFileName.c_str());
 
                 authorizationFileName = Strings::AuthorizationFilenameDirectoryWide(&processExecutablePath[0]);
-                authorizationFileHandle = CreateFile(authorizationFileName.c_str(), 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-                if (INVALID_HANDLE_VALUE == authorizationFileHandle)
+                if (FALSE == PathFileExists(authorizationFileName.c_str()))
                 {
                     Message::OutputFormatted(Message::ESeverity::Warning, L"Authorization not granted, cannot open directory-wide file %s.", authorizationFileName.c_str());
                     return EInjectResult::ErrorNotAuthorized;
                 }
             }
 
-            CloseHandle(authorizationFileHandle);
             Message::OutputFormatted(Message::ESeverity::Info, L"Authorization granted by presence of file %s.", authorizationFileName.c_str());
             return EInjectResult::Success;
         }
