@@ -140,6 +140,26 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
             Message::OutputFormatted(Message::ESeverity::Info, L"Successfully injected %s.", __wargv[1]);
             return 0;
 
+        case EInjectResult::ErrorCreateProcess:
+            if (ERROR_ELEVATION_REQUIRED == GetLastError())
+            {
+                const INT_PTR executeElevatedResult = (INT_PTR)ShellExecute(nullptr, L"runas", Strings::kStrExecutableCompleteFilename.data(), commandLine, nullptr, SW_SHOWDEFAULT);
+                if (executeElevatedResult > 32)
+                {
+                    Message::OutputFormatted(Message::ESeverity::Info, L"Re-attempting the creation and injection %s with elevation.", __wargv[1]);
+
+                    if (IsDebuggerPresent())
+                        Message::Output(Message::ESeverity::Warning, L"Debugging state is not automatically propagated across an elevation attempt. To debug Hookshot as it injects a program that requires elevation, run the debugger as an administrator.");
+
+                    return 0;
+                }
+                else
+                {
+                    Message::OutputFormatted(Message::ESeverity::Error, L"%s - Failed to inject: Target process requires elevation: %s", __wargv[1], Strings::SystemErrorCodeString((unsigned long)executeElevatedResult).c_str());
+                    return __LINE__;
+                }
+            }
+
         default:
             Message::OutputFormatted(Message::ESeverity::Error, L"%s - Failed to inject: %s: %s", __wargv[1], InjectResultString(result).data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
             return __LINE__;
