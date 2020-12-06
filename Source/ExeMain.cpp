@@ -155,13 +155,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 }
                 else
                 {
-                    Message::OutputFormatted(Message::ESeverity::Error, L"%s - Failed to inject: Target process requires elevation: %s", __wargv[1], Strings::SystemErrorCodeString((unsigned long)executeElevatedResult).c_str());
+                    Message::OutputFormatted(Message::ESeverity::Error, L"%s - Failed to inject: Target process requires elevation: %s.", __wargv[1], Strings::SystemErrorCodeString((unsigned long)executeElevatedResult).c_str());
                     return __LINE__;
                 }
             }
+            [[fallthrough]];
 
         default:
-            Message::OutputFormatted(Message::ESeverity::Error, L"%s - Failed to inject: %s: %s", __wargv[1], InjectResultString(result).data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+            Message::OutputFormatted(Message::ESeverity::Error, L"%s - Failed to inject: %s: %s.", __wargv[1], InjectResultString(result).data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
             return __LINE__;
         }
     }
