@@ -17,6 +17,9 @@
 #include "Strings.h"
 #include "TemporaryBuffer.h"
 
+#include <sstream>
+#include <string>
+
 using namespace Hookshot;
 
 
@@ -81,49 +84,31 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         // First step is to combine all the command-line arguments into a single mutable string buffer, including the executable to launch.
         // Mutability is required per documentation of CreateProcessW.
         // Each individual argument must be placed in quotes (to preserve spaces within), and each quote character in the argument must be escaped.
-        TemporaryBuffer<wchar_t> commandLine;
-        size_t commandLinePos = 0;
-
+        std::wstringstream commandLineStream;
         for (size_t argIndex = 1; argIndex < (size_t)__argc; ++argIndex)
         {
             const wchar_t* const argString = __wargv[argIndex];
             const size_t argLen = wcslen(argString);
-            size_t argNumQuoteChars = 0;
 
+            commandLineStream << L'\"';
+            
             for (size_t i = 0; i < argLen; ++i)
             {
                 if (L'\"' == argString[i])
-                    argNumQuoteChars += 1;
+                    commandLineStream << L'\\';
+
+                commandLineStream << argString[i];
             }
 
-            // Compute the number of characters needed to represent the argument.
-            // Each quote character requires an additional character for the escape backslash.
-            // There must also be room for a whitespace separator, a quote character at the start, a quote character at the end, and possibly a terminal null character.
-            const size_t argNumCharsNeeded = argLen + argNumQuoteChars + 4;
-
-            if ((commandLinePos + argNumCharsNeeded) >= commandLine.Count())
-            {
-                Message::OutputFormatted(Message::ESeverity::Error, L"Specified command line exceeds the limit of %d characters.", (int)commandLine.Count());
-                return __LINE__;
-            }
-
-            // Copy one character at a time from the command-line argument to the accumulating string.
-            // Enclose the whole thing in quotes, add a whitespace separator at the end, and add a backslash in front of any quote characters found in the argument string.
-            commandLine[commandLinePos++] = L'\"';
-
-            for (size_t i = 0; i < argLen; ++i)
-            {
-                if (L'\"' == argString[i])
-                    commandLine[commandLinePos++] = L'\\';
-
-                commandLine[commandLinePos++] = argString[i];
-            }
-
-            commandLine[commandLinePos++] = L'\"';
-            commandLine[commandLinePos++] = L' ';
+            commandLineStream << L"\" ";
         }
 
-        commandLine[commandLinePos] = L'\0';
+        TemporaryBuffer<wchar_t> commandLine;
+        if (0 != wcscpy_s(commandLine, commandLine.Count(), commandLineStream.str().c_str()))
+        {
+            Message::OutputFormatted(Message::ESeverity::Error, L"Specified command line exceeds the limit of %d characters.", (int)commandLine.Count());
+            return __LINE__;
+        }
 
         // Second step is to create and inject the new process using the assembled command line string.
         STARTUPINFO startupInfo;
