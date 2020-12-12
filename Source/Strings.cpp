@@ -23,6 +23,15 @@
 #include <string_view>
 
 
+// -------- MACROS --------------------------------------------------------- //
+
+/// Defines and initializes a string, given a string name and an initializer.
+/// Used to create an internal string object and export it as a string_view object, all in one step.
+#define DEFINE_STRING(name, initializer) \
+    static const std::wstring name##Impl(initializer); \
+    extern const std::wstring_view name(name##Impl);
+
+
 namespace Hookshot
 {
     namespace Strings
@@ -64,7 +73,8 @@ namespace Hookshot
 #endif
 
         /// File extension for all files whose presence would be checked to determine if Hookshot is authorized to act on a process.
-        static constexpr wchar_t kStrAuthorizationFileExtension[] = L".hookshot";
+        static constexpr std::wstring_view kStrAuthorizationFileExtension = L".hookshot";
+
 
         // -------- INTERNAL FUNCTIONS ------------------------------------- //
 
@@ -112,7 +122,6 @@ namespace Hookshot
         }
 
         /// Generates the fully-qualified path of the current running form of Hookshot, minus the extension.
-        /// This is useful for determining the correct path of the next file or module to load.
         /// For example: "C:\Directory\Program\Hookshot.32.dll" -> "C:\Directory\Program\Hookshot"
         /// @return Fully-qualified base path.
         static std::wstring GetHookshotCompleteFilenameWithoutExtension(void)
@@ -254,78 +263,51 @@ namespace Hookshot
         /// @return coorresponding run-time constant value.
         static std::wstring GetHookshotDynamicLinkLibraryFilename(void)
         {
+#ifdef HOOKSHOT_LAUNCHER
+            return GetExecutableDirectoryName() + GetProductName() + kStrHookshotDynamicLinkLibraryExtension.data();
+#else
             return GetHookshotCompleteFilenameWithoutExtension() + kStrHookshotDynamicLinkLibraryExtension.data();
+#endif
         }
 
         /// Generates the value for kStrHookshotExecutableFilename; see documentation of this run-time constant for more information.
         /// @return coorresponding run-time constant value.
         static std::wstring GetHookshotExecutableFilename(void)
         {
+#ifdef HOOKSHOT_LAUNCHER
+            return GetExecutableDirectoryName() + GetProductName() + kStrHookshotExecutableExtension.data();
+#else
             return GetHookshotCompleteFilenameWithoutExtension() + kStrHookshotExecutableExtension.data();
+#endif
         }
 
         /// Generates the value for kStrHookshotExecutableOtherArchitectureFilename; see documentation of this run-time constant for more information.
         /// @return coorresponding run-time constant value.
         static std::wstring GetHookshotExecutableOtherArchitectureFilename(void)
         {
+#ifdef HOOKSHOT_LAUNCHER
+            return GetExecutableDirectoryName() + GetProductName() + kStrHookshotExecutableOtherArchitectureExtension.data();
+#else
             return GetHookshotCompleteFilenameWithoutExtension() + kStrHookshotExecutableOtherArchitectureExtension.data();
+#endif
         }
-
-
-        // -------- INTERNAL CONSTANTS ------------------------------------- //
-        // Used to implement run-time constants; see "Strings.h" for documentation.
-
-        static const std::wstring kStrProductNameImpl(GetProductName());
-
-        static const std::wstring kStrExecutableBaseNameImpl(GetExecutableBaseName());
-
-        static const std::wstring kStrExecutableDirectoryNameImpl(GetExecutableDirectoryName());
-
-        static const std::wstring kStrExecutableCompleteFilenameImpl(GetExecutableCompleteFilename());
-
-        static const std::wstring kStrHookshotBaseNameImpl(GetHookshotBaseName());
-
-        static const std::wstring kStrHookshotDirectoryNameImpl(GetHookshotDirectoryName());
-
-        static const std::wstring kStrHookshotCompleteFilenameImpl(GetHookshotCompleteFilename());
-
-        static const std::wstring kStrHookshotConfigurationFilenameImpl(GetHookshotConfigurationFilename());
-
-        static const std::wstring kStrHookshotLogFilenameImpl(GetHookshotLogFilename());
-
-        static const std::wstring kStrHookshotDynamicLinkLibraryFilenameImpl(GetHookshotDynamicLinkLibraryFilename());
-
-        static const std::wstring kStrHookshotExecutableFilenameImpl(GetHookshotExecutableFilename());
-
-        static const std::wstring kStrHookshotExecutableOtherArchitectureFilenameImpl(GetHookshotExecutableOtherArchitectureFilename());
 
 
         // -------- RUN-TIME CONSTANTS ------------------------------------- //
         // See "Strings.h" for documentation.
 
-        extern const std::wstring_view kStrProductName(kStrProductNameImpl);
-
-        extern const std::wstring_view kStrExecutableBaseName(kStrExecutableBaseNameImpl);
-
-        extern const std::wstring_view kStrExecutableDirectoryName(kStrExecutableDirectoryNameImpl);
-
-        extern const std::wstring_view kStrExecutableCompleteFilename(kStrExecutableCompleteFilenameImpl);
-
-        extern const std::wstring_view kStrHookshotBaseName(kStrHookshotBaseNameImpl);
-
-        extern const std::wstring_view kStrHookshotDirectoryName(kStrHookshotDirectoryNameImpl);
-
-        extern const std::wstring_view kStrHookshotCompleteFilename(kStrHookshotCompleteFilenameImpl);
-
-        extern const std::wstring_view kStrHookshotConfigurationFilename(kStrHookshotConfigurationFilenameImpl);
-
-        extern const std::wstring_view kStrHookshotLogFilename(kStrHookshotLogFilenameImpl);
-
-        extern const std::wstring_view kStrHookshotDynamicLinkLibraryFilename(kStrHookshotDynamicLinkLibraryFilenameImpl);
-
-        extern const std::wstring_view kStrHookshotExecutableFilename(kStrHookshotExecutableFilenameImpl);
-
-        extern const std::wstring_view kStrHookshotExecutableOtherArchitectureFilename(kStrHookshotExecutableOtherArchitectureFilenameImpl);
+        DEFINE_STRING(kStrProductName, GetProductName());
+        DEFINE_STRING(kStrExecutableBaseName, GetExecutableBaseName());
+        DEFINE_STRING(kStrExecutableDirectoryName, GetExecutableDirectoryName());
+        DEFINE_STRING(kStrExecutableCompleteFilename, GetExecutableCompleteFilename());
+        DEFINE_STRING(kStrHookshotBaseName, GetHookshotBaseName());
+        DEFINE_STRING(kStrHookshotDirectoryName, GetHookshotDirectoryName());
+        DEFINE_STRING(kStrHookshotCompleteFilename, GetHookshotCompleteFilename());
+        DEFINE_STRING(kStrHookshotConfigurationFilename, GetHookshotConfigurationFilename());
+        DEFINE_STRING(kStrHookshotLogFilename, GetHookshotLogFilename());
+        DEFINE_STRING(kStrHookshotDynamicLinkLibraryFilename, GetHookshotDynamicLinkLibraryFilename());
+        DEFINE_STRING(kStrHookshotExecutableFilename, GetHookshotExecutableFilename());
+        DEFINE_STRING(kStrHookshotExecutableOtherArchitectureFilename, GetHookshotExecutableOtherArchitectureFilename());
 
 
         // -------- FUNCTIONS ---------------------------------------------- //
@@ -333,26 +315,49 @@ namespace Hookshot
 
         std::wstring AuthorizationFilenameApplicationSpecific(std::wstring_view executablePath)
         {
-            return std::wstring(executablePath) + std::wstring(kStrAuthorizationFileExtension);
+            std::wstring authorizationFilename;
+
+            authorizationFilename.reserve(1 + executablePath.length() + kStrAuthorizationFileExtension.length());
+            authorizationFilename.append(executablePath);
+            authorizationFilename.append(kStrAuthorizationFileExtension);
+
+            return authorizationFilename;
         }
 
         // --------
 
         std::wstring AuthorizationFilenameDirectoryWide(std::wstring_view executablePath)
         {
-            const wchar_t* const lastBackslash = wcsrchr(executablePath.data(), L'\\');
+            std::wstring authorizationFilename;
 
+            const wchar_t* const lastBackslash = wcsrchr(executablePath.data(), L'\\');
             if (nullptr == lastBackslash)
-                return std::wstring(kStrAuthorizationFileExtension);
+            {
+                authorizationFilename.reserve(1 + kStrAuthorizationFileExtension.length());
+                authorizationFilename.append(kStrAuthorizationFileExtension);
+            }
             else
-                return std::wstring(&executablePath[0], &lastBackslash[1]) + std::wstring(kStrAuthorizationFileExtension);
+            {
+                authorizationFilename.reserve(1 + executablePath.length() + kStrAuthorizationFileExtension.length());
+                authorizationFilename.append(&executablePath[0], &lastBackslash[1]);
+                authorizationFilename.append(kStrAuthorizationFileExtension);
+            }
+            
+            return authorizationFilename;
         }
 
         // --------
 
         std::wstring HookModuleFilename(std::wstring_view moduleName)
         {
-            return kStrExecutableDirectoryNameImpl + moduleName.data() + kStrHookModuleExtension.data();
+            std::wstring hookModuleFilename;
+
+            hookModuleFilename.reserve(1 + kStrExecutableDirectoryName.length() + moduleName.length() + kStrHookModuleExtension.length());
+            hookModuleFilename.append(kStrExecutableDirectoryName);
+            hookModuleFilename.append(moduleName);
+            hookModuleFilename.append(kStrHookModuleExtension);
+
+            return hookModuleFilename;
         }
 
         // --------

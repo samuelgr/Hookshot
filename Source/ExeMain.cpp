@@ -106,7 +106,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         TemporaryBuffer<wchar_t> commandLine;
         if (0 != wcscpy_s(commandLine, commandLine.Count(), commandLineStream.str().c_str()))
         {
-            Message::OutputFormatted(Message::ESeverity::Error, L"Specified command line exceeds the limit of %d characters.", (int)commandLine.Count());
+            Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"Specified command line exceeds the limit of %d characters.", (int)commandLine.Count());
             return __LINE__;
         }
 
