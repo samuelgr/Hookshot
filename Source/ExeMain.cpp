@@ -37,7 +37,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
     if (2 > __argc)
     {
-        Message::OutputFormatted(Message::ESeverity::Error, L"Usage: %s <command> [<arg1> <arg2>...]", Strings::kStrExecutableBaseName.data());
+        Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s cannot be launched directly. An executable file must be specified as an argument.\n\nUsage: %s <command> [<arg1> <arg2>...]", Strings::kStrProductName.data(), Strings::kStrExecutableBaseName.data());
         return __LINE__;
     }
 
@@ -140,14 +140,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 }
                 else
                 {
-                    Message::OutputFormatted(Message::ESeverity::Error, L"%s - Failed to inject: Target process requires elevation: %s.", __wargv[1], Strings::SystemErrorCodeString((unsigned long)executeElevatedResult).c_str());
+                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to inject this executable.\n\nTarget process requires elevation (%s).", __wargv[1], Strings::kStrProductName.data(), Strings::SystemErrorCodeString((unsigned long)executeElevatedResult).c_str());
                     return __LINE__;
                 }
             }
             [[fallthrough]];
 
         default:
-            Message::OutputFormatted(Message::ESeverity::Error, L"%s - Failed to inject: %s: %s.", __wargv[1], InjectResultString(result).data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+            Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to inject this executable.\n\n%s (%s).", __wargv[1], Strings::kStrProductName.data(), InjectResultString(result).data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
             return __LINE__;
         }
     }
