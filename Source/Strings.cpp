@@ -72,13 +72,17 @@ namespace Hookshot
 
         /// Generates the value for kStrProductName; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
-        static const wchar_t* GetProductName(void)
+        static const std::wstring& GetProductName(void)
         {
-            static const wchar_t* initString = nullptr;
+            static std::wstring initString;
             static std::once_flag initFlag;
 
             std::call_once(initFlag, []() -> void {
-                LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, (wchar_t*)&initString, 0);
+                const wchar_t* stringStart = nullptr;
+                const int stringLength = LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, (wchar_t*)&stringStart, 0);
+
+                if (0 < stringLength)
+                    initString.assign(stringStart, &stringStart[stringLength]);
             });
 
             return initString;
@@ -202,7 +206,16 @@ namespace Hookshot
             static std::once_flag initFlag;
 
             std::call_once(initFlag, []() -> void {
-                initString.assign(GetExecutableDirectoryName() + GetProductName() + kStrHookshotConfigurationFileExtension.data());
+                std::wstring_view pieces[] = {GetExecutableDirectoryName(), GetProductName(), kStrHookshotConfigurationFileExtension};
+
+                int totalLength = 0;
+                for (int i = 0; i < _countof(pieces); ++i)
+                    totalLength += pieces[i].length();
+
+                initString.reserve(1 + totalLength);
+
+                for (int i = 0; i < _countof(pieces); ++i)
+                    initString.append(pieces[i]);
             });
 
             return initString;
