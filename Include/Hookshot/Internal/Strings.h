@@ -23,6 +23,7 @@ namespace Hookshot
     {
         // -------- COMPILE-TIME CONSTANTS --------------------------------- //
         // Can safely be used at any time, including to perform static initialization.
+        // Views are guaranteed to be null-terminated.
 
         /// Character that occurs at the start of a command-line argument to indicate it is a file mapping handle rather than an executable name.
         inline constexpr wchar_t kCharCmdlineIndicatorFileMappingHandle = L'|';
@@ -76,6 +77,7 @@ namespace Hookshot
 
         // -------- RUN-TIME CONSTANTS ------------------------------------- //
         // Not safe to access before run-time, and should not be used to perform dynamic initialization.
+        // Views are guaranteed to be null-terminated.
 
         /// Product name.
         /// Use this to identify Hookshot in areas of user interaction.
