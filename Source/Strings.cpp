@@ -113,12 +113,11 @@ namespace Hookshot
             static std::once_flag initFlag;
 
             std::call_once(initFlag, []() -> void {
-                const wchar_t* const executableCompleteFilename = GetExecutableCompleteFilename().c_str();
-                const wchar_t* executableBaseName = wcsrchr(executableCompleteFilename, L'\\');
-                if (nullptr == executableBaseName)
-                    executableBaseName = executableCompleteFilename;
-                else
-                    executableBaseName += 1;
+                std::wstring_view executableBaseName = GetExecutableCompleteFilename();
+
+                const size_t lastBackslashPos = executableBaseName.find_last_of(L"\\");
+                if (std::wstring_view::npos != lastBackslashPos)
+                    executableBaseName.remove_prefix(1 + lastBackslashPos);
 
                 initString.assign(executableBaseName);
             });
@@ -134,10 +133,14 @@ namespace Hookshot
             static std::once_flag initFlag;
 
             std::call_once(initFlag, []() -> void {
-                const wchar_t* const executableCompleteFilename = GetExecutableCompleteFilename().c_str();
-                const wchar_t* const lastBackslash = wcsrchr(executableCompleteFilename, L'\\');
-                if (nullptr != lastBackslash)
-                    initString.assign(executableCompleteFilename, &lastBackslash[1]);
+                std::wstring_view executableDirectoryName = GetExecutableCompleteFilename();
+
+                const size_t lastBackslashPos = executableDirectoryName.find_last_of(L"\\");
+                if (std::wstring_view::npos != lastBackslashPos)
+                {
+                    executableDirectoryName.remove_suffix(executableDirectoryName.length() - lastBackslashPos - 1);
+                    initString.assign(executableDirectoryName);
+                }
             });
 
             return initString;
@@ -168,12 +171,11 @@ namespace Hookshot
             static std::once_flag initFlag;
 
             std::call_once(initFlag, []() -> void {
-                const wchar_t* const hookshotCompleteFilename = GetHookshotCompleteFilename().c_str();
-                const wchar_t* hookshotBaseName = wcsrchr(hookshotCompleteFilename, L'\\');
-                if (nullptr == hookshotBaseName)
-                    hookshotBaseName = hookshotCompleteFilename;
-                else
-                    hookshotBaseName += 1;
+                std::wstring_view hookshotBaseName = GetHookshotCompleteFilename();
+
+                const size_t lastBackslashPos = hookshotBaseName.find_last_of(L"\\");
+                if (std::wstring_view::npos != lastBackslashPos)
+                    hookshotBaseName.remove_prefix(1 + lastBackslashPos);
 
                 initString.assign(hookshotBaseName);
             });
@@ -189,10 +191,14 @@ namespace Hookshot
             static std::once_flag initFlag;
 
             std::call_once(initFlag, []() -> void {
-                const wchar_t* const hookshotCompleteFilename = GetHookshotCompleteFilename().c_str();
-                const wchar_t* const lastBackslash = wcsrchr(hookshotCompleteFilename, L'\\');
-                if (nullptr != lastBackslash)
-                    initString.assign(hookshotCompleteFilename, &lastBackslash[1]);
+                std::wstring_view hookshotDirectoryName = GetHookshotCompleteFilename();
+
+                const size_t lastBackslashPos = hookshotDirectoryName.find_last_of(L"\\");
+                if (std::wstring_view::npos != lastBackslashPos)
+                {
+                    hookshotDirectoryName.remove_suffix(hookshotDirectoryName.length() - lastBackslashPos - 1);
+                    initString.assign(hookshotDirectoryName);
+                }
             });
 
             return initString;
@@ -322,12 +328,12 @@ namespace Hookshot
         // See "Strings.h" for documentation.
 
         extern const std::wstring_view kStrProductName(GetProductName());
+        extern const std::wstring_view kStrExecutableCompleteFilename(GetExecutableCompleteFilename());
         extern const std::wstring_view kStrExecutableBaseName(GetExecutableBaseName());
         extern const std::wstring_view kStrExecutableDirectoryName(GetExecutableDirectoryName());
-        extern const std::wstring_view kStrExecutableCompleteFilename(GetExecutableCompleteFilename());
+        extern const std::wstring_view kStrHookshotCompleteFilename(GetHookshotCompleteFilename());
         extern const std::wstring_view kStrHookshotBaseName(GetHookshotBaseName());
         extern const std::wstring_view kStrHookshotDirectoryName(GetHookshotDirectoryName());
-        extern const std::wstring_view kStrHookshotCompleteFilename(GetHookshotCompleteFilename());
         extern const std::wstring_view kStrHookshotConfigurationFilename(GetHookshotConfigurationFilename());
         extern const std::wstring_view kStrHookshotLogFilename(GetHookshotLogFilename());
         extern const std::wstring_view kStrHookshotDynamicLinkLibraryFilename(GetHookshotDynamicLinkLibraryFilename());
@@ -355,19 +361,21 @@ namespace Hookshot
         {
             std::wstring authorizationFilename;
 
-            const wchar_t* const lastBackslash = wcsrchr(executablePath.data(), L'\\');
-            if (nullptr == lastBackslash)
+            const size_t lastBackslashPos = executablePath.find_last_of(L"\\");
+            if (std::wstring_view::npos == lastBackslashPos)
             {
                 authorizationFilename.reserve(1 + kStrAuthorizationFileExtension.length());
                 authorizationFilename.append(kStrAuthorizationFileExtension);
             }
             else
             {
+                executablePath.remove_suffix(executablePath.length() - lastBackslashPos - 1);
+
                 authorizationFilename.reserve(1 + executablePath.length() + kStrAuthorizationFileExtension.length());
-                authorizationFilename.append(&executablePath[0], &lastBackslash[1]);
+                authorizationFilename.append(executablePath);
                 authorizationFilename.append(kStrAuthorizationFileExtension);
             }
-            
+
             return authorizationFilename;
         }
 
