@@ -47,7 +47,7 @@ namespace Hookshot
         std::wstring launcherArg;
         std::wstring_view pieces[] = {kLauncherTaskArgPrefix, launcherTask};
 
-        int totalLength = 0;
+        size_t totalLength = 0;
         for (int i = 0; i < _countof(pieces); ++i)
             totalLength += pieces[i].length();
 
@@ -133,7 +133,7 @@ namespace Hookshot
         std::wstring launchExePath;
         std::wstring_view pieces[] = {Strings::kStrExecutableDirectoryName, kStrExecutableNamePrefix, Strings::kStrExecutableBaseName};
 
-        int totalLength = 0;
+        size_t totalLength = 0;
         for (int i = 0; i < _countof(pieces); ++i)
             totalLength += pieces[i].length();
 

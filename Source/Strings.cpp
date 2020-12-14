@@ -214,7 +214,7 @@ namespace Hookshot
             std::call_once(initFlag, []() -> void {
                 std::wstring_view pieces[] = {GetExecutableDirectoryName(), GetProductName(), kStrHookshotConfigurationFileExtension};
 
-                int totalLength = 0;
+                size_t totalLength = 0;
                 for (int i = 0; i < _countof(pieces); ++i)
                     totalLength += pieces[i].length();
 
@@ -264,7 +264,7 @@ namespace Hookshot
             std::call_once(initFlag, []() -> void {
                 std::wstring_view pieces[] = {GetHookshotDirectoryName(), GetProductName(), kStrHookshotDynamicLinkLibraryExtension};
 
-                int totalLength = 0;
+                size_t totalLength = 0;
                 for (int i = 0; i < _countof(pieces); ++i)
                     totalLength += pieces[i].length();
 
@@ -287,7 +287,7 @@ namespace Hookshot
             std::call_once(initFlag, []() -> void {
                 std::wstring_view pieces[] = {GetHookshotDirectoryName(), GetProductName(), kStrHookshotExecutableExtension};
 
-                int totalLength = 0;
+                size_t totalLength = 0;
                 for (int i = 0; i < _countof(pieces); ++i)
                     totalLength += pieces[i].length();
 
@@ -310,7 +310,7 @@ namespace Hookshot
             std::call_once(initFlag, []() -> void {
                 std::wstring_view pieces[] = {GetHookshotDirectoryName(), GetProductName(), kStrHookshotExecutableOtherArchitectureExtension};
 
-                int totalLength = 0;
+                size_t totalLength = 0;
                 for (int i = 0; i < _countof(pieces); ++i)
                     totalLength += pieces[i].length();
 
