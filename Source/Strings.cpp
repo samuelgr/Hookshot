@@ -79,9 +79,12 @@ namespace Hookshot
 
             std::call_once(initFlag, []() -> void {
                 const wchar_t* stringStart = nullptr;
-                const int stringLength = LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, (wchar_t*)&stringStart, 0);
+                int stringLength = LoadString(Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, (wchar_t*)&stringStart, 0);
 
-                if (0 < stringLength)
+                while ((stringLength > 0) && (L'\0' == stringStart[stringLength - 1]))
+                    stringLength -= 1;
+
+                if (stringLength > 0)
                     initString.assign(stringStart, &stringStart[stringLength]);
             });
 
