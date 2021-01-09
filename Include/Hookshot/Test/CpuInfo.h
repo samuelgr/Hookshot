@@ -3,7 +3,7 @@
  *   General-purpose library for injecting DLLs and hooking function calls.
  ******************************************************************************
  * Authored by Samuel Grossman
- * Copyright (c) 2019-2020
+ * Copyright (c) 2019-2021
  **************************************************************************//**
  * @file CpuInfo.h
  *   Declaration of an interface for identifying the current CPU.

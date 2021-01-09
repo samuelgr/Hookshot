@@ -6,7 +6,7 @@ rem | Hookshot
 rem |   General-purpose library for injecting DLLs and hooking function calls.
 rem +--------------------------------------------------------------------------
 rem | Authored by Samuel Grossman
-rem | Copyright (c) 2019-2020
+rem | Copyright (c) 2019-2021
 rem +--------------------------------------------------------------------------
 rem | PackageRelease.bat
 rem |   Script for packaging up a release. To be executed manually after
@@ -19,7 +19,7 @@ set project_platforms=Win32 x64
 set project_has_sdk=yes
 set project_has_third_party_license=yes
 
-set files_release=LICENSE *.md Output\Release\Hookshot.32.exe Output\Release\Hookshot.64.exe Output\Release\Hookshot.32.dll Output\Release\Hookshot.64.dll
+set files_release=LICENSE *.md Output\Release\Hookshot.32.exe Output\Release\Hookshot.64.exe Output\Release\Hookshot.32.dll Output\Release\Hookshot.64.dll Output\Release\HookshotLauncher.32.exe Output\Release\HookshotLauncher.64.exe
 
 set files_sdk_lib=Output\Release\Hookshot.32.lib Output\Release\Hookshot.64.lib
 set files_sdk_include=Include\Hookshot\*.h

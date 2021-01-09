@@ -4,7 +4,7 @@ rem | Hookshot
 rem |   General-purpose library for injecting DLLs and hooking function calls.
 rem +--------------------------------------------------------------------------
 rem | Authored by Samuel Grossman
-rem | Copyright (c) 2019-2020
+rem | Copyright (c) 2019-2021
 rem +--------------------------------------------------------------------------
 rem | RunExample.bat
 rem |   Script for running hook module examples. Invoked by Visual Studio

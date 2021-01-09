@@ -3,7 +3,7 @@
  *   General-purpose library for hooking API calls in spawned processes.
  ******************************************************************************
  * Authored by Samuel Grossman
- * Copyright (c) 2019
+ * Copyright (c) 2019-2021
  **************************************************************************//**
  * @file DynamicHook.cpp
  *   "DynamicHook" hook module example.
