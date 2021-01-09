@@ -24,17 +24,38 @@ Other available documents are listed in the [top-level document](README.md).
 1. Ensure the combined [Visual C++ 2015, 2017, and 2019 Runtime](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) is installed. Hookshot is linked against this runtime and will not work without it. If running a 64-bit operating system, install both the x86 and the x64 versions of this runtime, otherwise install just the x86 version.
 
 1. Download the latest release of Hookshot and place all of the Hookshot executables and DLLs into any directory. Unless running a 32-bit operating system, it is recommended that both 32-bit and 64-bit versions of HookshotExe and HookshotDll be placed into this directory.
-   - If the goal is to use Hookshot to target one particular application or multiple applications in the same directory, HookshotExe and HookshotDll can be placed into the same directory as the desired target applications.
+   - In general it is a good idea to place HookshotExe and HookshotDll into the same directory as the desired target applications. This is actually required if using the launcher.
 
 1. Place any desired hook modules into the same directory as the application's executable file. If there are any DLLs to be injected, which are not themselves hook modules, they can be located anywhere.
    - If both 32-bit and 64-bit versions of a hook module is available, Hookshot will automatically load the correct version to match the target application.
    - If the correct version to match the target application is not available, Hookshot will be unable to load the hook module.
 
-1. [Authorize](#authorizing-hookshot) Hookshot to act on the target application.
-
 1. Optionally create or place a [configuration file](#configuring-hookshot) into the same directory as the application's executable file.
-   - If Hookshot's default behavior is acceptable, then a configuration file is not necessary.
-   - Hookshot's default behavior is to load all hook modules it finds in the same directory as the application's executable file.
+   - If Hookshot's default behavior is acceptable, then a configuration file is not necessary. Hookshot's default behavior is to load all hook modules it finds in the same directory as the application's executable file.
+
+1. Run the application with Hookshot. There are two ways to do this. The more convenient option is to use the launcher, but it is also possible to use HookshotExe directly.
+   - If the target application requires administrator permission, HookshotExe will request administrator permission before running it.
+
+
+### Option 1: Using HookshotLauncher
+
+1. Place HookshotLauncher into the same directory as the application's executable file.
+   - HookshotLauncher requires that HookshotExe and HookshotDll also be located in this directory. This is not necessary when using HookshotExe directly.
+
+1. Rename the application's executable file by adding the text `_HookshotLauncher_` to the beginning.
+   - For example, `Application.exe` would be renamed `_HookshotLauncher_Application.exe`.
+
+1. Rename HookshotLauncher's executable file so that it exactly matches the original name of the application's executable file.
+   - Continuing with the preceding example, `HookshotLauncher.32.exe` would be renamed `Application.exe`.
+
+1. Run HookshotLauncher in the same way as the original application would normally be run.
+   - Continuing with the preceding example, launch `Application.exe` however it is normally launched: by Start Menu shortcut, double-click in File Explorer, and so on.
+   - HookshotLauncher will automatically create an [application-specific authorization file](#authorizing-hookshot) for the executable it is launching. If creating this file requires administrator permission, HookshotLauncher will display a prompt for approval before requesting it.
+
+
+### Option 2: Using HookshotExe
+
+1. [Authorize](#authorizing-hookshot) Hookshot to act on the target application.
 
 1. Use HookshotExe to run the application.
    - If both the 32-bit and 64-bit versions of HookshotExe and HookshotDll are present, then it does not matter which version is used to launch the application. Hookshot will automatically switch to the correct version.
@@ -49,7 +70,9 @@ Other available documents are listed in the [top-level document](README.md).
 
 HookshotExe and HookshotDll exist in both 32-bit (`Hookshot.32.exe` and `Hookshot.32.dll`) and 64-bit (`Hookshot.64.exe` and `Hookshot.64.dll`) forms. These files can be placed into any directory as long as they remain together in the same directory. This is because HookshotExe looks for HookshotDll in the same directory as itself, and when injecting itself into child processes spawned by a target process, HookshotDll likewise looks for HookshotExe in the same directory as itself.
 
-Configuration files, with the file name `Hookshot.ini`, if supplied, must be placed into the same directory as the target application's executable file. If HookshotDll is unable to locate a configuration file, it will silently apply default behaviors and settings.
+HookshotLauncher is similarly available in both 32-bit (`HookshotLauncher.32.exe`) and 64-bit (`HookshotLauncher.64.exe`) forms. It exists purely as a convenience to users: the only things it does is automates some of the bootstrapping steps and runs HookshotExe with some predetermined arguments. In other words, it is fancy wrapper around HookshotExe. HookshotLauncher requires that it be located in the same directory as both the target executable and HookshotExe. The 32-bit version of HookshotLauncher looks for the 32-bit version of HookshotExe, and similarly the 64-bit version of HookshotLauncher looks for the 64-bit version of HookshotExe.
+
+Configuration files, if supplied, must be named `Hookshot.ini` and placed into the same directory as the target application's executable file. If HookshotDll is unable to locate a configuration file it will silently apply default behaviors and settings.
 
 Hook modules are generally expected to exist in both 32-bit and 64-bit form, which respectively have file names that follow the convention `[Name].HookModule.32.dll` and `[Name].HookModule.64.dll`, where `[Name]` is the name of the hook module. Hook modules should be placed in the same directory as the target application's executable. This is because hook modules are identified to HookshotDll by name (i.e. using only the `[Name]` part of the filename), and HookshotDll looks for hook modules using paths relative to the directory containing the target application's executable.
 

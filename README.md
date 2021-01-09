@@ -77,6 +77,8 @@ Hookshot itself consists of the following parts.
    - Upon injection into a process by HookshotExe, HookshotDll reads a configuration file and uses it to determine which hook modules and DLL files to load.
    - Once HookshotDll is injected into a target process, and with the end user's permission, it will automatically attempt to cause itself to be injected into child processes spawned by the target process.
 
+As a convenience to users Hookshot also provides a launcher, *HookshotLauncher*, to automate some of the steps involved in launching an executable with Hookshot. Using the launcher also allows applications to be configured such that they always run with Hookshot even without updating existing shortcuts.
+
 
 ## Next Steps
 
