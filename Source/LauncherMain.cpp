@@ -14,6 +14,7 @@
 #include "Strings.h"
 #include "TemporaryBuffer.h"
 
+#include <commctrl.h>
 #include <shlwapi.h>
 #include <sstream>
 #include <string>
@@ -35,6 +36,81 @@ namespace Hookshot
 
 
     // -------- INTERNAL FUNCTIONS ----------------------------------------- //
+
+    /// Displays a graphical dialog box informing the user that elevation is temporarily required so that the Hookshot Launcher can create the required authorization file.
+    /// @param [in] executablePath Path of the executable to authorize.
+    /// @param [in] authorizationFile Path of the authorization file about which to prompt the user.
+    /// @return `true` if the user approved the request, `false` otherwise.
+    static bool GetUserPermissionForAuthorizationElevation(std::wstring_view executablePath, std::wstring_view authorizationFile)
+    {
+        std::wstringstream contentStream;
+        contentStream << Strings::kStrProductName << L" temporarily needs administrator permission so it can create an authorization file for the executable it is attempting to launch.";
+        const std::wstring kContentString = contentStream.str();
+        
+        std::wstringstream expandedInformationStream;
+        expandedInformationStream << L"\nExecutable to launch:\n" << executablePath.data() << L"\n\nAuthorization file to be created:\n" << authorizationFile << L"\n";
+        const std::wstring kExpandedInformationString = expandedInformationStream.str();
+
+        std::wstringstream footerStream;
+        footerStream << Strings::kStrProductName << L" checks for authorization files to make sure it has your permission to act.";
+        const std::wstring kFooterString = footerStream.str();
+        
+        std::wstringstream buttonTextOk;
+        buttonTextOk << L"Proceed\nCreate the authorization file and launch the executable with " << Strings::kStrProductName << L".";
+        const std::wstring kButtonTextOk = buttonTextOk.str();
+
+        std::wstringstream buttonTextCancel;
+        buttonTextCancel << L"Cancel\nExit without creating the authorization file.";
+        const std::wstring kButtonTextCancel = buttonTextCancel.str();
+        
+        const TASKDIALOG_BUTTON kUserDialogCustomButtons[] = {
+            {
+                .nButtonID = IDOK,
+                .pszButtonText = kButtonTextOk.c_str()
+            },
+            {
+                .nButtonID = IDCANCEL,
+                .pszButtonText = kButtonTextCancel.c_str()
+            }
+        };
+
+        const TASKDIALOGCONFIG kUserDialogConfig = {
+            .cbSize = sizeof(TASKDIALOGCONFIG),
+            .dwFlags = TDF_USE_COMMAND_LINKS | TDF_SIZE_TO_CONTENT,
+            .pszWindowTitle = Strings::kStrProductName.data(),
+            .pszContent = kContentString.c_str(),
+            .cButtons = _countof(kUserDialogCustomButtons),
+            .pButtons = kUserDialogCustomButtons,
+            .nDefaultButton = kUserDialogCustomButtons[0].nButtonID,
+            .pszExpandedInformation = kExpandedInformationString.c_str(),
+            .pszExpandedControlText = L"Fewer details",
+            .pszCollapsedControlText = L"More details",
+            .pszFooterIcon = TD_INFORMATION_ICON,
+            .pszFooter = kFooterString.c_str(),
+            .pfCallback = [](HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, LONG_PTR lpRefData) -> HRESULT {
+                switch (msg)
+                {
+                case TDN_CREATED:
+                    SetForegroundWindow(hwnd);
+                    SendMessage(hwnd, TDM_SET_BUTTON_ELEVATION_REQUIRED_STATE, IDOK, 1);
+                    break;
+
+                case TDN_HYPERLINK_CLICKED:
+                    ShellExecute(nullptr, L"open", (LPCWSTR)lParam, nullptr, nullptr, SW_SHOWNORMAL);
+                    break;
+
+                default:
+                    break;
+                }
+
+                return S_OK;
+            }
+        };
+
+        int dialogResponse = 0;
+        TaskDialogIndirect(&kUserDialogConfig, &dialogResponse, nullptr, nullptr);
+        return (kUserDialogCustomButtons[0].nButtonID == dialogResponse);
+    }
 
     /// Runs a launcher task.
     /// Spawns a new instance of the Hookshot Launcher with a single command-line argument that identifies a launcher task to execute.
@@ -115,8 +191,7 @@ namespace Hookshot
         switch (authorizationFileCreateResult)
         {
         case ERROR_ACCESS_DENIED:
-            Message::OutputFormatted(Message::ESeverity::ForcedInteractiveInfo, L"%s\n\n%s temporarily needs administrator access to create the authorization file for this executable.", executablePath.data(), Strings::kStrProductName.data());
-            return RunLauncherTask(kLauncherTaskCreateAuthorizationFile, true);
+            return ((true == GetUserPermissionForAuthorizationElevation(executablePath, kAuthorizationFileApplicationSpecific)) ? RunLauncherTask(kLauncherTaskCreateAuthorizationFile, true) : ERROR_ACCESS_DENIED);
 
         default:
             return authorizationFileCreateResult;
