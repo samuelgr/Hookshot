@@ -66,8 +66,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakeOutput>$(OutDir)wkit\lib\xed.lib</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine>python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --jobs=4 --host-cpu=ia32 --debug --opt=noopt --kit-kind=debug</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --clean</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+set VCToolsInstallDir=$(VCToolsInstallDir)
+python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --jobs=4 --host-cpu=ia32 --debug --opt=noopt --kit-kind=debug</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+set VCToolsInstallDir=$(VCToolsInstallDir)
+python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --clean</NMakeCleanCommandLine>
     <OutDir>$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(OutDir)msvs-intermediate\</IntDir>
   </PropertyGroup>
@@ -76,24 +80,36 @@
     <NMakePreprocessorDefinitions>_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <OutDir>$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(OutDir)msvs-intermediate\</IntDir>
-    <NMakeCleanCommandLine>python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --clean</NMakeCleanCommandLine>
-    <NMakeBuildCommandLine>python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --jobs=4 --host-cpu=x86-64 --debug --opt=noopt --kit-kind=debug</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+set VCToolsInstallDir=$(VCToolsInstallDir)
+python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --clean</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+set VCToolsInstallDir=$(VCToolsInstallDir)
+python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --jobs=4 --host-cpu=x86-64 --debug --opt=noopt --kit-kind=debug</NMakeBuildCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeOutput>$(OutDir)wkit\lib\xed.lib</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <OutDir>$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(OutDir)msvs-intermediate\</IntDir>
-    <NMakeCleanCommandLine>python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --clean</NMakeCleanCommandLine>
-    <NMakeBuildCommandLine>python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --jobs=4 --host-cpu=ia32 --opt=3 --kit-kind=release</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+set VCToolsInstallDir=$(VCToolsInstallDir)
+python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --clean</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+set VCToolsInstallDir=$(VCToolsInstallDir)
+python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --jobs=4 --host-cpu=ia32 --opt=3 --kit-kind=release</NMakeBuildCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <NMakeOutput>$(OutDir)wkit\lib\xed.lib</NMakeOutput>
     <NMakePreprocessorDefinitions>NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <OutDir>$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(OutDir)msvs-intermediate\</IntDir>
-    <NMakeCleanCommandLine>python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --clean</NMakeCleanCommandLine>
-    <NMakeBuildCommandLine>python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --jobs=4 --host-cpu=x86-64 --opt=3 --kit-kind=release</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+set VCToolsInstallDir=$(VCToolsInstallDir)
+python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --clean</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+set VCToolsInstallDir=$(VCToolsInstallDir)
+python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --jobs=4 --host-cpu=x86-64 --opt=3 --kit-kind=release</NMakeBuildCommandLine>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
