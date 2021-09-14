@@ -18,12 +18,16 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string_view>
 #include <vector>
 
 
 namespace Hookshot
 {
     // -------- INTERNAL CONSTANTS ------------------------------------- //
+
+    /// Used in place of a disassembly string whenever a disassembly operation fails.
+    static constexpr std::wstring_view kDisassemblyFailedString = L"(failed to disassemble)";
 
     /// Loaded into the hook region of the trampoline at initialization time.
     /// Provides the needed preamble and allows room for the hook function address to be specified after-the-fact.
@@ -45,10 +49,9 @@ namespace Hookshot
     static_assert(!(sizeof(kHookCodePreamble) + sizeof(void*) > Trampoline::kTrampolineSizeHookFunctionBytes), "Hook code preamble is too big. Either increase the size of the hook region of the trampoline or decrease the size of the preamble code.");
     static_assert(!(sizeof(kHookCodePreamble) + sizeof(void*) < Trampoline::kTrampolineSizeHookFunctionBytes), "Hook code preamble is too small. Pad with nop instructions to increase the size.");
 
-    /// Loaded into the original function region of the trampoline at initialization time.
-    /// This is the ud2 instruction, which acts as an "uninitialized poison" by causing the program to crash when executed.
-    /// When the trampoline is set, this region of the code is replaced by actual transplanted code.
-    static constexpr uint16_t kOriginalCodeDefault = 0x0b0f;
+    /// Loaded into the trampoline at initialization time.
+    /// This is the "int 3" instruction, which is often used as padding and acts as an "uninitialized poison" by causing the program to break into the debugger when executed.
+    static constexpr uint8_t kTrampolineCodeDefault = 0xcc;
 
 
     // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
@@ -65,13 +68,17 @@ namespace Hookshot
 
     void Trampoline::Reset(void)
     {
-        for (int i = 0; i < sizeof(kHookCodePreamble); ++i)
+        static_assert(sizeof(kHookCodePreamble[0]) == sizeof(code.hook.byte[0]), L"Hook code preamble element size mismatch.");
+        static_assert(sizeof(kTrampolineCodeDefault) == sizeof(code.hook.byte[0]), L"Default instruction size mismatch.");
+
+        for (int i = 0; i < _countof(kHookCodePreamble); ++i)
             code.hook.byte[i] = kHookCodePreamble[i];
 
-        for (int i = sizeof(kHookCodePreamble); i < sizeof(code.hook.byte); ++i)
-            code.hook.byte[i] = 0;
+        for (int i = _countof(kHookCodePreamble); i < _countof(code.hook.byte); ++i)
+            code.hook.byte[i] = kTrampolineCodeDefault;
 
-        code.original.word[0] = kOriginalCodeDefault;
+        for (int i = 0; i < _countof(code.original.byte); ++i)
+            code.original.byte[i] = kTrampolineCodeDefault;
     }
 
     // --------
@@ -97,7 +104,7 @@ namespace Hookshot
         }
 
         // This operation requires transplanting code from the location of the original function into the original function part of the trampoline. This is done in several sub-parts, and more details will be provided while executing each sub-part.
-        // First, read and decode instructions until either enough bytes worth of instructions are decoded to hold an unconditional jump or a terminal instruction is hit. If the latter happens strictly before the former, then setting this hook failed due to there not being enough bytes of function to transplant.
+        // First, read and decode instructions until either enough bytes worth of instructions are decoded to hold an unconditional jump or a terminal instruction is hit. If the latter happens strictly before the former, and no extra padding space can be found, then setting this hook failed due to there not being enough bytes of function to transplant.
         // Second, iterate through all the decoded instructions and check for position-dependent memory references. Update the displacements as needed for any such decoded instructions. If that is not possible for even one instruction, then setting this hook failed.
         // Third, encode the decoded instructions into this trampoline's original function region. If needed (i.e. the last of the decoded instructions is non-terminal), append an unconditional jump instruction to the correct address within the original function. This will be completed at the same time as the second sub-part.
 
@@ -124,10 +131,8 @@ namespace Hookshot
             if (Message::WillOutputMessageOfSeverity(Message::ESeverity::Debug))
             {
                 TemporaryBuffer<wchar_t> disassembly;
-                if (true == decodedInstruction.PrintDisassembly(disassembly, disassembly.Count()))
-                    Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Decoded %d-byte instruction \"%s\"", instructionIndex, decodedInstruction.GetLengthBytes(), &disassembly[0]);
-                else
-                    Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Decoded %d-byte instruction \"(failed to disassemble\")", instructionIndex, decodedInstruction.GetLengthBytes());
+                const bool kDisassemblyResult = decodedInstruction.PrintDisassembly(disassembly, disassembly.Count());
+                Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Decoded %d-byte instruction \"%s\"", instructionIndex, decodedInstruction.GetLengthBytes(), ((true == kDisassemblyResult) ? &disassembly[0] : kDisassemblyFailedString.data()));
 
                 if (decodedInstruction.IsTerminal())
                     Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - This is a terminal instruction.", instructionIndex);
@@ -142,11 +147,35 @@ namespace Hookshot
 
         if (numOriginalFunctionBytes < numOriginalFunctionBytesNeeded)
         {
-            Message::OutputFormatted(Message::ESeverity::Debug, L"Decoded a total of %d byte(s), needed %d. This is insufficient. Bailing.", numOriginalFunctionBytes, numOriginalFunctionBytesNeeded);
-            return false;
+            // Unable to decode a sufficient number of bytes worth of original function instructions.
+            // The terminal instruction might be followed by some padding bytes that were inserted for alignment purposes.
+            // If so, Hookshot can overwrite some of them safely, which would allow the hooking process to continue.
+            // It is not necessary to transplant padding instructions because they are not intended to be executed.
+
+            const int kNumBytesShort = numOriginalFunctionBytesNeeded - numOriginalFunctionBytes;
+
+            X86Instruction hopefullyPaddingInstruction;
+            hopefullyPaddingInstruction.DecodeInstruction(&originalFunctionBytes[numOriginalFunctionBytes]);
+
+            if (hopefullyPaddingInstruction.IsPaddingWithLengthAtLeast(kNumBytesShort))
+            {
+                if (Message::WillOutputMessageOfSeverity(Message::ESeverity::Debug))
+                {
+                    TemporaryBuffer<wchar_t> disassembly;
+                    const bool kDisassemblyResult = hopefullyPaddingInstruction.PrintDisassembly(disassembly, disassembly.Count());
+                    Message::OutputFormatted(Message::ESeverity::Debug, L"Decoded a total of %d byte(s), needed %d. This is insufficient, but at least %d byte(s) of padding instruction \"%s\" are available. Proceeding.", numOriginalFunctionBytes, numOriginalFunctionBytesNeeded, kNumBytesShort, ((true == kDisassemblyResult) ? &disassembly[0] : kDisassemblyFailedString.data()));
+                }
+            }
+            else
+            {
+                Message::OutputFormatted(Message::ESeverity::Debug, L"Decoded a total of %d byte(s), needed %d. This is insufficient, and padding bytes could not be used. Bailing.", numOriginalFunctionBytes, numOriginalFunctionBytesNeeded);
+                return false;
+            }
         }
         else
+        {
             Message::OutputFormatted(Message::ESeverity::Debug, L"Decoded a total of %d byte(s), needed %d. This is sufficient. Proceeding.", numOriginalFunctionBytes, numOriginalFunctionBytesNeeded);
+        }
 
         // Second and third sub-parts.
         int numTrampolineBytesWritten = 0;

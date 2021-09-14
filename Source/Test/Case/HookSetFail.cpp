@@ -23,5 +23,6 @@ namespace HookshotTest
 
     HOOKSHOT_HOOK_SET_FAIL_TEST(InvalidInstruction, Hookshot::EResult::FailCannotSetHook);
     HOOKSHOT_HOOK_SET_FAIL_TEST_CONDITIONAL(JumpForwardTooFar, Hookshot::EResult::FailCannotSetHook, CpuInfo::Is64BitLongModeEnabled());
+    HOOKSHOT_HOOK_SET_FAIL_TEST(MixedPadding, Hookshot::EResult::FailCannotSetHook);
     HOOKSHOT_HOOK_SET_FAIL_TEST(OneByteFunction, Hookshot::EResult::FailCannotSetHook);
 }

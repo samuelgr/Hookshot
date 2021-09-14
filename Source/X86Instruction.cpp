@@ -326,6 +326,47 @@ namespace Hookshot
 
     // --------
 
+    bool X86Instruction::IsPadding(void) const
+    {
+        if (1 != GetLengthBytes())
+            return false;
+
+        const uint8_t kInstructionBinary = *(uint8_t*)GetAddress();
+        switch (kInstructionBinary)
+        {
+        case 0x90:  // nop
+        case 0xcc:  // int 3
+            return true;
+
+        default:
+            return false;
+        }
+    }
+
+    // --------
+
+    bool X86Instruction::IsPaddingWithLengthAtLeast(int numBytes) const
+    {
+        static constexpr int kMinNumBytesForPaddingBuffer = 4;
+
+        if (false == IsPadding())
+            return false;
+
+        const int kNumBytesToCheck = ((numBytes < kMinNumBytesForPaddingBuffer) ? kMinNumBytesForPaddingBuffer : numBytes);
+        const uint8_t* const kPaddingBuffer = (uint8_t*)GetAddress();
+        const uint8_t kExpectedByte = kPaddingBuffer[0];
+
+        for (int i = 1; i < kNumBytesToCheck; ++i)
+        {
+            if (kPaddingBuffer[i] != kExpectedByte)
+                return false;
+        }
+
+        return true;
+    }
+
+    // --------
+
     bool X86Instruction::IsTerminal(void) const
     {
         if (false == valid)

@@ -19,7 +19,7 @@ INCLUDE TestDefinitions.inc
 _TEXT                                       SEGMENT
 
 
-REPEAT 25
+    REPEAT 25
         BYTE 8
     ENDM
 

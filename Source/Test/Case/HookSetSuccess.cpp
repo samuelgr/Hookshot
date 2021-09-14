@@ -33,5 +33,6 @@ namespace HookshotTest
     HOOKSHOT_HOOK_SET_SUCCESS_TEST(PositionRelativeLoad);
     HOOKSHOT_HOOK_SET_SUCCESS_TEST(RelBrAtTransplantEdge);
     HOOKSHOT_HOOK_SET_SUCCESS_TEST(RelBrBeforeTransplantEdge);
+    HOOKSHOT_HOOK_SET_SUCCESS_TEST(ShortFunctionWithPadding);
     HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(TransactionalMemoryFallback, CpuInfo::FeatureFlags().rtm);
 }

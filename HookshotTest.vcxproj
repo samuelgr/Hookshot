@@ -252,6 +252,7 @@
   <ItemGroup>
     <MASM Include="Source\Test\Case\HookSetFail\InvalidInstruction.asm" />
     <MASM Include="Source\Test\Case\HookSetFail\JumpForwardTooFar.asm" />
+    <MASM Include="Source\Test\Case\HookSetFail\MixedPadding.asm" />
     <MASM Include="Source\Test\Case\HookSetFail\OneByteFunction.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\BasicFunction.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\JumpAbsolutePositionRelative.asm" />
@@ -267,6 +268,7 @@
     <MASM Include="Source\Test\Case\HookSetSuccess\RelBrAtTransplantEdge.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\RelBrBeforeTransplantEdge.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\CallSubroutine.asm" />
+    <MASM Include="Source\Test\Case\HookSetSuccess\ShortFunctionWithPadding.asm" />
     <MASM Include="Source\Test\Case\HookSetSuccess\TransactionalMemoryFallback.asm" />
   </ItemGroup>
   <ItemGroup>

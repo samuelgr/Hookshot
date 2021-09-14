@@ -241,6 +241,17 @@ namespace Hookshot
             return (PositionDependentMemoryReference::kReferenceIsRelativeBranchDisplacement == positionDependentMemoryReference.GetOperandLocation());
         }
 
+        /// Determines if this instruction is recognized as one that is often used for padding purposes and likely part of a padding buffer.
+        /// Only a few single-byte instructions currently satisfy this criterion.
+        /// @return `true` if so, `false` otherwise or if this instruction is invalid.
+        bool IsPadding(void) const;
+
+        /// If this instruction is one that is often used for padding purposes, check if this instruction is part of a padding buffer with at least the specified number of bytes after it.
+        /// In order for this function to return `true` the this instruction must be recognized as a valid padding instruction and be followed by at least 3 identical instructions.
+        /// @param [in] numBytes Number of bytes to check. Assumed to be the value 4 if it is less than 4.
+        /// @return `true` if so, `false` otherwise or if this instruction is invalid.
+        bool IsPaddingWithLengthAtLeast(int numBytes) const;
+
         /// Determines if this instruction marks the end of a control flow (i.e. end of a function, unconditional jump to someplace else, etc.)
         /// @return `true` if so, `false` otherwise or if this instruction is invalid.
         bool IsTerminal(void) const;

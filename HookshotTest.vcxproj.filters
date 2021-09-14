@@ -117,6 +117,12 @@
     <MASM Include="Source\Test\Case\HookSetSuccess\JumpAbsolutePositionRelativeRexW.asm">
       <Filter>Source Files</Filter>
     </MASM>
+    <MASM Include="Source\Test\Case\HookSetSuccess\ShortFunctionWithPadding.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="Source\Test\Case\HookSetFail\MixedPadding.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc">

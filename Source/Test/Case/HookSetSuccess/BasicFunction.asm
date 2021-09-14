@@ -10,7 +10,7 @@ INCLUDE TestDefinitions.inc
 
 
 ; Tests the most basic and simpliest kind of functions Hookshot can encounter.
-; Both original and hook functions load constants into the return value register and immediately return.
+; Both original and hook functions simply load the expected values into the return value register and immediately return.
 ; Extra nop instructions are added to ensure the original function is long enough to hook.
 
 
