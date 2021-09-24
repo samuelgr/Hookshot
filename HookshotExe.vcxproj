@@ -50,6 +50,7 @@
     <ClInclude Include="Include\Hookshot\Internal\TemporaryBuffer.h" />
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotExe.h" />
+    <ClInclude Include="Resources\Version.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="HookshotBin.vcxproj">
@@ -147,7 +148,7 @@
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Resources\Version.h;$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <SupportJustMyCode>false</SupportJustMyCode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -180,7 +181,7 @@
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Resources\Version.h;$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <SupportJustMyCode>false</SupportJustMyCode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -213,7 +214,7 @@
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Resources\Version.h;$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -247,7 +248,7 @@
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Resources\Version.h;$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>

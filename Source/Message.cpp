@@ -301,6 +301,7 @@ namespace Hookshot
                 fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator);
                 fwprintf_s(logFileHandle, L"%s Log\n", Strings::kStrProductName.data());
                 fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator);
+                fwprintf_s(logFileHandle, L"Version:   %s\n", Strings::kStrVersion.data());
                 fwprintf_s(logFileHandle, L"Method:    %s\n", Globals::GetHookshotLoadMethodString().data());
                 fwprintf_s(logFileHandle, L"Program:   %s\n", Strings::kStrExecutableCompleteFilename.data());
                 fwprintf_s(logFileHandle, L"PID:       %d\n", Globals::GetCurrentProcessId());

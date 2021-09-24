@@ -106,7 +106,7 @@
       <Optimization>Disabled</Optimization>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Resources\Version.h;$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -131,7 +131,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Resources\Version.h;$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -159,7 +159,7 @@
       <Optimization>Disabled</Optimization>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Resources\Version.h;$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -184,7 +184,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <ForcedIncludeFiles>$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Resources\Version.h;$(SolutionDir)Resources\$(SolutionName).h;$(SolutionDir)Resources\$(ProjectName).h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -215,6 +215,7 @@
     <ClInclude Include="Include\Hookshot\Internal\TemporaryBuffer.h" />
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotLauncher.h" />
+    <ClInclude Include="Resources\Version.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc" />
