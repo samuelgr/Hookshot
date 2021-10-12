@@ -26,7 +26,7 @@ namespace Hookshot
         // Views are guaranteed to be null-terminated.
 
         /// Hookshot version string.
-        inline constexpr std::wstring_view kStrVersion = _CRT_WIDE(HOOKSHOT_VERSION_STRING);
+        inline constexpr std::wstring_view kStrVersion = _CRT_WIDE(GIT_VERSION_STRING);
 
         /// Character that occurs at the start of a command-line argument to indicate it is a file mapping handle rather than an executable name.
         inline constexpr wchar_t kCharCmdlineIndicatorFileMappingHandle = L'|';

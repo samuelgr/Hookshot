@@ -30,10 +30,35 @@ rem ---------------------------------------------------------------------------
 
 set script_path=%~dp0
 set output_dir=%~f1
+set version_info_script=%script_path%\GitVersionInfo.bat
+set version_info_dir=%script_path%Output
+set version_info_file=%version_info_dir%\GitVersionInfo.h
 
-for /f "usebackq tokens=3" %%V in (`findstr VERSION_STRING %script_path%Resources\Version.h`) do set release_ver=%%~V
+call "%version_info_script%" "%version_info_dir%" >NUL 2>NUL
+
+if not exist %version_info_file% (
+    echo Failed to generate information file: %version_info_file%
+    goto :exit
+)
+
+for /f "usebackq tokens=3" %%V in (`findstr GIT_VERSION_STRING %version_info_file%`) do set raw_release_ver=%%~V
+if "%raw_release_ver%"=="" (
+    echo Missing release version^^!
+    goto :exit
+)
+
+echo Release version:    %raw_release_ver%
+
+for /f "usebackq" %%V in (`echo %raw_release_ver% ^| findstr ^^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*`) do set release_ver=%%~V
+for /f "usebackq" %%V in (`echo %release_ver% ^| findstr unknown`) do set release_ver=
 if "%release_ver%"=="" (
-    echo Missing release version!
+    echo Invalid release version^^!
+    goto :exit
+)
+
+for /f "usebackq" %%V in (`echo %release_ver% ^| findstr dirty`) do set release_is_dirty=true
+if "%release_is_dirty%"=="true" (
+    echo Working directory is dirty^^!
     goto :exit
 )
 
@@ -42,13 +67,13 @@ if "%output_dir%"=="" (
     call set output_dir=!output_dir!
 )
 if "%output_dir%"=="" (
-    echo Missing output directory!
+    echo Missing output directory^^!
     goto :exit
 )
 
 set output_dir=%output_dir%\%project_name%-v%release_ver%
 
-echo Releasing %project_name% v%release_ver% to %output_dir%.
+echo Output directory:   %output_dir%
 choice /M "Proceed?"
 if not %ERRORLEVEL%==1 exit /b
 
