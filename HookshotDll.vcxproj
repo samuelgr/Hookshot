@@ -129,28 +129,24 @@
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
-    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
-    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
-    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
     <LinkIncremental>false</LinkIncremental>
-    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -193,11 +189,10 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
     </ResourceCompile>
-    <CustomBuildStep>
+    <PreBuildEvent>
       <Message>Generating Version Information</Message>
-      <Outputs>$(IntDir)GitVersionInfo.h</Outputs>
       <Command>"$(SolutionDir)GitVersionInfo.bat" "$(IntDir)" debug</Command>
-    </CustomBuildStep>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -240,11 +235,10 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
     </ResourceCompile>
-    <CustomBuildStep>
+    <PreBuildEvent>
       <Message>Generating Version Information</Message>
-      <Outputs>$(IntDir)GitVersionInfo.h</Outputs>
       <Command>"$(SolutionDir)GitVersionInfo.bat" "$(IntDir)" debug</Command>
-    </CustomBuildStep>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -289,11 +283,10 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
     </ResourceCompile>
-    <CustomBuildStep>
+    <PreBuildEvent>
       <Message>Generating Version Information</Message>
-      <Outputs>$(IntDir)GitVersionInfo.h</Outputs>
       <Command>"$(SolutionDir)GitVersionInfo.bat" "$(IntDir)"</Command>
-    </CustomBuildStep>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -337,11 +330,10 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IntDir)</AdditionalIncludeDirectories>
     </ResourceCompile>
-    <CustomBuildStep>
+    <PreBuildEvent>
       <Message>Generating Version Information</Message>
-      <Outputs>$(IntDir)GitVersionInfo.h</Outputs>
       <Command>"$(SolutionDir)GitVersionInfo.bat" "$(IntDir)"</Command>
-    </CustomBuildStep>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
