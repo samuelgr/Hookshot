@@ -409,6 +409,7 @@ namespace Hookshot
                 return EFileReadResult::FileNotFound;
             }
 
+            configToFill.Clear();
             PrepareForRead();
 
             // Parse the configuration file, one line at a time.

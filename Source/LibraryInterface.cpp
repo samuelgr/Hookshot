@@ -43,7 +43,7 @@ namespace Hookshot
 
         /// Configuration object.
         /// Holds the settings that were read from the Hookshot configuration file.
-        static Configuration::Configuration configuration(std::make_unique<HookshotConfigReader>());
+        static Configuration::ConfigurationFile configuration(std::make_unique<HookshotConfigReader>());
 
         /// Single hook configuration interface object.
         static HookStore hookStore;

@@ -604,7 +604,7 @@ namespace Hookshot
         };
 
         /// Convenience wrapper object that combines a reader with a configuration data object and presents both with a unified interface.
-        class Configuration
+        class ConfigurationFile
         {
         private:
             // -------- INSTANCE VARIABLES --------------------------------- //
@@ -623,13 +623,13 @@ namespace Hookshot
             // -------- CONSTRUCTION AND DESTRUCTION ----------------------- //
 
             /// Initialization constructor. Requires a reader at construction time.
-            inline Configuration(std::unique_ptr<ConfigurationFileReader> reader) : reader(std::move(reader)), configData(), fileReadResult(EFileReadResult::InvalidResult)
+            inline ConfigurationFile(std::unique_ptr<ConfigurationFileReader> reader) : reader(std::move(reader)), configData(), fileReadResult(EFileReadResult::InvalidResult)
             {
                 // Nothing to do here.
             }
 
             /// Copy constructor. Should never be invoked.
-            Configuration(const Configuration& other) = delete;
+            ConfigurationFile(const ConfigurationFile& other) = delete;
 
             // -------- INSTANCE METHODS ----------------------------------- //
 
