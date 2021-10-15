@@ -101,7 +101,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test;$(SolutionDir)ThirdParty\CpuFeatures\cpu_features\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test;$(SolutionDir)ThirdParty\CpuFeatures\cpu_features\include;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OmitFramePointers>false</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -109,7 +109,6 @@
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <ForcedIncludeFiles>$(IntDir)GitVersionInfo.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
@@ -142,14 +141,13 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test;$(SolutionDir)ThirdParty\CpuFeatures\cpu_features\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test;$(SolutionDir)ThirdParty\CpuFeatures\cpu_features\include;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AssemblerOutput>All</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <ForcedIncludeFiles>$(IntDir)GitVersionInfo.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <ProgramDatabaseFile>$(OutDir)$(TargetName)$(TargetExt).pdb</ProgramDatabaseFile>
@@ -182,7 +180,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test;$(SolutionDir)ThirdParty\CpuFeatures\cpu_features\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test;$(SolutionDir)ThirdParty\CpuFeatures\cpu_features\include;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -190,7 +188,6 @@
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <ForcedIncludeFiles>$(IntDir)GitVersionInfo.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -225,7 +222,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test;$(SolutionDir)ThirdParty\CpuFeatures\cpu_features\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Include;Include\$(SolutionName)\Test;$(SolutionDir)ThirdParty\CpuFeatures\cpu_features\include;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>HOOKSHOT_LINK_WITH_LIBRARY;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -233,7 +230,6 @@
       <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <ForcedIncludeFiles>$(IntDir)GitVersionInfo.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

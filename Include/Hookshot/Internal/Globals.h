@@ -85,13 +85,7 @@ namespace Hookshot
 
         /// Retrieves and returns version information for this running binary.
         /// @return Version information structure.
-        constexpr SVersionInfo GetVersion(void)
-        {
-            constexpr uint16_t kVersionStructured[] = {GIT_VERSION_STRUCT};
-            static_assert(4 == _countof(kVersionStructured), "Invalid structured version information.");
-
-            return {.major = kVersionStructured[0], .minor = kVersionStructured[1], .patch = kVersionStructured[2], .flags = kVersionStructured[3], .string = _CRT_WIDE(GIT_VERSION_STRING)};
-        }
+        SVersionInfo GetVersion(void);
 
         /// Sets the method by which this form of Hookshot was loaded.
         /// @param [in] loadMethod Method by which Hookshot was loadedl
