@@ -88,7 +88,7 @@ namespace HookshotTest
 #define HOOKSHOT_TEST_FAILED                return false
 
 /// Exit from a test case and indicate a failing result if the expression is false.
-#define HOOKSHOT_TEST_ASSERT(expr)          do {if (!(expr)) {PrintFormatted(L"%s:%d: Assertion failed: %s", __FILEW__, __LINE__, L#expr); return false;}} while (0)
+#define HOOKSHOT_TEST_ASSERT(expr)          do {if (!(expr)) {PrintFormatted(L"%s(%d): Assertion failed: %s", __FILEW__, __LINE__, L#expr); return false;}} while (0)
 
 /// Recommended way of creating Hookshot test cases that execute conditionally.
 /// Requires a test case name and a condition, which evaluates to a value of type bool.
