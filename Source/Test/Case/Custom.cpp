@@ -10,6 +10,7 @@
  *****************************************************************************/
 
 #include "TestPattern.h"
+#include "Utilities.h"
 
 #include "Hookshot/Hookshot.h"
 
@@ -61,8 +62,6 @@ namespace HookshotTest
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(funcB, funcC)));
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == hookshot->CreateHook(funcA, funcB));
-
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Attempts to set the same hook twice.
@@ -74,8 +73,6 @@ namespace HookshotTest
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc, hookFunc)));
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == hookshot->CreateHook(originalFunc, hookFunc));
-
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Disables and re-enables a hook.
@@ -102,8 +99,6 @@ namespace HookshotTest
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->ReplaceHookFunction(originalFunc, hookFunc)));
         HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
-
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Creates a hook chain going forwards.
@@ -116,8 +111,6 @@ namespace HookshotTest
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(funcA, funcB)));
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == hookshot->CreateHook(funcB, funcC));
-
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Creates a hook cycle.
@@ -129,8 +122,6 @@ namespace HookshotTest
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(funcA, funcB)));
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == hookshot->CreateHook(funcB, funcA));
-
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Attempts to hook a Hookshot function.
@@ -139,7 +130,6 @@ namespace HookshotTest
     {
         GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == hookshot->CreateHook(HookshotLibraryInitialize, hookFunc));
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Attempts to set a very high number of hooks.
@@ -317,8 +307,6 @@ namespace HookshotTest
 
         for (int i = 0; i < _countof(originalFuncs); ++i)
             HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(originalFuncs[i], hookFuncs[i])));
-
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Exercises Hookshot's concurrency control mechanisms by creating several threads and having them all set the same hooks.
@@ -357,7 +345,7 @@ namespace HookshotTest
         {
             if (Hookshot::SuccessfulResult(testData.hookshot->CreateHook(testData.originalFuncs[i], testData.hookFuncs[i])))
             {
-                testData.testCase->PrintFormatted(L"Thread %d: Successfully set hook at index %d.", threadID, i);
+                PrintFormatted(L"Thread %d: Successfully set hook at index %d.", threadID, i);
                 numSuccesses += 1;
             }
         }
@@ -479,8 +467,6 @@ namespace HookshotTest
 
         CloseHandle(testData.syncEventPhase1);
         CloseHandle(testData.syncEventPhase2);
-
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Hookshot is presented with two null pointers.
@@ -488,7 +474,6 @@ namespace HookshotTest
     HOOKSHOT_CUSTOM_TEST(NullPointerBoth)
     {
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == hookshot->CreateHook(nullptr, nullptr));
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Hookshot is presented with a null pointer for the hook function.
@@ -497,7 +482,6 @@ namespace HookshotTest
     {
         GENERATE_AND_ASSIGN_FUNCTION(func);
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == hookshot->CreateHook(func, nullptr));
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Hookshot is presented with a null pointer for the original function.
@@ -506,7 +490,6 @@ namespace HookshotTest
     {
         GENERATE_AND_ASSIGN_FUNCTION(func);
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == hookshot->CreateHook(nullptr, func));
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Hookshot is presented with equal non-null pointers for both original and hook functions.
@@ -515,7 +498,6 @@ namespace HookshotTest
     {
         GENERATE_AND_ASSIGN_FUNCTION(func);
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == hookshot->CreateHook(func, func));
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Attempts to replace a valid hook's hook function with one that is already involved in another hook.
@@ -534,8 +516,6 @@ namespace HookshotTest
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == hookshot->ReplaceHookFunction(hookFunc1, hookFunc2));
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == hookshot->ReplaceHookFunction(originalFunc2, hookFunc1));
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == hookshot->ReplaceHookFunction(hookFunc2, hookFunc1));
-
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Attempts to replace a non-existent hook's hook function.
@@ -549,8 +529,6 @@ namespace HookshotTest
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailNotFound == hookshot->ReplaceHookFunction(funcA, funcB));
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailNotFound == hookshot->ReplaceHookFunction(funcB, funcA));
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailNotFound == hookshot->ReplaceHookFunction(funcB, funcB));
-
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Attempts to replace a valid hook's hook function with another valid hook function.
@@ -575,8 +553,6 @@ namespace HookshotTest
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
         HOOKSHOT_TEST_ASSERT(nullptr == hookshot->GetOriginalFunction(hookFunc));
         HOOKSHOT_TEST_ASSERT(nullptr != hookshot->GetOriginalFunction(replacementHookFunc));
-
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Attempts to replace a valid hook's hook function with another valid hook function.
@@ -599,8 +575,6 @@ namespace HookshotTest
         HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
         HOOKSHOT_TEST_ASSERT(nullptr != hookshot->GetOriginalFunction(hookFunc));
-
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Hookshot is presented with a valid original function but a hook function whose address is unsafely close to the original function.
@@ -609,7 +583,6 @@ namespace HookshotTest
     {
         GENERATE_AND_ASSIGN_FUNCTION(funcA);
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailInvalidArgument == hookshot->CreateHook(funcA, (void*)((intptr_t)funcA + 1)));
-        HOOKSHOT_TEST_PASSED;
     }
 
     // Performs a standard hooking operation after hooking some Windows API functions used internally by Hookshot to implement hooking.
@@ -653,7 +626,5 @@ namespace HookshotTest
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc, hookFunc)));
         HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
         HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
-
-        HOOKSHOT_TEST_PASSED;
     }
 }

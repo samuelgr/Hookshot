@@ -15,9 +15,9 @@
 
 #include "Hookshot/Hookshot.h"
 
-#include <cstdarg>
 #include <map>
 #include <string>
+#include <string_view>
 
 
 namespace HookshotTest
@@ -50,19 +50,6 @@ namespace HookshotTest
         static Harness& GetInstance(void);
 
     public:
-        /// Prints the specified message and appends a newline.
-        /// For use inside a test case, but print requests should be through the appropriate ITestCase methods.
-        /// @param [in] testCase Test case object.
-        /// @param [in] str Message string.
-        static void PrintFromTestCase(const ITestCase* const testCase, const wchar_t* const str);
-
-        /// Formats and prints the specified message and appends a newline.
-        /// For use inside a test case, but print requests should be through the appropriate ITestCase methods.
-        /// @param [in] testCase Test case object.
-        /// @param [in] format Message string, possibly with format specifiers.
-        /// @param [in] args Variable argument list.
-        static void PrintVarArgFromTestCase(const ITestCase* const testCase, const wchar_t* const format, va_list args);
-
         /// Registers a test case to be run by the harness.
         /// Typically, registration happens automatically using the #HOOKSHOT_TEST_CASE macro, which is the recommended way of creating test cases.
         /// @param [in] testCase Test case object to register (appropriate instances are created automatically by the #HOOKSHOT_TEST_CASE macro).
@@ -74,11 +61,12 @@ namespace HookshotTest
 
         /// Runs all tests registered by the harness.
         /// Typically invoked only once by the entry point to the test program.
+        /// @param [in] prefixToMatch Prefix against which to compare test case names.
         /// @param [in] hookshot Hookshot interface object, used to create hooks.
         /// @return Number of failing tests.
-        static inline int RunAllTests(Hookshot::IHookshot* hookshot)
+        static inline int RunAllTests(std::wstring_view prefixToMatch, Hookshot::IHookshot* hookshot)
         {
-            return GetInstance().RunAllTestsInternal(hookshot);
+            return GetInstance().RunAllTestsInternal(prefixToMatch, hookshot);
         }
 
 
@@ -91,8 +79,9 @@ namespace HookshotTest
         void RegisterTestCaseInternal(const ITestCase* const testCase, const wchar_t* const name);
 
         /// Internal implementation of running all tests.
+        /// @param [in] prefixToMatch Prefix against which to compare test case names.
         /// @param [in] hookshot Hookshot interface object, used to create hooks.
         /// @return Number of failing tests.
-        int RunAllTestsInternal(Hookshot::IHookshot* hookshot);
+        int RunAllTestsInternal(std::wstring_view prefixToMatch, Hookshot::IHookshot* hookshot);
     };
 }

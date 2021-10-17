@@ -262,6 +262,7 @@
     <ClCompile Include="Source\Test\CpuInfo.cpp" />
     <ClCompile Include="Source\Test\Harness.cpp" />
     <ClCompile Include="Source\Test\TestCase.cpp" />
+    <ClCompile Include="Source\Test\Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="HookshotDll.vcxproj">
@@ -276,6 +277,7 @@
     <ClInclude Include="Include\Hookshot\Test\Harness.h" />
     <ClInclude Include="Include\Hookshot\Test\TestCase.h" />
     <ClInclude Include="Include\Hookshot\Test\TestPattern.h" />
+    <ClInclude Include="Include\Hookshot\Test\Utilities.h" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Source\Test\Case\HookSetFail\InvalidInstruction.asm" />

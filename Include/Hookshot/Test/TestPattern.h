@@ -55,7 +55,6 @@ typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
         HOOKSHOT_TEST_ASSERT(nullptr != originalFuncPtr); \
         HOOKSHOT_TEST_ASSERT((THookshotTestFunc)hookshot->GetOriginalFunction(&name##_Original) == originalFuncPtr); \
         HOOKSHOT_TEST_ASSERT(kOriginalFunctionResult == originalFuncPtr(kOriginalFunctionResult, 0)); \
-        HOOKSHOT_TEST_PASSED; \
     }
 
 /// Convenience wrapper that unconditionally runs a test in which the expected result is the hook successfully being set.
@@ -73,7 +72,6 @@ typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
     HOOKSHOT_TEST_CASE_CONDITIONAL(HookSetFail_##name, cond) \
     { \
         HOOKSHOT_TEST_ASSERT(result == hookshot->CreateHook(&name##_Test, &name##_Test_Hook)); \
-        HOOKSHOT_TEST_PASSED; \
     }
 
 /// Convenience wrapper that unconditionally runs a test in which the expected result is the hook failing to be set and the supplied error code being returned.
