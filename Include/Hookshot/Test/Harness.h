@@ -30,7 +30,7 @@ namespace HookshotTest
         // -------- INSTANCE VARIABLES ------------------------------------- //
 
         /// Holds all registered test cases in alphabetical order.
-        std::map<std::wstring, const ITestCase*> testCases;
+        std::map<std::wstring_view, const ITestCase*> testCases;
 
 
         // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
@@ -54,19 +54,19 @@ namespace HookshotTest
         /// Typically, registration happens automatically using the #HOOKSHOT_TEST_CASE macro, which is the recommended way of creating test cases.
         /// @param [in] testCase Test case object to register (appropriate instances are created automatically by the #HOOKSHOT_TEST_CASE macro).
         /// @param [in] name Name of the test case (the value of the parameter passed to the #HOOKSHOT_TEST_CASE macro).
-        static inline void RegisterTestCase(const ITestCase* const testCase, const wchar_t* const name)
+        static inline void RegisterTestCase(const ITestCase* const testCase, std::wstring_view name)
         {
             GetInstance().RegisterTestCaseInternal(testCase, name);
         }
 
-        /// Runs all tests registered by the harness.
+        /// Runs all tests registered by the harness whose names begin with the specified prefix, where empty prefix matches all tests.
         /// Typically invoked only once by the entry point to the test program.
-        /// @param [in] prefixToMatch Prefix against which to compare test case names.
         /// @param [in] hookshot Hookshot interface object, used to create hooks.
+        /// @param [in] prefixToMatch Prefix against which to compare test case names.
         /// @return Number of failing tests.
-        static inline int RunAllTests(std::wstring_view prefixToMatch, Hookshot::IHookshot* hookshot)
+        static inline int RunTestsWithMatchingPrefix(Hookshot::IHookshot* hookshot, std::wstring_view prefixToMatch = L"")
         {
-            return GetInstance().RunAllTestsInternal(prefixToMatch, hookshot);
+            return GetInstance().RunTestsWithMatchingPrefixInternal(hookshot, prefixToMatch);
         }
 
 
@@ -76,12 +76,12 @@ namespace HookshotTest
         /// Internal implementation of test case registration.
         /// @param [in] testCase Test case object to register.
         /// @param [in] name Name of the test case.
-        void RegisterTestCaseInternal(const ITestCase* const testCase, const wchar_t* const name);
+        void RegisterTestCaseInternal(const ITestCase* const testCase, std::wstring_view name);
 
-        /// Internal implementation of running all tests.
-        /// @param [in] prefixToMatch Prefix against which to compare test case names.
+        /// Internal implementation of running all tests whose names begin with the specified prefix.
         /// @param [in] hookshot Hookshot interface object, used to create hooks.
+        /// @param [in] prefixToMatch Prefix against which to compare test case names.
         /// @return Number of failing tests.
-        int RunAllTestsInternal(std::wstring_view prefixToMatch, Hookshot::IHookshot* hookshot);
+        int RunTestsWithMatchingPrefixInternal(Hookshot::IHookshot* hookshot, std::wstring_view prefixToMatch);
     };
 }

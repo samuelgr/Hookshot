@@ -35,19 +35,19 @@ namespace HookshotTest
     // -------- INSTANCE METHODS ------------------------------------------- //
     // See "Harness.h" for documentation.
 
-    void Harness::RegisterTestCaseInternal(const ITestCase* const testCase, const wchar_t* const name)
+    void Harness::RegisterTestCaseInternal(const ITestCase* const testCase, std::wstring_view name)
     {
-        if ((nullptr != name) && ('\0' != name[0]) && (0 == testCases.count(name)))
+        if ((false == name.empty()) && (false == testCases.contains(name)))
             testCases[name] = testCase;
     }
 
     // --------
 
-    int Harness::RunAllTestsInternal(std::wstring_view prefixToMatch, Hookshot::IHookshot* hookshot)
+    int Harness::RunTestsWithMatchingPrefixInternal(Hookshot::IHookshot* hookshot, std::wstring_view prefixToMatch)
     {
         std::set<const wchar_t*> failingTests;
-        int numExecutedTests = 0;
-        int numSkippedTests = 0;
+        unsigned int numExecutedTests = 0;
+        unsigned int numSkippedTests = 0;
 
         switch (testCases.size())
         {
@@ -56,7 +56,7 @@ namespace HookshotTest
             return -1;
 
         default:
-            PrintFormatted(L"\n%d test%s defined.", testCases.size(), ((1 == testCases.size()) ? L"" : L"s"));
+            PrintFormatted(L"\n%u test%s defined.", (unsigned int)testCases.size(), ((1 == testCases.size()) ? L"" : L"s"));
             break;
         }
 
@@ -78,7 +78,7 @@ namespace HookshotTest
 
             if (testCase->CanRun())
             {
-                PrintFormatted(L"[ %-9s ] %s", L"RUN", name.c_str());
+                PrintFormatted(L"[ %-9s ] %s", L"RUN", name.data());
 
                 bool testCasePassed = false;
                 try
@@ -94,13 +94,13 @@ namespace HookshotTest
                 }
 
                 if (true != testCasePassed)
-                    failingTests.insert(name.c_str());
+                    failingTests.insert(name.data());
 
-                PrintFormatted(L"[ %9s ] %s%s", (true == testCasePassed ? L"PASS" : L"FAIL"), name.c_str(), (lastTestCase ? L"" : L"\n"));
+                PrintFormatted(L"[ %9s ] %s%s", (true == testCasePassed ? L"PASS" : L"FAIL"), name.data(), (lastTestCase ? L"" : L"\n"));
             }
             else
             {
-                PrintFormatted(L"[  %-8s ] %s%s", L"SKIPPED", name.c_str(), (lastTestCase ? L"" : L"\n"));
+                PrintFormatted(L"[  %-8s ] %s%s", L"SKIPPED", name.data(), (lastTestCase ? L"" : L"\n"));
                 numSkippedTests += 1;
             }
         }
@@ -108,36 +108,43 @@ namespace HookshotTest
         Print(L"================================================================================");
 
         if (numSkippedTests > 0)
-            PrintFormatted(L"\nFinished running %d test%s (%d skipped).\n", numExecutedTests, ((1 == numExecutedTests) ? L"" : L"s"), numSkippedTests);
+            PrintFormatted(L"\nFinished running %u test%s (%u skipped).\n", numExecutedTests, ((1 == numExecutedTests) ? L"" : L"s"), numSkippedTests);
         else
-            PrintFormatted(L"\nFinished running %d test%s.\n", numExecutedTests, ((1 == numExecutedTests) ? L"" : L"s"));
+            PrintFormatted(L"\nFinished running %u test%s.\n", numExecutedTests, ((1 == numExecutedTests) ? L"" : L"s"));
 
         const int numFailingTests = (int)failingTests.size();
 
-        if (testCases.size() == numSkippedTests)
+        if (numExecutedTests > 0)
         {
-            Print(L"All tests skipped.\n");
+            if (testCases.size() == numSkippedTests)
+            {
+                Print(L"All tests skipped.\n");
+            }
+            else
+            {
+                switch (numFailingTests)
+                {
+                case 0:
+                    Print(L"All tests passed!\n");
+                    break;
+
+                default:
+                    PrintFormatted(L"%u test%s failed:", numFailingTests, ((1 == numFailingTests) ? L"" : L"s"));
+                    break;
+                }
+            }
+
+            if (numFailingTests > 0)
+            {
+                for (std::wstring_view failingTest : failingTests)
+                    PrintFormatted(L"    %s", failingTest.data());
+
+                Print(L"\n");
+            }
         }
         else
         {
-            switch (numFailingTests)
-            {
-            case 0:
-                Print(L"All tests passed!\n");
-                break;
-
-            default:
-                PrintFormatted(L"%d test%s failed:", numFailingTests, ((1 == numFailingTests) ? L"" : L"s"));
-                break;
-            }
-        }
-
-        if (numFailingTests > 0)
-        {
-            for (const wchar_t* failingTestName : failingTests)
-                PrintFormatted(L"    %s", failingTestName);
-
-            Print(L"\n");
+            Print(L"No results available.\n");
         }
 
         return numFailingTests;
@@ -151,6 +158,5 @@ namespace HookshotTest
 /// @return Number of failing tests (0 means all tests passed).
 int wmain(int argc, const wchar_t* argv[])
 {
-    const auto hookshot = HookshotLibraryInitialize();
-    return HookshotTest::Harness::RunAllTests(((argc > 1) ? argv[1] : L""), hookshot);
+    return HookshotTest::Harness::RunTestsWithMatchingPrefix(HookshotLibraryInitialize(), ((argc > 1) ? argv[1] : L""));
 }
