@@ -1,4 +1,4 @@
-// Copyright 2017 Google Inc.
+// Copyright 2017 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #include "cpuinfo_arm.h"
-#include "filesystem_for_testing.h"
-#include "hwcaps_for_testing.h"
 
+#include "filesystem_for_testing.h"
 #include "gtest/gtest.h"
+#include "hwcaps_for_testing.h"
 
 namespace cpu_features {
 namespace {
@@ -43,6 +43,12 @@ TEST(CpuinfoArmTest, FromHardwareCap) {
   EXPECT_FALSE(info.features.pmull);
   EXPECT_FALSE(info.features.sha1);
   EXPECT_FALSE(info.features.sha2);
+
+  // check some random features with EnumValue():
+  EXPECT_TRUE(GetArmFeaturesEnumValue(&info.features, ARM_VFP));
+  EXPECT_FALSE(GetArmFeaturesEnumValue(&info.features, ARM_VFPV4));
+  // out of bound EnumValue() check
+  EXPECT_FALSE(GetArmFeaturesEnumValue(&info.features, (ArmFeaturesEnum)~0x0));
 }
 
 TEST(CpuinfoArmTest, ODroidFromCpuInfo) {

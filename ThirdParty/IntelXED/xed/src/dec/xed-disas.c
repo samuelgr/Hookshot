@@ -652,7 +652,8 @@ print_rel_sym(xed_print_info_t* pi,
      
      eosz = xed_operand_values_get_effective_operand_width(
                          xed_decoded_inst_operands_const(pi->p));
-     if (eosz == 16) 
+
+     if (pi->truncate_eip_eosz16 && eosz == 16) 
          effective_addr = effective_addr & 0xFFFF;
 
      symbolic = xed_get_symbolic_disassembly(pi,
@@ -961,10 +962,8 @@ static void xed_print_operand( xed_print_info_t* pi )
           unsigned int disp =(unsigned int)
                         xed_operand_values_get_branch_displacement_int32(ov);
           
-          xed_bool_t long_mode = xed_operand_values_get_long_mode(
-                                      xed_decoded_inst_operands_const(pi->p));
-          
-          xed_uint_t bits_to_print = long_mode ? 8*8 :4*8;
+          xed_uint_t bits_to_print = xed_operand_values_get_effective_operand_width(ov);
+              
           if (pi->format_options.xml_a)
               xed_pi_strcat(pi,"<PTR>");
 
@@ -980,8 +979,10 @@ static void xed_print_operand( xed_print_info_t* pi )
 
       }
       case XED_OPERAND_RELBR:
-          print_relbr(pi);
-          break;
+        if (xed_inst_iclass(xi) == XED_ICLASS_XBEGIN)
+            pi->truncate_eip_eosz16 = 0;
+        print_relbr(pi);
+        break;
 
       default: {
           xed_operand_ctype_enum_t  ctype = xed_operand_get_ctype(op_name);
@@ -1043,7 +1044,9 @@ setup_print_info(xed_print_info_t* pi)
     pi->operand_indx = 0;
     pi->skip_operand = 0;
     pi->implicit = 0;    
-    pi->extra_index_operand = XED_REG_INVALID; 
+    pi->extra_index_operand = XED_REG_INVALID;
+    // normally we truncate the EIP for 16b eosz Jcc
+    pi->truncate_eip_eosz16 = 1; 
 
     pi->buf[0]=0; /* allow use of strcat for everything */
 
@@ -1415,11 +1418,8 @@ xed_decoded_inst_dump_att_format_internal(
           case XED_OPERAND_PTR: {
               unsigned int disp =
                   xed_decoded_inst_get_branch_displacement(pi->p);
-              xed_bool_t long_mode =  
-                       xed_operand_values_get_long_mode(
-                              xed_decoded_inst_operands_const(pi->p));
+              xed_uint_t bits_to_print = xed_operand_values_get_effective_operand_width(ov);
               
-              xed_uint_t bits_to_print = long_mode ? 8*8 :4*8;
               xed_pi_strcat(pi,"$0x");                      
               pi->blen = xed_itoa_hex_ul(pi->buf+xed_strlen(pi->buf),
                                                disp,
@@ -1431,8 +1431,10 @@ xed_decoded_inst_dump_att_format_internal(
           }
 
           case XED_OPERAND_RELBR:
-              print_relbr(pi);
-              break;
+            if (xed_inst_iclass(xi) == XED_ICLASS_XBEGIN)
+                pi->truncate_eip_eosz16 = 0;
+            print_relbr(pi);
+            break;
 
           default: {
               xed_operand_ctype_enum_t  ctype = xed_operand_get_ctype(op_name);

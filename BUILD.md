@@ -17,11 +17,10 @@ Other available documents are listed in the [top-level document](README.md).
 
 In order to build Hookshot, the following software must be installed on the system.
 
-- Windows 10
-   - Hookshot is built to target Windows 10 and does not support older versions of Windows.
+- Windows 10 or 11
+   - Hookshot is built to target Windows 10 or 11 and does not support older versions of Windows.
 
-- Visual Studio 2019
-   - Hookshot's build system uses Visual Studio, and Hookshot releases were originally built using Visual Studio 2019 Community Edition.
+- Visual Studio 2022
    - Later versions of Visual Studio might also work, but this has not been tested.
 
 - [Python for Windows](https://docs.python.org/3/using/windows.html) version 3.0 or newer

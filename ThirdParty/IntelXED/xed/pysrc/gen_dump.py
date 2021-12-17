@@ -38,19 +38,14 @@ def msge(b,s=''):
 def work(args):  # main function
     msge("READING XED DB")
 
-    xeddb = read_xed_db.xed_reader_t(args.state_bits_filename,
-                                     args.instructions_filename,
-                                     args.widths_filename,
-                                     args.element_types_filename,
-                                     args.cpuid_filename)
+    xeddb = gen_setup.read_db(args)
 
     xeddb.recs.sort(key=lambda x:x.iclass)
     for r in xeddb.recs:
         for fld in sorted(r.__dict__.keys()):
             print("{}: {}".format(fld,getattr(r,fld)))
+        print("EOSZ_LIST: {}".format(r.get_eosz_list()))
         print("\n\n")
-
-
     return 0
 
 if __name__ == "__main__":

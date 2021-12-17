@@ -21,6 +21,8 @@
 import argparse
 import os
 import sys
+import read_xed_db
+import chipmodel
 
 def die(s):
     sys.stdout.write("ERROR: {0}\n".format(s))
@@ -53,7 +55,22 @@ def make_paths(args):
     args.chip_filename          = _check_jn(args.prefix, 'all-chip-models.txt')
     args.widths_filename        = _check_jn(args.prefix, 'all-widths.txt')
     args.element_types_filename = _check_jn(args.prefix, 'all-element-types.txt')
+    args.map_descriptions       = _check_jn(args.prefix, 'all-map-descriptions.txt')
 
+def read_db(args):
+    xeddb = read_xed_db.xed_reader_t(args.state_bits_filename,
+                                     args.instructions_filename,
+                                     args.widths_filename,
+                                     args.element_types_filename,
+                                     args.cpuid_filename,
+                                     args.map_descriptions)
+    return xeddb
+
+def read_chips(args):
+    chips, chip_db = chipmodel.read_database(args.chip_filename)
+    return chips, chip_db
+    
+    
 def parse(parser):
 
     args = parser.parse_args()

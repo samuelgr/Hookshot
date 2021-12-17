@@ -1,4 +1,4 @@
-// Copyright 2017 Google Inc.
+// Copyright 2017 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 #ifndef CPU_FEATURES_INCLUDE_CPUINFO_MIPS_H_
 #define CPU_FEATURES_INCLUDE_CPUINFO_MIPS_H_
 
-#include "cpu_features_macros.h"
 #include "cpu_features_cache_info.h"
+#include "cpu_features_macros.h"
 
 CPU_FEATURES_START_CPP_NAMESPACE
 

@@ -18,7 +18,7 @@
 #  
 #END_LEGAL
 
-# Modified by Samuel Grossman: lines 57 and 58
+# Modified by Samuel Grossman: lines 57, 58, and 263.
 
 """Setup functions for the ms/gnu compiler environment"""
 
@@ -54,8 +54,8 @@ def set_compiler_env_common(env):
                                           'otherwise': '',
                                           })
     
-    win_static_compile_dict = ( 'compiler', { 'ms': ( 'debug', { True: '/MDd', False: '/MD' }),
-                                              'icl': ( 'debug', { True: '/MDd', False: '/MD' }), 
+    win_static_compile_dict = ( 'compiler', { 'ms': ( 'debug', { True: '/MDd', False: '/MD' }),     # Modified: /MTd -> /MDd, /MT -> /MD
+                                              'icl': ( 'debug', { True: '/MDd', False: '/MD' }),    # Rationale: We want Intel XED as a static library but it should link dynamically with the VC runtime
                                               'otherwise': '',
                                               })
 
@@ -260,7 +260,7 @@ def find_ms_toolchain(env):
     if env['toolchain'] == '':
         if incoming_setup: 
             # relying on user-setup env (say MSVS cmd.exe or vcvars-equiv bat file)
-            if os.environ['VisualStudioVersion']  in ['15.0','16.0']:
+            if os.environ['VisualStudioVersion']  in ['15.0','16.0','17.0']:            # Modified: Added '17.0' to the list for Visual Studio 2022.
                 env['msvs_version'] = str(int(float(os.environ['VisualStudioVersion'])))
                 msvs.set_msvc_compilers(env, os.environ['VCToolsInstallDir'])
         if env['compiler']=='ms':

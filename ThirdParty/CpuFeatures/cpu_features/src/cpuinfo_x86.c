@@ -1,4 +1,5 @@
-// Copyright 2017 Google Inc.
+// Copyright 2017 Google LLC
+// Copyright 2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,15 +14,101 @@
 // limitations under the License.
 
 #include "cpuinfo_x86.h"
-#include "internal/bit_utils.h"
-#include "internal/cpuid_x86.h"
 
 #include <stdbool.h>
 #include <string.h>
 
+#include "internal/bit_utils.h"
+#include "internal/cpuid_x86.h"
+
 #if !defined(CPU_FEATURES_ARCH_X86)
 #error "Cannot compile cpuinfo_x86 on a non x86 platform."
 #endif
+
+// Generation of feature's getters/setters functions and kGetters, kSetters,
+// kCpuInfoFlags global tables.
+#define DEFINE_TABLE_FEATURES                                                  \
+  FEATURE(X86_FPU, fpu, "fpu", 0, 0)                                           \
+  FEATURE(X86_TSC, tsc, "tsc", 0, 0)                                           \
+  FEATURE(X86_CX8, cx8, "cx8", 0, 0)                                           \
+  FEATURE(X86_CLFSH, clfsh, "clfsh", 0, 0)                                     \
+  FEATURE(X86_MMX, mmx, "mmx", 0, 0)                                           \
+  FEATURE(X86_AES, aes, "aes", 0, 0)                                           \
+  FEATURE(X86_ERMS, erms, "erms", 0, 0)                                        \
+  FEATURE(X86_F16C, f16c, "f16c", 0, 0)                                        \
+  FEATURE(X86_FMA4, fma4, "fma4", 0, 0)                                        \
+  FEATURE(X86_FMA3, fma3, "fma3", 0, 0)                                        \
+  FEATURE(X86_VAES, vaes, "vaes", 0, 0)                                        \
+  FEATURE(X86_VPCLMULQDQ, vpclmulqdq, "vpclmulqdq", 0, 0)                      \
+  FEATURE(X86_BMI1, bmi1, "bmi1", 0, 0)                                        \
+  FEATURE(X86_HLE, hle, "hle", 0, 0)                                           \
+  FEATURE(X86_BMI2, bmi2, "bmi2", 0, 0)                                        \
+  FEATURE(X86_RTM, rtm, "rtm", 0, 0)                                           \
+  FEATURE(X86_RDSEED, rdseed, "rdseed", 0, 0)                                  \
+  FEATURE(X86_CLFLUSHOPT, clflushopt, "clflushopt", 0, 0)                      \
+  FEATURE(X86_CLWB, clwb, "clwb", 0, 0)                                        \
+  FEATURE(X86_SSE, sse, "sse", 0, 0)                                           \
+  FEATURE(X86_SSE2, sse2, "sse2", 0, 0)                                        \
+  FEATURE(X86_SSE3, sse3, "sse3", 0, 0)                                        \
+  FEATURE(X86_SSSE3, ssse3, "ssse3", 0, 0)                                     \
+  FEATURE(X86_SSE4_1, sse4_1, "sse4_1", 0, 0)                                  \
+  FEATURE(X86_SSE4_2, sse4_2, "sse4_2", 0, 0)                                  \
+  FEATURE(X86_SSE4A, sse4a, "sse4a", 0, 0)                                     \
+  FEATURE(X86_AVX, avx, "avx", 0, 0)                                           \
+  FEATURE(X86_AVX2, avx2, "avx2", 0, 0)                                        \
+  FEATURE(X86_AVX512F, avx512f, "avx512f", 0, 0)                               \
+  FEATURE(X86_AVX512CD, avx512cd, "avx512cd", 0, 0)                            \
+  FEATURE(X86_AVX512ER, avx512er, "avx512er", 0, 0)                            \
+  FEATURE(X86_AVX512PF, avx512pf, "avx512pf", 0, 0)                            \
+  FEATURE(X86_AVX512BW, avx512bw, "avx512bw", 0, 0)                            \
+  FEATURE(X86_AVX512DQ, avx512dq, "avx512dq", 0, 0)                            \
+  FEATURE(X86_AVX512VL, avx512vl, "avx512vl", 0, 0)                            \
+  FEATURE(X86_AVX512IFMA, avx512ifma, "avx512ifma", 0, 0)                      \
+  FEATURE(X86_AVX512VBMI, avx512vbmi, "avx512vbmi", 0, 0)                      \
+  FEATURE(X86_AVX512VBMI2, avx512vbmi2, "avx512vbmi2", 0, 0)                   \
+  FEATURE(X86_AVX512VNNI, avx512vnni, "avx512vnni", 0, 0)                      \
+  FEATURE(X86_AVX512BITALG, avx512bitalg, "avx512bitalg", 0, 0)                \
+  FEATURE(X86_AVX512VPOPCNTDQ, avx512vpopcntdq, "avx512vpopcntdq", 0, 0)       \
+  FEATURE(X86_AVX512_4VNNIW, avx512_4vnniw, "avx512_4vnniw", 0, 0)             \
+  FEATURE(X86_AVX512_4VBMI2, avx512_4vbmi2, "avx512_4vbmi2", 0, 0)             \
+  FEATURE(X86_AVX512_SECOND_FMA, avx512_second_fma, "avx512_second_fma", 0, 0) \
+  FEATURE(X86_AVX512_4FMAPS, avx512_4fmaps, "avx512_4fmaps", 0, 0)             \
+  FEATURE(X86_AVX512_BF16, avx512_bf16, "avx512_bf16", 0, 0)                   \
+  FEATURE(X86_AVX512_VP2INTERSECT, avx512_vp2intersect, "avx512_vp2intersect", \
+          0, 0)                                                                \
+  FEATURE(X86_AMX_BF16, amx_bf16, "amx_bf16", 0, 0)                            \
+  FEATURE(X86_AMX_TILE, amx_tile, "amx_tile", 0, 0)                            \
+  FEATURE(X86_AMX_INT8, amx_int8, "amx_int8", 0, 0)                            \
+  FEATURE(X86_PCLMULQDQ, pclmulqdq, "pclmulqdq", 0, 0)                         \
+  FEATURE(X86_SMX, smx, "smx", 0, 0)                                           \
+  FEATURE(X86_SGX, sgx, "sgx", 0, 0)                                           \
+  FEATURE(X86_CX16, cx16, "cx16", 0, 0)                                        \
+  FEATURE(X86_SHA, sha, "sha", 0, 0)                                           \
+  FEATURE(X86_POPCNT, popcnt, "popcnt", 0, 0)                                  \
+  FEATURE(X86_MOVBE, movbe, "movbe", 0, 0)                                     \
+  FEATURE(X86_RDRND, rdrnd, "rdrnd", 0, 0)                                     \
+  FEATURE(X86_DCA, dca, "dca", 0, 0)                                           \
+  FEATURE(X86_SS, ss, "ss", 0, 0)
+#define DEFINE_TABLE_FEATURE_TYPE X86Features
+#define DEFINE_TABLE_DONT_GENERATE_HWCAPS
+#include "define_tables.h"
+
+// The following includes are necessary to provide SSE detections on pre-AVX
+// microarchitectures.
+#if defined(CPU_FEATURES_OS_WINDOWS)
+#include <windows.h>  // IsProcessorFeaturePresent
+#elif defined(CPU_FEATURES_OS_LINUX_OR_ANDROID)
+#include "internal/filesystem.h"         // Needed to parse /proc/cpuinfo
+#include "internal/stack_line_reader.h"  // Needed to parse /proc/cpuinfo
+#include "internal/string_view.h"        // Needed to parse /proc/cpuinfo
+#elif defined(CPU_FEATURES_OS_DARWIN)
+#if !defined(HAVE_SYSCTLBYNAME)
+#error "Darwin needs support for sysctlbyname"
+#endif
+#include <sys/sysctl.h>
+#else
+#error "Unsupported OS"
+#endif  // CPU_FEATURES_OS
 
 ////////////////////////////////////////////////////////////////////////////////
 // Definitions for CpuId and GetXCR0Eax.
@@ -33,7 +120,7 @@
 
 #include <cpuid.h>
 
-Leaf CpuIdEx(uint32_t leaf_id, int ecx) {
+Leaf GetCpuidLeaf(uint32_t leaf_id, int ecx) {
   Leaf leaf;
   __cpuid_count(leaf_id, ecx, leaf.eax, leaf.ebx, leaf.ecx, leaf.edx);
   return leaf;
@@ -53,7 +140,7 @@ uint32_t GetXCR0Eax(void) {
 #include <immintrin.h>
 #include <intrin.h>  // For __cpuidex()
 
-Leaf CpuIdEx(uint32_t leaf_id, int ecx) {
+Leaf GetCpuidLeaf(uint32_t leaf_id, int ecx) {
   Leaf leaf;
   int data[4];
   __cpuidex(data, leaf_id, ecx);
@@ -70,13 +157,13 @@ uint32_t GetXCR0Eax(void) { return (uint32_t)_xgetbv(0); }
 #error "Unsupported compiler, x86 cpuid requires either GCC, Clang or MSVC."
 #endif
 
-static Leaf CpuId(uint32_t leaf_id) { return CpuIdEx(leaf_id, 0); }
+static Leaf CpuId(uint32_t leaf_id) { return GetCpuidLeaf(leaf_id, 0); }
 
 static const Leaf kEmptyLeaf;
 
 static Leaf SafeCpuIdEx(uint32_t max_cpuid_leaf, uint32_t leaf_id, int ecx) {
   if (leaf_id <= max_cpuid_leaf) {
-    return CpuIdEx(leaf_id, ecx);
+    return GetCpuidLeaf(leaf_id, ecx);
   } else {
     return kEmptyLeaf;
   }
@@ -91,6 +178,8 @@ static Leaf SafeCpuId(uint32_t max_cpuid_leaf, uint32_t leaf_id) {
 #define MASK_MASKREG 0x20
 #define MASK_ZMM0_15 0x40
 #define MASK_ZMM16_31 0x80
+#define MASK_XTILECFG 0x20000
+#define MASK_XTILEDATA 0x40000
 
 static bool HasMask(uint32_t value, uint32_t mask) {
   return (value & mask) == mask;
@@ -115,6 +204,42 @@ static bool HasZmmOsXSave(uint32_t xcr0_eax) {
                                MASK_ZMM16_31);
 }
 
+// Checks that operating system saves and restores AMX/TMUL state during context
+// switches.
+static bool HasTmmOsXSave(uint32_t xcr0_eax) {
+  return HasMask(xcr0_eax, MASK_XMM | MASK_YMM | MASK_MASKREG | MASK_ZMM0_15 |
+                               MASK_ZMM16_31 | MASK_XTILECFG | MASK_XTILEDATA);
+}
+
+static bool HasSecondFMA(uint32_t model) {
+  // Skylake server
+  if (model == 0x55) {
+    char proc_name[49] = {0};
+    FillX86BrandString(proc_name);
+    // detect Xeon
+    if (proc_name[9] == 'X') {
+      // detect Silver or Bronze
+      if (proc_name[17] == 'S' || proc_name[17] == 'B') return false;
+      // detect Gold 5_20 and below, except for Gold 53__
+      if (proc_name[17] == 'G' && proc_name[22] == '5')
+        return ((proc_name[23] == '3') ||
+                (proc_name[24] == '2' && proc_name[25] == '2'));
+      // detect Xeon W 210x
+      if (proc_name[17] == 'W' && proc_name[21] == '0') return false;
+      // detect Xeon D 2xxx
+      if (proc_name[17] == 'D' && proc_name[19] == '2' && proc_name[20] == '1')
+        return false;
+    }
+    return true;
+  }
+  // Cannon Lake client
+  if (model == 0x66) return false;
+  // Ice Lake client
+  if (model == 0x7d || model == 0x7e) return false;
+  // This is the right default...
+  return true;
+}
+
 static void SetVendor(const Leaf leaf, char* const vendor) {
   *(uint32_t*)(vendor) = leaf.ebx;
   *(uint32_t*)(vendor + 4) = leaf.edx;
@@ -131,345 +256,859 @@ static int IsVendor(const Leaf leaf, const char* const name) {
 
 static const CacheLevelInfo kEmptyCacheLevelInfo;
 
-static CacheLevelInfo MakeX86CacheLevelInfo(int level, CacheType cache_type,
-                                            int cache_size, int ways,
-                                            int line_size, int entries,
-                                            int partitioning) {
-  CacheLevelInfo info;
-  info.level = level;
-  info.cache_type = cache_type;
-  info.cache_size = cache_size;
-  info.ways = ways;
-  info.line_size = line_size;
-  info.tlb_entries = entries;
-  info.partitioning = partitioning;
-  return info;
-}
-
 static CacheLevelInfo GetCacheLevelInfo(const uint32_t reg) {
   const int UNDEF = -1;
   const int KiB = 1024;
   const int MiB = 1024 * KiB;
-  const int GiB = 1024 * MiB;
   switch (reg) {
     case 0x01:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 4,
-                                   UNDEF, 32, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 32,
+                              .partitioning = 0};
     case 0x02:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * MiB, 0xFF,
-                                   UNDEF, 2, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * MiB,
+                              .ways = 0xFF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 2,
+                              .partitioning = 0};
     case 0x03:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 4,
-                                   UNDEF, 64, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 64,
+                              .partitioning = 0};
     case 0x04:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * MiB, 4,
-                                   UNDEF, 8, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * MiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 8,
+                              .partitioning = 0};
     case 0x05:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * MiB, 4,
-                                   UNDEF, 32, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * MiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 32,
+                              .partitioning = 0};
     case 0x06:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_INSTRUCTION, 8 * KiB, 4,
-                                   32, UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_INSTRUCTION,
+                              .cache_size = 8 * KiB,
+                              .ways = 4,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x08:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_INSTRUCTION, 16 * KiB,
-                                   4, 32, UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_INSTRUCTION,
+                              .cache_size = 16 * KiB,
+                              .ways = 4,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x09:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_INSTRUCTION, 32 * KiB,
-                                   4, 64, UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_INSTRUCTION,
+                              .cache_size = 32 * KiB,
+                              .ways = 4,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x0A:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_DATA, 8 * KiB, 2, 32,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 8 * KiB,
+                              .ways = 2,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x0B:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * MiB, 4,
-                                   UNDEF, 4, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * MiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 4,
+                              .partitioning = 0};
     case 0x0C:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_DATA, 16 * KiB, 4, 32,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 16 * KiB,
+                              .ways = 4,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x0D:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_DATA, 16 * KiB, 4, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 16 * KiB,
+                              .ways = 4,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x0E:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_DATA, 24 * KiB, 6, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 24 * KiB,
+                              .ways = 6,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x1D:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 128 * KiB, 2, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 128 * KiB,
+                              .ways = 2,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x21:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 256 * KiB, 8, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 256 * KiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x22:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 512 * KiB, 4, 64,
-                                   UNDEF, 2);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 512 * KiB,
+                              .ways = 4,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 2};
     case 0x23:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 1 * MiB, 8, 64,
-                                   UNDEF, 2);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 1 * MiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 2};
     case 0x24:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 1 * MiB, 16, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 1 * MiB,
+                              .ways = 16,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x25:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 2 * MiB, 8, 64,
-                                   UNDEF, 2);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 2 * MiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 2};
     case 0x29:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 4 * MiB, 8, 64,
-                                   UNDEF, 2);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 4 * MiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 2};
     case 0x2C:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_DATA, 32 * KiB, 8, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 32 * KiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x30:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_INSTRUCTION, 32 * KiB,
-                                   8, 64, UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_INSTRUCTION,
+                              .cache_size = 32 * KiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x40:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_DATA, UNDEF, UNDEF,
-                                   UNDEF, UNDEF, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = UNDEF,
+                              .ways = UNDEF,
+                              .line_size = UNDEF,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x41:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 128 * KiB, 4, 32,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 128 * KiB,
+                              .ways = 4,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x42:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 256 * KiB, 4, 32,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 256 * KiB,
+                              .ways = 4,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x43:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 512 * KiB, 4, 32,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 512 * KiB,
+                              .ways = 4,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x44:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 1 * MiB, 4, 32,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 1 * MiB,
+                              .ways = 4,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x45:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 2 * MiB, 4, 32,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 2 * MiB,
+                              .ways = 4,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x46:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 4 * MiB, 4, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 4 * MiB,
+                              .ways = 4,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x47:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 8 * MiB, 8, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 8 * MiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x48:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 3 * MiB, 12, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 3 * MiB,
+                              .ways = 12,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x49:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 4 * MiB, 16, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 4 * MiB,
+                              .ways = 16,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case (0x49 | (1 << 8)):
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 4 * MiB, 16, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 4 * MiB,
+                              .ways = 16,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x4A:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 6 * MiB, 12, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 6 * MiB,
+                              .ways = 12,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x4B:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 8 * MiB, 16, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 8 * MiB,
+                              .ways = 16,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x4C:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 12 * MiB, 12, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 12 * MiB,
+                              .ways = 12,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x4D:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 16 * MiB, 16, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 16 * MiB,
+                              .ways = 16,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x4E:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 6 * MiB, 24, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 6 * MiB,
+                              .ways = 24,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x4F:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, UNDEF,
-                                   UNDEF, 32, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = UNDEF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 32,
+                              .partitioning = 0};
     case 0x50:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, UNDEF,
-                                   UNDEF, 64, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = UNDEF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 64,
+                              .partitioning = 0};
     case 0x51:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, UNDEF,
-                                   UNDEF, 128, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = UNDEF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 128,
+                              .partitioning = 0};
     case 0x52:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, UNDEF,
-                                   UNDEF, 256, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = UNDEF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 256,
+                              .partitioning = 0};
     case 0x55:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 2 * MiB, 0xFF,
-                                   UNDEF, 7, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 2 * MiB,
+                              .ways = 0xFF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 7,
+                              .partitioning = 0};
     case 0x56:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * MiB, 4,
-                                   UNDEF, 16, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * MiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 16,
+                              .partitioning = 0};
     case 0x57:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 4,
-                                   UNDEF, 16, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 16,
+                              .partitioning = 0};
     case 0x59:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 0xFF,
-                                   UNDEF, 16, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 0xFF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 16,
+                              .partitioning = 0};
     case 0x5A:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 2 * MiB, 4,
-                                   UNDEF, 32, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 2 * MiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 32,
+                              .partitioning = 0};
     case 0x5B:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, UNDEF,
-                                   UNDEF, 64, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = UNDEF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 64,
+                              .partitioning = 0};
     case 0x5C:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, UNDEF,
-                                   UNDEF, 128, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = UNDEF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 128,
+                              .partitioning = 0};
     case 0x5D:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4, UNDEF,
-                                   UNDEF, 256, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4,
+                              .ways = UNDEF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 256,
+                              .partitioning = 0};
     case 0x60:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_DATA, 16 * KiB, 8, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 16 * KiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x61:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 0xFF,
-                                   UNDEF, 48, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 0xFF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 48,
+                              .partitioning = 0};
     case 0x63:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 2 * MiB, 4,
-                                   UNDEF, 4, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 2 * MiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 4,
+                              .partitioning = 0};
     case 0x66:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_DATA, 8 * KiB, 4, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 8 * KiB,
+                              .ways = 4,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x67:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_DATA, 16 * KiB, 4, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 16 * KiB,
+                              .ways = 4,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x68:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_DATA, 32 * KiB, 4, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 32 * KiB,
+                              .ways = 4,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x70:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_INSTRUCTION, 12 * KiB,
-                                   8, UNDEF, UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_INSTRUCTION,
+                              .cache_size = 12 * KiB,
+                              .ways = 8,
+                              .line_size = UNDEF,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x71:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_INSTRUCTION, 16 * KiB,
-                                   8, UNDEF, UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_INSTRUCTION,
+                              .cache_size = 16 * KiB,
+                              .ways = 8,
+                              .line_size = UNDEF,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x72:
-      return MakeX86CacheLevelInfo(1, CPU_FEATURE_CACHE_INSTRUCTION, 32 * KiB,
-                                   8, UNDEF, UNDEF, 0);
+      return (CacheLevelInfo){.level = 1,
+                              .cache_type = CPU_FEATURE_CACHE_INSTRUCTION,
+                              .cache_size = 32 * KiB,
+                              .ways = 8,
+                              .line_size = UNDEF,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x76:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 2 * MiB, 0xFF,
-                                   UNDEF, 8, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 2 * MiB,
+                              .ways = 0xFF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 8,
+                              .partitioning = 0};
     case 0x78:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 1 * MiB, 4, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 1 * MiB,
+                              .ways = 4,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x79:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 128 * KiB, 8, 64,
-                                   UNDEF, 2);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 128 * KiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 2};
     case 0x7A:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 256 * KiB, 8, 64,
-                                   UNDEF, 2);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 256 * KiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 2};
     case 0x7B:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 512 * KiB, 8, 64,
-                                   UNDEF, 2);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 512 * KiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 2};
     case 0x7C:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 1 * MiB, 8, 64,
-                                   UNDEF, 2);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 1 * MiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 2};
     case 0x7D:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 2 * MiB, 8, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 2 * MiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x7F:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 512 * KiB, 2, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 512 * KiB,
+                              .ways = 2,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x80:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 512 * KiB, 8, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 512 * KiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x82:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 256 * KiB, 8, 32,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 256 * KiB,
+                              .ways = 8,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x83:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 512 * KiB, 8, 32,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 512 * KiB,
+                              .ways = 8,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x84:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 1 * MiB, 8, 32,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 1 * MiB,
+                              .ways = 8,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x85:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 2 * MiB, 8, 32,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 2 * MiB,
+                              .ways = 8,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x86:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 512 * KiB, 4, 32,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 512 * KiB,
+                              .ways = 4,
+                              .line_size = 32,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0x87:
-      return MakeX86CacheLevelInfo(2, CPU_FEATURE_CACHE_DATA, 1 * MiB, 8, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 2,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 1 * MiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xA0:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_DTLB, 4 * KiB, 0xFF,
-                                   UNDEF, 32, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_DTLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 0xFF,
+                              .line_size = UNDEF,
+                              .tlb_entries = 32,
+                              .partitioning = 0};
     case 0xB0:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 4,
-                                   UNDEF, 128, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 128,
+                              .partitioning = 0};
     case 0xB1:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 2 * MiB, 4,
-                                   UNDEF, 8, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 2 * MiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 8,
+                              .partitioning = 0};
     case 0xB2:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 4,
-                                   UNDEF, 64, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 64,
+                              .partitioning = 0};
     case 0xB3:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 4,
-                                   UNDEF, 128, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 128,
+                              .partitioning = 0};
     case 0xB4:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 4,
-                                   UNDEF, 256, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 256,
+                              .partitioning = 0};
     case 0xB5:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 8,
-                                   UNDEF, 64, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 8,
+                              .line_size = UNDEF,
+                              .tlb_entries = 64,
+                              .partitioning = 0};
     case 0xB6:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 8,
-                                   UNDEF, 128, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 8,
+                              .line_size = UNDEF,
+                              .tlb_entries = 128,
+                              .partitioning = 0};
     case 0xBA:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 4,
-                                   UNDEF, 64, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 64,
+                              .partitioning = 0};
     case 0xC0:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_TLB, 4 * KiB, 4,
-                                   UNDEF, 8, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_TLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 8,
+                              .partitioning = 0};
     case 0xC1:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_STLB, 4 * KiB, 8,
-                                   UNDEF, 1024, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_STLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 8,
+                              .line_size = UNDEF,
+                              .tlb_entries = 1024,
+                              .partitioning = 0};
     case 0xC2:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_DTLB, 4 * KiB, 4,
-                                   UNDEF, 16, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_DTLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 16,
+                              .partitioning = 0};
     case 0xC3:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_STLB, 4 * KiB, 6,
-                                   UNDEF, 1536, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_STLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 6,
+                              .line_size = UNDEF,
+                              .tlb_entries = 1536,
+                              .partitioning = 0};
     case 0xCA:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_STLB, 4 * KiB, 4,
-                                   UNDEF, 512, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_STLB,
+                              .cache_size = 4 * KiB,
+                              .ways = 4,
+                              .line_size = UNDEF,
+                              .tlb_entries = 512,
+                              .partitioning = 0};
     case 0xD0:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 512 * KiB, 4, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 512 * KiB,
+                              .ways = 4,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xD1:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 1 * MiB, 4, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 1 * MiB,
+                              .ways = 4,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xD2:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 2 * MiB, 4, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 2 * MiB,
+                              .ways = 4,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xD6:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 1 * MiB, 8, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 1 * MiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xD7:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 2 * MiB, 8, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 2 * MiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xD8:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 4 * MiB, 8, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 4 * MiB,
+                              .ways = 8,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xDC:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 1 * 1536 * KiB,
-                                   12, 64, UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 1 * 1536 * KiB,
+                              .ways = 12,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xDD:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 3 * MiB, 12, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 3 * MiB,
+                              .ways = 12,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xDE:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 6 * MiB, 12, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 6 * MiB,
+                              .ways = 12,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xE2:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 2 * MiB, 16, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 2 * MiB,
+                              .ways = 16,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xE3:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 4 * MiB, 16, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 4 * MiB,
+                              .ways = 16,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xE4:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 8 * MiB, 16, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 8 * MiB,
+                              .ways = 16,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xEA:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 12 * MiB, 24, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 12 * MiB,
+                              .ways = 24,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xEB:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 18 * MiB, 24, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 18 * MiB,
+                              .ways = 24,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xEC:
-      return MakeX86CacheLevelInfo(3, CPU_FEATURE_CACHE_DATA, 24 * MiB, 24, 64,
-                                   UNDEF, 0);
+      return (CacheLevelInfo){.level = 3,
+                              .cache_type = CPU_FEATURE_CACHE_DATA,
+                              .cache_size = 24 * MiB,
+                              .ways = 24,
+                              .line_size = 64,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xF0:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_PREFETCH, 64 * KiB,
-                                   UNDEF, UNDEF, UNDEF, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_PREFETCH,
+                              .cache_size = 64 * KiB,
+                              .ways = UNDEF,
+                              .line_size = UNDEF,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xF1:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_PREFETCH, 128 * KiB,
-                                   UNDEF, UNDEF, UNDEF, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_PREFETCH,
+                              .cache_size = 128 * KiB,
+                              .ways = UNDEF,
+                              .line_size = UNDEF,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     case 0xFF:
-      return MakeX86CacheLevelInfo(UNDEF, CPU_FEATURE_CACHE_NULL, UNDEF, UNDEF,
-                                   UNDEF, UNDEF, 0);
+      return (CacheLevelInfo){.level = UNDEF,
+                              .cache_type = CPU_FEATURE_CACHE_NULL,
+                              .cache_size = UNDEF,
+                              .ways = UNDEF,
+                              .line_size = UNDEF,
+                              .tlb_entries = UNDEF,
+                              .partitioning = 0};
     default:
       return kEmptyCacheLevelInfo;
   }
@@ -485,15 +1124,15 @@ static void ParseLeaf2(const int max_cpuid_leaf, CacheInfo* info) {
   Leaf leaf = SafeCpuId(max_cpuid_leaf, 2);
   uint32_t registers[] = {leaf.eax, leaf.ebx, leaf.ecx, leaf.edx};
   for (int i = 0; i < 4; ++i) {
-    if (registers[i] & (1 << 31)) {
+    if (registers[i] & (1U << 31)) {
       continue;  // register does not contains valid information
     }
     uint32_t bytes[4];
     GetByteArrayFromRegister(bytes, registers[i]);
-    for (int i = 0; i < 4; ++i) {
-      if (bytes[i] == 0xFF)
+    for (int j = 0; j < 4; ++j) {
+      if (bytes[j] == 0xFF)
         break;  // leaf 4 should be used to fetch cache information
-      info->levels[info->size] = GetCacheLevelInfo(bytes[i]);
+      info->levels[info->size] = GetCacheLevelInfo(bytes[j]);
     }
     info->size++;
   }
@@ -512,25 +1151,130 @@ static void ParseLeaf4(const int max_cpuid_leaf, CacheInfo* info) {
     int line_size = ExtractBitRange(leaf.ebx, 11, 0) + 1;
     int partitioning = ExtractBitRange(leaf.ebx, 21, 12) + 1;
     int ways = ExtractBitRange(leaf.ebx, 31, 22) + 1;
-    int entries = leaf.ecx + 1;
-    int cache_size = (ways * partitioning * line_size * (entries));
-    info->levels[cache_id] = MakeX86CacheLevelInfo(
-        level, cache_type, cache_size, ways, line_size, entries, partitioning);
+    int tlb_entries = leaf.ecx + 1;
+    int cache_size = (ways * partitioning * line_size * (tlb_entries));
+    info->levels[cache_id] = (CacheLevelInfo){.level = level,
+                                              .cache_type = cache_type,
+                                              .cache_size = cache_size,
+                                              .ways = ways,
+                                              .line_size = line_size,
+                                              .tlb_entries = tlb_entries,
+                                              .partitioning = partitioning};
     info->size++;
   }
 }
 
-// Reference https://en.wikipedia.org/wiki/CPUID.
-static void ParseCpuId(const uint32_t max_cpuid_leaf, X86Info* info) {
-  const Leaf leaf_1 = SafeCpuId(max_cpuid_leaf, 1);
-  const Leaf leaf_7 = SafeCpuId(max_cpuid_leaf, 7);
+// Internal structure to hold the OS support for vector operations.
+// Avoid to recompute them since each call to cpuid is ~100 cycles.
+typedef struct {
+  bool have_sse_via_os;
+  bool have_sse_via_cpuid;
+  bool have_avx;
+  bool have_avx512;
+  bool have_amx;
+} OsSupport;
 
+static const OsSupport kEmptyOsSupport;
+
+static OsSupport CheckOsSupport(const uint32_t max_cpuid_leaf) {
+  const Leaf leaf_1 = SafeCpuId(max_cpuid_leaf, 1);
   const bool have_xsave = IsBitSet(leaf_1.ecx, 26);
   const bool have_osxsave = IsBitSet(leaf_1.ecx, 27);
-  const uint32_t xcr0_eax = (have_xsave && have_osxsave) ? GetXCR0Eax() : 0;
-  const bool have_sse_os_support = HasXmmOsXSave(xcr0_eax);
-  const bool have_avx_os_support = HasYmmOsXSave(xcr0_eax);
-  const bool have_avx512_os_support = HasZmmOsXSave(xcr0_eax);
+  const bool have_xcr0 = have_xsave && have_osxsave;
+
+  OsSupport os_support = kEmptyOsSupport;
+
+  if (have_xcr0) {
+    // AVX capable cpu will expose XCR0.
+    const uint32_t xcr0_eax = GetXCR0Eax();
+    os_support.have_sse_via_cpuid = HasXmmOsXSave(xcr0_eax);
+    os_support.have_avx = HasYmmOsXSave(xcr0_eax);
+    os_support.have_avx512 = HasZmmOsXSave(xcr0_eax);
+    os_support.have_amx = HasTmmOsXSave(xcr0_eax);
+  } else {
+    // Atom based or older cpus need to ask the OS for sse support.
+    os_support.have_sse_via_os = true;
+  }
+
+  return os_support;
+}
+
+#if defined(CPU_FEATURES_OS_WINDOWS)
+#if defined(CPU_FEATURES_MOCK_CPUID_X86)
+extern bool GetWindowsIsProcessorFeaturePresent(DWORD);
+#else  // CPU_FEATURES_MOCK_CPUID_X86
+static bool GetWindowsIsProcessorFeaturePresent(DWORD ProcessorFeature) {
+  return IsProcessorFeaturePresent(ProcessorFeature);
+}
+#endif
+#endif  // CPU_FEATURES_OS_WINDOWS
+
+#if defined(CPU_FEATURES_OS_DARWIN)
+#if defined(CPU_FEATURES_MOCK_CPUID_X86)
+extern bool GetDarwinSysCtlByName(const char*);
+#else  // CPU_FEATURES_MOCK_CPUID_X86
+static bool GetDarwinSysCtlByName(const char* name) {
+  int enabled;
+  size_t enabled_len = sizeof(enabled);
+  const int failure = sysctlbyname(name, &enabled, &enabled_len, NULL, 0);
+  return failure ? false : enabled;
+}
+#endif
+#endif  // CPU_FEATURES_OS_DARWIN
+
+static void DetectSseViaOs(X86Features* features) {
+#if defined(CPU_FEATURES_OS_WINDOWS)
+  // https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocessorfeaturepresent
+  features->sse =
+      GetWindowsIsProcessorFeaturePresent(PF_XMMI_INSTRUCTIONS_AVAILABLE);
+  features->sse2 =
+      GetWindowsIsProcessorFeaturePresent(PF_XMMI64_INSTRUCTIONS_AVAILABLE);
+  features->sse3 =
+      GetWindowsIsProcessorFeaturePresent(PF_SSE3_INSTRUCTIONS_AVAILABLE);
+#elif defined(CPU_FEATURES_OS_DARWIN)
+  // Handling Darwin platform through sysctlbyname.
+  features->sse = GetDarwinSysCtlByName("hw.optional.sse");
+  features->sse2 = GetDarwinSysCtlByName("hw.optional.sse2");
+  features->sse3 = GetDarwinSysCtlByName("hw.optional.sse3");
+  features->ssse3 = GetDarwinSysCtlByName("hw.optional.supplementalsse3");
+  features->sse4_1 = GetDarwinSysCtlByName("hw.optional.sse4_1");
+  features->sse4_2 = GetDarwinSysCtlByName("hw.optional.sse4_2");
+#elif defined(CPU_FEATURES_OS_LINUX_OR_ANDROID)
+  // Handling Linux platform through /proc/cpuinfo.
+  const int fd = CpuFeatures_OpenFile("/proc/cpuinfo");
+  if (fd >= 0) {
+    StackLineReader reader;
+    StackLineReader_Initialize(&reader, fd);
+    for (;;) {
+      const LineResult result = StackLineReader_NextLine(&reader);
+      const StringView line = result.line;
+      StringView key, value;
+      if (CpuFeatures_StringView_GetAttributeKeyValue(line, &key, &value)) {
+        if (CpuFeatures_StringView_IsEquals(key, str("flags"))) {
+          features->sse = CpuFeatures_StringView_HasWord(value, "sse");
+          features->sse2 = CpuFeatures_StringView_HasWord(value, "sse2");
+          features->sse3 = CpuFeatures_StringView_HasWord(value, "sse3");
+          features->ssse3 = CpuFeatures_StringView_HasWord(value, "ssse3");
+          features->sse4_1 = CpuFeatures_StringView_HasWord(value, "sse4_1");
+          features->sse4_2 = CpuFeatures_StringView_HasWord(value, "sse4_2");
+          break;
+        }
+      }
+      if (result.eof) break;
+    }
+    CpuFeatures_CloseFile(fd);
+  }
+#else
+#error "Unsupported fallback detection of SSE OS support."
+#endif
+}
+
+// Reference https://en.wikipedia.org/wiki/CPUID.
+static void ParseCpuId(const uint32_t max_cpuid_leaf,
+                       const OsSupport os_support, X86Info* info) {
+  const Leaf leaf_1 = SafeCpuId(max_cpuid_leaf, 1);
+  const Leaf leaf_7 = SafeCpuId(max_cpuid_leaf, 7);
+  const Leaf leaf_7_1 = SafeCpuIdEx(max_cpuid_leaf, 7, 1);
 
   const uint32_t family = ExtractBitRange(leaf_1.eax, 11, 8);
   const uint32_t extended_family = ExtractBitRange(leaf_1.eax, 27, 20);
@@ -571,7 +1315,9 @@ static void ParseCpuId(const uint32_t max_cpuid_leaf, X86Info* info) {
   features->vaes = IsBitSet(leaf_7.ecx, 9);
   features->vpclmulqdq = IsBitSet(leaf_7.ecx, 10);
 
-  if (have_sse_os_support) {
+  if (os_support.have_sse_via_os) {
+    DetectSseViaOs(features);
+  } else if (os_support.have_sse_via_cpuid) {
     features->sse = IsBitSet(leaf_1.edx, 25);
     features->sse2 = IsBitSet(leaf_1.edx, 26);
     features->sse3 = IsBitSet(leaf_1.ecx, 0);
@@ -580,13 +1326,13 @@ static void ParseCpuId(const uint32_t max_cpuid_leaf, X86Info* info) {
     features->sse4_2 = IsBitSet(leaf_1.ecx, 20);
   }
 
-  if (have_avx_os_support) {
+  if (os_support.have_avx) {
     features->fma3 = IsBitSet(leaf_1.ecx, 12);
     features->avx = IsBitSet(leaf_1.ecx, 28);
     features->avx2 = IsBitSet(leaf_7.ebx, 5);
   }
 
-  if (have_avx512_os_support) {
+  if (os_support.have_avx512) {
     features->avx512f = IsBitSet(leaf_7.ebx, 16);
     features->avx512cd = IsBitSet(leaf_7.ebx, 28);
     features->avx512er = IsBitSet(leaf_7.ebx, 27);
@@ -602,6 +1348,34 @@ static void ParseCpuId(const uint32_t max_cpuid_leaf, X86Info* info) {
     features->avx512vpopcntdq = IsBitSet(leaf_7.ecx, 14);
     features->avx512_4vnniw = IsBitSet(leaf_7.edx, 2);
     features->avx512_4vbmi2 = IsBitSet(leaf_7.edx, 3);
+    features->avx512_second_fma = HasSecondFMA(info->model);
+    features->avx512_4fmaps = IsBitSet(leaf_7.edx, 3);
+    features->avx512_bf16 = IsBitSet(leaf_7_1.eax, 5);
+    features->avx512_vp2intersect = IsBitSet(leaf_7.edx, 8);
+  }
+
+  if (os_support.have_amx) {
+    features->amx_bf16 = IsBitSet(leaf_7.edx, 22);
+    features->amx_tile = IsBitSet(leaf_7.edx, 24);
+    features->amx_int8 = IsBitSet(leaf_7.edx, 25);
+  }
+}
+
+// Reference
+// https://en.wikipedia.org/wiki/CPUID#EAX=80000000h:_Get_Highest_Extended_Function_Implemented.
+static void ParseExtraAMDCpuId(X86Info* info, OsSupport os_support) {
+  const Leaf leaf_80000000 = CpuId(0x80000000);
+  const uint32_t max_extended_cpuid_leaf = leaf_80000000.eax;
+  const Leaf leaf_80000001 = SafeCpuId(max_extended_cpuid_leaf, 0x80000001);
+
+  X86Features* const features = &info->features;
+
+  if (os_support.have_sse_via_cpuid) {
+    features->sse4a = IsBitSet(leaf_80000001.ecx, 6);
+  }
+
+  if (os_support.have_avx) {
+    features->fma4 = IsBitSet(leaf_80000001.ecx, 16);
   }
 }
 
@@ -611,10 +1385,16 @@ static const CacheInfo kEmptyCacheInfo;
 X86Info GetX86Info(void) {
   X86Info info = kEmptyX86Info;
   const Leaf leaf_0 = CpuId(0);
-  const uint32_t max_cpuid_leaf = leaf_0.eax;
+  const bool is_intel = IsVendor(leaf_0, "GenuineIntel");
+  const bool is_amd = IsVendor(leaf_0, "AuthenticAMD");
   SetVendor(leaf_0, info.vendor);
-  if (IsVendor(leaf_0, "GenuineIntel") || IsVendor(leaf_0, "AuthenticAMD")) {
-    ParseCpuId(max_cpuid_leaf, &info);
+  if (is_intel || is_amd) {
+    const uint32_t max_cpuid_leaf = leaf_0.eax;
+    const OsSupport os_support = CheckOsSupport(max_cpuid_leaf);
+    ParseCpuId(max_cpuid_leaf, os_support, &info);
+    if (is_amd) {
+      ParseExtraAMDCpuId(&info, os_support);
+    }
   }
   return info;
 }
@@ -690,10 +1470,42 @@ X86Microarchitecture GetX86Microarchitecture(const X86Info* info) {
       case CPUID(0x06, 0x5E):
         // https://en.wikipedia.org/wiki/Skylake_(microarchitecture)
         return INTEL_SKL;
+      case CPUID(0x06, 0x66):
+        // https://en.wikipedia.org/wiki/Cannon_Lake_(microarchitecture)
+        return INTEL_CNL;
+      case CPUID(0x06, 0x7D):  // client
+      case CPUID(0x06, 0x7E):  // client
+      case CPUID(0x06, 0x9D):  // NNP-I
+      case CPUID(0x06, 0x6A):  // server
+      case CPUID(0x06, 0x6C):  // server
+        // https://en.wikipedia.org/wiki/Ice_Lake_(microprocessor)
+        return INTEL_ICL;
+      case CPUID(0x06, 0x8C):
+      case CPUID(0x06, 0x8D):
+        // https://en.wikipedia.org/wiki/Tiger_Lake_(microarchitecture)
+        return INTEL_TGL;
+      case CPUID(0x06, 0x8F):
+        // https://en.wikipedia.org/wiki/Sapphire_Rapids
+        return INTEL_SPR;
       case CPUID(0x06, 0x8E):
+        switch (info->stepping) {
+          case 9:
+            return INTEL_KBL;  // https://en.wikipedia.org/wiki/Kaby_Lake
+          case 10:
+            return INTEL_CFL;  // https://en.wikipedia.org/wiki/Coffee_Lake
+          case 11:
+            return INTEL_WHL;  // https://en.wikipedia.org/wiki/Whiskey_Lake_(microarchitecture)
+          default:
+            return X86_UNKNOWN;
+        }
       case CPUID(0x06, 0x9E):
-        // https://en.wikipedia.org/wiki/Kaby_Lake
-        return INTEL_KBL;
+        if (info->stepping > 9) {
+          // https://en.wikipedia.org/wiki/Coffee_Lake
+          return INTEL_CFL;
+        } else {
+          // https://en.wikipedia.org/wiki/Kaby_Lake
+          return INTEL_KBL;
+        }
       default:
         return X86_UNKNOWN;
     }
@@ -742,223 +1554,13 @@ void FillX86BrandString(char brand_string[49]) {
 
 int GetX86FeaturesEnumValue(const X86Features* features,
                             X86FeaturesEnum value) {
-  switch (value) {
-    case X86_FPU:
-      return features->fpu;
-    case X86_TSC:
-      return features->tsc;
-    case X86_CX8:
-      return features->cx8;
-    case X86_CLFSH:
-      return features->clfsh;
-    case X86_MMX:
-      return features->mmx;
-    case X86_AES:
-      return features->aes;
-    case X86_ERMS:
-      return features->erms;
-    case X86_F16C:
-      return features->f16c;
-    case X86_FMA3:
-      return features->fma3;
-    case X86_VAES:
-      return features->vaes;
-    case X86_VPCLMULQDQ:
-      return features->vpclmulqdq;
-    case X86_BMI1:
-      return features->bmi1;
-    case X86_HLE:
-      return features->hle;
-    case X86_BMI2:
-      return features->bmi2;
-    case X86_RTM:
-      return features->rtm;
-    case X86_RDSEED:
-      return features->rdseed;
-    case X86_CLFLUSHOPT:
-      return features->clflushopt;
-    case X86_CLWB:
-      return features->clwb;
-    case X86_SSE:
-      return features->sse;
-    case X86_SSE2:
-      return features->sse2;
-    case X86_SSE3:
-      return features->sse3;
-    case X86_SSSE3:
-      return features->ssse3;
-    case X86_SSE4_1:
-      return features->sse4_1;
-    case X86_SSE4_2:
-      return features->sse4_2;
-    case X86_AVX:
-      return features->avx;
-    case X86_AVX2:
-      return features->avx2;
-    case X86_AVX512F:
-      return features->avx512f;
-    case X86_AVX512CD:
-      return features->avx512cd;
-    case X86_AVX512ER:
-      return features->avx512er;
-    case X86_AVX512PF:
-      return features->avx512pf;
-    case X86_AVX512BW:
-      return features->avx512bw;
-    case X86_AVX512DQ:
-      return features->avx512dq;
-    case X86_AVX512VL:
-      return features->avx512vl;
-    case X86_AVX512IFMA:
-      return features->avx512ifma;
-    case X86_AVX512VBMI:
-      return features->avx512vbmi;
-    case X86_AVX512VBMI2:
-      return features->avx512vbmi2;
-    case X86_AVX512VNNI:
-      return features->avx512vnni;
-    case X86_AVX512BITALG:
-      return features->avx512bitalg;
-    case X86_AVX512VPOPCNTDQ:
-      return features->avx512vpopcntdq;
-    case X86_AVX512_4VNNIW:
-      return features->avx512_4vnniw;
-    case X86_AVX512_4VBMI2:
-      return features->avx512_4vbmi2;
-    case X86_PCLMULQDQ:
-      return features->pclmulqdq;
-    case X86_SMX:
-      return features->smx;
-    case X86_SGX:
-      return features->sgx;
-    case X86_CX16:
-      return features->cx16;
-    case X86_SHA:
-      return features->sha;
-    case X86_POPCNT:
-      return features->popcnt;
-    case X86_MOVBE:
-      return features->movbe;
-    case X86_RDRND:
-      return features->rdrnd;
-    case X86_DCA:
-      return features->dca;
-    case X86_SS:
-      return features->ss;
-    case X86_LAST_:
-      break;
-  }
-  return false;
+  if (value >= X86_LAST_) return false;
+  return kGetters[value](features);
 }
 
 const char* GetX86FeaturesEnumName(X86FeaturesEnum value) {
-  switch (value) {
-    case X86_FPU:
-      return "fpu";
-    case X86_TSC:
-      return "tsc";
-    case X86_CX8:
-      return "cx8";
-    case X86_CLFSH:
-      return "clfsh";
-    case X86_MMX:
-      return "mmx";
-    case X86_AES:
-      return "aes";
-    case X86_ERMS:
-      return "erms";
-    case X86_F16C:
-      return "f16c";
-    case X86_FMA3:
-      return "fma3";
-    case X86_VAES:
-      return "vaes";
-    case X86_VPCLMULQDQ:
-      return "vpclmulqdq";
-    case X86_BMI1:
-      return "bmi1";
-    case X86_HLE:
-      return "hle";
-    case X86_BMI2:
-      return "bmi2";
-    case X86_RTM:
-      return "rtm";
-    case X86_RDSEED:
-      return "rdseed";
-    case X86_CLFLUSHOPT:
-      return "clflushopt";
-    case X86_CLWB:
-      return "clwb";
-    case X86_SSE:
-      return "sse";
-    case X86_SSE2:
-      return "sse2";
-    case X86_SSE3:
-      return "sse3";
-    case X86_SSSE3:
-      return "ssse3";
-    case X86_SSE4_1:
-      return "sse4_1";
-    case X86_SSE4_2:
-      return "sse4_2";
-    case X86_AVX:
-      return "avx";
-    case X86_AVX2:
-      return "avx2";
-    case X86_AVX512F:
-      return "avx512f";
-    case X86_AVX512CD:
-      return "avx512cd";
-    case X86_AVX512ER:
-      return "avx512er";
-    case X86_AVX512PF:
-      return "avx512pf";
-    case X86_AVX512BW:
-      return "avx512bw";
-    case X86_AVX512DQ:
-      return "avx512dq";
-    case X86_AVX512VL:
-      return "avx512vl";
-    case X86_AVX512IFMA:
-      return "avx512ifma";
-    case X86_AVX512VBMI:
-      return "avx512vbmi";
-    case X86_AVX512VBMI2:
-      return "avx512vbmi2";
-    case X86_AVX512VNNI:
-      return "avx512vnni";
-    case X86_AVX512BITALG:
-      return "avx512bitalg";
-    case X86_AVX512VPOPCNTDQ:
-      return "avx512vpopcntdq";
-    case X86_AVX512_4VNNIW:
-      return "avx512_4vnniw";
-    case X86_AVX512_4VBMI2:
-      return "avx512_4vbmi2";
-    case X86_PCLMULQDQ:
-      return "pclmulqdq";
-    case X86_SMX:
-      return "smx";
-    case X86_SGX:
-      return "sgx";
-    case X86_CX16:
-      return "cx16";
-    case X86_SHA:
-      return "sha";
-    case X86_POPCNT:
-      return "popcnt";
-    case X86_MOVBE:
-      return "movbe";
-    case X86_RDRND:
-      return "rdrnd";
-    case X86_DCA:
-      return "dca";
-    case X86_SS:
-      return "ss";
-    case X86_LAST_:
-      break;
-  }
-  return "unknown_feature";
+  if (value >= X86_LAST_) return "unknown_feature";
+  return kCpuInfoFlags[value];
 }
 
 const char* GetX86MicroarchitectureName(X86Microarchitecture uarch) {
@@ -993,8 +1595,16 @@ const char* GetX86MicroarchitectureName(X86Microarchitecture uarch) {
       return "INTEL_KBL";
     case INTEL_CFL:
       return "INTEL_CFL";
+    case INTEL_WHL:
+      return "INTEL_WHL";
     case INTEL_CNL:
       return "INTEL_CNL";
+    case INTEL_ICL:
+      return "INTEL_ICL";
+    case INTEL_TGL:
+      return "INTEL_TGL";
+    case INTEL_SPR:
+      return "INTEL_SPR";
     case AMD_HAMMER:
       return "AMD_HAMMER";
     case AMD_K10:

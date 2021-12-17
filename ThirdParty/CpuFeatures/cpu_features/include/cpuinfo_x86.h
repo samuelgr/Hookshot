@@ -1,4 +1,5 @@
-// Copyright 2017 Google Inc.
+// Copyright 2017 Google LLC
+// Copyright 2020 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +32,7 @@ typedef struct {
   int aes : 1;
   int erms : 1;
   int f16c : 1;
+  int fma4 : 1;
   int fma3 : 1;
   int vaes : 1;
   int vpclmulqdq : 1;
@@ -48,6 +50,7 @@ typedef struct {
   int ssse3 : 1;
   int sse4_1 : 1;
   int sse4_2 : 1;
+  int sse4a : 1;
 
   int avx : 1;
   int avx2 : 1;
@@ -67,6 +70,13 @@ typedef struct {
   int avx512vpopcntdq : 1;
   int avx512_4vnniw : 1;
   int avx512_4vbmi2 : 1;
+  int avx512_second_fma : 1;
+  int avx512_4fmaps : 1;
+  int avx512_bf16 : 1;
+  int avx512_vp2intersect : 1;
+  int amx_bf16 : 1;
+  int amx_tile : 1;
+  int amx_int8 : 1;
 
   int pclmulqdq : 1;
   int smx : 1;
@@ -116,7 +126,11 @@ typedef enum {
   INTEL_ATOM_GMT,  // GOLDMONT
   INTEL_KBL,       // KABY LAKE
   INTEL_CFL,       // COFFEE LAKE
+  INTEL_WHL,       // WHISKEY LAKE
   INTEL_CNL,       // CANNON LAKE
+  INTEL_ICL,       // ICE LAKE
+  INTEL_TGL,       // TIGER LAKE
+  INTEL_SPR,       // SAPPHIRE RAPIDS
   AMD_HAMMER,      // K8
   AMD_K10,         // K10
   AMD_BOBCAT,      // K14
@@ -147,6 +161,7 @@ typedef enum {
   X86_AES,
   X86_ERMS,
   X86_F16C,
+  X86_FMA4,
   X86_FMA3,
   X86_VAES,
   X86_VPCLMULQDQ,
@@ -163,6 +178,7 @@ typedef enum {
   X86_SSSE3,
   X86_SSE4_1,
   X86_SSE4_2,
+  X86_SSE4A,
   X86_AVX,
   X86_AVX2,
   X86_AVX512F,
@@ -180,6 +196,13 @@ typedef enum {
   X86_AVX512VPOPCNTDQ,
   X86_AVX512_4VNNIW,
   X86_AVX512_4VBMI2,
+  X86_AVX512_SECOND_FMA,
+  X86_AVX512_4FMAPS,
+  X86_AVX512_BF16,
+  X86_AVX512_VP2INTERSECT,
+  X86_AMX_BF16,
+  X86_AMX_TILE,
+  X86_AMX_INT8,
   X86_PCLMULQDQ,
   X86_SMX,
   X86_SGX,

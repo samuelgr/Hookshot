@@ -28,22 +28,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -66,10 +66,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakeOutput>$(OutDir)wkit\lib\xed.lib</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+    <NMakeBuildCommandLine>set VisualStudioVersion=$(VisualStudioVersion)
+set VCINSTALLDIR=$(VCInstallDir)
 set VCToolsInstallDir=$(VCToolsInstallDir)
 python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --jobs=4 --host-cpu=ia32 --debug --opt=noopt --kit-kind=debug</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+    <NMakeCleanCommandLine>set VisualStudioVersion=$(VisualStudioVersion)
+set VCINSTALLDIR=$(VCInstallDir)
 set VCToolsInstallDir=$(VCToolsInstallDir)
 python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --clean</NMakeCleanCommandLine>
     <OutDir>$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
@@ -80,10 +82,12 @@ python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\
     <NMakePreprocessorDefinitions>_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <OutDir>$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(OutDir)msvs-intermediate\</IntDir>
-    <NMakeCleanCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+    <NMakeCleanCommandLine>set VisualStudioVersion=$(VisualStudioVersion)
+set VCINSTALLDIR=$(VCInstallDir)
 set VCToolsInstallDir=$(VCToolsInstallDir)
 python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --clean</NMakeCleanCommandLine>
-    <NMakeBuildCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+    <NMakeBuildCommandLine>set VisualStudioVersion=$(VisualStudioVersion)
+set VCINSTALLDIR=$(VCInstallDir)
 set VCToolsInstallDir=$(VCToolsInstallDir)
 python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --jobs=4 --host-cpu=x86-64 --debug --opt=noopt --kit-kind=debug</NMakeBuildCommandLine>
   </PropertyGroup>
@@ -92,10 +96,12 @@ python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <OutDir>$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(OutDir)msvs-intermediate\</IntDir>
-    <NMakeCleanCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+    <NMakeCleanCommandLine>set VisualStudioVersion=$(VisualStudioVersion)
+set VCINSTALLDIR=$(VCInstallDir)
 set VCToolsInstallDir=$(VCToolsInstallDir)
 python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --clean</NMakeCleanCommandLine>
-    <NMakeBuildCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+    <NMakeBuildCommandLine>set VisualStudioVersion=$(VisualStudioVersion)
+set VCINSTALLDIR=$(VCInstallDir)
 set VCToolsInstallDir=$(VCToolsInstallDir)
 python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --jobs=4 --host-cpu=ia32 --opt=3 --kit-kind=release</NMakeBuildCommandLine>
   </PropertyGroup>
@@ -104,10 +110,12 @@ python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\
     <NMakePreprocessorDefinitions>NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <OutDir>$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(OutDir)msvs-intermediate\</IntDir>
-    <NMakeCleanCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+    <NMakeCleanCommandLine>set VisualStudioVersion=$(VisualStudioVersion)
+set VCINSTALLDIR=$(VCInstallDir)
 set VCToolsInstallDir=$(VCToolsInstallDir)
 python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --clean</NMakeCleanCommandLine>
-    <NMakeBuildCommandLine>set VCINSTALLDIR=$(VCInstallDir)
+    <NMakeBuildCommandLine>set VisualStudioVersion=$(VisualStudioVersion)
+set VCINSTALLDIR=$(VCInstallDir)
 set VCToolsInstallDir=$(VCToolsInstallDir)
 python $(ProjectDir)$(ProjectName)\xed\mfile.py --build-dir=$(ProjectDir)Output\$(ProjectName)\$(Platform)\$(Configuration) --jobs=4 --host-cpu=x86-64 --opt=3 --kit-kind=release</NMakeBuildCommandLine>
   </PropertyGroup>

@@ -19,8 +19,6 @@
 #  
 #END_LEGAL
 
-# Modified by Samuel Grossman: line 446
-
 """Environment support"""
 from __future__ import print_function
 import os
@@ -42,7 +40,7 @@ from . import msvs
 def _remove_libname(args,env):
     #lib = env.expand('%(LIBNAME)s')
     lib = args[0]
-    msgb("REMOVING", lib)
+    vmsgb(1, "REMOVING", lib)
     util.remove_file(lib)
     return (0,['REMOVED %s\n' % ( lib )])
 
@@ -185,7 +183,7 @@ class env_t(object):
     def __getitem__(self,k):
         """Read the environment dictionary. Not doing any
         substitutions."""
-        #return self.env[k]
+
         try:
             return self.env[k]
         except:
@@ -347,7 +345,7 @@ class env_t(object):
         if self._emitted_startup_msg:
             return
         self._emitted_startup_msg = True
-        if verbose(1):
+        if verbose(2):
             msgb("INVOKED", " ".join(sys.argv))
             msgb("START TIME", self.env['start_time_str'])
             msgb("CURRENT DIRECTORY", os.getcwd())
@@ -439,15 +437,37 @@ class env_t(object):
         self.env['AS'] = ''
         self.env['RANLIB'] = ''
 
-        self.env['uname'] = platform.uname()
+        # python3.9 breaks copy.deepcopy() of platform.uname() return
+        # values so we make our own.
+        self.env['uname'] = ( platform.system(),
+                              platform.node(),
+                              platform.release(),
+                              platform.version(),
+                              platform.machine() )
+            
         self.env['hostname'] = platform.node()
         self.env['system'] = platform.system() # sort of like build_os
+        
         # distro is the empty string on mac and windows
-        if False: #util.check_python_version(2,6):
-            (distro, distro_ver, distro_id) = platform.linux_distribution()
-        else:
-            distro = ''
-            distro_ver = ''
+        distro = ''
+        distro_ver = ''
+        if  not self.on_mac()  and   not self.on_windows():
+            if util.check_python_version(3,8):
+                # With python 3.8 one needs to install the python "distro"
+                # package to obtain the linux distro information. I do not
+                # want to require users to install a non-default package
+                # so we'll have to live without the distro information.
+                # People who require it can "python3 -m pip install distro"
+                try:
+                    import distro
+                    (distro, distro_ver, distro_id) = distro.linux_distribution()
+                except:
+                    distro = "linux-unknown"
+                    distro_ver = "unknown"
+
+            elif util.check_python_version(2,6):
+                (distro, distro_ver, distro_id) = platform.linux_distribution()
+
         self.env['distro'] = distro.strip()
         self.env['distro_version'] = distro_ver
 
@@ -1004,7 +1024,7 @@ class env_t(object):
                      'Setting jobs to 1 because we could not detect' + 
                      ' the number of CPUs')
                 
-        if verbose(1):
+        if verbose(2):
             # print host_cpu here because it may be overridden for
             # cross compilations
             msgb("HOST_CPU", self.env['host_cpu'])
@@ -1091,11 +1111,13 @@ class env_t(object):
         return False
 
     def mac_ver(self):
+        val = [0]*3
         if self.on_mac():
-           ver = platform.mac_ver()[0]
-           (maj,min,rev) = ver.split('.')
-           return (int(maj),int(min),int(rev))
-        return None
+           version_string = platform.mac_ver()[0]
+           chunks = version_string.split('.')
+           for i,c in enumerate(chunks):
+               val[i]=int(c)
+        return tuple(val)
 
     def check_mac_ver(self, x,y,z):
         """@rtype: bool
@@ -1213,6 +1235,8 @@ class env_t(object):
             return 'x86-64'
         elif name[0:3] == 'x86':
             return 'ia32'
+        elif name in ['aarch64', 'arm64']:
+            return 'aarch64'
         else:
             die("Unknown cpu " + name)
 
@@ -1293,7 +1317,7 @@ class env_t(object):
             die("Compiler family not recognized. Need gnu or ms")
 
         if self.env['use_yasm']:
-            if verbose(1):
+            if verbose(2):
                 msgb("USE YASM")
             build_env.yasm_support(self)
 
@@ -1626,12 +1650,9 @@ class env_t(object):
         self._add_default_builders()
         self._add_default_builder_templates()
 
-    def escape_string(self,s):
-        if self.on_windows():
-            return util.cond_add_quotes(s)
-        else:
-            t = s.replace(' ','\ ')
-            return t
+    def escape_string(self,s): 
+        return util.escape_string(s)
+    
     def _escape_list_of_strings(self,sl):
         n = []
         for s in sl:
