@@ -63,258 +63,141 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)$(ProjectName).props" Condition="exists('$(SolutionDir)$(ProjectName).props')" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)$(ProjectName).props" Condition="exists('$(SolutionDir)$(ProjectName).props')" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)$(ProjectName).props" Condition="exists('$(SolutionDir)$(ProjectName).props')" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)$(ProjectName).props" Condition="exists('$(SolutionDir)$(ProjectName).props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
-    <LinkIncremental>false</LinkIncremental>
-    <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <TargetExt>.bin</TargetExt>
+    <EmbedManifest>false</EmbedManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
-    <LinkIncremental>false</LinkIncremental>
-    <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <TargetExt>.bin</TargetExt>
+    <EmbedManifest>false</EmbedManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
-    <LinkIncremental>false</LinkIncremental>
-    <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <TargetExt>.bin</TargetExt>
+    <EmbedManifest>false</EmbedManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\$(Configuration)\Build\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>$(SolutionName).$(PlatformArchitecture)</TargetName>
-    <LinkIncremental>false</LinkIncremental>
-    <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <TargetExt>.bin</TargetExt>
+    <EmbedManifest>false</EmbedManifest>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <SupportJustMyCode>false</SupportJustMyCode>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AssemblerOutput>All</AssemblerOutput>
-      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
-      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-    </ClCompile>
     <MASM>
       <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
-      <IncludePaths>Include\$(SolutionName);Include\$(SolutionName)\Internal</IncludePaths>
-      <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
-      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
-      <PreserveIdentifierCase>1</PreserveIdentifierCase>
+      <IncludePaths>Include\$(SolutionName)\Internal;%(IncludePaths)</IncludePaths>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </MASM>
-    <Lib />
     <Link>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <AdditionalDependencies />
       <NoEntryPoint>true</NoEntryPoint>
       <TurnOffAssemblyGeneration>true</TurnOffAssemblyGeneration>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapExports>true</MapExports>
-      <MapFileName>$(IntDir)$(TargetName)$(TargetExt).map</MapFileName>
-      <ImportLibrary>$(IntDir)$(TargetName)$(TargetExt).lib</ImportLibrary>
-      <ProgramDatabaseFile>
-      </ProgramDatabaseFile>
       <SubSystem>NotSet</SubSystem>
-      <ProfileGuidedDatabase />
       <AdditionalOptions>/FILEALIGN:1 %(AdditionalOptions)</AdditionalOptions>
       <PreventDllBinding>false</PreventDllBinding>
+      <MapExports>true</MapExports>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <SupportJustMyCode>false</SupportJustMyCode>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
-      <OmitFramePointers>false</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_DEBUG;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AssemblerOutput>All</AssemblerOutput>
-      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
-      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-    </ClCompile>
     <MASM>
       <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
-      <IncludePaths>Include\$(SolutionName);Include\$(SolutionName)\Internal</IncludePaths>
-      <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
-      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
-      <PreserveIdentifierCase>1</PreserveIdentifierCase>
+      <IncludePaths>Include\$(SolutionName)\Internal;%(IncludePaths)</IncludePaths>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </MASM>
-    <Lib />
     <Link>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalDependencies>
       </AdditionalDependencies>
       <NoEntryPoint>true</NoEntryPoint>
       <TurnOffAssemblyGeneration>true</TurnOffAssemblyGeneration>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapExports>true</MapExports>
-      <MapFileName>$(IntDir)$(TargetName)$(TargetExt).map</MapFileName>
-      <ImportLibrary>$(IntDir)$(TargetName)$(TargetExt).lib</ImportLibrary>
-      <ProgramDatabaseFile>
-      </ProgramDatabaseFile>
       <SubSystem>NotSet</SubSystem>
-      <ProfileGuidedDatabase>
-      </ProfileGuidedDatabase>
       <AdditionalOptions>/FILEALIGN:1 %(AdditionalOptions)</AdditionalOptions>
       <PreventDllBinding>false</PreventDllBinding>
+      <MapExports>true</MapExports>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
-      <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AssemblerOutput>All</AssemblerOutput>
-      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
-      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-    </ClCompile>
     <Link>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <AdditionalDependencies />
       <NoEntryPoint>true</NoEntryPoint>
       <TurnOffAssemblyGeneration>true</TurnOffAssemblyGeneration>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapExports>true</MapExports>
-      <MapFileName>$(IntDir)$(TargetName)$(TargetExt).map</MapFileName>
-      <ImportLibrary>$(IntDir)$(TargetName)$(TargetExt).lib</ImportLibrary>
-      <ProgramDatabaseFile>
-      </ProgramDatabaseFile>
       <SubSystem>NotSet</SubSystem>
-      <ProfileGuidedDatabase />
       <AdditionalOptions>/FILEALIGN:1 %(AdditionalOptions)</AdditionalOptions>
       <PreventDllBinding>false</PreventDllBinding>
+      <MapExports>true</MapExports>
     </Link>
     <MASM>
       <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
-      <IncludePaths>Include\$(SolutionName);Include\$(SolutionName)\Internal</IncludePaths>
-      <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
-      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
-      <PreserveIdentifierCase>1</PreserveIdentifierCase>
+      <IncludePaths>Include\$(SolutionName)\Internal;%(IncludePaths)</IncludePaths>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </MASM>
-    <Lib />
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>Include\$(SolutionName)</AdditionalIncludeDirectories>
-      <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>HOOKSHOT_RELEASE;HOOKSHOT64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AssemblerOutput>All</AssemblerOutput>
-      <AssemblerListingLocation>$(IntDir)%(Filename)%(Extension).lst</AssemblerListingLocation>
-      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-    </ClCompile>
     <Link>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalDependencies>
       </AdditionalDependencies>
       <NoEntryPoint>true</NoEntryPoint>
       <TurnOffAssemblyGeneration>true</TurnOffAssemblyGeneration>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapExports>true</MapExports>
-      <MapFileName>$(IntDir)$(TargetName)$(TargetExt).map</MapFileName>
-      <ImportLibrary>$(IntDir)$(TargetName)$(TargetExt).lib</ImportLibrary>
-      <ProgramDatabaseFile>
-      </ProgramDatabaseFile>
       <SubSystem>NotSet</SubSystem>
-      <ProfileGuidedDatabase>
-      </ProfileGuidedDatabase>
       <AdditionalOptions>/FILEALIGN:1 %(AdditionalOptions)</AdditionalOptions>
       <PreventDllBinding>false</PreventDllBinding>
+      <MapExports>true</MapExports>
     </Link>
     <MASM>
       <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
-      <IncludePaths>Include\$(SolutionName);Include\$(SolutionName)\Internal</IncludePaths>
-      <EnableAssemblyGeneratedCodeListing>true</EnableAssemblyGeneratedCodeListing>
-      <ObjectFileName>$(IntDir)%(Filename)%(Extension).obj</ObjectFileName>
-      <AssembledCodeListingFile>$(IntDir)%(Filename)%(Extension).lst</AssembledCodeListingFile>
-      <PreserveIdentifierCase>1</PreserveIdentifierCase>
+      <IncludePaths>Include\$(SolutionName)\Internal;%(IncludePaths)</IncludePaths>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </MASM>
-    <Lib />
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>

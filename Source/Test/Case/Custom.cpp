@@ -9,10 +9,9 @@
  *   Test cases that follow the CUSTOM pattern.
  *****************************************************************************/
 
+#include "Hookshot.h"
 #include "TestPattern.h"
 #include "Utilities.h"
-
-#include "Hookshot/Hookshot.h"
 
 #include <windows.h>
 

@@ -10,10 +10,9 @@
  *****************************************************************************/
 
 #include "Harness.h"
+#include "Hookshot.h"
 #include "TestCase.h"
 #include "Utilities.h"
-
-#include "Hookshot/Hookshot.h"
 
 #include <map>
 #include <set>

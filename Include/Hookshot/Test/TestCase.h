@@ -11,9 +11,8 @@
 
 #pragma once
 
+#include "Hookshot.h"
 #include "Utilities.h"
-
-#include "Hookshot/Hookshot.h"
 
 #include <string_view>
 

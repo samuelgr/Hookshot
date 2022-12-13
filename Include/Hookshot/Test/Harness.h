@@ -11,9 +11,8 @@
 
 #pragma once
 
+#include "Hookshot.h"
 #include "TestCase.h"
-
-#include "Hookshot/Hookshot.h"
 
 #include <map>
 #include <string>

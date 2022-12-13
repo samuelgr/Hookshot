@@ -9,10 +9,9 @@
  *   Test cases that follow the HOOK_SET_FAIL pattern.
  *****************************************************************************/
 
+#include "Hookshot.h"
 #include "CpuInfo.h"
 #include "TestPattern.h"
-
-#include "Hookshot/Hookshot.h"
 
 
 namespace HookshotTest
