@@ -3,7 +3,7 @@
  *   General-purpose library for hooking API calls in spawned processes.
  ******************************************************************************
  * Authored by Samuel Grossman
- * Copyright (c) 2019-2021
+ * Copyright (c) 2019-2022
  **************************************************************************//**
  * @file StaticHook.cpp
  *   "StaticHook" hook module example.
