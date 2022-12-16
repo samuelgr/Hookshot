@@ -23,21 +23,9 @@ namespace Hookshot
     {
         // -------- FUNCTIONS ---------------------------------------------- //
 
-        /// Determines if the configuration file exists, irrespective of whether or not it is correctly formed.
-        /// @return `true` if the configuration file exists, `false` if not.
-        bool DoesConfigurationFileExist(void);
-
-        /// Enables the log, if it is configured in the configuration file.
-        void EnableLogIfConfigured(void);
-
         /// Retrieves the Hookshot configuration data object.
         /// Only useful if IsConfigurationDataValid returns `true`.
         const Configuration::ConfigurationData& GetConfigurationData(void);
-
-        /// Retrieves a string containing a message that describes the error encountered while attempting to read the Hookshot configuration file.
-        /// Only useful if IsConfigurationDataValid returns `false`.
-        /// @return String containing the configuration file read error message.
-        std::wstring_view GetConfigurationErrorMessage(void);
 
         /// Retrieves the Hookshot interface object pointer that can be passed to external clients.
         /// @return Hook interface object pointer.
@@ -49,10 +37,6 @@ namespace Hookshot
         /// @param [in] loadMethod Hookshot library load method.
         /// @return `true` if successful, `false` otherwise.
         bool Initialize(const ELoadMethod loadMethod);
-
-        /// Determines if the configuration data object contains valid data (i.e. the configuration file was read and parsed successfully).
-        /// @return `true` if it contains valid data, `false` if not.
-        bool IsConfigurationDataValid(void);
 
         /// Attempts to load and initialize all applicable hook modules.
         /// @return Number of hook modules successfully loaded.

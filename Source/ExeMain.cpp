@@ -102,9 +102,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         }
 
         TemporaryBuffer<wchar_t> commandLine;
-        if (0 != wcscpy_s(commandLine, commandLine.Count(), commandLineStream.str().c_str()))
+        if (0 != wcscpy_s(commandLine.Data(), commandLine.Capacity(), commandLineStream.str().c_str()))
         {
-            Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"Specified command line exceeds the limit of %d characters.", (int)commandLine.Count());
+            Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"Specified command line exceeds the limit of %d characters.", (int)commandLine.Capacity());
             return __LINE__;
         }
 
@@ -115,7 +115,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         memset((void*)&startupInfo, 0, sizeof(startupInfo));
         memset((void*)&processInfo, 0, sizeof(processInfo));
 
-        const EInjectResult result = ProcessInjector::CreateInjectedProcess(nullptr, commandLine, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInfo);
+        const EInjectResult result = ProcessInjector::CreateInjectedProcess(nullptr, commandLine.Data(), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInfo);
 
         switch (result)
         {
@@ -126,7 +126,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         case EInjectResult::ErrorCreateProcess:
             if (ERROR_ELEVATION_REQUIRED == GetLastError())
             {
-                const INT_PTR executeElevatedResult = (INT_PTR)ShellExecute(nullptr, L"runas", Strings::kStrExecutableCompleteFilename.data(), commandLine, nullptr, SW_SHOWDEFAULT);
+                const INT_PTR executeElevatedResult = (INT_PTR)ShellExecute(nullptr, L"runas", Strings::kStrExecutableCompleteFilename.data(), commandLine.Data(), nullptr, SW_SHOWDEFAULT);
                 if (executeElevatedResult > 32)
                 {
                     Message::OutputFormatted(Message::ESeverity::Info, L"Re-attempting the creation and injection %s with elevation.", __wargv[1]);

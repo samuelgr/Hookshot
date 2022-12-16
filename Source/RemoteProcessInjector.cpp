@@ -65,7 +65,7 @@ namespace Hookshot
             executableCommandLine << L' ' << Strings::kCharCmdlineIndicatorFileMappingHandle << std::hex << (uint64_t)sharedMemoryHandle;
 
             TemporaryBuffer<wchar_t> executableCommandLineMutableString;
-            if (0 != wcscpy_s(executableCommandLineMutableString, executableCommandLineMutableString.Count(), executableCommandLine.str().c_str()))
+            if (0 != wcscpy_s(executableCommandLineMutableString.Data(), executableCommandLineMutableString.Capacity(), executableCommandLine.str().c_str()))
             {
                 const DWORD extendedResult = Protected::Windows_GetLastError();
                 Protected::Windows_UnmapViewOfFile(sharedInfo);
@@ -80,7 +80,7 @@ namespace Hookshot
             memset((void*)&startupInfo, 0, sizeof(startupInfo));
             memset((void*)&processInfo, 0, sizeof(processInfo));
 
-            if (FALSE == Protected::Windows_CreateProcess(nullptr, executableCommandLineMutableString, nullptr, nullptr, TRUE, CREATE_SUSPENDED, nullptr, nullptr, &startupInfo, &processInfo))
+            if (FALSE == Protected::Windows_CreateProcess(nullptr, executableCommandLineMutableString.Data(), nullptr, nullptr, TRUE, CREATE_SUSPENDED, nullptr, nullptr, &startupInfo, &processInfo))
             {
                 const DWORD extendedResult = Protected::Windows_GetLastError();
                 Protected::Windows_UnmapViewOfFile(sharedInfo);

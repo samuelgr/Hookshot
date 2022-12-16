@@ -11,8 +11,11 @@
 
 #pragma once
 
+#include "TemporaryBuffer.h"
+
 #include <cstddef>
 #include <cstdint>
+#include <sal.h>
 #include <string>
 #include <string_view>
 
@@ -151,6 +154,18 @@ namespace Hookshot
         /// @param [in] Full absolute path of the application being checked for authorization.
         /// @return Directory-wide authorization filename.
         std::wstring AuthorizationFilenameDirectoryWide(std::wstring_view executablePath);
+
+        /// Compares two strings without regard for the case of each individual character.
+        /// @tparam CharType Type of character in each string, either narrow or wide.
+        /// @param [in] strA First string in the comparison.
+        /// @param [in] strB Second string in the comparison.
+        /// @return `true` if the strings compare equal, `false` otherwise.
+        template <typename CharType> bool EqualsCaseInsensitive(std::basic_string_view<CharType> strA, std::basic_string_view<CharType> strB);
+
+        /// Formats a string and returns the result in a newly-allocated null-terminated temporary buffer.
+        /// @param [in] format Format string, possibly with format specifiers which must be matched with the arguments that follow.
+        /// @return Resulting string after all formatting is applied.
+        TemporaryString FormatString(_Printf_format_string_ const wchar_t* format, ...);
 
         /// Generates the expected filename of a hook module of the specified name.
         /// Hook module filename = (executable directory)\(hook module name).(hook module suffix)

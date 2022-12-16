@@ -9,6 +9,7 @@
  *   Message output implementation.
  *****************************************************************************/
 
+#include "ApiWindows.h"
 #include "DependencyProtect.h"
 #include "Globals.h"
 #include "Message.h"
@@ -21,7 +22,6 @@
 #include <psapi.h>
 #include <sal.h>
 #include <shlobj.h>
-#include <sstream>
 #include <string>
 
 
@@ -37,6 +37,7 @@ namespace Hookshot
             // Non-interactive output modes
             DebugString,                                                ///< Message is output using a debug string, which debuggers will display.
             LogFile,                                                    ///< Message is output to a log file.
+            Console,                                                    ///< Message is output to the console via `stderr`.
 
             // Boundary value between non-interactive and interactive modes
             InteractiveBoundaryValue,                                   ///< Not used as a value, but separates non-interactive output modes from interactive output modes.
@@ -60,13 +61,6 @@ namespace Hookshot
 
 
         // -------- INTERNAL FUNCTIONS ------------------------------------- //
-
-        /// Checks if logging to a file is enabled.
-        /// @return `true` if so, `false` if not.
-        static inline bool IsLogFileEnabled(void)
-        {
-            return (nullptr != logFileHandle);
-        }
 
         /// Checks if the specified output mode is interactive or non-interactive.
         /// @return `true` if the mode is interactive, `false` otherwise.
@@ -120,16 +114,20 @@ namespace Hookshot
 
             if (IsSeverityForcedInteractive(severity))
             {
-                // If the severity level is forced interactive, then the only output mode is interactive.
-                // Therefore, an interactive message box is the only output mode used.
+                // If the severity level is forced interactive, then unconditionally enable an interactive output mode.
+                // Also potentially output to an attached debugger.
 
                 selectedOutputModes[numOutputModes++] = EOutputMode::GraphicalMessageBox;
+
+                if (Protected::Windows_IsDebuggerPresent())
+                    selectedOutputModes[numOutputModes++] = EOutputMode::DebugString;
             }
             else if (Protected::Windows_IsDebuggerPresent())
             {
                 // If a debugger is present, #WillOutputMessageOfSeverity will always return `true`.
-                // The goal is tn ensure that debug strings are sent for all messages irrespective of severity (assuming they are not forced interactive).
+                // The goal is tn ensure that debug strings are sent for all messages irrespective of severity.
                 // For other configured output modes, it is necessary to filter based on severity.
+                // Since all messages are being sent to the debugger, using the console is unnecessary.
 
                 selectedOutputModes[numOutputModes++] = EOutputMode::DebugString;
 
@@ -143,15 +141,24 @@ namespace Hookshot
             {
                 // Since a debugger is not present, #WillOutputMessageOfSeverity has already validated that the severity of the message justifies outputting it.
                 // It is therefore sufficient just to pick appropriate output modes depending on message subsystem configuration.
-                // Prefer a log file if enabled, otherwise display an interactive message box.
+                // Prefer a log file if enabled, otherwise use the console. Do not use an interactive output mode in this situation.
 
                 if (IsLogFileEnabled())
                     selectedOutputModes[numOutputModes++] = EOutputMode::LogFile;
                 else
-                    selectedOutputModes[numOutputModes++] = EOutputMode::GraphicalMessageBox;
+                    selectedOutputModes[numOutputModes++] = EOutputMode::Console;
             }
 
             return numOutputModes;
+        }
+
+        /// Outputs the specified message using standard output.
+        /// Requires both a severity and a message string.
+        /// @param [in] severity Severity of the message.
+        /// @param [in] message Message text.
+        static inline void OutputInternalUsingConsole(const ESeverity severity, const wchar_t* message)
+        {
+            fwprintf_s(stderr, L"%s:[%c] %s\n", Strings::kStrHookshotBaseName.data(), CharacterForSeverity(severity), message);
         }
 
         /// Outputs the specified message using a debug string.
@@ -160,17 +167,7 @@ namespace Hookshot
         /// @param [in] message Message text.
         static void OutputInternalUsingDebugString(const ESeverity severity, const wchar_t* message)
         {
-            std::wstringstream outputString;
-
-            // First compose the output string stamp.
-            // Desired format is "(base name of this form of Hookshot): [(severity)]"
-            outputString << Strings::kStrHookshotBaseName << L": [" << CharacterForSeverity(severity) << L"] ";
-
-            // Append the message itself.
-            outputString << message << L"\n";
-
-            // Output to the debugger.
-            Protected::Windows_OutputDebugString(outputString.str().c_str());
+            Protected::Windows_OutputDebugString(Strings::FormatString(L"%s:[%c] %s\n", Strings::kStrHookshotBaseName.data(), CharacterForSeverity(severity), message).AsCString());
         }
 
         /// Outputs the specified message to the log file.
@@ -179,7 +176,7 @@ namespace Hookshot
         /// @param [in] message Message text.
         static void OutputInternalUsingLogFile(const ESeverity severity, const wchar_t* message)
         {
-            std::wstringstream outputString;
+            TemporaryString outputString;
 
             // First compose the output string stamp.
             // Desired format is "[(current date) (current time)] [(severity)]"
@@ -187,21 +184,21 @@ namespace Hookshot
 
             TemporaryBuffer<wchar_t> bufferTimestamp;
 
-            if (0 != GetDateFormatEx(LOCALE_NAME_USER_DEFAULT, 0, nullptr, L"MM'/'dd'/'yyyy", bufferTimestamp, bufferTimestamp.Count(), nullptr))
-                outputString << (wchar_t*)bufferTimestamp;
+            if (0 != GetDateFormatEx(LOCALE_NAME_USER_DEFAULT, 0, nullptr, L"MM'/'dd'/'yyyy", bufferTimestamp.Data(), bufferTimestamp.Capacity(), nullptr))
+                outputString << bufferTimestamp.Data();
             else
                 outputString << L"(date not available)";
 
-            if (0 != GetTimeFormatEx(LOCALE_NAME_USER_DEFAULT, 0, nullptr, L"HH':'mm':'ss", bufferTimestamp, bufferTimestamp.Count()))
-                outputString << L' ' << (wchar_t*)bufferTimestamp;
+            if (0 != GetTimeFormatEx(LOCALE_NAME_USER_DEFAULT, 0, nullptr, L"HH':'mm':'ss", bufferTimestamp.Data(), bufferTimestamp.Capacity()))
+                outputString << L' ' << bufferTimestamp.Data();
             else
                 outputString << L" (time not available)";
 
             // Finish up the stamp and append the message itself.
-            outputString << L"] [" << CharacterForSeverity(severity) << "] " << message << L'\n';
+            outputString << L"] [" << CharacterForSeverity(severity) << L"] " << message << L'\n';
 
             // Write to the log file.
-            fputws(outputString.str().c_str(), logFileHandle);
+            fputws(outputString.AsCString(), logFileHandle);
             fflush(logFileHandle);
         }
 
@@ -266,6 +263,10 @@ namespace Hookshot
                         OutputInternalUsingLogFile(severity, message);
                         break;
 
+                    case EOutputMode::Console:
+                        OutputInternalUsingConsole(severity, message);
+                        break;
+
                     case EOutputMode::GraphicalMessageBox:
                         OutputInternalUsingMessageBox(severity, message);
                         break;
@@ -285,8 +286,8 @@ namespace Hookshot
         {
             TemporaryBuffer<wchar_t> messageBuf;
 
-            vswprintf_s(messageBuf, messageBuf.Count(), format, args);
-            OutputInternal(severity, messageBuf);
+            vswprintf_s(messageBuf.Data(), messageBuf.Capacity(), format, args);
+            OutputInternal(severity, messageBuf.Data());
         }
 
 
@@ -315,7 +316,15 @@ namespace Hookshot
                 fwprintf_s(logFileHandle, L"Program:   %s\n", Strings::kStrExecutableCompleteFilename.data());
                 fwprintf_s(logFileHandle, L"PID:       %d\n", Globals::GetCurrentProcessId());
                 fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator);
+                fflush(logFileHandle);
             }
+        }
+
+        // --------
+
+        bool IsLogFileEnabled(void)
+        {
+            return (nullptr != logFileHandle);
         }
 
         // --------
@@ -323,7 +332,7 @@ namespace Hookshot
         void Output(const ESeverity severity, const wchar_t* message)
         {
             const DWORD lastError = Protected::Windows_GetLastError();
-            
+
             if (false == WillOutputMessageOfSeverity(severity))
             {
                 Protected::Windows_SetLastError(lastError);

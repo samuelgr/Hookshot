@@ -24,11 +24,11 @@ namespace Hookshot
         // -------- CONCRETE INSTANCE METHODS ------------------------------ //
         // See "Configuration.h" for documentation.
 
-        Configuration::ESectionAction ActionForSection(std::wstring_view section) override;
-        bool CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TIntegerValue& value) override;
-        bool CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TBooleanValue& value) override;
-        bool CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TStringValue& value) override;
-        void PrepareForRead(void) override;
+        Configuration::EAction ActionForSection(std::wstring_view section) override;
+        Configuration::EAction ActionForValue(std::wstring_view section, std::wstring_view name, const Configuration::TIntegerView value) override;
+        Configuration::EAction ActionForValue(std::wstring_view section, std::wstring_view name, const Configuration::TBooleanView value) override;
+        Configuration::EAction ActionForValue(std::wstring_view section, std::wstring_view name, const Configuration::TStringView value) override;
+        void BeginRead(void) override;
         Configuration::EValueType TypeForValue(std::wstring_view section, std::wstring_view name) override;
     };
 }

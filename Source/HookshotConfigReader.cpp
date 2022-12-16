@@ -64,38 +64,41 @@ namespace Hookshot
     // -------- CONCRETE INSTANCE METHODS ---------------------------------- //
     // See "Configuration.h" for documentation.
 
-    Configuration::ESectionAction HookshotConfigReader::ActionForSection(std::wstring_view section)
+    Configuration::EAction HookshotConfigReader::ActionForSection(std::wstring_view section)
     {
         if (0 != configurationFileLayout.count(section))
-            return Configuration::ESectionAction::Read;
+            return Configuration::EAction::Process;
 
-        return Configuration::ESectionAction::Skip;
+        return Configuration::EAction::Skip;
     }
 
     // --------
 
-    bool HookshotConfigReader::CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TIntegerValue& value)
+    Configuration::EAction HookshotConfigReader::ActionForValue(std::wstring_view section, std::wstring_view name, const Configuration::TIntegerView value)
     {
-        return (value >= 0);
+        if (value >= 0)
+            return Configuration::EAction::Process;
+
+        return Configuration::EAction::Error;
     }
 
     // --------
 
-    bool HookshotConfigReader::CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TBooleanValue& value)
+    Configuration::EAction HookshotConfigReader::ActionForValue(std::wstring_view section, std::wstring_view name, const Configuration::TBooleanView value)
     {
-        return true;
+        return Configuration::EAction::Process;
     }
 
     // --------
 
-    bool HookshotConfigReader::CheckValue(std::wstring_view section, std::wstring_view name, const Configuration::TStringValue& value)
+    Configuration::EAction HookshotConfigReader::ActionForValue(std::wstring_view section, std::wstring_view name, const Configuration::TStringView value)
     {
-        return true;
+        return Configuration::EAction::Process;
     }
 
     // --------
 
-    void HookshotConfigReader::PrepareForRead(void)
+    void HookshotConfigReader::BeginRead(void)
     {
         CompleteConfigurationFileLayout();
     }

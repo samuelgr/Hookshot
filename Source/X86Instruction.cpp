@@ -391,10 +391,10 @@ namespace Hookshot
             return false;
 
         TemporaryBuffer<char> narrowCharDisassembly;
-        if (false == xed_format_context(XED_SYNTAX_INTEL, &decodedInstruction, narrowCharDisassembly, narrowCharDisassembly.Count(), (xed_uint64_t)address, nullptr, nullptr))
+        if (false == xed_format_context(XED_SYNTAX_INTEL, &decodedInstruction, narrowCharDisassembly.Data(), narrowCharDisassembly.Capacity(), (xed_uint64_t)address, nullptr, nullptr))
             return false;
 
-        return (0 == mbstowcs_s(nullptr, buf, numChars, narrowCharDisassembly, narrowCharDisassembly.Count()));
+        return (0 == mbstowcs_s(nullptr, buf, numChars, narrowCharDisassembly.Data(), narrowCharDisassembly.Capacity()));
     }
 
     // --------

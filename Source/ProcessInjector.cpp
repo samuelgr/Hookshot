@@ -132,17 +132,17 @@ namespace Hookshot
         static EInjectResult VerifyAuthorizedToInjectProcess(const HANDLE processHandle)
         {
             TemporaryBuffer<wchar_t> processExecutablePath;
-            DWORD processExecutablePathLength = processExecutablePath.Count();
+            DWORD processExecutablePathLength = processExecutablePath.Capacity();
 
-            if (0 == QueryFullProcessImageName(processHandle, 0, processExecutablePath, &processExecutablePathLength))
+            if (0 == QueryFullProcessImageName(processHandle, 0, processExecutablePath.Data(), &processExecutablePathLength))
                 return EInjectResult::ErrorCannotDetermineAuthorization;
 
-            std::wstring authorizationFileName = Strings::AuthorizationFilenameApplicationSpecific(&processExecutablePath[0]);
+            std::wstring authorizationFileName = Strings::AuthorizationFilenameApplicationSpecific(processExecutablePath.Data());
             if (FALSE == PathFileExists(authorizationFileName.c_str()))
             {
                 Message::OutputFormatted(Message::ESeverity::Warning, L"Authorization not granted, cannot open application-specific file %s.", authorizationFileName.c_str());
 
-                authorizationFileName = Strings::AuthorizationFilenameDirectoryWide(&processExecutablePath[0]);
+                authorizationFileName = Strings::AuthorizationFilenameDirectoryWide(processExecutablePath.Data());
                 if (FALSE == PathFileExists(authorizationFileName.c_str()))
                 {
                     Message::OutputFormatted(Message::ESeverity::Warning, L"Authorization not granted, cannot open directory-wide file %s.", authorizationFileName.c_str());

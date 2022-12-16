@@ -288,9 +288,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
             // Command-line string must be placed into a mutable buffer, per CreateProcessW documentation.
             TemporaryBuffer<wchar_t> commandLine;
-            if (0 != wcscpy_s(commandLine, commandLine.Count(), commandLineStream.str().c_str()))
+            if (0 != wcscpy_s(commandLine.Data(), commandLine.Capacity(), commandLineStream.str().c_str()))
             {
-                Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"Specified command line exceeds the limit of %d characters.", (int)commandLine.Count());
+                Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"Specified command line exceeds the limit of %d characters.", (int)commandLine.Capacity());
                 return __LINE__;
             }
 
@@ -300,7 +300,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
             memset((void*)&startupInfo, 0, sizeof(startupInfo));
             memset((void*)&processInfo, 0, sizeof(processInfo));
 
-            if (0 == CreateProcess(nullptr, commandLine, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInfo))
+            if (0 == CreateProcess(nullptr, commandLine.Data(), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInfo))
             {
                 Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to launch this executable.\n\nUnable to start %s (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
                 return __LINE__;

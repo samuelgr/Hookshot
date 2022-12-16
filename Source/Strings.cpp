@@ -12,14 +12,17 @@
 #include "ApiWindows.h"
 #include "DependencyProtect.h"
 #include "Globals.h"
+#include "Strings.h"
 #include "TemporaryBuffer.h"
 
+#include <cctype>
 #include <cstdlib>
+#include <cwctype>
 #include <intrin.h>
 #include <mutex>
 #include <psapi.h>
 #include <shlobj.h>
-#include <sstream>
+#include <sal.h>
 #include <string>
 #include <string_view>
 
@@ -70,6 +73,35 @@ namespace Hookshot
 
         // -------- INTERNAL FUNCTIONS ------------------------------------- //
 
+        /// Converts a single character to lowercase.
+        /// Default implementation does nothing useful.
+        /// @tparam CharType Character type.
+        /// @param [in] c Character to convert.
+        /// @return Null character, as the default implementation does nothing useful.
+        template <typename CharType> static inline CharType ToLowercase(CharType c)
+        {
+            return L'\0';
+        }
+
+        /// Converts a single narrow character to lowercase.
+        /// @tparam CharType Character type.
+        /// @param [in] c Character to convert.
+        /// @return Lowercase version of the input, if a conversion is possible, or the same character as the input otherwise.
+        template <> char static inline ToLowercase(char c)
+        {
+            return std::tolower(c);
+        }
+
+        /// Converts a single wide character to lowercase.
+        /// Default implementation does nothing useful.
+        /// @tparam CharType Character type.
+        /// @param [in] c Character to convert.
+        /// @return Lowercase version of the input, if a conversion is possible, or the same character as the input otherwise.
+        template <> wchar_t static inline ToLowercase(wchar_t c)
+        {
+            return std::towlower(c);
+        }
+
         /// Generates the value for kStrProductName; see documentation of this run-time constant for more information.
         /// @return Corresponding run-time constant value.
         static const std::wstring& GetProductName(void)
@@ -100,9 +132,9 @@ namespace Hookshot
 
             std::call_once(initFlag, []() -> void {
                 TemporaryBuffer<wchar_t> buf;
-                GetModuleFileName(nullptr, buf, (DWORD)buf.Count());
+                GetModuleFileName(nullptr, buf.Data(), (DWORD)buf.Capacity());
 
-                initString.assign(buf);
+                initString.assign(buf.Data());
             });
 
             return initString;
@@ -158,9 +190,9 @@ namespace Hookshot
 
             std::call_once(initFlag, []() -> void {
                 TemporaryBuffer<wchar_t> buf;
-                GetModuleFileName(Globals::GetInstanceHandle(), buf, (DWORD)buf.Count());
+                GetModuleFileName(Globals::GetInstanceHandle(), buf.Data(), (DWORD)buf.Capacity());
 
-                initString.assign(buf);
+                initString.assign(buf.Data());
             });
 
             return initString;
@@ -238,7 +270,7 @@ namespace Hookshot
             static std::once_flag initFlag;
 
             std::call_once(initFlag, []() -> void {
-                std::wstringstream logFilename;
+                TemporaryString logFilename;
 
                 PWSTR knownFolderPath;
                 const HRESULT result = SHGetKnownFolderPath(FOLDERID_Desktop, 0, nullptr, &knownFolderPath);
@@ -251,7 +283,7 @@ namespace Hookshot
 
                 logFilename << GetProductName() << L'_' << GetExecutableBaseName() << L'_' << Globals::GetCurrentProcessId() << kStrHookshotLogFileExtension;
 
-                initString.assign(logFilename.str());
+                initString.assign(logFilename);
             });
 
             return initString;
@@ -384,6 +416,41 @@ namespace Hookshot
 
         // --------
 
+        template <typename CharType> bool EqualsCaseInsensitive(std::basic_string_view<CharType> strA, std::basic_string_view<CharType> strB)
+        {
+            if (strA.length() != strB.length())
+                return false;
+
+            for (size_t i = 0; i < strA.length(); ++i)
+            {
+                if (ToLowercase(strA[i]) != ToLowercase(strB[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        template bool EqualsCaseInsensitive<char>(std::string_view, std::string_view);
+        template bool EqualsCaseInsensitive<wchar_t>(std::wstring_view, std::wstring_view);
+
+        // --------
+
+        TemporaryString FormatString(_Printf_format_string_ const wchar_t* format, ...)
+        {
+            TemporaryString buf;
+
+            va_list args;
+            va_start(args, format);
+
+            buf.UnsafeSetSize((size_t)vswprintf_s(buf.Data(), buf.Capacity(), format, args));
+
+            va_end(args);
+
+            return buf;
+        }
+
+        // --------
+
         std::wstring HookModuleFilename(std::wstring_view moduleName)
         {
             std::wstring hookModuleFilename;
@@ -400,25 +467,26 @@ namespace Hookshot
 
         std::wstring SystemErrorCodeString(const unsigned long systemErrorCode)
         {
-            TemporaryBuffer<wchar_t> systemErrorString;
-            DWORD systemErrorLength = Protected::Windows_FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, systemErrorCode, 0, systemErrorString, systemErrorString.Count(), nullptr);
+            TemporaryString systemErrorString;
+            DWORD systemErrorLength = Protected::Windows_FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, systemErrorCode, 0, systemErrorString.Data(), systemErrorString.Capacity(), nullptr);
 
             if (0 == systemErrorLength)
             {
-                swprintf_s(systemErrorString, systemErrorString.Count(), L"System error %u", (unsigned int)systemErrorCode);
+                systemErrorString = FormatString(L"System error %u.", (unsigned int)systemErrorCode);
             }
             else
             {
                 for (; systemErrorLength > 0; --systemErrorLength)
                 {
-                    if ((L'\0' != systemErrorString[systemErrorLength]) && (L'.' != systemErrorString[systemErrorLength]) && !iswspace(systemErrorString[systemErrorLength]))
+                    if (L'\0' != systemErrorString[systemErrorLength] && !iswspace(systemErrorString[systemErrorLength]))
                         break;
 
                     systemErrorString[systemErrorLength] = L'\0';
+                    systemErrorString.UnsafeSetSize(systemErrorLength);
                 }
             }
 
-            return std::wstring(systemErrorString);
+            return std::wstring(systemErrorString.Data());
         }
     }
 }

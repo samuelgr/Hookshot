@@ -143,13 +143,13 @@ namespace Hookshot
         offsetLoadLibraryA = (size_t)LoadLibraryA - (size_t)moduleInfo.lpBaseOfDll;
 
         // Compute the full path names for each module that offers the required functions.
-        if (0 == GetModuleFileName(moduleGetLastError, moduleFilenameGetLastError, moduleFilenameGetLastError.Count()))
+        if (0 == GetModuleFileName(moduleGetLastError, moduleFilenameGetLastError.Data(), moduleFilenameGetLastError.Capacity()))
             return false;
 
-        if (0 == GetModuleFileName(moduleGetProcAddress, moduleFilenameGetProcAddress, moduleFilenameGetProcAddress.Count()))
+        if (0 == GetModuleFileName(moduleGetProcAddress, moduleFilenameGetProcAddress.Data(), moduleFilenameGetProcAddress.Capacity()))
             return false;
 
-        if (0 == GetModuleFileName(moduleLoadLibraryA, moduleFilenameLoadLibraryA, moduleFilenameLoadLibraryA.Count()))
+        if (0 == GetModuleFileName(moduleLoadLibraryA, moduleFilenameLoadLibraryA.Data(), moduleFilenameLoadLibraryA.Capacity()))
             return false;
 
         // Enumerate all of the modules in the target process.
@@ -157,7 +157,7 @@ namespace Hookshot
         TemporaryBuffer<HMODULE> loadedModules;
         DWORD numLoadedModules = 0;
 
-        if (FALSE == EnumProcessModules(injectedProcess, loadedModules, loadedModules.Size(), &numLoadedModules))
+        if (FALSE == EnumProcessModules(injectedProcess, loadedModules.Data(), loadedModules.CapacityBytes(), &numLoadedModules))
             return false;
 
         numLoadedModules /= sizeof(HMODULE);
@@ -172,12 +172,12 @@ namespace Hookshot
             const HMODULE loadedModule = loadedModules[modidx];
             TemporaryBuffer<wchar_t> loadedModuleName;
 
-            if (0 == GetModuleFileNameEx(injectedProcess, loadedModule, loadedModuleName, loadedModuleName.Count()))
+            if (0 == GetModuleFileNameEx(injectedProcess, loadedModule, loadedModuleName.Data(), loadedModuleName.Capacity()))
                 return false;
 
             if (nullptr == addrGetLastError)
             {
-                if (0 == wcsncmp(moduleFilenameGetLastError, loadedModuleName, loadedModuleName.Count()))
+                if (0 == wcsncmp(moduleFilenameGetLastError.Data(), loadedModuleName.Data(), loadedModuleName.Capacity()))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -188,7 +188,7 @@ namespace Hookshot
 
             if (nullptr == addrGetProcAddress)
             {
-                if (0 == wcsncmp(moduleFilenameGetProcAddress, loadedModuleName, loadedModuleName.Count()))
+                if (0 == wcsncmp(moduleFilenameGetProcAddress.Data(), loadedModuleName.Data(), loadedModuleName.Capacity()))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -199,7 +199,7 @@ namespace Hookshot
 
             if (nullptr == addrLoadLibraryA)
             {
-                if (0 == wcsncmp(moduleFilenameLoadLibraryA, loadedModuleName, loadedModuleName.Count()))
+                if (0 == wcsncmp(moduleFilenameLoadLibraryA.Data(), loadedModuleName.Data(), loadedModuleName.Capacity()))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;

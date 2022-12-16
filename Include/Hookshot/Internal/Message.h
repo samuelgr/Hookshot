@@ -55,8 +55,8 @@ namespace Hookshot
 #endif
 
         /// Specifies the maximum severity that requires a non-interactive mode of output be used.
-        /// Messages at this severity or lower will be skipped unless a non-intneractive output mode is being used.
-        static constexpr ESeverity kMaximumSeverityToRequireNonInteractiveOutput = ESeverity::Debug;
+        /// Messages at this severity or lower will be skipped unless a non-interactive output mode is being used.
+        static constexpr ESeverity kMaximumSeverityToRequireNonInteractiveOutput = ESeverity::Warning;
 
 
         // -------- FUNCTIONS ---------------------------------------------- //
@@ -65,6 +65,10 @@ namespace Hookshot
         /// Will generate an error message on failure.
         /// Once logging to a file is enabled, it cannot be disabled.
         void CreateAndEnableLogFile(void);
+
+        /// Checks if logging to a file is enabled.
+        /// @return `true` if so, `false` if not.
+        bool IsLogFileEnabled(void);
 
         /// Outputs the specified message.
         /// Requires both a severity and a message string.

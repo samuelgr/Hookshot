@@ -131,7 +131,7 @@ namespace Hookshot
             if (Message::WillOutputMessageOfSeverity(Message::ESeverity::Debug))
             {
                 TemporaryBuffer<wchar_t> disassembly;
-                const bool kDisassemblyResult = decodedInstruction.PrintDisassembly(disassembly, disassembly.Count());
+                const bool kDisassemblyResult = decodedInstruction.PrintDisassembly(disassembly.Data(), disassembly.Capacity());
                 Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Decoded %d-byte instruction \"%s\"", instructionIndex, decodedInstruction.GetLengthBytes(), ((true == kDisassemblyResult) ? &disassembly[0] : kDisassemblyFailedString.data()));
 
                 if (decodedInstruction.IsTerminal())
@@ -162,7 +162,7 @@ namespace Hookshot
                 if (Message::WillOutputMessageOfSeverity(Message::ESeverity::Debug))
                 {
                     TemporaryBuffer<wchar_t> disassembly;
-                    const bool kDisassemblyResult = hopefullyPaddingInstruction.PrintDisassembly(disassembly, disassembly.Count());
+                    const bool kDisassemblyResult = hopefullyPaddingInstruction.PrintDisassembly(disassembly.Data(), disassembly.Capacity());
                     Message::OutputFormatted(Message::ESeverity::Debug, L"Decoded a total of %d byte(s), needed %d. This is insufficient, but at least %d byte(s) of padding instruction \"%s\" are available. Proceeding.", numOriginalFunctionBytes, numOriginalFunctionBytesNeeded, kNumBytesShort, ((true == kDisassemblyResult) ? &disassembly[0] : kDisassemblyFailedString.data()));
                 }
             }

@@ -38,9 +38,9 @@ namespace Hookshot
     static void InjectChildProcess(const HANDLE processHandle, const HANDLE threadHandle)
     {
         TemporaryBuffer<wchar_t> childProcessExecutable;
-        DWORD childProcessExecutableLength = childProcessExecutable.Count();
+        DWORD childProcessExecutableLength = childProcessExecutable.Capacity();
 
-        if (0 == Protected::Windows_QueryFullProcessImageName(processHandle, 0, childProcessExecutable, &childProcessExecutableLength))
+        if (0 == Protected::Windows_QueryFullProcessImageName(processHandle, 0, childProcessExecutable.Data(), &childProcessExecutableLength))
             childProcessExecutableLength = 0;
 
         const EInjectResult result = RemoteProcessInjector::InjectProcess(processHandle, threadHandle, false, Protected::Windows_IsDebuggerPresent());
