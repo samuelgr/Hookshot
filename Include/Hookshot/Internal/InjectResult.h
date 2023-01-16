@@ -3,7 +3,7 @@
  *   General-purpose library for injecting DLLs and hooking function calls.
  ******************************************************************************
  * Authored by Samuel Grossman
- * Copyright (c) 2019-2022
+ * Copyright (c) 2019-2023
  **************************************************************************//**
  * @file InjectResult.h
  *   Declaration of result codes that arise during process injection.

@@ -3,7 +3,7 @@
  *   General-purpose library for injecting DLLs and hooking function calls.
  ******************************************************************************
  * Authored by Samuel Grossman
- * Copyright (c) 2019-2022
+ * Copyright (c) 2019-2023
  **************************************************************************//**
  * @file X86Instruction.h
  *   Declaration of object interface for manipulating binary X86 instructions.
