@@ -344,15 +344,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 // It is currently in a suspended state, ready for Hookshot's executable form to inject it.
 
                 const EInjectResult injectResult = RemoteProcessInjector::InjectProcess(processInfo.hProcess, processInfo.hThread, false, false);
-                ResumeThread(processInfo.hThread);
-
                 if (EInjectResult::Success != injectResult)
                 {
-                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to inject this executable (%s: %s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), InjectResultString(injectResult).data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to inject this executable.\n\n%s (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), InjectResultString(injectResult).data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+                    TerminateProcess(processInfo.hProcess, (UINT)-1);
                     return __LINE__;
                 }
 
+                ResumeThread(processInfo.hThread);
                 CloseHandle(processInfo.hThread);
+
                 launchedProcess = processInfo.hProcess;
             }
 
