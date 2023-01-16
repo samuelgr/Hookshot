@@ -11,6 +11,7 @@
 
 #include "ApiWindows.h"
 #include "Message.h"
+#include "RemoteProcessInjector.h"
 #include "Strings.h"
 #include "TemporaryBuffer.h"
 
@@ -44,7 +45,7 @@ namespace Hookshot
     static bool GetUserPermissionForAuthorizationElevation(std::wstring_view executablePath, std::wstring_view authorizationFile)
     {
         std::wstringstream contentStream;
-        contentStream << Strings::kStrProductName << L" temporarily needs administrator permission so it can create an authorization file for the executable it is attempting to launch.";
+        contentStream << Strings::kStrProductName << L" temporarily needs administrator permission so it can create an authorization file for the executable it is attempting to launch.\n\nThis is a one-time operation unless the file is deleted.";
         const std::wstring kContentString = contentStream.str();
         
         std::wstringstream expandedInformationStream;
@@ -52,7 +53,7 @@ namespace Hookshot
         const std::wstring kExpandedInformationString = expandedInformationStream.str();
 
         std::wstringstream footerStream;
-        footerStream << Strings::kStrProductName << L" checks for authorization files to make sure it has your permission to act.";
+        footerStream << L"An authorization file grants " << Strings::kStrProductName << L" permission to inject a particular executable.";
         const std::wstring kFooterString = footerStream.str();
         
         std::wstringstream buttonTextOk;
@@ -253,45 +254,47 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         else
         {
             // Executed normally.
-            // Attempt to launch the target executable via HookshotExe.
+            // Attempt to launch the target executable and then inject it with HookshotExe.
 
             // Verify Hookshot is authorized to act on the target executable and, if not, attempt to create the required authorization file.
             const DWORD authorizeResult = EnsureHookshotIsAuthorized(kExecutableToLaunch.c_str());
-            if (ERROR_SUCCESS != authorizeResult)
+            switch (authorizeResult)
             {
+            case ERROR_SUCCESS:
+                break;
+
+            case ERROR_ACCESS_DENIED:
+            case ERROR_CANCELLED:
+                // Elevation is required but the user either declined or cancelled the operation.
+                // In both cases the user clicked a button to terminate the operation.
+                return __LINE__;
+
+            default:
                 Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to launch this executable.\n\nUnable to create the authorization file (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(authorizeResult).c_str());
                 return __LINE__;
             }
 
-            // Compose a full command-line string that contains the name of the Hookshot executable, the name of the executable to launch, and then all command-line arguments.
+            // Compose a full command-line string that contains the name of the executable to launch then all command-line arguments, which were all originally supplied to this executable.
             // Each element must be enclosed in quotes, and for command-line arguments they must have any contained quote characters escaped.
-            std::wstringstream commandLineStream;
-            commandLineStream << L'\"' << Strings::kStrHookshotExecutableFilename << L"\" \"" << kExecutableToLaunch << L'\"';
+            TemporaryString commandLine;
+            commandLine << L'\"' << kExecutableToLaunch << L'\"';
 
             for (size_t argIndex = 1; argIndex < (size_t)__argc; ++argIndex)
             {
                 const wchar_t* const argString = __wargv[argIndex];
                 const size_t argLen = wcslen(argString);
 
-                commandLineStream << L" \"";
+                commandLine << L" \"";
 
                 for (size_t i = 0; i < argLen; ++i)
                 {
                     if (L'\"' == argString[i])
-                        commandLineStream << L'\\';
+                        commandLine << L'\\';
 
-                    commandLineStream << argString[i];
+                    commandLine << argString[i];
                 }
 
-                commandLineStream << L'\"';
-            }
-
-            // Command-line string must be placed into a mutable buffer, per CreateProcessW documentation.
-            TemporaryBuffer<wchar_t> commandLine;
-            if (0 != wcscpy_s(commandLine.Data(), commandLine.Capacity(), commandLineStream.str().c_str()))
-            {
-                Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"Specified command line exceeds the limit of %d characters.", (int)commandLine.Capacity());
-                return __LINE__;
+                commandLine << L'\"';
             }
 
             STARTUPINFO startupInfo;
@@ -300,13 +303,65 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
             memset((void*)&startupInfo, 0, sizeof(startupInfo));
             memset((void*)&processInfo, 0, sizeof(processInfo));
 
-            if (0 == CreateProcess(nullptr, commandLine.Data(), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupInfo, &processInfo))
+            HANDLE launchedProcess = NULL;
+
+            if (0 == CreateProcess(nullptr, commandLine.Data(), nullptr, nullptr, FALSE, CREATE_SUSPENDED, nullptr, nullptr, &startupInfo, &processInfo))
             {
-                Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to launch this executable.\n\nUnable to start %s (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
-                return __LINE__;
+                // Execution of the requested executable failed.
+                // Either re-attempt by re-launching this launcher with elevation or fail completely with an error.
+
+                if (ERROR_ELEVATION_REQUIRED != GetLastError())
+                {
+                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to launch this executable (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+                    return __LINE__;
+                }
+
+                // Format of the command-line string is quote (1 character), executable name (N characters), end-quote (1 character), space (1 character), command-line arguments.
+                // Getting to the command-line arguments means skipping the length of the executable plus three more characters.
+                const wchar_t* commandLineArgs = ((__argc > 1) ? &commandLine[kExecutableToLaunch.length() + 3] : L"");
+                
+                SHELLEXECUTEINFO elevationAttemptInfo = {
+                    .cbSize = sizeof(SHELLEXECUTEINFO),
+                    .fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC,
+                    .lpVerb = L"runas",
+                    .lpFile = Strings::kStrExecutableCompleteFilename.data(),
+                    .lpParameters = commandLineArgs,
+                    .nShow = SW_SHOWDEFAULT
+                };
+
+                const BOOL executeElevatedResult = ShellExecuteEx(&elevationAttemptInfo);
+                if ((TRUE != executeElevatedResult) || (NULL == elevationAttemptInfo.hProcess))
+                {
+                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to launch this executable because it requires elevation (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+                    return __LINE__;
+                }
+
+                launchedProcess = elevationAttemptInfo.hProcess;
+            }
+            else
+            {
+                // Execution of the requested executable succeeded.
+                // It is currently in a suspended state, ready for Hookshot's executable form to inject it.
+
+                const EInjectResult injectResult = RemoteProcessInjector::InjectProcess(processInfo.hProcess, processInfo.hThread, false, false);
+                ResumeThread(processInfo.hThread);
+
+                if (EInjectResult::Success != injectResult)
+                {
+                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to inject this executable (%s: %s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), InjectResultString(injectResult).data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+                    return __LINE__;
+                }
+
+                CloseHandle(processInfo.hThread);
+                launchedProcess = processInfo.hProcess;
             }
 
-            Message::OutputFormatted(Message::ESeverity::Info, L"Successfully used %s to launch %s.", Strings::kStrHookshotExecutableFilename.data(), kExecutableToLaunch.c_str());
+            Message::OutputFormatted(Message::ESeverity::Info, L"Successfully used %s to inject %s.", Strings::kStrHookshotExecutableFilename.data(), kExecutableToLaunch.c_str());
+
+            if (WAIT_FAILED == WaitForSingleObject(launchedProcess, INFINITE))
+                Message::OutputFormatted(Message::ESeverity::Error, L"Failed to wait for %s to terminate (%s).", kExecutableToLaunch.c_str(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+
+            CloseHandle(launchedProcess);
             return 0;
         }
     }

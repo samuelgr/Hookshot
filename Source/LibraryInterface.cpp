@@ -86,7 +86,7 @@ namespace Hookshot
 
             if (nullptr == hookModule)
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load hook module: %s", hookModuleFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load hook module: %s.", hookModuleFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
                 return false;
             }
 
@@ -94,7 +94,7 @@ namespace Hookshot
 
             if (nullptr == initProc)
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to locate required procedure in hook module: %s", hookModuleFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to locate required procedure in hook module: %s.", hookModuleFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
                 return false;
             }
 
@@ -114,7 +114,7 @@ namespace Hookshot
 
             if (nullptr == hookModule)
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load library: %s", injectOnlyLibraryFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load library: %s.", injectOnlyLibraryFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
                 return false;
             }
 

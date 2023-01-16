@@ -48,7 +48,7 @@ namespace Hookshot
         if (EInjectResult::Success == result)
             Message::OutputFormatted(Message::ESeverity::Info, L"Successfully injected child process %s.", (0 == childProcessExecutableLength ? L"(error determining executable file name)" : &childProcessExecutable[0]));
         else
-            Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to inject child process: %s: %s", (0 == childProcessExecutableLength ? L"(error determining executable file name)" : &childProcessExecutable[0]), InjectResultString(result).data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
+            Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to inject child process: %s: %s.", (0 == childProcessExecutableLength ? L"(error determining executable file name)" : &childProcessExecutable[0]), InjectResultString(result).data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
     }
 
 

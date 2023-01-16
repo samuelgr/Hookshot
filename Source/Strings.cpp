@@ -472,13 +472,13 @@ namespace Hookshot
 
             if (0 == systemErrorLength)
             {
-                systemErrorString = FormatString(L"System error %u.", (unsigned int)systemErrorCode);
+                systemErrorString = FormatString(L"System error %u", (unsigned int)systemErrorCode);
             }
             else
             {
                 for (; systemErrorLength > 0; --systemErrorLength)
                 {
-                    if (L'\0' != systemErrorString[systemErrorLength] && !iswspace(systemErrorString[systemErrorLength]))
+                    if (L'\0' != systemErrorString[systemErrorLength] && L'.' != systemErrorString[systemErrorLength] && !iswspace(systemErrorString[systemErrorLength]))
                         break;
 
                     systemErrorString[systemErrorLength] = L'\0';
