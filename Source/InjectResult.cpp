@@ -85,20 +85,41 @@ namespace Hookshot
             return L"Error generating executable filename";
         case EInjectResult::ErrorInterProcessCommunicationFailed:
             return L"Error communicating with the executable";
-        case EInjectResult::ErrorCreateHookshotProcessFailed:
-            return L"Error creating a new Hookshot executable process";
         case EInjectResult::ErrorCannotLocateRequiredFunctions:
             return L"Error locating required API functions in the new process";
         case EInjectResult::ErrorCannotWriteRequiredFunctionLocations:
             return L"Error writing required API function locations";
         case EInjectResult::ErrorCannotReadStatus:
             return L"Error reading status information from the injection payload";
-        case EInjectResult::ErrorCannotLoadLibrary:
-            return L"Error loading library from within the new process";
         case EInjectResult::ErrorMalformedLibrary:
-            return L"Library loaded from within the new process is malformed";
+            return L"Hookshot DLL loaded from within the new process is malformed";
         case EInjectResult::ErrorLibraryInitFailed:
             return L"Error initializing library from within the new process";
+
+#if defined(HOOKSHOT32)
+
+        case EInjectResult::ErrorCreateHookshotProcessFailed:
+            return L"Error creating a new 32-bit Hookshot executable process";
+        case EInjectResult::ErrorCreateHookshotOtherArchitectureProcessFailed:
+            return L"Error creating a new 64-bit Hookshot executable process";
+        case EInjectResult::ErrorCannotLoadLibrary:
+            return L"Error loading 32-bit Hookshot DLL from within the new process";
+        case EInjectResult::ErrorCannotLoadLibraryOtherArchitecture:
+            return L"Error loading 64-bit Hookshot DLL from within the new process";
+
+#elif defined(HOOKSHOT64)
+
+        case EInjectResult::ErrorCreateHookshotProcessFailed:
+            return L"Error creating a new 64-bit Hookshot executable process";
+        case EInjectResult::ErrorCreateHookshotOtherArchitectureProcessFailed:
+            return L"Error creating a new 32-bit Hookshot executable process";
+        case EInjectResult::ErrorCannotLoadLibrary:
+            return L"Error loading 64-bit Hookshot DLL from within the new process";
+        case EInjectResult::ErrorCannotLoadLibraryOtherArchitecture:
+            return L"Error loading 32-bit Hookshot DLL from within the new process";
+
+#endif
+
         default:
             return L"Unknown result";
         }

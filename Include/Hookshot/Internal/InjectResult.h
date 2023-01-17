@@ -69,12 +69,14 @@ namespace Hookshot
         ErrorCannotGenerateExecutableFilename,                      ///< Failed to compute the name of the executable to spawn.
         ErrorInterProcessCommunicationFailed,                       ///< Failed to perform inter-process communication.
         ErrorCreateHookshotProcessFailed,                           ///< Failed to spawn a new Hookshot instance.
+        ErrorCreateHookshotOtherArchitectureProcessFailed,          ///< Failed to spawn a new Hookshot instance of the other architecture (for example, spawning a 32-bit instance from a 64-bit process).
 
         // Issues encountered while running injection code to initialize the injected process
         ErrorCannotLocateRequiredFunctions,                         ///< Failed to locate required functions in the address space of the injected process.
         ErrorCannotWriteRequiredFunctionLocations,                  ///< Failed to write the locations of the required functions into the address space of the injected process.
         ErrorCannotReadStatus,                                      ///< Failed to read status information from the injected process.
         ErrorCannotLoadLibrary,                                     ///< Failed to load the Hookshot library in the injected process.
+        ErrorCannotLoadLibraryOtherArchitecture,                    ///< Failed to load the Hookshot library in the injected process of the other architecture (for example, spawning a 32-bit instance from a 64-bit process).
         ErrorMalformedLibrary,                                      ///< Loaded Hookshot library is malformed.
         ErrorLibraryInitFailed,                                     ///< Loaded Hookshot library failed to initialize.
 

@@ -86,7 +86,11 @@ namespace Hookshot
                 Protected::Windows_UnmapViewOfFile(sharedInfo);
                 Protected::Windows_CloseHandle(sharedMemoryHandle);
                 Protected::Windows_SetLastError(extendedResult);
-                return EInjectResult::ErrorCreateHookshotProcessFailed;
+
+                if (true == switchArchitecture)
+                    return EInjectResult::ErrorCreateHookshotOtherArchitectureProcessFailed;
+                else
+                    return EInjectResult::ErrorCreateHookshotProcessFailed;
             }
 
             // Fill in the required inputs to the new instance of Hookshot.
@@ -139,13 +143,28 @@ namespace Hookshot
                 return EInjectResult::ErrorInterProcessCommunicationFailed;
             }
 
-            const EInjectResult operationResult = (EInjectResult)sharedInfo->injectionResult;
-            const DWORD extendedResult = (DWORD)sharedInfo->extendedInjectionResult;
+            EInjectResult operationResult = (EInjectResult)sharedInfo->injectionResult;
+            DWORD extendedResult = (DWORD)sharedInfo->extendedInjectionResult;
             Protected::Windows_CloseHandle(processInfo.hProcess);
             Protected::Windows_CloseHandle(processInfo.hThread);
             Protected::Windows_UnmapViewOfFile(sharedInfo);
             Protected::Windows_CloseHandle(sharedMemoryHandle);
             Protected::Windows_SetLastError(extendedResult);
+
+            // Some errors are architecture-specific as a way of helping the user understand the issue.
+            if (true == switchArchitecture)
+            {
+                switch (operationResult)
+                {
+                case EInjectResult::ErrorCannotLoadLibrary:
+                    operationResult = EInjectResult::ErrorCannotLoadLibraryOtherArchitecture;
+                    break;
+
+                default:
+                    break;
+                }
+            }
+
             return operationResult;
         }
     }

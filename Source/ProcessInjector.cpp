@@ -268,7 +268,7 @@ namespace Hookshot
             else
             {
                 const DWORD systemErrorCode = GetLastError();
-                TerminateProcess(processInfo.hProcess, UINT_MAX);
+                TerminateProcess(processInfo.hProcess, (UINT)-1);
                 SetLastError(systemErrorCode);
             }
 
