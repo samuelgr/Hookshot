@@ -53,7 +53,7 @@ namespace Hookshot
         const std::wstring kExpandedInformationString = expandedInformationStream.str();
 
         std::wstringstream footerStream;
-        footerStream << L"An authorization file grants " << Strings::kStrProductName << L" permission to inject a particular executable.";
+        footerStream << L"An authorization file contains no data. Its existence tells " << Strings::kStrProductName << L" it has your permission to inject a particular executable.";
         const std::wstring kFooterString = footerStream.str();
         
         std::wstringstream buttonTextOk;
