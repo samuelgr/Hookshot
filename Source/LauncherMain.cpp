@@ -46,48 +46,48 @@ namespace Hookshot
     {
         std::wstringstream contentStream;
         contentStream << Strings::kStrProductName << L" temporarily needs administrator permission so it can create an authorization file for the executable it is attempting to launch.\n\nThis is a one-time operation unless the file is deleted.";
-        const std::wstring kContentString = contentStream.str();
+        const std::wstring contentString = contentStream.str();
         
         std::wstringstream expandedInformationStream;
         expandedInformationStream << L"\nExecutable to launch:\n" << executablePath.data() << L"\n\nAuthorization file to be created:\n" << authorizationFile << L"\n";
-        const std::wstring kExpandedInformationString = expandedInformationStream.str();
+        const std::wstring expandedInformationString = expandedInformationStream.str();
 
         std::wstringstream footerStream;
         footerStream << L"An authorization file contains no data. Its existence tells " << Strings::kStrProductName << L" it has your permission to inject a particular executable.";
-        const std::wstring kFooterString = footerStream.str();
+        const std::wstring footerString = footerStream.str();
         
-        std::wstringstream buttonTextOk;
-        buttonTextOk << L"Proceed\nCreate the authorization file and launch the executable with " << Strings::kStrProductName << L".";
-        const std::wstring kButtonTextOk = buttonTextOk.str();
+        std::wstringstream buttonTextOkStream;
+        buttonTextOkStream << L"Proceed\nCreate the authorization file and launch the executable with " << Strings::kStrProductName << L".";
+        const std::wstring buttonTextOk = buttonTextOkStream.str();
 
-        std::wstringstream buttonTextCancel;
-        buttonTextCancel << L"Cancel\nExit without creating the authorization file.";
-        const std::wstring kButtonTextCancel = buttonTextCancel.str();
+        std::wstringstream buttonTextCancelStream;
+        buttonTextCancelStream << L"Cancel\nExit without creating the authorization file.";
+        const std::wstring buttonTextCancel = buttonTextCancelStream.str();
         
         const TASKDIALOG_BUTTON kUserDialogCustomButtons[] = {
             {
                 .nButtonID = IDOK,
-                .pszButtonText = kButtonTextOk.c_str()
+                .pszButtonText = buttonTextOk.c_str()
             },
             {
                 .nButtonID = IDCANCEL,
-                .pszButtonText = kButtonTextCancel.c_str()
+                .pszButtonText = buttonTextCancel.c_str()
             }
         };
 
-        const TASKDIALOGCONFIG kUserDialogConfig = {
+        const TASKDIALOGCONFIG userDialogConfig = {
             .cbSize = sizeof(TASKDIALOGCONFIG),
             .dwFlags = TDF_USE_COMMAND_LINKS | TDF_SIZE_TO_CONTENT,
             .pszWindowTitle = Strings::kStrProductName.data(),
-            .pszContent = kContentString.c_str(),
+            .pszContent = contentString.c_str(),
             .cButtons = _countof(kUserDialogCustomButtons),
             .pButtons = kUserDialogCustomButtons,
             .nDefaultButton = kUserDialogCustomButtons[0].nButtonID,
-            .pszExpandedInformation = kExpandedInformationString.c_str(),
+            .pszExpandedInformation = expandedInformationString.c_str(),
             .pszExpandedControlText = L"Fewer details",
             .pszCollapsedControlText = L"More details",
             .pszFooterIcon = TD_INFORMATION_ICON,
-            .pszFooter = kFooterString.c_str(),
+            .pszFooter = footerString.c_str(),
             .pfCallback = [](HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, LONG_PTR lpRefData) -> HRESULT {
                 switch (msg)
                 {
@@ -109,7 +109,7 @@ namespace Hookshot
         };
 
         int dialogResponse = 0;
-        TaskDialogIndirect(&kUserDialogConfig, &dialogResponse, nullptr, nullptr);
+        TaskDialogIndirect(&userDialogConfig, &dialogResponse, nullptr, nullptr);
         return (kUserDialogCustomButtons[0].nButtonID == dialogResponse);
     }
 
@@ -167,8 +167,8 @@ namespace Hookshot
     /// @return System error code representing the result of the operation.
     static DWORD LauncherTaskCreateAuthorizationFile(std::wstring_view executablePath)
     {
-        const std::wstring kAuthorizationFileToCreate = Strings::AuthorizationFilenameApplicationSpecific(executablePath);
-        const HANDLE authorizationFileHandle = CreateFile(kAuthorizationFileToCreate.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        const std::wstring authorizationFileToCreate = Strings::AuthorizationFilenameApplicationSpecific(executablePath);
+        const HANDLE authorizationFileHandle = CreateFile(authorizationFileToCreate.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
         const DWORD authorizationFileResult = GetLastError();
 
         if (INVALID_HANDLE_VALUE != authorizationFileHandle)
@@ -182,17 +182,17 @@ namespace Hookshot
     /// @return System error code representing the result of the operation.
     static DWORD EnsureHookshotIsAuthorized(std::wstring_view executablePath)
     {
-        const std::wstring kAuthorizationFileApplicationSpecific = Strings::AuthorizationFilenameApplicationSpecific(executablePath);
-        const std::wstring kAuthorizationFileDirectoryWide = Strings::AuthorizationFilenameDirectoryWide(executablePath);
+        const std::wstring authorizationFileApplicationSpecific = Strings::AuthorizationFilenameApplicationSpecific(executablePath);
+        const std::wstring authorizationFileDirectoryWide = Strings::AuthorizationFilenameDirectoryWide(executablePath);
 
-        if ((TRUE == PathFileExists(kAuthorizationFileApplicationSpecific.c_str())) || (TRUE == PathFileExists(kAuthorizationFileDirectoryWide.c_str())))
+        if ((TRUE == PathFileExists(authorizationFileApplicationSpecific.c_str())) || (TRUE == PathFileExists(authorizationFileDirectoryWide.c_str())))
             return ERROR_SUCCESS;
 
         const DWORD authorizationFileCreateResult = RunLauncherTask(kLauncherTaskCreateAuthorizationFile, false);
         switch (authorizationFileCreateResult)
         {
         case ERROR_ACCESS_DENIED:
-            return ((true == GetUserPermissionForAuthorizationElevation(executablePath, kAuthorizationFileApplicationSpecific)) ? RunLauncherTask(kLauncherTaskCreateAuthorizationFile, true) : ERROR_ACCESS_DENIED);
+            return ((true == GetUserPermissionForAuthorizationElevation(executablePath, authorizationFileApplicationSpecific)) ? RunLauncherTask(kLauncherTaskCreateAuthorizationFile, true) : ERROR_ACCESS_DENIED);
 
         default:
             return authorizationFileCreateResult;

@@ -65,12 +65,12 @@ namespace Hookshot
         /// Enables the log, if it is configured in the configuration file.
         static void EnableLogIfConfigured(void)
         {
-            const int64_t kLogLevel = GetConfigurationData().GetFirstIntegerValue(Configuration::kSectionNameGlobal, Strings::kStrConfigurationSettingNameLogLevel).value_or(0);
+            const int64_t logLevel = GetConfigurationData().GetFirstIntegerValue(Configuration::kSectionNameGlobal, Strings::kStrConfigurationSettingNameLogLevel).value_or(0);
 
-            if (kLogLevel > 0)
+            if (logLevel > 0)
             {
                 // Offset the requested severity so that 0 = disabled, 1 = error, 2 = warning, etc.
-                const Message::ESeverity configuredSeverity = (Message::ESeverity)(kLogLevel + (int64_t)Message::ESeverity::LowerBoundConfigurableValue);
+                const Message::ESeverity configuredSeverity = (Message::ESeverity)(logLevel + (int64_t)Message::ESeverity::LowerBoundConfigurableValue);
                 EnableLog(configuredSeverity);
             }
         }

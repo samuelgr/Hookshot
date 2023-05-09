@@ -198,7 +198,7 @@ namespace Hookshot
             }
 
             const size_t allocationGranularity = Globals::GetSystemInformation().dwPageSize;
-            const size_t kEffectiveInjectRegionSize = (InjectInfo::kMaxInjectBinaryFileSize < allocationGranularity) ? allocationGranularity : InjectInfo::kMaxInjectBinaryFileSize;
+            const size_t effectiveInjectRegionSize = (InjectInfo::kMaxInjectBinaryFileSize < allocationGranularity) ? allocationGranularity : InjectInfo::kMaxInjectBinaryFileSize;
             void* processBaseAddress = nullptr;
             void* processEntryPoint = nullptr;
             void* injectedCodeBase = nullptr;
@@ -216,8 +216,8 @@ namespace Hookshot
 
             // Allocate code and data areas in the target process.
             // Code first, then data.
-            injectedCodeBase = VirtualAllocEx(processHandle, nullptr, ((SIZE_T)kEffectiveInjectRegionSize * (SIZE_T)2), MEM_RESERVE | MEM_COMMIT, PAGE_NOACCESS);
-            injectedDataBase = (void*)((size_t)injectedCodeBase + kEffectiveInjectRegionSize);
+            injectedCodeBase = VirtualAllocEx(processHandle, nullptr, ((SIZE_T)effectiveInjectRegionSize * (SIZE_T)2), MEM_RESERVE | MEM_COMMIT, PAGE_NOACCESS);
+            injectedDataBase = (void*)((size_t)injectedCodeBase + effectiveInjectRegionSize);
 
             if (nullptr == injectedCodeBase)
                 return EInjectResult::ErrorVirtualAllocFailed;
@@ -226,16 +226,16 @@ namespace Hookshot
             {
                 DWORD unusedOldProtect = 0;
 
-                if (FALSE == VirtualProtectEx(processHandle, injectedCodeBase, kEffectiveInjectRegionSize, PAGE_EXECUTE_READ, &unusedOldProtect))
+                if (FALSE == VirtualProtectEx(processHandle, injectedCodeBase, effectiveInjectRegionSize, PAGE_EXECUTE_READ, &unusedOldProtect))
                     return EInjectResult::ErrorVirtualProtectFailed;
 
-                if (FALSE == VirtualProtectEx(processHandle, injectedDataBase, kEffectiveInjectRegionSize, PAGE_READWRITE, &unusedOldProtect))
+                if (FALSE == VirtualProtectEx(processHandle, injectedDataBase, effectiveInjectRegionSize, PAGE_READWRITE, &unusedOldProtect))
                     return EInjectResult::ErrorVirtualProtectFailed;
             }
 
             // Inject code and data.
             // Only mark the code buffer as requiring cleanup because both code and data buffers are from the same single allocation.
-            CodeInjector injector(injectedCodeBase, injectedDataBase, true, false, processEntryPoint, kEffectiveInjectRegionSize, kEffectiveInjectRegionSize, processHandle, threadHandle);
+            CodeInjector injector(injectedCodeBase, injectedDataBase, true, false, processEntryPoint, effectiveInjectRegionSize, effectiveInjectRegionSize, processHandle, threadHandle);
             operationResult = injector.SetAndRun(enableDebugFeatures);
 
             return operationResult;

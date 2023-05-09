@@ -31,12 +31,12 @@ namespace Hookshot
             // Obtain the name of the Hookshot executable to spawn.
             // Hold both the application name and the command-line arguments, enclosing the application name in quotes.
             // At most the argument needs to represent a 64-bit integer in hexadecimal, so two characters per byte, plus a space, an indicator character and a null character.
-            const std::wstring_view kExecutableFileName = (switchArchitecture ? Strings::kStrHookshotExecutableOtherArchitectureFilename : Strings::kStrHookshotExecutableFilename);
-            const size_t kExecutableArgumentMaxCount = 3 + (2 * sizeof(uint64_t));
-            const size_t kExecutableCommandLineMaxCount = 3 + kExecutableFileName.length() + kExecutableArgumentMaxCount;
+            const std::wstring_view executableFileName = (switchArchitecture ? Strings::kStrHookshotExecutableOtherArchitectureFilename : Strings::kStrHookshotExecutableFilename);
+            const size_t executableArgumentMaxCount = 3 + (2 * sizeof(uint64_t));
+            const size_t executableCommandLineMaxCount = 3 + executableFileName.length() + executableArgumentMaxCount;
 
             std::wstringstream executableCommandLine;
-            executableCommandLine << L'\"' << kExecutableFileName << L'\"';
+            executableCommandLine << L'\"' << executableFileName << L'\"';
 
             // Create an anonymous file mapping object backed by the system paging file, and ensure it can be inherited by child processes.
             // This has the effect of creating an anonymous shared memory object.

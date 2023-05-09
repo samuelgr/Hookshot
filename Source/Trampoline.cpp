@@ -131,8 +131,8 @@ namespace Hookshot
             if (Message::WillOutputMessageOfSeverity(Message::ESeverity::Debug))
             {
                 TemporaryBuffer<wchar_t> disassembly;
-                const bool kDisassemblyResult = decodedInstruction.PrintDisassembly(disassembly.Data(), disassembly.Capacity());
-                Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Decoded %d-byte instruction \"%s\"", instructionIndex, decodedInstruction.GetLengthBytes(), ((true == kDisassemblyResult) ? &disassembly[0] : kDisassemblyFailedString.data()));
+                const bool disassemblyResult = decodedInstruction.PrintDisassembly(disassembly.Data(), disassembly.Capacity());
+                Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - Decoded %d-byte instruction \"%s\"", instructionIndex, decodedInstruction.GetLengthBytes(), ((true == disassemblyResult) ? &disassembly[0] : kDisassemblyFailedString.data()));
 
                 if (decodedInstruction.IsTerminal())
                     Message::OutputFormatted(Message::ESeverity::Debug, L"Instruction %d - This is a terminal instruction.", instructionIndex);
@@ -152,18 +152,18 @@ namespace Hookshot
             // If so, Hookshot can overwrite some of them safely, which would allow the hooking process to continue.
             // It is not necessary to transplant padding instructions because they are not intended to be executed.
 
-            const int kNumBytesShort = numOriginalFunctionBytesNeeded - numOriginalFunctionBytes;
+            const int numBytesShort = numOriginalFunctionBytesNeeded - numOriginalFunctionBytes;
 
             X86Instruction hopefullyPaddingInstruction;
             hopefullyPaddingInstruction.DecodeInstruction(&originalFunctionBytes[numOriginalFunctionBytes]);
 
-            if (hopefullyPaddingInstruction.IsPaddingWithLengthAtLeast(kNumBytesShort))
+            if (hopefullyPaddingInstruction.IsPaddingWithLengthAtLeast(numBytesShort))
             {
                 if (Message::WillOutputMessageOfSeverity(Message::ESeverity::Debug))
                 {
                     TemporaryBuffer<wchar_t> disassembly;
-                    const bool kDisassemblyResult = hopefullyPaddingInstruction.PrintDisassembly(disassembly.Data(), disassembly.Capacity());
-                    Message::OutputFormatted(Message::ESeverity::Debug, L"Decoded a total of %d byte(s), needed %d. This is insufficient, but at least %d byte(s) of padding instruction \"%s\" are available. Proceeding.", numOriginalFunctionBytes, numOriginalFunctionBytesNeeded, kNumBytesShort, ((true == kDisassemblyResult) ? &disassembly[0] : kDisassemblyFailedString.data()));
+                    const bool disassemblyResult = hopefullyPaddingInstruction.PrintDisassembly(disassembly.Data(), disassembly.Capacity());
+                    Message::OutputFormatted(Message::ESeverity::Debug, L"Decoded a total of %d byte(s), needed %d. This is insufficient, but at least %d byte(s) of padding instruction \"%s\" are available. Proceeding.", numOriginalFunctionBytes, numOriginalFunctionBytesNeeded, numBytesShort, ((true == disassemblyResult) ? &disassembly[0] : kDisassemblyFailedString.data()));
                 }
             }
             else

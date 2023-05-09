@@ -331,8 +331,8 @@ namespace Hookshot
         if (1 != GetLengthBytes())
             return false;
 
-        const uint8_t kInstructionBinary = *(uint8_t*)GetAddress();
-        switch (kInstructionBinary)
+        const uint8_t instructionBinary = *(uint8_t*)GetAddress();
+        switch (instructionBinary)
         {
         case 0x90:  // nop
         case 0xcc:  // int 3
@@ -352,13 +352,13 @@ namespace Hookshot
         if (false == IsPadding())
             return false;
 
-        const int kNumBytesToCheck = ((numBytes < kMinNumBytesForPaddingBuffer) ? kMinNumBytesForPaddingBuffer : numBytes);
-        const uint8_t* const kPaddingBuffer = (uint8_t*)GetAddress();
-        const uint8_t kExpectedByte = kPaddingBuffer[0];
+        const int numBytesToCheck = ((numBytes < kMinNumBytesForPaddingBuffer) ? kMinNumBytesForPaddingBuffer : numBytes);
+        const uint8_t* const paddingBuffer = (uint8_t*)GetAddress();
+        const uint8_t expectedByte = paddingBuffer[0];
 
-        for (int i = 1; i < kNumBytesToCheck; ++i)
+        for (int i = 1; i < numBytesToCheck; ++i)
         {
-            if (kPaddingBuffer[i] != kExpectedByte)
+            if (paddingBuffer[i] != expectedByte)
                 return false;
         }
 

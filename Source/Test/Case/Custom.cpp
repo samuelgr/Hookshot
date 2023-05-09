@@ -81,23 +81,23 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(originalFunc);
         GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
 
-        const auto kOriginalFuncResult = originalFunc();
-        const auto kHookFuncResult = hookFunc();
+        const auto originalFuncResult = originalFunc();
+        const auto hookFuncResult = hookFunc();
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc, hookFunc)));
-        HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
-        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
+        HOOKSHOT_TEST_ASSERT(hookFuncResult == originalFunc());
+        HOOKSHOT_TEST_ASSERT(originalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->DisableHookFunction(hookFunc)));
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->DisableHookFunction(originalFunc)));
-        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == originalFunc());
-        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
+        HOOKSHOT_TEST_ASSERT(originalFuncResult == originalFunc());
+        HOOKSHOT_TEST_ASSERT(originalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
         HOOKSHOT_TEST_ASSERT(nullptr == hookshot->GetOriginalFunction(hookFunc));
 
         HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailNotFound == hookshot->ReplaceHookFunction(hookFunc, hookFunc));
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->ReplaceHookFunction(originalFunc, hookFunc)));
-        HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
-        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
+        HOOKSHOT_TEST_ASSERT(hookFuncResult == originalFunc());
+        HOOKSHOT_TEST_ASSERT(originalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
     }
 
     // Creates a hook chain going forwards.
@@ -538,18 +538,18 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
         GENERATE_AND_ASSIGN_FUNCTION(replacementHookFunc);
 
-        const auto kOriginalFuncResult = originalFunc();
-        const auto kHookFuncResult = hookFunc();
-        const auto kReplacementHookFuncResult = replacementHookFunc();
+        const auto originalFuncResult = originalFunc();
+        const auto hookFuncResult = hookFunc();
+        const auto replacementHookFuncResult = replacementHookFunc();
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc, hookFunc)));
-        HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
-        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
+        HOOKSHOT_TEST_ASSERT(hookFuncResult == originalFunc());
+        HOOKSHOT_TEST_ASSERT(originalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
         HOOKSHOT_TEST_ASSERT(nullptr != hookshot->GetOriginalFunction(hookFunc));
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->ReplaceHookFunction(hookFunc, replacementHookFunc)));
-        HOOKSHOT_TEST_ASSERT(kReplacementHookFuncResult == originalFunc());
-        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
+        HOOKSHOT_TEST_ASSERT(replacementHookFuncResult == originalFunc());
+        HOOKSHOT_TEST_ASSERT(originalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
         HOOKSHOT_TEST_ASSERT(nullptr == hookshot->GetOriginalFunction(hookFunc));
         HOOKSHOT_TEST_ASSERT(nullptr != hookshot->GetOriginalFunction(replacementHookFunc));
     }
@@ -561,18 +561,18 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(originalFunc);
         GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
 
-        const auto kOriginalFuncResult = originalFunc();
-        const auto kHookFuncResult = hookFunc();
+        const auto originalFuncResult = originalFunc();
+        const auto hookFuncResult = hookFunc();
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc, hookFunc)));
-        HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
-        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
+        HOOKSHOT_TEST_ASSERT(hookFuncResult == originalFunc());
+        HOOKSHOT_TEST_ASSERT(originalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
         HOOKSHOT_TEST_ASSERT(nullptr != hookshot->GetOriginalFunction(hookFunc));
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->ReplaceHookFunction(originalFunc, hookFunc)));
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->ReplaceHookFunction(hookFunc, hookFunc)));
-        HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
-        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
+        HOOKSHOT_TEST_ASSERT(hookFuncResult == originalFunc());
+        HOOKSHOT_TEST_ASSERT(originalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
         HOOKSHOT_TEST_ASSERT(nullptr != hookshot->GetOriginalFunction(hookFunc));
     }
 
@@ -619,11 +619,11 @@ namespace HookshotTest
         GENERATE_AND_ASSIGN_FUNCTION(originalFunc);
         GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
 
-        const auto kOriginalFuncResult = originalFunc();
-        const auto kHookFuncResult = hookFunc();
+        const auto originalFuncResult = originalFunc();
+        const auto hookFuncResult = hookFunc();
 
         HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc, hookFunc)));
-        HOOKSHOT_TEST_ASSERT(kHookFuncResult == originalFunc());
-        HOOKSHOT_TEST_ASSERT(kOriginalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
+        HOOKSHOT_TEST_ASSERT(hookFuncResult == originalFunc());
+        HOOKSHOT_TEST_ASSERT(originalFuncResult == ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
     }
 }
