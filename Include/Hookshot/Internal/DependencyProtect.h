@@ -19,9 +19,8 @@
 
 // -------- MACROS --------------------------------------------------------- //
 
-// This preprocessor symbol is defined in "DependencyProtect.cpp" because that file replaces the definition of the macro.
-// As a result, adding a declaration below is sufficient to make the protected dependency work.
-#ifndef NODECLARE_PROTECTED_DEPENDENCIES
+// This macro is additionally defined in "DependencyProtect.cpp" to instantiate each pointer rather than just declare it.
+#ifndef PROTECTED_DEPENDENCY
 
 /// Declares a type-safe protected dependency pointer.
 /// First parameter specifies the desired namespace for the protected dependency pointer.
