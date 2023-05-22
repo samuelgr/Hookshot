@@ -12,6 +12,7 @@
 #pragma once
 
 #include "ApiWindows.h"
+#include "DebugAssert.h"
 
 #include <cstdint>
 #include <intrin.h>
@@ -36,7 +37,7 @@ namespace Hookshot
     /// @param [in] protectedDependencyPointer Address of the protected dependency function pointer.
     static const void* InitializeProtectedDependencyAddress(const void* address, const void* volatile* protectedDependencyPointer)
     {
-        _ASSERTE(0 == protectedDependencies.count(address));
+        DebugAssert(0 == protectedDependencies.count(address), "Initializing a protected dependency that already exists.");
 
         protectedDependencies[address] = protectedDependencyPointer;
         return address;
@@ -82,7 +83,7 @@ namespace Hookshot
     {
         if (0 != protectedDependencies.count(oldAddress))
         {
-            _ASSERTE(0 == protectedDependencies.count(newAddress));
+            DebugAssert(0 == protectedDependencies.count(newAddress), "New protected dependency address already exists.");
 
             const void* volatile* const pointerToUpdate = protectedDependencies.at(oldAddress);
 

@@ -100,5 +100,8 @@
     <ClInclude Include="Include\Hookshot\Internal\DependencyProtect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Hookshot\Internal\DebugAssert.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
