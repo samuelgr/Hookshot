@@ -379,39 +379,62 @@ namespace Hookshot
         // -------- FUNCTIONS ---------------------------------------------- //
         // See "Strings.h" for documentation.
 
-        std::wstring AuthorizationFilenameApplicationSpecific(std::wstring_view executablePath)
+        TemporaryString AuthorizationFilenameApplicationSpecific(std::wstring_view executablePath)
         {
-            std::wstring authorizationFilename;
+            TemporaryString authorizationFilename;
 
-            authorizationFilename.reserve(1 + executablePath.length() + kStrAuthorizationFileExtension.length());
-            authorizationFilename.append(executablePath);
-            authorizationFilename.append(kStrAuthorizationFileExtension);
+            authorizationFilename += executablePath;
+            authorizationFilename += kStrAuthorizationFileExtension;
 
             return authorizationFilename;
         }
 
         // --------
 
-        std::wstring AuthorizationFilenameDirectoryWide(std::wstring_view executablePath)
+        TemporaryString AuthorizationFilenameDirectoryWide(std::wstring_view executablePath)
         {
-            std::wstring authorizationFilename;
+            TemporaryString authorizationFilename;
 
             const size_t lastBackslashPos = executablePath.find_last_of(L"\\");
             if (std::wstring_view::npos == lastBackslashPos)
             {
-                authorizationFilename.reserve(1 + kStrAuthorizationFileExtension.length());
-                authorizationFilename.append(kStrAuthorizationFileExtension);
+                authorizationFilename += kStrAuthorizationFileExtension;
             }
             else
             {
                 executablePath.remove_suffix(executablePath.length() - lastBackslashPos - 1);
 
-                authorizationFilename.reserve(1 + executablePath.length() + kStrAuthorizationFileExtension.length());
-                authorizationFilename.append(executablePath);
-                authorizationFilename.append(kStrAuthorizationFileExtension);
+                authorizationFilename += executablePath;
+                authorizationFilename += kStrAuthorizationFileExtension;
             }
 
             return authorizationFilename;
+        }
+
+        // --------
+
+        TemporaryString ConvertStringNarrowToWide(const char* str)
+        {
+            TemporaryString convertedStr;
+            size_t numCharsConverted = 0;
+
+            if (0 == mbstowcs_s(&numCharsConverted, convertedStr.Data(), convertedStr.Capacity(), str, convertedStr.Capacity() - 1))
+                convertedStr.UnsafeSetSize((unsigned int)numCharsConverted);
+
+            return convertedStr;
+        }
+
+        // --------
+
+        TemporaryBuffer<char> ConvertStringWideToNarrow(const wchar_t* str)
+        {
+            TemporaryBuffer<char> convertedStr;
+            size_t numCharsConverted = 0;
+
+            if (0 != wcstombs_s(&numCharsConverted, convertedStr.Data(), convertedStr.Capacity(), str, convertedStr.Capacity() - 1))
+                convertedStr[0] = '\0';
+
+            return convertedStr;
         }
 
         // --------
@@ -465,14 +488,13 @@ namespace Hookshot
 
         // --------
 
-        std::wstring HookModuleFilename(std::wstring_view moduleName)
+        TemporaryString HookModuleFilename(std::wstring_view moduleName)
         {
-            std::wstring hookModuleFilename;
+            TemporaryString hookModuleFilename;
 
-            hookModuleFilename.reserve(1 + kStrExecutableDirectoryName.length() + moduleName.length() + kStrHookModuleExtension.length());
-            hookModuleFilename.append(kStrExecutableDirectoryName);
-            hookModuleFilename.append(moduleName);
-            hookModuleFilename.append(kStrHookModuleExtension);
+            hookModuleFilename += kStrExecutableDirectoryName;
+            hookModuleFilename += moduleName;
+            hookModuleFilename += kStrHookModuleExtension;
 
             return hookModuleFilename;
         }
@@ -493,7 +515,7 @@ namespace Hookshot
 
         // --------
         
-        std::wstring SystemErrorCodeString(const unsigned long systemErrorCode)
+        TemporaryString SystemErrorCodeString(const unsigned long systemErrorCode)
         {
             TemporaryString systemErrorString;
             DWORD systemErrorLength = Protected::Windows_FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, systemErrorCode, 0, systemErrorString.Data(), systemErrorString.Capacity(), nullptr);
@@ -514,7 +536,7 @@ namespace Hookshot
                 }
             }
 
-            return std::wstring(systemErrorString.Data());
+            return systemErrorString;
         }
     }
 }

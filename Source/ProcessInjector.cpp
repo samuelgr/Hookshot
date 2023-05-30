@@ -299,26 +299,27 @@ namespace Hookshot
         /// @return Indicator of the result of the operation.
         static EInjectResult VerifyAuthorizedToInjectProcess(const HANDLE processHandle)
         {
-            TemporaryBuffer<wchar_t> processExecutablePath;
+            TemporaryString processExecutablePath;
             DWORD processExecutablePathLength = processExecutablePath.Capacity();
 
             if (0 == QueryFullProcessImageName(processHandle, 0, processExecutablePath.Data(), &processExecutablePathLength))
                 return EInjectResult::ErrorCannotDetermineAuthorization;
+            processExecutablePath.UnsafeSetSize((unsigned int)processExecutablePathLength);
 
-            std::wstring authorizationFileName = Strings::AuthorizationFilenameApplicationSpecific(processExecutablePath.Data());
-            if (FALSE == PathFileExists(authorizationFileName.c_str()))
+            TemporaryString authorizationFileName = Strings::AuthorizationFilenameApplicationSpecific(processExecutablePath.Data());
+            if (FALSE == PathFileExists(authorizationFileName.AsCString()))
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"Authorization not granted, cannot open application-specific file %s.", authorizationFileName.c_str());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"Authorization not granted, cannot open application-specific file %s.", authorizationFileName.AsCString());
 
                 authorizationFileName = Strings::AuthorizationFilenameDirectoryWide(processExecutablePath.Data());
-                if (FALSE == PathFileExists(authorizationFileName.c_str()))
+                if (FALSE == PathFileExists(authorizationFileName.AsCString()))
                 {
-                    Message::OutputFormatted(Message::ESeverity::Warning, L"Authorization not granted, cannot open directory-wide file %s.", authorizationFileName.c_str());
+                    Message::OutputFormatted(Message::ESeverity::Warning, L"Authorization not granted, cannot open directory-wide file %s.", authorizationFileName.AsCString());
                     return EInjectResult::ErrorNotAuthorized;
                 }
             }
 
-            Message::OutputFormatted(Message::ESeverity::Info, L"Authorization granted by presence of file %s.", authorizationFileName.c_str());
+            Message::OutputFormatted(Message::ESeverity::Info, L"Authorization granted by presence of file %s.", authorizationFileName.AsCString());
             return EInjectResult::Success;
         }
 

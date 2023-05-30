@@ -167,8 +167,8 @@ namespace Hookshot
     /// @return System error code representing the result of the operation.
     static DWORD LauncherTaskCreateAuthorizationFile(std::wstring_view executablePath)
     {
-        const std::wstring authorizationFileToCreate = Strings::AuthorizationFilenameApplicationSpecific(executablePath);
-        const HANDLE authorizationFileHandle = CreateFile(authorizationFileToCreate.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        const TemporaryString authorizationFileToCreate = Strings::AuthorizationFilenameApplicationSpecific(executablePath);
+        const HANDLE authorizationFileHandle = CreateFile(authorizationFileToCreate.AsCString(), GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
         const DWORD authorizationFileResult = GetLastError();
 
         if (INVALID_HANDLE_VALUE != authorizationFileHandle)
@@ -182,10 +182,10 @@ namespace Hookshot
     /// @return System error code representing the result of the operation.
     static DWORD EnsureHookshotIsAuthorized(std::wstring_view executablePath)
     {
-        const std::wstring authorizationFileApplicationSpecific = Strings::AuthorizationFilenameApplicationSpecific(executablePath);
-        const std::wstring authorizationFileDirectoryWide = Strings::AuthorizationFilenameDirectoryWide(executablePath);
+        const TemporaryString authorizationFileApplicationSpecific = Strings::AuthorizationFilenameApplicationSpecific(executablePath);
+        const TemporaryString authorizationFileDirectoryWide = Strings::AuthorizationFilenameDirectoryWide(executablePath);
 
-        if ((TRUE == PathFileExists(authorizationFileApplicationSpecific.c_str())) || (TRUE == PathFileExists(authorizationFileDirectoryWide.c_str())))
+        if ((TRUE == PathFileExists(authorizationFileApplicationSpecific.AsCString())) || (TRUE == PathFileExists(authorizationFileDirectoryWide.AsCString())))
             return ERROR_SUCCESS;
 
         const DWORD authorizationFileCreateResult = RunLauncherTask(kLauncherTaskCreateAuthorizationFile, false);
@@ -270,7 +270,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 return __LINE__;
 
             default:
-                Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to launch this executable.\n\nUnable to create the authorization file (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(authorizeResult).c_str());
+                Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to launch this executable.\n\nUnable to create the authorization file (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(authorizeResult).AsCString());
                 return __LINE__;
             }
 
@@ -312,7 +312,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
                 if (ERROR_ELEVATION_REQUIRED != GetLastError())
                 {
-                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to launch this executable (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to launch this executable (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(GetLastError()).AsCString());
                     return __LINE__;
                 }
 
@@ -332,7 +332,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 const BOOL executeElevatedResult = ShellExecuteEx(&elevationAttemptInfo);
                 if ((TRUE != executeElevatedResult) || (NULL == elevationAttemptInfo.hProcess))
                 {
-                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to launch this executable because it requires elevation (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to launch this executable because it requires elevation (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(GetLastError()).AsCString());
                     return __LINE__;
                 }
 
@@ -346,7 +346,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 const EInjectResult injectResult = RemoteProcessInjector::InjectProcess(processInfo.hProcess, processInfo.hThread, false, false);
                 if (EInjectResult::Success != injectResult)
                 {
-                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to inject this executable.\n\n%s (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), InjectResultString(injectResult).data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to inject this executable.\n\n%s (%s).", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), InjectResultString(injectResult).data(), Strings::SystemErrorCodeString(GetLastError()).AsCString());
                     TerminateProcess(processInfo.hProcess, (UINT)-1);
                     return __LINE__;
                 }
@@ -360,7 +360,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
             Message::OutputFormatted(Message::ESeverity::Info, L"Successfully used %s to inject %s.", Strings::kStrHookshotExecutableFilename.data(), kExecutableToLaunch.c_str());
 
             if (WAIT_FAILED == WaitForSingleObject(launchedProcess, INFINITE))
-                Message::OutputFormatted(Message::ESeverity::Error, L"Failed to wait for %s to terminate (%s).", kExecutableToLaunch.c_str(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+                Message::OutputFormatted(Message::ESeverity::Error, L"Failed to wait for %s to terminate (%s).", kExecutableToLaunch.c_str(), Strings::SystemErrorCodeString(GetLastError()).AsCString());
 
             CloseHandle(launchedProcess);
             return 0;
@@ -371,7 +371,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         // Target executable is not accessible.
         // For now this is just an error case, but in the future additional interactive setup functionality could be implemented here.
 
-        Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s cannot access this executable.\n\n%s.", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+        Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s cannot access this executable.\n\n%s.", kExecutableToLaunch.c_str(), Strings::kStrProductName.data(), Strings::SystemErrorCodeString(GetLastError()).AsCString());
         return __LINE__;
     }
 }

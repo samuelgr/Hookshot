@@ -138,14 +138,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 }
                 else
                 {
-                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to inject this executable.\n\nTarget process requires elevation (%s).", __wargv[1], Strings::kStrProductName.data(), Strings::SystemErrorCodeString((unsigned long)executeElevatedResult).c_str());
+                    Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to inject this executable.\n\nTarget process requires elevation (%s).", __wargv[1], Strings::kStrProductName.data(), Strings::SystemErrorCodeString((unsigned long)executeElevatedResult).AsCString());
                     return __LINE__;
                 }
             }
             [[fallthrough]];
 
         default:
-            Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to inject this executable.\n\n%s (%s).", __wargv[1], Strings::kStrProductName.data(), InjectResultString(result).data(), Strings::SystemErrorCodeString(GetLastError()).c_str());
+            Message::OutputFormatted(Message::ESeverity::ForcedInteractiveError, L"%s\n\n%s failed to inject this executable.\n\n%s (%s).", __wargv[1], Strings::kStrProductName.data(), InjectResultString(result).data(), Strings::SystemErrorCodeString(GetLastError()).AsCString());
             return __LINE__;
         }
     }

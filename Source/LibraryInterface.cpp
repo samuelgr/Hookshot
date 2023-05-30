@@ -86,7 +86,7 @@ namespace Hookshot
 
             if (nullptr == hookModule)
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load hook module: %s.", hookModuleFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load hook module: %s.", hookModuleFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).AsCString());
                 return false;
             }
 
@@ -94,7 +94,7 @@ namespace Hookshot
 
             if (nullptr == initProc)
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to locate required procedure in hook module: %s.", hookModuleFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to locate required procedure in hook module: %s.", hookModuleFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).AsCString());
                 return false;
             }
 
@@ -114,7 +114,7 @@ namespace Hookshot
 
             if (nullptr == hookModule)
             {
-                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load library: %s.", injectOnlyLibraryFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).c_str());
+                Message::OutputFormatted(Message::ESeverity::Warning, L"%s - Failed to load library: %s.", injectOnlyLibraryFileName.data(), Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).AsCString());
                 return false;
             }
 
@@ -156,9 +156,9 @@ namespace Hookshot
 
             Message::Output(Message::ESeverity::Info, L"Loading all hook modules in the same directory as the executable.");
 
-            const std::wstring hookModuleSearchString = Strings::HookModuleFilename(L"*");
+            const TemporaryString hookModuleSearchString = Strings::HookModuleFilename(L"*");
             WIN32_FIND_DATA hookModuleFileData;
-            HANDLE hookModuleFind = Protected::Windows_FindFirstFileEx(hookModuleSearchString.c_str(), FindExInfoBasic, &hookModuleFileData, FindExSearchNameMatch, NULL, 0);
+            HANDLE hookModuleFind = Protected::Windows_FindFirstFileEx(hookModuleSearchString.AsCString(), FindExInfoBasic, &hookModuleFileData, FindExSearchNameMatch, NULL, 0);
             BOOL moreHookModulesExist = (INVALID_HANDLE_VALUE != hookModuleFind);
 
             TemporaryBuffer<wchar_t> hookModuleFileName;
