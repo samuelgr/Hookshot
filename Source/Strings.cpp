@@ -416,6 +416,20 @@ namespace Hookshot
 
         // --------
 
+        template <typename CharType> bool EndsWithCaseInsensitive(std::basic_string_view<CharType> str, std::basic_string_view<CharType> maybeSuffix)
+        {
+            if (str.length() < maybeSuffix.length())
+                return false;
+
+            str.remove_prefix(str.length() - maybeSuffix.length());
+            return EqualsCaseInsensitive(str, maybeSuffix);
+        }
+
+        template bool EndsWithCaseInsensitive<char>(std::string_view, std::string_view);
+        template bool EndsWithCaseInsensitive<wchar_t>(std::wstring_view, std::wstring_view);
+
+        // --------
+
         template <typename CharType> bool EqualsCaseInsensitive(std::basic_string_view<CharType> strA, std::basic_string_view<CharType> strB)
         {
             if (strA.length() != strB.length())
@@ -465,6 +479,20 @@ namespace Hookshot
 
         // --------
 
+        template <typename CharType> bool StartsWithCaseInsensitive(std::basic_string_view<CharType> str, std::basic_string_view<CharType> maybePrefix)
+        {
+            if (str.length() < maybePrefix.length())
+                return false;
+
+            str.remove_suffix(str.length() - maybePrefix.length());
+            return EqualsCaseInsensitive(str, maybePrefix);
+        }
+
+        template bool StartsWithCaseInsensitive<char>(std::string_view, std::string_view);
+        template bool StartsWithCaseInsensitive<wchar_t>(std::wstring_view, std::wstring_view);
+
+        // --------
+        
         std::wstring SystemErrorCodeString(const unsigned long systemErrorCode)
         {
             TemporaryString systemErrorString;

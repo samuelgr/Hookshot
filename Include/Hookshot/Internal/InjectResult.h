@@ -37,6 +37,7 @@ namespace Hookshot
         ErrorCannotDetermineAuthorization,                          ///< Hookshot encountered an error while determining if it is authorized to act on the new process.
 
         // Issues determining the base address of the process' executable image
+        ErrorAdvanceProcessFailed,                                  ///< Failed to use debugger functions to advance the process' early initialization steps.
         ErrorLoadNtDll,                                             ///< Attempt to dynamically load `ntdll.dll` failed.
         ErrorNtQueryInformationProcessUnavailable,                  ///< Attempt to locate `NtQueryInformationProcess` within `ntdll.dll` failed.
         ErrorNtQueryInformationProcessFailed,                       ///< Call to `NtQueryInformationProcess` failed to retrieve the desired information.
@@ -45,6 +46,8 @@ namespace Hookshot
         // Issues determining the entry point address of a process
         ErrorReadDOSHeadersFailed,                                  ///< Failed to read DOS headers from the process' executable image.
         ErrorReadNTHeadersFailed,                                   ///< Failed to read NT headers from the process' executable image.
+        ErrorGetModuleHandleClrLibraryFailed,                       ///< Failed to obtain a handle for `mscoree.dll` in the target process.
+        ErrorGetProcAddressClrEntryPointFailed,                     ///< Failed to locate the CLR entry point in the target process.
 
         // Issues preparing to inject code or data into the target process
         ErrorVirtualAllocFailed,                                    ///< Failed to allocate virtual memory for code and data in the target process.

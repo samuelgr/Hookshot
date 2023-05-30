@@ -39,6 +39,8 @@ namespace Hookshot
             return L"Not authorized to inject the new process";
         case EInjectResult::ErrorCannotDetermineAuthorization:
             return L"Error while checking for authorization";
+        case EInjectResult::ErrorAdvanceProcessFailed:
+            return L"Error advancing the new process' early initialization steps";
         case EInjectResult::ErrorLoadNtDll:
             return L"Error loading ntdll.dll";
         case EInjectResult::ErrorNtQueryInformationProcessUnavailable:
@@ -51,6 +53,10 @@ namespace Hookshot
             return L"Error reading new process DOS headers";
         case EInjectResult::ErrorReadNTHeadersFailed:
             return L"Error reading new process NT headers";
+        case EInjectResult::ErrorGetModuleHandleClrLibraryFailed:
+            return L"Error locating the base address of the CLR in the new process";
+        case EInjectResult::ErrorGetProcAddressClrEntryPointFailed:
+            return L"Error locating the CLR entry point in the new process";
         case EInjectResult::ErrorVirtualAllocFailed:
             return L"Error allocating virtual memory in the new process";
         case EInjectResult::ErrorVirtualProtectFailed:

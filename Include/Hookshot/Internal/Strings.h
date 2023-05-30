@@ -155,6 +155,13 @@ namespace Hookshot
         /// @return Directory-wide authorization filename.
         std::wstring AuthorizationFilenameDirectoryWide(std::wstring_view executablePath);
 
+        /// Checks if one string is a suffix of another without regard for the case of each individual character.
+        /// @tparam CharType Type of character in each string, either narrow or wide.
+        /// @param [in] str String to be checked for a possible prefix.
+        /// @param [in] maybeSuffix Candidate suffix to compare with the end of the string.
+        /// @return `true` if the candidate suffix is a suffix of the specified string, `false` otherwise.
+        template <typename CharType> bool EndsWithCaseInsensitive(std::basic_string_view<CharType> str, std::basic_string_view<CharType> maybeSuffix);
+
         /// Compares two strings without regard for the case of each individual character.
         /// @tparam CharType Type of character in each string, either narrow or wide.
         /// @param [in] strA First string in the comparison.
@@ -172,6 +179,13 @@ namespace Hookshot
         /// @param [in] moduleName Hook module name to use when generating the filename.
         /// @return Hook module filename.
         std::wstring HookModuleFilename(std::wstring_view moduleName);
+
+        /// Checks if one string is a prefix of another without regard for the case of each individual character.
+        /// @tparam CharType Type of character in each string, either narrow or wide.
+        /// @param [in] str String to be checked for a possible prefix.
+        /// @param [in] maybePrefix Candidate prefix to compare with the beginning of the string.
+        /// @return `true` if the candidate prefix is a prefix of the specified string, `false` otherwise.
+        template <typename CharType> bool StartsWithCaseInsensitive(std::basic_string_view<CharType> str, std::basic_string_view<CharType> maybePrefix);
 
         /// Generates a string representation of a system error code.
         /// @param [in] systemErrorCode System error code for which to generate a string.

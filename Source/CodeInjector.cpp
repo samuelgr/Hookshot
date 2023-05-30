@@ -28,7 +28,7 @@ namespace Hookshot
     // -------- CONSTRUCTION AND DESTRUCTION ------------------------------- //
     // See "CodeInjector.h" for documentation.
 
-    CodeInjector::CodeInjector(void* const baseAddressCode, void* const baseAddressData, const bool cleanupCodeBuffer, const bool cleanupDataBuffer, void* const entryPoint, const size_t sizeCode, const size_t sizeData, const HANDLE injectedProcess, const HANDLE injectedProcessMainThread) : baseAddressCode(baseAddressCode), baseAddressData(baseAddressData), cleanupCodeBuffer(cleanupCodeBuffer), cleanupDataBuffer(cleanupDataBuffer), entryPoint(entryPoint), sizeCode(sizeCode), sizeData(sizeData), injectedProcess(injectedProcess), injectedProcessMainThread(injectedProcessMainThread), injectInfo()
+    CodeInjector::CodeInjector(void* const baseAddressCode, void* const baseAddressData, const bool cleanupCodeBuffer, const bool cleanupDataBuffer, void* const entryPoint, const size_t sizeCode, const size_t sizeData, const HANDLE injectedProcess, const HANDLE injectedProcessMainThread) : baseAddressCode(baseAddressCode), baseAddressData(baseAddressData), cleanupCodeBuffer(cleanupCodeBuffer), cleanupDataBuffer(cleanupDataBuffer), entryPoint(entryPoint), sizeCode(sizeCode), sizeData(sizeData), injectedProcess(injectedProcess), injectedProcessMainThread(injectedProcessMainThread), oldCodeAtTrampoline(), injectInfo()
     {
         // Nothing to do here.
     }
@@ -106,9 +106,9 @@ namespace Hookshot
         HMODULE moduleGetProcAddress = nullptr;
         HMODULE moduleLoadLibraryA = nullptr;
 
-        TemporaryBuffer<wchar_t> moduleFilenameGetLastError;
-        TemporaryBuffer<wchar_t> moduleFilenameGetProcAddress;
-        TemporaryBuffer<wchar_t> moduleFilenameLoadLibraryA;
+        TemporaryString moduleFilenameGetLastError;
+        TemporaryString moduleFilenameGetProcAddress;
+        TemporaryString moduleFilenameLoadLibraryA;
         MODULEINFO moduleInfo;
 
         // Get module handles for the desired functions in the current process.
@@ -143,13 +143,16 @@ namespace Hookshot
         offsetLoadLibraryA = (size_t)LoadLibraryA - (size_t)moduleInfo.lpBaseOfDll;
 
         // Compute the full path names for each module that offers the required functions.
-        if (0 == GetModuleFileName(moduleGetLastError, moduleFilenameGetLastError.Data(), moduleFilenameGetLastError.Capacity()))
+        moduleFilenameGetLastError.UnsafeSetSize(GetModuleFileName(moduleGetLastError, moduleFilenameGetLastError.Data(), moduleFilenameGetLastError.Capacity()));
+        if (true == moduleFilenameGetLastError.Empty())
             return false;
 
-        if (0 == GetModuleFileName(moduleGetProcAddress, moduleFilenameGetProcAddress.Data(), moduleFilenameGetProcAddress.Capacity()))
+        moduleFilenameGetProcAddress.UnsafeSetSize(GetModuleFileName(moduleGetProcAddress, moduleFilenameGetProcAddress.Data(), moduleFilenameGetProcAddress.Capacity()));
+        if (true == moduleFilenameGetProcAddress.Empty())
             return false;
 
-        if (0 == GetModuleFileName(moduleLoadLibraryA, moduleFilenameLoadLibraryA.Data(), moduleFilenameLoadLibraryA.Capacity()))
+        moduleFilenameLoadLibraryA.UnsafeSetSize(GetModuleFileName(moduleLoadLibraryA, moduleFilenameLoadLibraryA.Data(), moduleFilenameLoadLibraryA.Capacity()));
+        if (true == moduleFilenameLoadLibraryA.Empty())
             return false;
 
         // Enumerate all of the modules in the target process.
@@ -170,14 +173,15 @@ namespace Hookshot
         for (DWORD modidx = 0; (modidx < numLoadedModules) && ((nullptr == addrGetLastError) || (nullptr == addrGetProcAddress) || (nullptr == addrLoadLibraryA)); ++modidx)
         {
             const HMODULE loadedModule = loadedModules[modidx];
-            TemporaryBuffer<wchar_t> loadedModuleName;
+            TemporaryString loadedModuleName;
 
-            if (0 == GetModuleFileNameEx(injectedProcess, loadedModule, loadedModuleName.Data(), loadedModuleName.Capacity()))
+            loadedModuleName.UnsafeSetSize(GetModuleFileNameEx(injectedProcess, loadedModule, loadedModuleName.Data(), loadedModuleName.Capacity()));
+            if (true == loadedModuleName.Empty())
                 return false;
 
             if (nullptr == addrGetLastError)
             {
-                if (0 == wcsncmp(moduleFilenameGetLastError.Data(), loadedModuleName.Data(), loadedModuleName.Capacity()))
+                if (true == Strings::EqualsCaseInsensitive(moduleFilenameGetLastError.AsStringView(), loadedModuleName.AsStringView()))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -188,7 +192,7 @@ namespace Hookshot
 
             if (nullptr == addrGetProcAddress)
             {
-                if (0 == wcsncmp(moduleFilenameGetProcAddress.Data(), loadedModuleName.Data(), loadedModuleName.Capacity()))
+                if (true == Strings::EqualsCaseInsensitive(moduleFilenameGetProcAddress.AsStringView(), loadedModuleName.AsStringView()))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -199,7 +203,7 @@ namespace Hookshot
 
             if (nullptr == addrLoadLibraryA)
             {
-                if (0 == wcsncmp(moduleFilenameLoadLibraryA.Data(), loadedModuleName.Data(), loadedModuleName.Capacity()))
+                if (true == Strings::EqualsCaseInsensitive(moduleFilenameLoadLibraryA.AsStringView(), loadedModuleName.AsStringView()))
                 {
                     if (FALSE == GetModuleInformation(injectedProcess, loadedModule, &moduleInfo, sizeof(moduleInfo)))
                         return false;
@@ -282,7 +286,7 @@ namespace Hookshot
         SIZE_T numBytes = 0;
 
         // Back up the code currently at the trampoline's target location.
-        if ((FALSE == ReadProcessMemory(injectedProcess, entryPoint, oldCodeAtTrampoline, GetTrampolineCodeSize(), &numBytes)) || (GetTrampolineCodeSize() != numBytes))
+        if ((FALSE == ReadProcessMemory(injectedProcess, entryPoint, (LPVOID)oldCodeAtTrampoline.data(), GetTrampolineCodeSize(), &numBytes)) || (GetTrampolineCodeSize() != numBytes))
             EInjectResult::ErrorSetFailedRead;
 
         // Write the trampoline code.
@@ -362,7 +366,7 @@ namespace Hookshot
     {
         SIZE_T numBytes = 0;
 
-        if ((FALSE == WriteProcessMemory(injectedProcess, entryPoint, oldCodeAtTrampoline, GetTrampolineCodeSize(), &numBytes)) || (GetTrampolineCodeSize() != numBytes) || (FALSE == FlushInstructionCache(injectedProcess, entryPoint, GetTrampolineCodeSize())))
+        if ((FALSE == WriteProcessMemory(injectedProcess, entryPoint, (LPCVOID)oldCodeAtTrampoline.data(), GetTrampolineCodeSize(), &numBytes)) || (GetTrampolineCodeSize() != numBytes) || (FALSE == FlushInstructionCache(injectedProcess, entryPoint, GetTrampolineCodeSize())))
             return EInjectResult::ErrorUnsetFailed;
 
         return EInjectResult::Success;

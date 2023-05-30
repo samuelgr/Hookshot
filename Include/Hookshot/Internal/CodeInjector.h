@@ -15,6 +15,7 @@
 #include "Inject.h"
 #include "InjectResult.h"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 
@@ -67,7 +68,7 @@ namespace Hookshot
         const HANDLE injectedProcessMainThread;
 
         /// Container for holding the code that gets replaced by trampoline code.
-        uint8_t oldCodeAtTrampoline[kMaxTrampolineCodeBytes];
+        std::array<uint8_t, kMaxTrampolineCodeBytes> oldCodeAtTrampoline;
 
         /// Utility object for providing access to all code being injected.
         const InjectInfo injectInfo;
