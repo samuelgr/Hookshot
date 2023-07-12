@@ -10,9 +10,7 @@
  *****************************************************************************/
 
 #include "DependencyProtect.h"
-#include "Configuration.h"
 #include "Globals.h"
-#include "HookshotConfigReader.h"
 #include "HookshotTypes.h"
 #include "HookStore.h"
 #include "InjectLanding.h"
@@ -46,34 +44,6 @@ namespace Hookshot
 
 
         // -------- INTERNAL FUNCTIONS ------------------------------------- //
-
-        /// Enables the log if it is not already enabled.
-        /// Regardless, the minimum severity for output is set based on the parameter.
-        /// @param [in] logLevel Logging level to configure as the minimum severity for output.
-        static void EnableLog(Message::ESeverity logLevel)
-        {
-            static std::once_flag enableLogFlag;
-            std::call_once(enableLogFlag, [logLevel]() -> void
-                {
-                    Message::CreateAndEnableLogFile();
-                }
-            );
-
-            Message::SetMinimumSeverityForOutput(logLevel);
-        }
-
-        /// Enables the log, if it is configured in the configuration file.
-        static void EnableLogIfConfigured(void)
-        {
-            const int64_t logLevel = GetConfigurationData().GetFirstIntegerValue(Configuration::kSectionNameGlobal, Strings::kStrConfigurationSettingNameLogLevel).value_or(0);
-
-            if (logLevel > 0)
-            {
-                // Offset the requested severity so that 0 = disabled, 1 = error, 2 = warning, etc.
-                const Message::ESeverity configuredSeverity = (Message::ESeverity)(logLevel + (int64_t)Message::ESeverity::LowerBoundConfigurableValue);
-                EnableLog(configuredSeverity);
-            }
-        }
 
         /// Attempts to load and initialize the named hook module.
         /// Useful if hooks to be set are contained in an external hook module.
@@ -126,14 +96,14 @@ namespace Hookshot
         /// @return Number of hook modules successfully loaded.
         static int LoadConfiguredHookModules(void)
         {
-            const Configuration::ConfigurationData& configData = GetConfigurationData();
+            const Configuration::ConfigurationData& configData = Globals::GetConfigurationData();
             int numHookModulesLoaded = 0;
 
             Message::Output(Message::ESeverity::Info, L"Loading hook modules specified in the configuration file.");
 
             if (false == configData.HasErrors())
             {
-                auto hookModulesToLoad = GetConfigurationData().SectionsContaining(Strings::kStrConfigurationSettingNameHookModule);
+                auto hookModulesToLoad = Globals::GetConfigurationData().SectionsContaining(Strings::kStrConfigurationSettingNameHookModule);
 
                 for (auto& sectionsWithHookModules : *hookModulesToLoad)
                 {
@@ -184,35 +154,6 @@ namespace Hookshot
         // -------- FUNCTIONS ---------------------------------------------- //
         // See "LibraryInterface.h" for documentation.
 
-        const Configuration::ConfigurationData& GetConfigurationData(void)
-        {
-            static Configuration::ConfigurationData configData;
-
-            static std::once_flag readConfigFlag;
-            std::call_once(readConfigFlag, []() -> void
-                {
-                    HookshotConfigReader configReader;
-
-                    configData = configReader.ReadConfigurationFile(Strings::kStrHookshotConfigurationFilename);
-
-                    if (true == configReader.HasReadErrors())
-                    {
-                        EnableLog(Message::ESeverity::Error);
-
-                        Message::Output(Message::ESeverity::Error, L"Errors were encountered during configuration file reading.");
-                        for (const auto& readError : configReader.GetReadErrors())
-                            Message::OutputFormatted(Message::ESeverity::Error, L"    %s", readError.c_str());
-
-                        Message::Output(Message::ESeverity::ForcedInteractiveWarning, L"Errors were encountered during configuration file reading. See log file on the Desktop for more information.");
-                    }
-                }
-            );
-
-            return configData;
-        }
-
-        // --------
-
         IHookshot* GetHookshotInterfacePointer(void)
         {
             return &hookStore;
@@ -220,18 +161,16 @@ namespace Hookshot
 
         // --------
 
-        bool Initialize(const ELoadMethod loadMethod)
+        bool Initialize(Globals::ELoadMethod loadMethod)
         {
             bool initializeResult = false;
             
             static std::once_flag initializeFlag;
             std::call_once(initializeFlag, [loadMethod, &initializeResult]() {
-                Globals::SetHookshotLoadMethod(loadMethod);
+                Globals::Initialize(loadMethod);
                 X86Instruction::Initialize();
 
-                EnableLogIfConfigured();
-
-                if (ELoadMethod::Injected == loadMethod)
+                if (Globals::ELoadMethod::Injected == loadMethod)
                     SetAllInternalHooks();
 
                 initializeResult = true;
@@ -244,7 +183,7 @@ namespace Hookshot
 
         int LoadHookModules(void)
         {
-            const Configuration::ConfigurationData& configData = GetConfigurationData();
+            const Configuration::ConfigurationData& configData = Globals::GetConfigurationData();
             bool useConfigurationFileHookModules = false;
 
             // If a configuration file is present and valid, load the hook modules it specifies unless it specifically requests the default behavior.
@@ -252,9 +191,9 @@ namespace Hookshot
             {
                 useConfigurationFileHookModules = true;
 
-                if (true == GetConfigurationData().SectionNamePairExists(Configuration::kSectionNameGlobal, Strings::kStrConfigurationSettingNameUseConfiguredHookModules))
+                if (true == Globals::GetConfigurationData().SectionNamePairExists(Configuration::kSectionNameGlobal, Strings::kStrConfigurationSettingNameUseConfiguredHookModules))
                 {
-                    if (false == GetConfigurationData()[Configuration::kSectionNameGlobal][Strings::kStrConfigurationSettingNameUseConfiguredHookModules].FirstValue().GetBooleanValue())
+                    if (false == Globals::GetConfigurationData()[Configuration::kSectionNameGlobal][Strings::kStrConfigurationSettingNameUseConfiguredHookModules].FirstValue().GetBooleanValue())
                     {
                         useConfigurationFileHookModules = false;
                     }
@@ -271,12 +210,12 @@ namespace Hookshot
 
         int LoadInjectOnlyLibraries(void)
         {
-            const Configuration::ConfigurationData& configData = GetConfigurationData();
+            const Configuration::ConfigurationData& configData = Globals::GetConfigurationData();
             int numInjectOnlyLibrariesLoaded = 0;
 
             if (false == configData.HasErrors())
             {
-                auto injectOnlyLibrariesToLoad = GetConfigurationData().SectionsContaining(Strings::kStrConfigurationSettingNameInject);
+                auto injectOnlyLibrariesToLoad = Globals::GetConfigurationData().SectionsContaining(Strings::kStrConfigurationSettingNameInject);
 
                 for (auto& sectionsWithInjectOnlyLibraries : *injectOnlyLibrariesToLoad)
                 {

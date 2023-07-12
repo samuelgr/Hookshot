@@ -10,6 +10,7 @@
  *****************************************************************************/
 
 #include "ApiWindows.h"
+#include "Globals.h"
 #include "Message.h"
 #include "RemoteProcessInjector.h"
 #include "Strings.h"
@@ -233,6 +234,8 @@ namespace Hookshot
 /// @return Exit code from this program.
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
 {
+    Hookshot::Globals::Initialize(Hookshot::Globals::ELoadMethod::Executed);
+    
     const std::wstring kExecutableToLaunch(GetLaunchExecutablePath());
     if (TRUE == PathFileExists(kExecutableToLaunch.c_str()))
     {

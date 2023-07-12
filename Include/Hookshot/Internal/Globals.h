@@ -14,19 +14,16 @@
 
 #include "ApiWindows.h"
 
+#ifndef HOOKSHOT_SKIP_CONFIG
+#include "Configuration.h"
+#include "HookshotConfigReader.h"
+#endif
+
 #include <string_view>
 
 
 namespace Hookshot
 {
-    /// Enumerates the possible ways Hookshot can be loaded.
-    enum class ELoadMethod
-    {
-        Executed,                                                           ///< Executed directly. This is the default value and is applicable for the executable form of Hookshot.
-        Injected,                                                           ///< Injected. An executable form of Hookshot injected this form of Hookshot into the current process.
-        LibraryLoaded,                                                      ///< Loaded as a library. Some executable loaded Hookshot using a standard dynamic library loading technique.
-    };
-
     namespace Globals
     {
         // -------- TYPE DEFINITIONS --------------------------------------- //
@@ -56,8 +53,22 @@ namespace Hookshot
         };
         static_assert(sizeof(SVersionInfo) == ((4 * sizeof(uint16_t)) + sizeof(std::wstring_view)), "Version information structure size constraint violation.");
 
+        /// Enumerates the possible ways Hookshot can be loaded.
+        enum class ELoadMethod
+        {
+            Executed,                                                   ///< Executed directly. This is the default value and is applicable for the executable form of Hookshot.
+            Injected,                                                   ///< Injected. An executable form of Hookshot injected this form of Hookshot into the current process.
+            LibraryLoaded,                                              ///< Loaded as a library. Some executable loaded Hookshot using a standard dynamic library loading technique.
+        };
+
 
         // -------- FUNCTIONS ---------------------------------------------- //
+
+#ifndef HOOKSHOT_SKIP_CONFIG
+        /// Retrieves the Hookshot configuration data object.
+        /// Only useful if IsConfigurationDataValid returns `true`.
+        const Configuration::ConfigurationData& GetConfigurationData(void);
+#endif
 
         /// Retrieves a pseudohandle to the current process.
         /// @return Current process pseudohandle.
@@ -87,8 +98,8 @@ namespace Hookshot
         /// @return Version information structure.
         SVersionInfo GetVersion(void);
 
-        /// Sets the method by which this form of Hookshot was loaded.
-        /// @param [in] loadMethod Method by which Hookshot was loadedl
-        void SetHookshotLoadMethod(const ELoadMethod loadMethod);
+        /// Performs run-time initialization.
+        /// @param [in] loadMethod Hookshot library load method.
+        void Initialize(ELoadMethod loadMethod);
     };
 }

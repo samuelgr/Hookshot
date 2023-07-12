@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include "Configuration.h"
 #include "HookshotTypes.h"
 
 #include <string_view>
@@ -23,10 +22,6 @@ namespace Hookshot
     {
         // -------- FUNCTIONS ---------------------------------------------- //
 
-        /// Retrieves the Hookshot configuration data object.
-        /// Only useful if IsConfigurationDataValid returns `true`.
-        const Configuration::ConfigurationData& GetConfigurationData(void);
-
         /// Retrieves the Hookshot interface object pointer that can be passed to external clients.
         /// @return Hook interface object pointer.
         IHookshot* GetHookshotInterfacePointer(void);
@@ -36,7 +31,7 @@ namespace Hookshot
         /// Will fail if the initialization attempt is inappropriate, duplicate, and so on.
         /// @param [in] loadMethod Hookshot library load method.
         /// @return `true` if successful, `false` otherwise.
-        bool Initialize(const ELoadMethod loadMethod);
+        bool Initialize(Globals::ELoadMethod loadMethod);
 
         /// Attempts to load and initialize all applicable hook modules.
         /// @return Number of hook modules successfully loaded.

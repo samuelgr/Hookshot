@@ -13,6 +13,16 @@
 #include "ApiWindows.h"
 #include "GitVersionInfo.h"
 #include "Globals.h"
+#include "Message.h"
+#include "Strings.h"
+
+#ifndef HOOKSHOT_SKIP_CONFIG
+#include "Configuration.h"
+#include "HookshotConfigReader.h"
+#endif
+
+#include <mutex>
+#include <string_view>
 
 
 namespace Hookshot
@@ -72,8 +82,72 @@ namespace Hookshot
         };
 
 
+        // -------- INTERNAL FUNCTIONS ------------------------------------- //
+
+#ifndef HOOKSHOT_SKIP_CONFIG
+        /// Enables the log if it is not already enabled.
+        /// Regardless, the minimum severity for output is set based on the parameter.
+        /// @param [in] logLevel Logging level to configure as the minimum severity for output.
+        static void EnableLog(Message::ESeverity logLevel)
+        {
+            static std::once_flag enableLogFlag;
+            std::call_once(enableLogFlag, [logLevel]() -> void
+                {
+                    Message::CreateAndEnableLogFile();
+                }
+            );
+
+            Message::SetMinimumSeverityForOutput(logLevel);
+        }
+
+        /// Enables the log, if it is configured in the configuration file.
+        static void EnableLogIfConfigured(void)
+        {
+            const int64_t logLevel = GetConfigurationData().GetFirstIntegerValue(Configuration::kSectionNameGlobal, Strings::kStrConfigurationSettingNameLogLevel).value_or(0);
+
+            if (logLevel > 0)
+            {
+                // Offset the requested severity so that 0 = disabled, 1 = error, 2 = warning, etc.
+                const Message::ESeverity configuredSeverity = (Message::ESeverity)(logLevel + (int64_t)Message::ESeverity::LowerBoundConfigurableValue);
+                EnableLog(configuredSeverity);
+            }
+        }
+#endif
+
+
         // -------- FUNCTIONS ---------------------------------------------- //
         // See "Globals.h" for documentation.
+
+#ifndef HOOKSHOT_SKIP_CONFIG
+        const Configuration::ConfigurationData& GetConfigurationData(void)
+        {
+            static Configuration::ConfigurationData configData;
+
+            static std::once_flag readConfigFlag;
+            std::call_once(readConfigFlag, []() -> void
+                {
+                    HookshotConfigReader configReader;
+
+                    configData = configReader.ReadConfigurationFile(Strings::kStrHookshotConfigurationFilename);
+
+                    if (true == configReader.HasReadErrors())
+                    {
+                        EnableLog(Message::ESeverity::Error);
+
+                        Message::Output(Message::ESeverity::Error, L"Errors were encountered during configuration file reading.");
+                        for (const auto& readError : configReader.GetReadErrors())
+                            Message::OutputFormatted(Message::ESeverity::Error, L"    %s", readError.c_str());
+
+                        Message::Output(Message::ESeverity::ForcedInteractiveWarning, L"Errors were encountered during configuration file reading. See log file on the Desktop for more information.");
+                    }
+                }
+            );
+
+            return configData;
+        }
+#endif
+
+        // --------
 
         HANDLE GetCurrentProcessHandle(void)
         {
@@ -140,9 +214,13 @@ namespace Hookshot
 
         // --------
 
-        void SetHookshotLoadMethod(const ELoadMethod loadMethod)
+        void Initialize(ELoadMethod loadMethod)
         {
             GlobalData::GetInstance().gLoadMethod = loadMethod;
+            
+#ifndef HOOKSHOT_SKIP_CONFIG
+            EnableLogIfConfigured();
+#endif
         }
     }
 }
