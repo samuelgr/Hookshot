@@ -1,15 +1,15 @@
 @echo off
-rem +--------------------------------------------------------------------------
+rem +-----------------------------------------------------------------------------------------------
 rem | Hookshot
 rem |   General-purpose library for injecting DLLs and hooking function calls.
-rem +--------------------------------------------------------------------------
+rem +-----------------------------------------------------------------------------------------------
 rem | Authored by Samuel Grossman
 rem | Copyright (c) 2019-2023
-rem +--------------------------------------------------------------------------
+rem +-----------------------------------------------------------------------------------------------
 rem | RunExample.bat
-rem |   Script for running hook module examples. Invoked by Visual Studio
-rem |   when attempting to run a hook module example project.
-rem +--------------------------------------------------------------------------
+rem |   Script for running hook module examples. Invoked by Visual Studio when attempting to run
+rem |   a hook module example project.
+rem +-----------------------------------------------------------------------------------------------
 
 set hookshot_exe=%~f1
 set test_program_exe=%~f2

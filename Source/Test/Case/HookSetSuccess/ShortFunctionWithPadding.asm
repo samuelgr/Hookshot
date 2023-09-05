@@ -1,17 +1,18 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Hookshot
 ;   General-purpose library for injecting DLLs and hooking function calls.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Authored by Samuel Grossman
 ; Copyright (c) 2019-2023
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 INCLUDE TestDefinitions.inc
 
 
-; Tests a very basic function but with padding instructions after the original function.
-; Both original and hook functions load the expected values into the return value register and immediately return.
-; Original function is too small to hook unless Hookshot properly consumes the padding instructions located after it.
+; Tests a very basic function but with padding instructions after the original function. Both
+; original and hook functions load the expected values into the return value register and
+; immediately return. Original function is too small to hook unless Hookshot properly consumes the
+; padding instructions located after it.
 
 
 _TEXT                                       SEGMENT

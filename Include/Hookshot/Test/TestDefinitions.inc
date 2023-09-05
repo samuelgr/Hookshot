@@ -1,26 +1,28 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Hookshot
 ;   General-purpose library for injecting DLLs and hooking function calls.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Authored by Samuel Grossman
 ; Copyright (c) 2019-2023
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; TestDefinitions.inc
-;   Definitions to assist with the creation of test cases.
-;   Helps to ensure 32/64-bit portability.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;   Definitions to assist with the creation of test cases. Helps to ensure 32/64-bit portability.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 IFNDEF __HOOKSHOT_TEST_DEFINITIONS_INC
 __HOOKSHOT_TEST_DEFINITIONS_INC EQU 1
 
 
-; To create a Hookshot test function used with the Hookshot testing framework, begin it with BEGIN_HOOKSHOT_TEST_FUNCTION and end it with END_HOOKSHOT_TEST_FUNCTION.
+; To create a Hookshot test function used with the Hookshot testing framework, begin it with
+; BEGIN_HOOKSHOT_TEST_FUNCTION and end it with END_HOOKSHOT_TEST_FUNCTION.
 ; For example:
 ;     BEGIN_HOOKSHOT_TEST_FUNCTION  MyHookshotTestFunction
 ;         [code goes here]
 ;     END_HOOKSHOT_TEST_FUNCTION    MyHookshotTestFunction
-; Test patterns as defined in C++ (refer to TestPattern.h) might require that these test functions comply with certain naming conventions.
-; At the start of a test function created this way, register sdx = 0, and register scx = (expected ORIGINAL function return value), where (expected HOOK function return value) == scx << 1.
+; Test patterns as defined in C++ (refer to TestPattern.h) might require that these test functions
+; comply with certain naming conventions. At the start of a test function created this way,
+; register sdx = 0, and register scx = (expected ORIGINAL function return value), where
+; (expected HOOK function return value) == scx << 1.
 ; This is intended to provide a consistent initial condition without requiring any assembly code.
 
 

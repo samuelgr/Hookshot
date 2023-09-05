@@ -1,13 +1,13 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Hookshot
 ;   General-purpose library for injecting DLLs and hooking function calls.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Authored by Samuel Grossman
 ; Copyright (c) 2019-2023
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Inject.inc
 ;   Assembly interface to injection data structures defined in C/C++.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 IFNDEF __HOOKSHOT_INJECT_INC
 __HOOKSHOT_INJECT_INC EQU 1
@@ -16,14 +16,10 @@ __HOOKSHOT_INJECT_INC EQU 1
 INCLUDE Preamble.inc
 
 
-; --------- CONSTANTS ---------------------------------------------------------
-
 ; Magic value that identifies the metadata section of a loaded binary file.
 ; Corresponds to the identically-named constant in "Inject.cpp" and must be updated when changes are made there.
 kInjectionMetaMagicValue EQU 51525354h
 
-
-; --------- TYPE DEFINITIONS --------------------------------------------------
 
 ; Defines the structure of the data exchanged between the injecting and injected processes.
 ; Corresponds to the identically-named structured type in "Inject.h" and must be updated when any changes are made there.
@@ -66,8 +62,6 @@ SInjectMeta STRUCT
     offsetInjectCodeEnd DWORD ?
 SInjectMeta ENDS
 
-
-; --------- MACROS ------------------------------------------------------------
 
 ; Sets initial state for synchronization between the injecting and injected processes.
 ; Registers passed in as parameters must be reserved for synchronization purposes only.

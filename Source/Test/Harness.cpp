@@ -1,13 +1,13 @@
-/******************************************************************************
+/***************************************************************************************************
  * Hookshot
  *   General-purpose library for injecting DLLs and hooking function calls.
- ******************************************************************************
+ ***************************************************************************************************
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2023
- **************************************************************************//**
+ ***********************************************************************************************//**
  * @file Harness.cpp
  *   Implementation of Hookshot test harness, including program entry point.
- *****************************************************************************/
+ **************************************************************************************************/
 
 #include "Harness.h"
 #include "Hookshot.h"
@@ -21,8 +21,7 @@
 
 namespace HookshotTest
 {
-    // -------- CLASS METHODS ---------------------------------------------- //
-    // See "Harness.h" for documentation.
+        
 
     Harness& Harness::GetInstance(void)
     {
@@ -31,8 +30,7 @@ namespace HookshotTest
     }
 
 
-    // -------- INSTANCE METHODS ------------------------------------------- //
-    // See "Harness.h" for documentation.
+        
 
     void Harness::RegisterTestCaseInternal(const ITestCase* const testCase, std::wstring_view name)
     {
@@ -40,8 +38,7 @@ namespace HookshotTest
             testCases[name] = testCase;
     }
 
-    // --------
-
+    
     int Harness::RunTestsWithMatchingPrefixInternal(Hookshot::IHookshot* hookshot, std::wstring_view prefixToMatch)
     {
         std::set<const wchar_t*> failingTests;
@@ -89,7 +86,7 @@ namespace HookshotTest
                 }
                 catch (TestFailedException)
                 {
-                    // Nothing to do here.
+                    
                 }
 
                 if (true != testCasePassed)
@@ -151,7 +148,6 @@ namespace HookshotTest
 }
 
 
-// -------- ENTRY POINT ---------------------------------------------------- //
 
 /// Runs all tests cases.
 /// @return Number of failing tests (0 means all tests passed).

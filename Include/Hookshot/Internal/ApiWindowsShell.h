@@ -5,30 +5,23 @@
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2023
  ***********************************************************************************************//**
- * @file CpuInfo.cpp
- *   Partial implementation of CPU identification functionality.
+ * @file ApiWindowsShell.h
+ *   Common header file for the correct version of the Windows API along with additional shell
+ *   functionality.
  **************************************************************************************************/
 
-#include "CpuInfo.h"
+#pragma once
 
-#include <cpuinfo_x86.h>
+// Windows header files are sensitive to include order. Compilation will fail if the order is
+// incorrect.
 
+// clang-format off
 
-namespace HookshotTest
-{
-        
+#include "ApiWindows.h"
 
-    CpuInfo::CpuInfo(void) : cpuInfo(cpu_features::GetX86Info())
-    {
-        
-    }
+#include <commctrl.h>
+#include <psapi.h>
+#include <shlobj.h>
+#include <shlwapi.h>
 
-
-        
-
-    CpuInfo& CpuInfo::GetInstance(void)
-    {
-        static CpuInfo cpuInfo;
-        return cpuInfo;
-    }
-}
+// clang-format on

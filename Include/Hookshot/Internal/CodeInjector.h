@@ -1,152 +1,143 @@
-/******************************************************************************
+/***************************************************************************************************
  * Hookshot
  *   General-purpose library for injecting DLLs and hooking function calls.
- ******************************************************************************
+ ***************************************************************************************************
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2023
- **************************************************************************//**
+ ***********************************************************************************************//**
  * @file CodeInjector.h
  *   Interface declaration for code injection, execution, and synchronization.
- *****************************************************************************/
+ **************************************************************************************************/
 
 #pragma once
-
-#include "ApiWindows.h"
-#include "Inject.h"
-#include "InjectResult.h"
 
 #include <array>
 #include <cstddef>
 #include <cstdint>
 
+#include "ApiWindows.h"
+#include "Inject.h"
+#include "InjectResult.h"
 
 namespace Hookshot
 {
-    /// Encapsulates all knowledge of the actual code that is injected into the process.
-    /// Exposes methods for injecting the code, starting the process, and synchronizing with it.
-    /// Does not claim ownership over any handles used, so they must be kept valid externally throughout the duration of an instance's existance.
-    /// Prior to injection, the process' main thread must be in suspended state and guaranteed to execute in the very near future the code designated as the entry point.
-    /// Upon completion of all injection operations, control within the injected process will return to the designated entry point code.
-    /// For newly-created processes in suspended state, the entry point can simply be the starting address of the process. Once injection completes successfully, the process will simply start normally.
-    class CodeInjector
-    {
-    public:
-        // -------- CONSTANTS ---------------------------------------------- //
+  /// Encapsulates all knowledge of the actual code that is injected into the process. Exposes
+  /// methods for injecting the code, starting the process, and synchronizing with it. Does not
+  /// claim ownership over any handles used, so they must be kept valid externally throughout the
+  /// duration of an instance's existance. Prior to injection, the process' main thread must be in
+  /// suspended state and guaranteed to execute in the very near future the code designated as the
+  /// entry point. Upon completion of all injection operations, control within the injected process
+  /// will return to the designated entry point code. For newly-created processes in suspended
+  /// state, the entry point can simply be the starting address of the process. Once injection
+  /// completes successfully, the process will simply start normally.
+  class CodeInjector
+  {
+  public:
 
-        /// Maximum number of bytes that the trampoline code is allowed to require.
-        static constexpr unsigned int kMaxTrampolineCodeBytes = 128;
+    /// Maximum number of bytes that the trampoline code is allowed to require.
+    static constexpr unsigned int kMaxTrampolineCodeBytes = 128;
 
+    CodeInjector(
+        void* const baseAddressCode,
+        void* const baseAddressData,
+        const bool cleanupCodeBuffer,
+        const bool cleanupDataBuffer,
+        void* const entryPoint,
+        const size_t sizeCode,
+        const size_t sizeData,
+        const HANDLE injectedProcess,
+        const HANDLE injectedProcessMainThread);
 
-    private:
-        // -------- INSTANCE VARIABLES ------------------------------------- //
+    CodeInjector(const CodeInjector&) = delete;
 
-        /// Base address of the code region of the injected process.
-        void* const baseAddressCode;
+    /// Sets the injected code into the injected process and runs it upon completion.
+    /// Performs the actual operations of copying over code to the right locations and then
+    /// executing it. Upon successful completion, the main thread of the injected process will be
+    /// suspended and, once resumed, will return control to the entry point specified at
+    /// construction time.
+    /// @param [in] enableDebugFeatures If `true`, signals to the injected process that a debugger
+    /// is present, so certain debug features should be enabled.
+    /// @return Indicator of the result of the operation.
+    EInjectResult SetAndRun(const bool enableDebugFeatures);
 
-        /// Base address of the data region of the injected process.
-        void* const baseAddressData;
+  private:
 
-        /// Specifies if the buffer identified as containing code needs to be cleaned up in the injected process once it is running.
-        const bool cleanupCodeBuffer;
+    /// Validates all of the parameters specified at object creation time. Sources of possible
+    /// errors include null pointers and insufficiently-sized code or data regions.
+    /// @return Indicator of the result of the operation.
+    EInjectResult Check(void) const;
 
-        /// Specifies if the buffer identified as containing data needs to be cleaned up in the injected process once it is running.
-        const bool cleanupDataBuffer;
+    /// Computes the number of bytes needed to represent the injected code.
+    /// @return Number of bytes required for the injected code.
+    size_t GetRequiredCodeSize(void) const;
 
-        /// Entry point for the injected code.
-        void* const entryPoint;
+    /// Computes the number of bytes needed for the data region within the injected process.
+    /// @return Number of bytes needed for the data region.
+    size_t GetRequiredDataSize(void) const;
 
-        /// Size of the code region, in bytes.
-        const size_t sizeCode;
+    /// Computes the number of bytes occupied by the trampoline code, which replaces the entry point
+    /// code and causes execution of the injected code.
+    /// @return Number of bytes occupied by the trampoline code.
+    size_t GetTrampolineCodeSize(void) const;
 
-        /// Size of the data region, in bytes.
-        const size_t sizeData;
+    /// Determines the location within the injected process' address space of the GetLastError,
+    /// GetProcAddress, and LoadLibraryA functions. These are required to be passed to the injected
+    /// code so they may be invoked.
+    /// @param [out] addrGetLastError On success, filled with the address of GetLastError.
+    /// @param [out] addrGetProcAddress On success, filled with the address of GetProcAddress.
+    /// @param [out] addrLoadLibraryA On success, filled with the address of LoadLibraryA.
+    /// @return `true` on success, `false` on failure.
+    bool LocateFunctions(
+        void*& addrGetLastError, void*& addrGetProcAddress, void*& addrLoadLibraryA) const;
 
-        /// Process handle of the injected process.
-        const HANDLE injectedProcess;
+    /// Runs the injected process once the injected code has been set.
+    /// @return Indicator of the result of the operation.
+    EInjectResult Run(void);
 
-        /// Main thread handle for the injected process.
-        const HANDLE injectedProcessMainThread;
+    /// Sets the injected code into the injected process, performing all required operations.
+    /// @param [in] enableDebugFeatures If `true`, signals to the injected process that a debugger
+    /// is present, so certain debug features should be enabled.
+    /// @return Indicator of the result of the operation.
+    EInjectResult Set(const bool enableDebugFeatures);
 
-        /// Container for holding the code that gets replaced by trampoline code.
-        std::array<uint8_t, kMaxTrampolineCodeBytes> oldCodeAtTrampoline;
+    /// Returns the code region occupied by the trampoline to its original content.
+    /// This is necessary to allow the injected process to execute as normal.
+    /// @return Indicator of the result of the operation.
+    EInjectResult UnsetTrampoline(void);
 
-        /// Utility object for providing access to all code being injected.
-        const InjectInfo injectInfo;
+    /// Base address of the code region of the injected process.
+    void* const baseAddressCode;
 
+    /// Base address of the data region of the injected process.
+    void* const baseAddressData;
 
-    public:
-        // -------- CONSTRUCTION AND DESTRUCTION --------------------------- //
+    /// Specifies if the buffer identified as containing code needs to be cleaned up in the
+    /// injected process once it is running.
+    const bool cleanupCodeBuffer;
 
-        /// Default constructor. Should never be invoked.
-        CodeInjector(void) = delete;
+    /// Specifies if the buffer identified as containing data needs to be cleaned up in the
+    /// injected process once it is running.
+    const bool cleanupDataBuffer;
 
-        /// Initialization constructor. The only way to construct an object of this type.
-        /// @param [in] baseAddressCode Base address of the code region of the injected process.
-        /// @param [in] baseAddressData Base address of the data region of the injected process.
-        /// @param [in] cleanupCodeBuffer If true, the injected process will use `VirtualFree()` to free the memory starting at baseAddressCode.
-        /// @param [in] cleanupDataBuffer If true, the injected process will use `VirtualFree()` to free the memory starting at baseAddressData.
-        /// @param [in] entryPoint Entry point for the injected code.
-        /// @param [in] sizeCode Size of the code region, in bytes.
-        /// @param [in] sizeData Size of the data region, in bytes.
-        /// @param [in] injectedProcess Process handle of the injected process.
-        /// @param [in] injectedProcessMainThread Main thread handle for the injected process.
-        CodeInjector(void* const baseAddressCode, void* const baseAddressData, const bool cleanupCodeBuffer, const bool cleanupDataBuffer, void* const entryPoint, const size_t sizeCode, const size_t sizeData, const HANDLE injectedProcess, const HANDLE injectedProcessMainThread);
+    /// Entry point for the injected code.
+    void* const entryPoint;
 
-        /// Copy constructor. Should never be invoked.
-        CodeInjector(const CodeInjector&) = delete;
+    /// Size of the code region, in bytes.
+    const size_t sizeCode;
 
+    /// Size of the data region, in bytes.
+    const size_t sizeData;
 
-    public:
-        // -------- INSTANCE METHODS --------------------------------------- //
+    /// Process handle of the injected process.
+    const HANDLE injectedProcess;
 
-        /// Sets the injected code into the injected process and runs it upon completion.
-        /// Performs the actual operations of copying over code to the right locations and then executing it.
-        /// Upon successful completion, the main thread of the injected process will be suspended and, once resumed, will return control to the entry point specified at construction time.
-        /// @param [in] enableDebugFeatures If `true`, signals to the injected process that a debugger is present, so certain debug features should be enabled.
-        /// @return Indicator of the result of the operation.
-        EInjectResult SetAndRun(const bool enableDebugFeatures);
+    /// Main thread handle for the injected process.
+    const HANDLE injectedProcessMainThread;
 
+    /// Container for holding the code that gets replaced by trampoline code.
+    std::array<uint8_t, kMaxTrampolineCodeBytes> oldCodeAtTrampoline;
 
-    private:
-        // -------- HELPERS ------------------------------------------------ //
-
-        /// Validates all of the parameters specified at object creation time.
-        /// Sources of possible errors include null pointers and insufficiently-sized code or data regions.
-        /// @return Indicator of the result of the operation.
-        EInjectResult Check(void) const;
-
-        /// Computes the number of bytes needed to represent the injected code.
-        /// @return Number of bytes required for the injected code.
-        size_t GetRequiredCodeSize(void) const;
-
-        /// Computes the number of bytes needed for the data region within the injected process.
-        /// @return Number of bytes needed for the data region.
-        size_t GetRequiredDataSize(void) const;
-
-        /// Computes the number of bytes occupied by the trampoline code, which replaces the entry point code and causes execution of the injected code.
-        /// @return Number of bytes occupied by the trampoline code.
-        size_t GetTrampolineCodeSize(void) const;
-
-        /// Determines the location within the injected process' address space of the GetLastError, GetProcAddress, and LoadLibraryA functions.
-        /// These are required to be passed to the injected code so they may be invoked.
-        /// @param [out] addrGetLastError On success, filled with the address of GetLastError.
-        /// @param [out] addrGetProcAddress On success, filled with the address of GetProcAddress.
-        /// @param [out] addrLoadLibraryA On success, filled with the address of LoadLibraryA.
-        /// @return `true` on success, `false` on failure.
-        bool LocateFunctions(void*& addrGetLastError, void*& addrGetProcAddress, void*& addrLoadLibraryA) const;
-
-        /// Runs the injected process once the injected code has been set.
-        /// @return Indicator of the result of the operation.
-        EInjectResult Run(void);
-
-        /// Sets the injected code into the injected process, performing all required operations.
-        /// @param [in] enableDebugFeatures If `true`, signals to the injected process that a debugger is present, so certain debug features should be enabled.
-        /// @return Indicator of the result of the operation.
-        EInjectResult Set(const bool enableDebugFeatures);
-
-        /// Returns the code region occupied by the trampoline to its original content.
-        /// This is necessary to allow the injected process to execute as normal.
-        /// @return Indicator of the result of the operation.
-        EInjectResult UnsetTrampoline(void);
-    };
-}
+    /// Utility object for providing access to all code being injected.
+    const InjectInfo injectInfo;
+  };
+} // namespace Hookshot

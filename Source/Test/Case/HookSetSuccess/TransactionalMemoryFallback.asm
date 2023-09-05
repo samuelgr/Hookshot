@@ -1,18 +1,18 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Hookshot
 ;   General-purpose library for injecting DLLs and hooking function calls.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Authored by Samuel Grossman
 ; Copyright (c) 2019-2023
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 INCLUDE TestDefinitions.inc
 
 
-; Tests Hookshot's ability to transplant transactional memory instructions.
-; In 32-bit mode, the xbegin instruction requires a jump assist because it is encoded using rel16.
-; If Hookshot does not implement jump assist correctly, the fallback path will not be hit, and the return value will be incorrect.
-; Hook function does nothing special for this test.
+; Tests Hookshot's ability to transplant transactional memory instructions. In 32-bit mode, the
+; xbegin instruction requires a jump assist because it is encoded using rel16. If Hookshot does not
+; implement jump assist correctly, the fallback path will not be hit, and the return value will be
+; incorrect. Hook function does nothing special for this test.
 
 
 _TEXT                                       SEGMENT

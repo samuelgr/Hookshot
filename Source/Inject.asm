@@ -1,13 +1,13 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Hookshot
 ;   General-purpose library for injecting DLLs and hooking function calls.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Authored by Samuel Grossman
 ; Copyright (c) 2019-2023
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Inject.asm
 ;   Implementation of all code that gets injected into another process.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 INCLUDE Functions.inc
 INCLUDE Inject.inc
@@ -19,11 +19,9 @@ INCLUDE Strings.inc
 kStrInjectCodeSectionName                   SEGMENT READ
 
 
-; --------- TRAMPOLINE --------------------------------------------------------
-
-; Injected to the entry point of a process.
-; Initial value is to be overwritten with the actual target address within the code region.
-; Address of the initial value is injectTrampolineAddressMarker - sizeof(size_t) in C/C++.
+; Injected to the entry point of a process. Initial value is to be overwritten with the actual
+; target address within the code region. Address of the initial value is
+; injectTrampolineAddressMarker - sizeof(size_t) in C/C++.
 
 injectTrampolineStart:
 
@@ -37,10 +35,8 @@ injectTrampolineAddressMarker:
 injectTrampolineEnd:
 
 
-; --------- MAIN CODE ---------------------------------------------------------
-
-; Injected into the code region of a process.
-; Reserved bytes at the beginning are to be overwritten with the address of the data region.
+; Injected into the code region of a process. Reserved bytes at the beginning are to be overwritten
+; with the address of the data region.
 
 injectCodeStart:
 

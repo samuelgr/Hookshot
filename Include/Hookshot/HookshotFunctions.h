@@ -1,14 +1,14 @@
-/******************************************************************************
+/***************************************************************************************************
  * Hookshot
  *   General-purpose library for injecting DLLs and hooking function calls.
- ******************************************************************************
+ ***************************************************************************************************
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2023
- **************************************************************************//**
+ ***********************************************************************************************//**
  * @file HookshotFunctions.h
- *   Function prototypes and macros for the public Hookshot interface.
- *   External users should include Hookshot.h instead of this file.
- *****************************************************************************/
+ *   Function prototypes and macros for the public Hookshot interface. External users should
+ *   include Hookshot.h instead of this file.
+ **************************************************************************************************/
 
 #pragma once
 

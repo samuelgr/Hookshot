@@ -1,17 +1,16 @@
 @echo off
 setlocal enabledelayedexpansion
 
-rem +--------------------------------------------------------------------------
+rem +-----------------------------------------------------------------------------------------------
 rem | Hookshot
 rem |   General-purpose library for injecting DLLs and hooking function calls.
-rem +--------------------------------------------------------------------------
+rem +-----------------------------------------------------------------------------------------------
 rem | Authored by Samuel Grossman
 rem | Copyright (c) 2019-2023
-rem +--------------------------------------------------------------------------
+rem +-----------------------------------------------------------------------------------------------
 rem | GitVersionInfo.bat
-rem |   Script for extracting version information from Git. Executed
-rem |   automatically on build.
-rem +--------------------------------------------------------------------------
+rem |   Script for extracting version information from Git. Executed automatically on build.
+rem +-----------------------------------------------------------------------------------------------
 
 set script_path=%~dp0
 set output_dir=%~f1

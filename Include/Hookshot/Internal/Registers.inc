@@ -1,25 +1,22 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Hookshot
 ;   General-purpose library for injecting DLLs and hooking function calls.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Authored by Samuel Grossman
 ; Copyright (c) 2019-2023
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Registers.inc
-;   Size-dependent name mappings for registers used throughtout Hookshot.
-;   Helps with 32/64-bit portability of the actual assembly code.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;   Size-dependent name mappings for registers used throughtout Hookshot. Helps with 32/64-bit
+;   portability of the actual assembly code.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 IFNDEF __HOOKSHOT_REGISTERS_INC
 __HOOKSHOT_REGISTERS_INC EQU 1
 
 
-; --------- REGISTER NAME MAPPINGS --------------------------------------------
-
-; The mappings that follow create register names with 's' as a prefix.
-; Each mapping expands to the corresponding register at the largest-available size.
-; Size depends on whether assembling for a 32-bit or a 64-bit target binary.
-; Only registers supported in both modes are included.
+; The mappings that follow create register names with 's' as a prefix. Each mapping expands to
+; the corresponding register at the largest-available size. Size depends on whether assembling
+; for a 32-bit or a 64-bit target binary. Only registers supported in both modes are included.
 
 IFDEF HOOKSHOT32
 ; 32-bit mappings

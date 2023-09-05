@@ -1,19 +1,21 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Hookshot
 ;   General-purpose library for injecting DLLs and hooking function calls.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Authored by Samuel Grossman
 ; Copyright (c) 2019-2023
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 INCLUDE TestDefinitions.inc
 
 
 ; Edge case for transplanting relative branch displacements.
-; The original function contains a jump with a displacement exactly one less than the minimum displacement that would require adjustment.
-; This is achieved by making the jump instruction the second-last instruction transplanted and setting its displacement to zero, so it points to the instruction right at the end of the transplant window.
-; If Hookshot does not realize this and assumes the displacement is large enough as to need adjustment, the program will behave incorrectly.
-; Hook function does nothing special for this test.
+; The original function contains a jump with a displacement exactly one less than the minimum
+; displacement that would require adjustment. This is achieved by making the jump instruction the
+; second-last instruction transplanted and setting its displacement to zero, so it points to the
+; instruction right at the end of the transplant window. If Hookshot does not realize this and
+; assumes the displacement is large enough as to need adjustment, the program will behave
+; incorrectly. Hook function does nothing special for this test.
 
 
 _TEXT                                       SEGMENT

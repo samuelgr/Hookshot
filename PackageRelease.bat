@@ -1,17 +1,17 @@
 @echo off
 setlocal enabledelayedexpansion
 
-rem +--------------------------------------------------------------------------
+rem +-----------------------------------------------------------------------------------------------
 rem | Hookshot
 rem |   General-purpose library for injecting DLLs and hooking function calls.
-rem +--------------------------------------------------------------------------
+rem +-----------------------------------------------------------------------------------------------
 rem | Authored by Samuel Grossman
 rem | Copyright (c) 2019-2023
-rem +--------------------------------------------------------------------------
+rem +-----------------------------------------------------------------------------------------------
 rem | PackageRelease.bat
-rem |   Script for packaging up a release. To be executed manually after
-rem |   building the Release configuration for both Win32 and x64 platforms.
-rem +--------------------------------------------------------------------------
+rem |   Script for packaging up a release. To be executed manually after building the 
+rem |   Release configuration for both Win32 and x64 platforms.
+rem +-----------------------------------------------------------------------------------------------
 
 set project_name=Hookshot
 set project_platforms=Win32 x64
@@ -26,7 +26,7 @@ set files_sdk_include=Include\Hookshot\*.h
 
 set third_party_license=IntelXED
 
-rem ---------------------------------------------------------------------------
+rem ------------------------------------------------------------------------------------------------
 
 set script_path=%~dp0
 set script_invocation=%0

@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Hookshot\Internal\ApiWindows.h" />
+    <ClInclude Include="Include\Hookshot\Internal\ApiWindowsShell.h" />
     <ClInclude Include="Include\Hookshot\Internal\CodeInjector.h" />
     <ClInclude Include="Include\Hookshot\Internal\DebugAssert.h" />
     <ClInclude Include="Include\Hookshot\Internal\DependencyProtect.h" />

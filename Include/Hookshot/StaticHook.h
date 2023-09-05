@@ -1,132 +1,179 @@
-/******************************************************************************
+/***************************************************************************************************
  * Hookshot
  *   General-purpose library for injecting DLLs and hooking function calls.
- ******************************************************************************
+ ***************************************************************************************************
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2023
- **************************************************************************//**
+ ***********************************************************************************************//**
  * @file StaticHook.h
- *   Convenience wrapper types and definitions for creating static hooks. A
- *   static hook is one whose original function address is available at
- *   compile or link time. Examples include API functions declared in header
- *   files and defined in libraries against which a hook module links.
- *   Windows API functions, exported by system-supplied libraries, can
- *   generally be hooked this way. A key advantage of using static hooks, as
- *   opposed to calling Hookshot functions directly, is type safety: return
- *   type, calling convention, and argument types are automatically detected
- *   from the declaration of the function being hooked, and any accidental
- *   mismatches trigger compiler errors. This file is intended to be
- *   included externally.
- *****************************************************************************/
+ *   Convenience wrapper types and definitions for creating static hooks. A static hook is one
+ *   whose original function address is available at compile or link time. Examples include API
+ *   functions declared in header files and defined in libraries against which a hook module
+ *   links. Windows API functions, exported by system-supplied libraries, can generally be hooked
+ *   this way. A key advantage of using static hooks, as opposed to calling Hookshot functions
+ *   directly, is type safety: return type, calling convention, and argument types are
+ *   automatically detected from the declaration of the function being hooked, and any accidental
+ *   mismatches trigger compiler errors. This file is intended to be included externally.
+ **************************************************************************************************/
 
 #pragma once
-
-#include "Hookshot.h"
 
 #include <type_traits>
 #include <utility>
 
+#include "Hookshot.h"
 
-// -------- MACROS --------------------------------------------------------- //
-// These provide the interface to static hooks.
+/// Declares a static hook. Defines a type to represent a hook for the specified function. Parameter
+/// is the name of the function being hooked. Type name is of the "StaticHook_[function name]" and
+/// is created in whatever namespace encloses the invocation of this macro. Relevant static members
+/// of the created type are `Hook` (the hook function, which must be implemented) and `Original`
+/// (automatically implemented to provide access to the original un-hooked functionality of the
+/// specified function). To activate the static hook, the `SetHook` method must be invoked at
+/// runtime. Function prototypes for both `Hook` and `Original` are automatically set to match that
+/// of the specified function, including calling convention. To define the hook function, simply
+/// provide a funciton body for `StaticHook_[function name]::Hook`. The invocation of this macro
+/// should be placed in a location visible wherever access to the underlying type is needed. It is
+/// safe to place in a header file that is included in multiple places. Note that Hookshot might
+/// fail to create the requested hook. Therefore, the return code from `SetHook` should be checked.
+/// Once `SetHook` has been invoked successfully, further invocations have no effect and simply
+/// return `EResult::NoEffect`.
+#define HOOKSHOT_STATIC_HOOK(func)                                                                 \
+  namespace _HookshotInternal                                                                      \
+  {                                                                                                \
+    inline constexpr wchar_t kHookName__##func[] = _CRT_WIDE(#func);                               \
+  }                                                                                                \
+  using StaticHook_##func = ::Hookshot::                                                           \
+      StaticHook<_HookshotInternal::kHookName__##func, (void*)(&(func)), decltype(func)>
 
-/// Declares a static hook. Defines a type to represent a hook for the specified function. Parameter is the name of the function being hooked.
-/// Type name is of the format "StaticHook_[function name]" and is created in whatever namespace encloses the invocation of this macro.
-/// Relevant static members of the created type are `Hook` (the hook function, which must be implemented) and `Original` (automatically implemented to provide access to the original un-hooked functionality of the specified function).
-/// To activate the static hook, the `SetHook` method must be invoked at runtime.
-/// Function prototypes for both `Hook` and `Original` are automatically set to match that of the specified function, including calling convention.
-/// To define the hook function, simply provide a funciton body for `StaticHook_[function name]::Hook`.
-/// The invocation of this macro should be placed in a location visible wherever access to the underlying type is needed. It is safe to place in a header file that is included in multiple places.
-/// Note that Hookshot might fail to create the requested hook. Therefore, the return code from `SetHook` should be checked.
-/// Once `SetHook` has been invoked successfully, further invocations have no effect and simply return EResult::NoEffect.
-#define HOOKSHOT_STATIC_HOOK(func) \
-    namespace _HookshotInternal { inline constexpr wchar_t kHookName__##func[] = _CRT_WIDE(#func); } \
-    using StaticHook_##func = ::Hookshot::StaticHook<_HookshotInternal::kHookName__##func, (void*)(&(func)), decltype(func)>
+// Everything below this point is internal to the implementation of static hooks. External users
+// should only make use of the macro above.
 
-
-// -------- IMPLEMENTATION DETAILS ----------------------------------------- //
-// Everything below this point is internal to the implementation of static hooks.
-
-/// Implements static hook template specialization so that function prototypes and calling conventions are automatically extracted based on the supplied function.
-/// Parameters are just different syntactic representations of calling conventions, which are used to create one template specialization for calling convention.
-#define HOOKSHOT_STATIC_HOOK_TEMPLATE(callingConvention, callingConventionInBrackets) \
-    template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress, typename ReturnType, typename... ArgumentTypes> class StaticHook<kOriginalFunctionName, kOriginalFunctionAddress, ReturnType callingConventionInBrackets (ArgumentTypes...)> : public StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress> \
-    { \
-    public: \
-        typedef ReturnType callingConvention TFunction(ArgumentTypes...); \
-        typedef ReturnType(callingConvention* TFunctionPtr)(ArgumentTypes...); \
-        static ReturnType callingConvention Hook(ArgumentTypes...); \
-        static ReturnType callingConvention Original(ArgumentTypes... args) { return ((ReturnType(callingConvention *)(ArgumentTypes...))StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::GetOriginalFunction())(std::forward<ArgumentTypes>(args)...); } \
-        static bool IsHookSet(void) { return StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::IsHookSet(); } \
-        static EResult SetHook(IHookshot* const hookshot) { return StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::SetHook(hookshot, &Hook); } \
-        static EResult DisableHook(IHookshot* const hookshot) { return hookshot->DisableHookFunction(&Hook); } \
-        static EResult EnableHook(IHookshot* const hookshot) { return hookshot->ReplaceHookFunction(kOriginalFunctionAddress, &Hook); } \
-        static const wchar_t* GetFunctionName(void) { return kOriginalFunctionName; } \
-        static StaticHookProxy GetProxy(void) { return {.IsHookSet = &IsHookSet, .SetHook = &SetHook, .DisableHook = &DisableHook, .EnableHook = &EnableHook, .GetFunctionName = &GetFunctionName}; } \
-    };
+/// Implements static hook template specialization so that function prototypes and calling
+/// conventions are automatically extracted based on the supplied function. Parameters are just
+/// different syntactic representations of calling conventions, which are used to create one
+/// template specialization for calling convention.
+#define HOOKSHOT_STATIC_HOOK_TEMPLATE(callingConvention, callingConventionInBrackets)              \
+  template <                                                                                       \
+      const wchar_t* kOriginalFunctionName,                                                        \
+      void* const kOriginalFunctionAddress,                                                        \
+      typename ReturnType,                                                                         \
+      typename... ArgumentTypes>                                                                   \
+  class StaticHook<                                                                                \
+      kOriginalFunctionName,                                                                       \
+      kOriginalFunctionAddress,                                                                    \
+      ReturnType callingConventionInBrackets(ArgumentTypes...)>                                    \
+      : public StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>                     \
+  {                                                                                                \
+  public:                                                                                          \
+                                                                                                   \
+    typedef ReturnType callingConvention TFunction(ArgumentTypes...);                              \
+    typedef ReturnType(callingConvention* TFunctionPtr)(ArgumentTypes...);                         \
+    static ReturnType callingConvention Hook(ArgumentTypes...);                                    \
+    static ReturnType callingConvention Original(ArgumentTypes... args)                            \
+    {                                                                                              \
+      return ((ReturnType(callingConvention*)(                                                     \
+          ArgumentTypes...))StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::      \
+                  GetOriginalFunction())(std::forward<ArgumentTypes>(args)...);                    \
+    }                                                                                              \
+    static bool IsHookSet(void)                                                                    \
+    {                                                                                              \
+      return StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::IsHookSet();         \
+    }                                                                                              \
+    static EResult SetHook(IHookshot* const hookshot)                                              \
+    {                                                                                              \
+      return StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::SetHook(             \
+          hookshot, &Hook);                                                                        \
+    }                                                                                              \
+    static EResult DisableHook(IHookshot* const hookshot)                                          \
+    {                                                                                              \
+      return hookshot->DisableHookFunction(&Hook);                                                 \
+    }                                                                                              \
+    static EResult EnableHook(IHookshot* const hookshot)                                           \
+    {                                                                                              \
+      return hookshot->ReplaceHookFunction(kOriginalFunctionAddress, &Hook);                       \
+    }                                                                                              \
+    static const wchar_t* GetFunctionName(void)                                                    \
+    {                                                                                              \
+      return kOriginalFunctionName;                                                                \
+    }                                                                                              \
+    static StaticHookProxy GetProxy(void)                                                          \
+    {                                                                                              \
+      return {                                                                                     \
+          .IsHookSet = &IsHookSet,                                                                 \
+          .SetHook = &SetHook,                                                                     \
+          .DisableHook = &DisableHook,                                                             \
+          .EnableHook = &EnableHook,                                                               \
+          .GetFunctionName = &GetFunctionName};                                                    \
+    }                                                                                              \
+  };
 
 namespace Hookshot
 {
-    /// Proxy object for manipulating a static hook using an object-oriented interface.
-    /// Simply contains a table of functions that can be invoked.
-    struct StaticHookProxy
+  /// Proxy object for manipulating a static hook using an object-oriented interface. Simply
+  /// contains a table of functions that can be invoked.
+  struct StaticHookProxy
+  {
+    bool (*IsHookSet)(void);
+    EResult (*SetHook)(IHookshot* const hookshot);
+    EResult (*DisableHook)(IHookshot* const hookshot);
+    EResult (*EnableHook)(IHookshot* const hookshot);
+    const wchar_t* (*GetFunctionName)(void);
+  };
+
+  /// Base class for all static hooks. Used to hide implementation details from external users.
+  template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress>
+  class StaticHookBase
+  {
+  private:
+
+    inline static const void* originalFunction = nullptr;
+
+  public:
+
+    StaticHookBase(void) = delete;
+    StaticHookBase(const StaticHookBase& other) = delete;
+    StaticHookBase(StaticHookBase&& other) = delete;
+
+  protected:
+
+    static inline const void* GetOriginalFunction(void)
     {
-        bool(*IsHookSet)(void);
-        EResult(*SetHook)(IHookshot* const hookshot);
-        EResult(*DisableHook)(IHookshot* const hookshot);
-        EResult(*EnableHook)(IHookshot* const hookshot);
-        const wchar_t* (*GetFunctionName)(void);
-    };
+      return originalFunction;
+    }
 
-    /// Base class for all static hooks.
-    /// Used to hide implementation details from external users.
-    template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress> class StaticHookBase
+    static inline bool IsHookSet(void)
     {
-    private:
-        inline static const void* originalFunction = nullptr;
+      return (nullptr != originalFunction);
+    }
 
-    public:
-        StaticHookBase(void) = delete;
-        StaticHookBase(const StaticHookBase& other) = delete;
-        StaticHookBase(StaticHookBase&& other) = delete;
-
-    protected:
-        static inline const void* GetOriginalFunction(void)
-        {
-            return originalFunction;
-        }
-
-        static inline bool IsHookSet(void)
-        {
-            return (nullptr != originalFunction);
-        }
-
-        static inline EResult SetHook(IHookshot* const hookshot, const void* hookFunc)
-        {
-            if (true == IsHookSet())
-                return EResult::NoEffect;
-
-            const EResult result = hookshot->CreateHook(kOriginalFunctionAddress, hookFunc);
-
-            if (SuccessfulResult(result))
-                originalFunction = hookshot->GetOriginalFunction(kOriginalFunctionAddress);
-
-            return result;
-        }
-    };
-
-    /// Primary static hook template. Specialized using #HOOKSHOT_STATIC_HOOK_TEMPLATE.
-    template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress, typename T> class StaticHook
+    static inline EResult SetHook(IHookshot* const hookshot, const void* hookFunc)
     {
-        static_assert(std::is_function<T>::value, "Supplied argument in StaticHook declaration must map to a function type.");
-    };
+      if (true == IsHookSet()) return EResult::NoEffect;
+
+      const EResult result = hookshot->CreateHook(kOriginalFunctionAddress, hookFunc);
+
+      if (SuccessfulResult(result))
+        originalFunction = hookshot->GetOriginalFunction(kOriginalFunctionAddress);
+
+      return result;
+    }
+  };
+
+  /// Primary static hook template. Specialized using #HOOKSHOT_STATIC_HOOK_TEMPLATE.
+  template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress, typename T>
+  class StaticHook
+  {
+    static_assert(
+        std::is_function<T>::value,
+        "Supplied argument in StaticHook declaration must map to a function type.");
+  };
 
 #ifdef _WIN64
-    HOOKSHOT_STATIC_HOOK_TEMPLATE( , );
+  HOOKSHOT_STATIC_HOOK_TEMPLATE(, );
 #else
-    HOOKSHOT_STATIC_HOOK_TEMPLATE(__cdecl, (__cdecl));
-    HOOKSHOT_STATIC_HOOK_TEMPLATE(__fastcall, (__fastcall));
-    HOOKSHOT_STATIC_HOOK_TEMPLATE(__stdcall, (__stdcall));
-    HOOKSHOT_STATIC_HOOK_TEMPLATE(__vectorcall, (__vectorcall));
+  HOOKSHOT_STATIC_HOOK_TEMPLATE(__cdecl, (__cdecl));
+  HOOKSHOT_STATIC_HOOK_TEMPLATE(__fastcall, (__fastcall));
+  HOOKSHOT_STATIC_HOOK_TEMPLATE(__stdcall, (__stdcall));
+  HOOKSHOT_STATIC_HOOK_TEMPLATE(__vectorcall, (__vectorcall));
 #endif
-}
+} // namespace Hookshot

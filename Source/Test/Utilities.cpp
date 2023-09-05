@@ -1,13 +1,13 @@
-/******************************************************************************
+/***************************************************************************************************
  * Hookshot
  *   General-purpose library for injecting DLLs and hooking function calls.
- ******************************************************************************
+ ***************************************************************************************************
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2023
  *************************************************************************//**
  * @file Utilities.cpp
  *   Implementation of test utility functions.
- *****************************************************************************/
+ **************************************************************************************************/
 
 #include <cstdarg>
 #include <cstdio>
@@ -16,8 +16,7 @@
 
 namespace HookshotTest
 {
-    // -------- FUNCTIONS -------------------------------------------------- //
-    // See "Harness.h" for documentation.
+        
 
     void Print(const wchar_t* const str)
     {
@@ -32,8 +31,7 @@ namespace HookshotTest
         }
     }
 
-    // --------
-
+    
     void PrintFormatted(_Printf_format_string_  const wchar_t* const format, ...)
     {
         wchar_t formattedStringBuffer[1024];
