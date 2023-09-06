@@ -38,7 +38,7 @@ namespace HookshotTest
     /// @return `true` if so, `false` otherwise.
     static inline constexpr bool Is64BitLongModeEnabled(void)
     {
-#ifdef HOOKSHOT64
+#ifdef _WIN64
       return true;
 #else
       return false;

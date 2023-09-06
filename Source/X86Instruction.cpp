@@ -27,14 +27,14 @@ namespace Hookshot
 {
   /// Captures the state of the current machine, based on its operating mode (i.e. 32-bit or
   /// 64-bit). This is a constant that corresponds to the currently-executing process mode.
-#ifdef HOOKSHOT64
+#ifdef _WIN64
   static constexpr xed_state_t kXedMachineState = {XED_MACHINE_MODE_LONG_64, XED_ADDRESS_WIDTH_64b};
 #else
   static constexpr xed_state_t kXedMachineState = {
       XED_MACHINE_MODE_LEGACY_32, XED_ADDRESS_WIDTH_32b};
 #endif
 
-#ifdef HOOKSHOT64
+#ifdef _WIN64
   /// Mask used to determine if a byte is a REX prefix of any form.
   static constexpr uint8_t kRexPrefixMask = 0xf0;
 
@@ -50,7 +50,7 @@ namespace Hookshot
   /// @return `true` if it is a REX prefix, `false` if not.
   static inline bool CouldBeRexPrefix(const uint8_t byte)
   {
-#ifdef HOOKSHOT64
+#ifdef _WIN64
     return ((byte & kRexPrefixMask) == kRexPrefixCompareValue);
 #else
     // REX prefixes do not exist in 32-bit mode.
@@ -86,7 +86,7 @@ namespace Hookshot
       }
     }
 
-#ifdef HOOKSHOT64
+#ifdef _WIN64
     // Next, scan for any memory reference operands that use the instruction pointer register as a
     // base. Per Intel documentation, RIP-relative addressing is only supported in 64-bit code,
     // which means that RIP is the only possible base register.
@@ -216,7 +216,7 @@ namespace Hookshot
 
       FillWithNop(buf, lengthDiscrepancy);
 
-#ifdef HOOKSHOT64
+#ifdef _WIN64
       // If the decoded instruction had a REX prefix and the newly-encoded instruction does not,
       // this means the encoder removed it because it has no functional purpose. However, REX
       // prefixes are used for other things besides just functional changes. For example, Windows

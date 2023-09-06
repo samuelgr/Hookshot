@@ -59,7 +59,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     HANDLE sharedMemoryHandle;
     wchar_t* parseEnd;
 
-#ifdef HOOKSHOT64
+#ifdef _WIN64
     sharedMemoryHandle = (HANDLE)wcstoull(&__wargv[1][1], &parseEnd, 16);
 #else
     sharedMemoryHandle = (HANDLE)wcstoul(&__wargv[1][1], &parseEnd, 16);

@@ -19,7 +19,8 @@ namespace Hookshot
   /// process.
   enum class EInjectResult
   {
-    Success = 0, /// All operations succeeded.
+    /// All operations succeeded.
+    Success = 0,
 
     /// Unknown error.
     Failure,

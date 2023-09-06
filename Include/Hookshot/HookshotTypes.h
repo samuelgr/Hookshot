@@ -43,6 +43,7 @@ namespace Hookshot
 
     /// Internal error.
     FailInternal,
+
     /// Unable to find a hook using the supplied identification.
     FailNotFound,
 

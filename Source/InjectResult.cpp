@@ -97,7 +97,7 @@ namespace Hookshot
         return L"Hookshot DLL loaded from within the new process is malformed";
       case EInjectResult::ErrorLibraryInitFailed:
         return L"Error initializing library from within the new process";
-#if defined(HOOKSHOT32)
+#if !defined(_WIN64)
       case EInjectResult::ErrorCreateHookshotProcessFailed:
         return L"Error creating a new 32-bit Hookshot executable process";
       case EInjectResult::ErrorCreateHookshotOtherArchitectureProcessFailed:
@@ -106,7 +106,7 @@ namespace Hookshot
         return L"Error loading 32-bit Hookshot DLL from within the new process";
       case EInjectResult::ErrorCannotLoadLibraryOtherArchitecture:
         return L"Error loading 64-bit Hookshot DLL from within the new process";
-#elif defined(HOOKSHOT64)
+#else
       case EInjectResult::ErrorCreateHookshotProcessFailed:
         return L"Error creating a new 64-bit Hookshot executable process";
       case EInjectResult::ErrorCreateHookshotOtherArchitectureProcessFailed:

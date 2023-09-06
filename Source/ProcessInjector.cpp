@@ -20,7 +20,7 @@
 #include <optional>
 #include <vector>
 
-#include "ApiWindowsShell.h"
+#include "ApiWindows.h"
 #include "CodeInjector.h"
 #include "Globals.h"
 #include "Inject.h"
@@ -389,7 +389,7 @@ namespace Hookshot
       // visualization. If the offset is modified in a future version of Windows, this constant
       // might need to have a different value for different Windows versions.
 
-#ifdef HOOKSHOT64
+#ifdef _WIN64
       constexpr size_t kByteOffsetPebImageBaseAddress = 16;
 #else
       constexpr size_t kByteOffsetPebImageBaseAddress = 8;

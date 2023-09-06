@@ -148,7 +148,7 @@ namespace Hookshot
     /// @return Address of the hook function.
     inline const void* HookAddressForValue(void) const
     {
-#ifdef HOOKSHOT64
+#ifdef _WIN64
       // No transformation required in 64-bit mode because the address is an absolute jump target.
       return (void*)code.hook.ptr[_countof(code.hook.ptr) - 1];
 #else
@@ -169,7 +169,7 @@ namespace Hookshot
     /// @return Transformed value of the hook function address, to be inserted into the trampoline.
     inline size_t ValueForHookAddress(const void* hook) const
     {
-#ifdef HOOKSHOT64
+#ifdef _WIN64
       // No transformation required in 64-bit mode because the value is an absolute jump target
       // address.
       return (size_t)hook;

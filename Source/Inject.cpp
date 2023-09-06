@@ -124,7 +124,7 @@ namespace Hookshot
         return;
       }
 
-#ifdef HOOKSHOT64
+#ifdef _WIN64
       if (IMAGE_FILE_MACHINE_AMD64 != ntHeader->FileHeader.Machine)
 #else
       if (IMAGE_FILE_MACHINE_I386 != ntHeader->FileHeader.Machine)

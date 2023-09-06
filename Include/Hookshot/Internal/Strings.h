@@ -35,7 +35,7 @@ namespace Hookshot
     /// PE header encodes section name strings in UTF-8, so each character must directly be
     /// specified as being one byte. Per PE header specs, maximum string length is 8 including
     /// terminating null character.
-#ifdef HOOKSHOT64
+#ifdef _WIN64
     inline constexpr std::string_view kStrInjectCodeSectionName = "_CODE64";
 #else
     inline constexpr std::string_view kStrInjectCodeSectionName = "_CODE32";
@@ -44,7 +44,7 @@ namespace Hookshot
     /// Name of the section in the injection binary that contains injection code metadata.
     /// PE header encodes section name strings in UTF-8, so each character must directly be
     /// specified as being one byte.
-#ifdef HOOKSHOT64
+#ifdef _WIN64
     inline constexpr std::string_view kStrInjectMetaSectionName = "_META64";
 #else
     inline constexpr std::string_view kStrInjectMetaSectionName = "_META32";
@@ -57,7 +57,7 @@ namespace Hookshot
 
     /// Function name of the initialization procedure exported by the Hookshot library that gets
     /// injected.
-#ifdef HOOKSHOT64
+#ifdef _WIN64
     inline constexpr std::string_view kStrLibraryInitializationProcName =
         "HookshotInjectInitialize";
 #else
@@ -66,7 +66,7 @@ namespace Hookshot
 #endif
 
     /// Function name of the hook module's exported initialization routine.
-#ifdef HOOKSHOT64
+#ifdef _WIN64
     inline constexpr std::string_view kStrHookLibraryInitFuncName = "HookshotMain";
 #else
     inline constexpr std::string_view kStrHookLibraryInitFuncName = "@HookshotMain@4";

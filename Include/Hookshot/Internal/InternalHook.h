@@ -46,12 +46,15 @@
   public:                                                                                          \
                                                                                                    \
     static ReturnType callingConvention Hook(ArgumentTypes...);                                    \
+                                                                                                   \
     static ReturnType callingConvention Original(ArgumentTypes... args)                            \
     {                                                                                              \
       return ((ReturnType(callingConvention*)(ArgumentTypes...))                                   \
                   InternalHookBase<kOriginalFunctionName>::GetOriginalFunction())(args...);        \
     }                                                                                              \
+                                                                                                   \
     static void* OriginalFunctionAddress(void);                                                    \
+                                                                                                   \
     static EResult SetHook(void)                                                                   \
     {                                                                                              \
       return InternalHookBase<kOriginalFunctionName>::SetHook(&OriginalFunctionAddress, &Hook);    \
@@ -63,10 +66,6 @@ namespace Hookshot
   /// Base class for all internal hooks.
   template <const wchar_t* kOriginalFunctionName> class InternalHookBase
   {
-  private:
-
-    static const void* originalFunction;
-
   protected:
 
     static inline const void* GetOriginalFunction(void)
@@ -80,10 +79,11 @@ namespace Hookshot
       return HookStore::CreateHookInternal(
           funcGetOriginalFunctionAddress(), hookFunc, true, &originalFunction);
     }
-  };
 
-  template <const wchar_t* kOriginalFunctionName>
-  const void* InternalHookBase<kOriginalFunctionName>::originalFunction = nullptr;
+  private:
+
+    static inline const void* originalFunction = nullptr;
+  };
 
   /// Primary template. Specialized using #HOOKSHOT_INTERNAL_HOOK_TEMPLATE.
   template <const wchar_t* kOriginalFunctionName, typename T> class InternalHook

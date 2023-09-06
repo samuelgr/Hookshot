@@ -32,7 +32,7 @@ namespace Hookshot
   /// after-the-fact. When the trampoline is set, the hook function address is filled in after the
   /// code contained here.
   static constexpr uint8_t kHookCodePreamble[] = {
-#ifdef HOOKSHOT64
+#ifdef _WIN64
       // nop
       0x66,
       0x90,

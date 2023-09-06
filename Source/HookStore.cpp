@@ -25,7 +25,7 @@ namespace Hookshot
   std::unordered_map<const void*, Trampoline*> HookStore::functionToTrampoline;
   std::unordered_map<Trampoline*, const void*> HookStore::trampolineToOriginalFunction;
   std::vector<TrampolineStore> HookStore::trampolines;
-#ifdef HOOKSHOT64
+#ifdef _WIN64
   std::unordered_map<void*, std::vector<int>> HookStore::trampolineStoreMap;
 #endif
 
@@ -130,7 +130,7 @@ namespace Hookshot
     if (0 != functionToTrampoline.count(originalFunc) || 0 != functionToTrampoline.count(hookFunc))
       return EResult::FailDuplicate;
 
-#ifdef HOOKSHOT64
+#ifdef _WIN64
     // In 64-bit mode, trampolines are stored close to the target functions.
     // Therefore, it is necessary to identify the TrampolineStore object that is correct for the
     // given target function address. Because only one TrampolineStore object exists per base

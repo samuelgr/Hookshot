@@ -145,9 +145,6 @@
     <ClInclude Include="Include\Hookshot\Internal\DebugAssert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\Internal\ApiWindowsShell.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Source\InjectLanding.asm">

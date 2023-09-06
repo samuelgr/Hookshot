@@ -28,29 +28,6 @@ namespace Hookshot
   /// accessed using an interface object.
   class HookStore : public IHookshot
   {
-  private:
-
-    /// Enforces serialized access to all parts of the hook data structure.
-    static std::shared_mutex hookStoreMutex;
-
-    /// Maps from function address (either original or target) to trampoline address.
-    static std::unordered_map<const void*, Trampoline*> functionToTrampoline;
-
-    /// Maps from trampoline address to original function address.
-    static std::unordered_map<Trampoline*, const void*> trampolineToOriginalFunction;
-
-    /// Trampoline storage. Used internally to implement hooks.
-    static std::vector<TrampolineStore> trampolines;
-
-#ifdef HOOKSHOT64
-    /// Maps from target function base address to trampoline storage index. In 64-bit mode,
-    /// TrampolineStore objects are placed close to target functions. For each target function, the
-    /// base address of its associated memory region is computed and used as a key to this map.
-    /// TrampolineStore objects are appended to the storage vector as normal, and the index of each
-    /// such created TrampolineStore object is the value.
-    static std::unordered_map<void*, std::vector<int>> trampolineStoreMap;
-#endif
-
   public:
 
     /// Internal version of #CreateHook. Intended to be used within Hookshot only. Can be used to
@@ -74,5 +51,28 @@ namespace Hookshot
     const void* __fastcall GetOriginalFunction(const void* originalOrHookFunc) override;
     EResult __fastcall ReplaceHookFunction(
         const void* originalOrHookFunc, const void* newHookFunc) override;
+
+  private:
+
+    /// Enforces serialized access to all parts of the hook data structure.
+    static std::shared_mutex hookStoreMutex;
+
+    /// Maps from function address (either original or target) to trampoline address.
+    static std::unordered_map<const void*, Trampoline*> functionToTrampoline;
+
+    /// Maps from trampoline address to original function address.
+    static std::unordered_map<Trampoline*, const void*> trampolineToOriginalFunction;
+
+    /// Trampoline storage. Used internally to implement hooks.
+    static std::vector<TrampolineStore> trampolines;
+
+#ifdef _WIN64
+    /// Maps from target function base address to trampoline storage index. In 64-bit mode,
+    /// TrampolineStore objects are placed close to target functions. For each target function, the
+    /// base address of its associated memory region is computed and used as a key to this map.
+    /// TrampolineStore objects are appended to the storage vector as normal, and the index of each
+    /// such created TrampolineStore object is the value.
+    static std::unordered_map<void*, std::vector<int>> trampolineStoreMap;
+#endif
   };
 } // namespace Hookshot

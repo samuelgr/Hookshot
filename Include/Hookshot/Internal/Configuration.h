@@ -159,7 +159,7 @@ namespace Hookshot
         }
       }
 
-      inline Value(Value&& other) : type(std::move(other.type))
+      inline Value(Value&& other) noexcept : type(std::move(other.type))
       {
         switch (other.type)
         {

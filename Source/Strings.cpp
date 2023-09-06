@@ -21,7 +21,7 @@
 #include <string>
 #include <string_view>
 
-#include "ApiWindowsShell.h"
+#include "ApiWindows.h"
 #include "DependencyProtect.h"
 #include "Globals.h"
 #include "TemporaryBuffer.h"
@@ -31,14 +31,14 @@ namespace Hookshot
   namespace Strings
   {
     /// File extension of the dynamic-link library form of Hookshot.
-#ifdef HOOKSHOT64
+#ifdef _WIN64
     static constexpr std::wstring_view kStrHookshotDynamicLinkLibraryExtension = L".64.dll";
 #else
     static constexpr std::wstring_view kStrHookshotDynamicLinkLibraryExtension = L".32.dll";
 #endif
 
     /// File extension of the executable form of Hookshot.
-#ifdef HOOKSHOT64
+#ifdef _WIN64
     static constexpr std::wstring_view kStrHookshotExecutableExtension = L".64.exe";
 #else
     static constexpr std::wstring_view kStrHookshotExecutableExtension = L".32.exe";
@@ -46,7 +46,7 @@ namespace Hookshot
 
     /// File extension of the executable form of Hookshot but targeting the opposite processor
     /// architecture.
-#ifdef HOOKSHOT64
+#ifdef _WIN64
     static constexpr std::wstring_view kStrHookshotExecutableOtherArchitectureExtension =
         L".32.exe";
 #else
@@ -61,7 +61,7 @@ namespace Hookshot
     static constexpr std::wstring_view kStrHookshotLogFileExtension = L".log";
 
     /// File extension for all hook modules.
-#ifdef HOOKSHOT64
+#ifdef _WIN64
     static constexpr std::wstring_view kStrHookModuleExtension = L".HookModule.64.dll";
 #else
     static constexpr std::wstring_view kStrHookModuleExtension = L".HookModule.32.dll";
