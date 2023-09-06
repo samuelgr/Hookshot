@@ -71,8 +71,95 @@
   using DynamicHook_##name = ::Hookshot::                                                          \
       DynamicHook<_HookshotInternal::kHookName__##name, std::remove_pointer<typespec>::type>
 
+/// Retrieves a proxy object for the specified dynamic hook. Proxy objects can be used to manipulate
+/// dynamic hooks using an object-oriented interface.
+#define HOOKSHOT_DYNAMIC_HOOK_PROXY(name) DynamicHook_##name::GetProxy()
+
+namespace Hookshot
+{
+  /// Proxy object for manipulating a dynamic hook using an object-oriented interface.
+  class DynamicHookProxy
+  {
+  public:
+
+    using TIsHookSetFunc = bool (*)(void);
+    using TSetHookFunc = EResult (*)(IHookshot* const, void* const);
+    using TDisableHookFunc = EResult (*)(IHookshot* const);
+    using TEnableHookFunc = EResult (*)(IHookshot* const);
+    using TGetFunctionNameFunc = const wchar_t* (*)(void);
+
+    /// Not intended for external invocation. Objects of this class should be constructed using the
+    /// appropriate proxy macro above.
+    inline DynamicHookProxy(
+        TIsHookSetFunc funcIsHookSet,
+        TSetHookFunc funcSetHook,
+        TDisableHookFunc funcDisableHook,
+        TEnableHookFunc funcEnableHook,
+        TGetFunctionNameFunc funcGetFunctionName)
+        : funcIsHookSet(funcIsHookSet),
+          funcSetHook(funcSetHook),
+          funcDisableHook(funcDisableHook),
+          funcEnableHook(funcEnableHook),
+          funcGetFunctionName(funcGetFunctionName)
+    {}
+
+    /// Determines if the hook has already been set for the associated dynamic hook.
+    /// @return `true` if the hook has already been set successfully, `false` otherwise.
+    inline bool IsHookSet(void) const
+    {
+      return funcIsHookSet();
+    }
+
+    /// Attempts to set the associated dynamic hook. If this function completes successfully, then
+    /// the original function is effectively "replaced" by the associated dynamic hook's hook
+    /// function.
+    /// @param [in] hookshot Interface pointer through which all Hookshot functionality is accessed.
+    /// @param [in] originalFunc Address of the original function being hooked.
+    /// @return Result of the operation. See "HookshotTypes.h" for possible enumerators.
+    inline EResult SetHook(IHookshot* const hookshot, void* const originalFunc) const
+    {
+      return funcSetHook(hookshot, originalFunc);
+    }
+
+    /// Disables the associated dynamic hook. Bypasses the hook function and redirects everything to
+    /// the original function.
+    /// @param [in] hookshot Interface pointer through which all Hookshot functionality is accessed.
+    /// @return Result of the operation. See "HookshotTypes.h" for possible enumerators.
+    inline EResult DisableHook(IHookshot* const hookshot) const
+    {
+      return funcDisableHook(hookshot);
+    }
+
+    /// Enables the associated dynamic hook. Reinstates the hook function such that it once again
+    /// replaces the original function.
+    /// @param [in] hookshot Interface pointer through which all Hookshot functionality is accessed.
+    /// @return Result of the operation. See "HookshotTypes.h" for possible enumerators.
+    inline EResult EnableHook(IHookshot* const hookshot) const
+    {
+      return funcEnableHook(hookshot);
+    }
+
+    /// Retrieves a C string representation of the name of the original function. This was either
+    /// the `func` parameter passed into the #HOOKSHOT_DYNAMIC_HOOK_FROM_FUNCTION macro or the
+    /// `name` parameter passed into any of the other dynamic hook macros.
+    /// @return C string representation of the name of the original function.
+    inline const wchar_t* GetFunctionName(void) const
+    {
+      return funcGetFunctionName();
+    }
+
+  private:
+
+    TIsHookSetFunc funcIsHookSet;
+    TSetHookFunc funcSetHook;
+    TDisableHookFunc funcDisableHook;
+    TEnableHookFunc funcEnableHook;
+    TGetFunctionNameFunc funcGetFunctionName;
+  };
+} // namespace Hookshot
+
 // Everything below this point is internal to the implementation of static hooks. External users
-// should only make use of the macros above.
+// should only make use of the objects and macros above.
 
 /// Implements dynamic hook template specialization so that function prototypes and calling
 /// conventions are automatically extracted based on the supplied function. Parameters are just
@@ -96,53 +183,42 @@
           ArgumentTypes...))DynamicHookBase<kOriginalFunctionName>::GetOriginalFunction())(        \
           std::forward<ArgumentTypes>(args)...);                                                   \
     }                                                                                              \
+                                                                                                   \
     static bool IsHookSet(void)                                                                    \
     {                                                                                              \
       return DynamicHookBase<kOriginalFunctionName>::IsHookSet();                                  \
     }                                                                                              \
+                                                                                                   \
     static EResult SetHook(IHookshot* const hookshot, void* const originalFunc)                    \
     {                                                                                              \
       return DynamicHookBase<kOriginalFunctionName>::SetHook(hookshot, originalFunc, &Hook);       \
     }                                                                                              \
+                                                                                                   \
     static EResult DisableHook(IHookshot* const hookshot)                                          \
     {                                                                                              \
       return hookshot->DisableHookFunction(&Hook);                                                 \
     }                                                                                              \
+                                                                                                   \
     static EResult EnableHook(IHookshot* const hookshot)                                           \
     {                                                                                              \
       return hookshot->ReplaceHookFunction(                                                        \
           DynamicHookBase<kOriginalFunctionName>::GetOriginalFunctionAddress(), &Hook);            \
     }                                                                                              \
+                                                                                                   \
     static const wchar_t* GetFunctionName(void)                                                    \
     {                                                                                              \
       return kOriginalFunctionName;                                                                \
     }                                                                                              \
+                                                                                                   \
     static DynamicHookProxy GetProxy(void)                                                         \
     {                                                                                              \
-      return {                                                                                     \
-          .IsHookSet = &IsHookSet,                                                                 \
-          .SetHook = &SetHook,                                                                     \
-          .DisableHook = &DisableHook,                                                             \
-          .EnableHook = &EnableHook,                                                               \
-          .GetFunctionName = &GetFunctionName};                                                    \
+      return DynamicHookProxy(&IsHookSet, &SetHook, &DisableHook, &EnableHook, &GetFunctionName);  \
     }                                                                                              \
   };
 
 namespace Hookshot
 {
-  /// Proxy object for manipulating a dynamic hook using an object-oriented interface.
-  /// Simply contains a table of functions that can be invoked.
-  struct DynamicHookProxy
-  {
-    bool (*IsHookSet)(void);
-    EResult (*SetHook)(IHookshot* const hookshot, void* const originalFunc);
-    EResult (*DisableHook)(IHookshot* const hookshot);
-    EResult (*EnableHook)(IHookshot* const hookshot);
-    const wchar_t* (*GetFunctionName)(void);
-  };
-
-  /// Base class for all dynamic hooks.
-  /// Used to hide implementation details from external users.
+  /// Base class for all dynamic hooks. Used to hide implementation details from external users.
   template <const wchar_t* kOriginalFunctionName> class DynamicHookBase
   {
   private:

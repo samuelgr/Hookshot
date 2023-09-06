@@ -45,6 +45,91 @@
   using StaticHook_##func = ::Hookshot::                                                           \
       StaticHook<_HookshotInternal::kHookName__##func, (void*)(&(func)), decltype(func)>
 
+/// Retrieves a proxy object for the specified static hook. Proxy objects can be used to manipulate
+/// static hooks using an object-oriented interface.
+#define HOOKSHOT_STATIC_HOOK_PROXY(name) StaticHook_##name::GetProxy()
+
+namespace Hookshot
+{
+  /// Proxy object for manipulating a static hook using an object-oriented interface.
+  class StaticHookProxy
+  {
+  public:
+
+    using TIsHookSetFunc = bool (*)(void);
+    using TSetHookFunc = EResult (*)(IHookshot* const);
+    using TDisableHookFunc = EResult (*)(IHookshot* const);
+    using TEnableHookFunc = EResult (*)(IHookshot* const);
+    using TGetFunctionNameFunc = const wchar_t* (*)(void);
+
+    /// Not intended for external invocation. Objects of this class should be constructed using the
+    /// appropriate proxy macro above.
+    inline StaticHookProxy(
+        TIsHookSetFunc funcIsHookSet,
+        TSetHookFunc funcSetHook,
+        TDisableHookFunc funcDisableHook,
+        TEnableHookFunc funcEnableHook,
+        TGetFunctionNameFunc funcGetFunctionName)
+        : funcIsHookSet(funcIsHookSet),
+          funcSetHook(funcSetHook),
+          funcDisableHook(funcDisableHook),
+          funcEnableHook(funcEnableHook),
+          funcGetFunctionName(funcGetFunctionName)
+    {}
+
+    /// Determines if the hook has already been set for the associated static hook.
+    /// @return `true` if the hook has already been set successfully, `false` otherwise.
+    inline bool IsHookSet(void) const
+    {
+      return funcIsHookSet();
+    }
+
+    /// Attempts to set the associated static hook. If this function completes successfully, then
+    /// the original function is effectively "replaced" by the associated static hook's hook
+    /// function.
+    /// @param [in] hookshot Interface pointer through which all Hookshot functionality is accessed.
+    /// @return Result of the operation. See "HookshotTypes.h" for possible enumerators.
+    inline EResult SetHook(IHookshot* const hookshot) const
+    {
+      return funcSetHook(hookshot);
+    }
+
+    /// Disables the associated static hook. Bypasses the hook function and redirects everything to
+    /// the original function.
+    /// @param [in] hookshot Interface pointer through which all Hookshot functionality is accessed.
+    /// @return Result of the operation. See "HookshotTypes.h" for possible enumerators.
+    inline EResult DisableHook(IHookshot* const hookshot) const
+    {
+      return funcDisableHook(hookshot);
+    }
+
+    /// Enables the associated static hook. Reinstates the hook function such that it once again
+    /// replaces the original function.
+    /// @param [in] hookshot Interface pointer through which all Hookshot functionality is accessed.
+    /// @return Result of the operation. See "HookshotTypes.h" for possible enumerators.
+    inline EResult EnableHook(IHookshot* const hookshot) const
+    {
+      return funcEnableHook(hookshot);
+    }
+
+    /// Retrieves a C string representation of the name of the original function. This was the
+    /// `func` parameter passed into the #HOOKSHOT_STATIC_HOOK macro.
+    /// @return C string representation of the name of the original function.
+    inline const wchar_t* GetFunctionName(void) const
+    {
+      return funcGetFunctionName();
+    }
+
+  private:
+
+    TIsHookSetFunc funcIsHookSet;
+    TSetHookFunc funcSetHook;
+    TDisableHookFunc funcDisableHook;
+    TEnableHookFunc funcEnableHook;
+    TGetFunctionNameFunc funcGetFunctionName;
+  };
+} // namespace Hookshot
+
 // Everything below this point is internal to the implementation of static hooks. External users
 // should only make use of the macro above.
 
@@ -75,59 +160,44 @@
           ArgumentTypes...))StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::      \
                   GetOriginalFunction())(std::forward<ArgumentTypes>(args)...);                    \
     }                                                                                              \
+                                                                                                   \
     static bool IsHookSet(void)                                                                    \
     {                                                                                              \
       return StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::IsHookSet();         \
     }                                                                                              \
+                                                                                                   \
     static EResult SetHook(IHookshot* const hookshot)                                              \
     {                                                                                              \
       return StaticHookBase<kOriginalFunctionName, kOriginalFunctionAddress>::SetHook(             \
           hookshot, &Hook);                                                                        \
     }                                                                                              \
+                                                                                                   \
     static EResult DisableHook(IHookshot* const hookshot)                                          \
     {                                                                                              \
       return hookshot->DisableHookFunction(&Hook);                                                 \
     }                                                                                              \
+                                                                                                   \
     static EResult EnableHook(IHookshot* const hookshot)                                           \
     {                                                                                              \
       return hookshot->ReplaceHookFunction(kOriginalFunctionAddress, &Hook);                       \
     }                                                                                              \
+                                                                                                   \
     static const wchar_t* GetFunctionName(void)                                                    \
     {                                                                                              \
       return kOriginalFunctionName;                                                                \
     }                                                                                              \
+                                                                                                   \
     static StaticHookProxy GetProxy(void)                                                          \
     {                                                                                              \
-      return {                                                                                     \
-          .IsHookSet = &IsHookSet,                                                                 \
-          .SetHook = &SetHook,                                                                     \
-          .DisableHook = &DisableHook,                                                             \
-          .EnableHook = &EnableHook,                                                               \
-          .GetFunctionName = &GetFunctionName};                                                    \
-    }                                                                                              \
-  };
+      return StaticHookProxy(&IsHookSet, &SetHook, &DisableHook, &EnableHook, &GetFunctionName);   \
+    };
 
 namespace Hookshot
 {
-  /// Proxy object for manipulating a static hook using an object-oriented interface. Simply
-  /// contains a table of functions that can be invoked.
-  struct StaticHookProxy
-  {
-    bool (*IsHookSet)(void);
-    EResult (*SetHook)(IHookshot* const hookshot);
-    EResult (*DisableHook)(IHookshot* const hookshot);
-    EResult (*EnableHook)(IHookshot* const hookshot);
-    const wchar_t* (*GetFunctionName)(void);
-  };
-
   /// Base class for all static hooks. Used to hide implementation details from external users.
   template <const wchar_t* kOriginalFunctionName, void* const kOriginalFunctionAddress>
   class StaticHookBase
   {
-  private:
-
-    inline static const void* originalFunction = nullptr;
-
   public:
 
     StaticHookBase(void) = delete;
@@ -157,6 +227,10 @@ namespace Hookshot
 
       return result;
     }
+
+  private:
+
+    inline static const void* originalFunction = nullptr;
   };
 
   /// Primary static hook template. Specialized using #HOOKSHOT_STATIC_HOOK_TEMPLATE.
