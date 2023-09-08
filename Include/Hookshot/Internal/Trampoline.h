@@ -141,7 +141,8 @@ namespace Hookshot
       // * <instruction address after jmp> = parameter
       // Value needed:
       // * <displacement> = <absolute target address> - <instruction address after jmp>
-      return (size_t)absoluteTarget - (size_t)addressAfterJmpInstruction;
+      return reinterpret_cast<size_t>(absoluteTarget) -
+          reinterpret_cast<size_t>(addressAfterJmpInstruction);
     }
 
     /// Computes the address of the hook function, given the value stored in this trampoline.
@@ -150,7 +151,7 @@ namespace Hookshot
     {
 #ifdef _WIN64
       // No transformation required in 64-bit mode because the address is an absolute jump target.
-      return (void*)code.hook.ptr[_countof(code.hook.ptr) - 1];
+      return reinterpret_cast<void*>(code.hook.ptr[_countof(code.hook.ptr) - 1]);
 #else
       // Computation is required in 32-bit mode because the value is a rel32 jump displacement.
       // Formula rel32:
@@ -158,7 +159,9 @@ namespace Hookshot
       // Known values:
       // * <instruction address after jmp> = byte address directly after code.hook
       // * <displacement> = stored value
-      return (void*)((size_t)(&code.hook.ptr[_countof(code.hook.ptr)]) + code.hook.ptr[_countof(code.hook.ptr) - 1]);
+      return reinterpret_cast<void*>(
+          reinterpret_cast<size_t>(&code.hook.ptr[_countof(code.hook.ptr)]) +
+          code.hook.ptr[_countof(code.hook.ptr) - 1]);
 #endif
     }
 
@@ -172,7 +175,7 @@ namespace Hookshot
 #ifdef _WIN64
       // No transformation required in 64-bit mode because the value is an absolute jump target
       // address.
-      return (size_t)hook;
+      return reinterpret_cast<size_t>(hook);
 #else
       // Computation is required in 32-bit mode because the value is a rel32 jump displacement.
       return ComputeJumpDisplacement(&code.hook.ptr[_countof(code.hook.ptr)], hook);

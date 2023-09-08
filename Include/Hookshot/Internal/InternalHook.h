@@ -49,8 +49,9 @@
                                                                                                    \
     static ReturnType callingConvention Original(ArgumentTypes... args)                            \
     {                                                                                              \
-      return ((ReturnType(callingConvention*)(ArgumentTypes...))                                   \
-                  InternalHookBase<kOriginalFunctionName>::GetOriginalFunction())(args...);        \
+      return ((ReturnType(callingConvention*)(                                                     \
+          ArgumentTypes...))InternalHookBase<kOriginalFunctionName>::GetOriginalFunction())(       \
+          args...);                                                                                \
     }                                                                                              \
                                                                                                    \
     static void* OriginalFunctionAddress(void);                                                    \
@@ -73,8 +74,8 @@ namespace Hookshot
       return originalFunction;
     }
 
-    static inline EResult
-        SetHook(void* (*funcGetOriginalFunctionAddress)(void), const void* hookFunc)
+    static inline EResult SetHook(
+        void* (*funcGetOriginalFunctionAddress)(void), const void* hookFunc)
     {
       return HookStore::CreateHookInternal(
           funcGetOriginalFunctionAddress(), hookFunc, true, &originalFunction);

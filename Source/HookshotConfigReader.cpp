@@ -107,8 +107,8 @@ namespace Hookshot
     CompleteConfigurationFileLayout();
   }
 
-  Configuration::EValueType
-      HookshotConfigReader::TypeForValue(std::wstring_view section, std::wstring_view name)
+  Configuration::EValueType HookshotConfigReader::TypeForValue(
+      std::wstring_view section, std::wstring_view name)
   {
     auto sectionLayout = configurationFileLayout.find(section);
     if (configurationFileLayout.end() == sectionLayout) return Configuration::EValueType::Error;

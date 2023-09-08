@@ -40,8 +40,8 @@ HOOKSHOT_DYNAMIC_HOOK_FROM_FUNCTION(MessageBoxW);
 // already exists somewhere else in the code so that the hook type can be consistent with the
 // function pointer type. For the purposes of this example, the pointer type is specified manually
 // and immediately before its use in the dynamic hook declaration.
-static int(__stdcall* const functionPointerOfTypeMessageBoxW)(HWND, LPCWSTR, LPCWSTR, UINT) =
-    nullptr;
+static int(__stdcall* const functionPointerOfTypeMessageBoxW)(
+    HWND, LPCWSTR, LPCWSTR, UINT) = nullptr;
 HOOKSHOT_DYNAMIC_HOOK_FROM_POINTER(MessageBoxFunction, functionPointerOfTypeMessageBoxW);
 
 #elif DYNAMIC_HOOK_EXAMPLE_OPTION == 3

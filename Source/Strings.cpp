@@ -140,7 +140,7 @@ namespace Hookshot
           []() -> void
           {
             TemporaryBuffer<wchar_t> buf;
-            GetModuleFileName(nullptr, buf.Data(), (DWORD)buf.Capacity());
+            GetModuleFileName(nullptr, buf.Data(), static_cast<DWORD>(buf.Capacity()));
 
             initString.assign(buf.Data());
           });
@@ -211,7 +211,8 @@ namespace Hookshot
           []() -> void
           {
             TemporaryBuffer<wchar_t> buf;
-            GetModuleFileName(Globals::GetInstanceHandle(), buf.Data(), (DWORD)buf.Capacity());
+            GetModuleFileName(
+                Globals::GetInstanceHandle(), buf.Data(), static_cast<DWORD>(buf.Capacity()));
 
             initString.assign(buf.Data());
           });
@@ -427,11 +428,11 @@ namespace Hookshot
     extern const std::wstring_view kStrHookshotCompleteFilename(GetHookshotCompleteFilename());
     extern const std::wstring_view kStrHookshotBaseName(GetHookshotBaseName());
     extern const std::wstring_view kStrHookshotDirectoryName(GetHookshotDirectoryName());
-    extern const std::wstring_view
-        kStrHookshotConfigurationFilename(GetHookshotConfigurationFilename());
+    extern const std::wstring_view kStrHookshotConfigurationFilename(
+        GetHookshotConfigurationFilename());
     extern const std::wstring_view kStrHookshotLogFilename(GetHookshotLogFilename());
-    extern const std::wstring_view
-        kStrHookshotDynamicLinkLibraryFilename(GetHookshotDynamicLinkLibraryFilename());
+    extern const std::wstring_view kStrHookshotDynamicLinkLibraryFilename(
+        GetHookshotDynamicLinkLibraryFilename());
     extern const std::wstring_view kStrHookshotExecutableFilename(GetHookshotExecutableFilename());
     extern const std::wstring_view kStrHookshotExecutableOtherArchitectureFilename(
         GetHookshotExecutableOtherArchitectureFilename());
@@ -478,7 +479,7 @@ namespace Hookshot
               convertedStr.Capacity(),
               str,
               convertedStr.Capacity() - 1))
-        convertedStr.UnsafeSetSize((unsigned int)numCharsConverted);
+        convertedStr.UnsafeSetSize(static_cast<unsigned int>(numCharsConverted));
 
       return convertedStr;
     }
@@ -535,7 +536,8 @@ namespace Hookshot
       va_list args;
       va_start(args, format);
 
-      buf.UnsafeSetSize((size_t)vswprintf_s(buf.Data(), buf.Capacity(), format, args));
+      buf.UnsafeSetSize(
+          static_cast<unsigned int>(vswprintf_s(buf.Data(), buf.Capacity(), format, args)));
 
       va_end(args);
 
@@ -579,7 +581,8 @@ namespace Hookshot
 
       if (0 == systemErrorLength)
       {
-        systemErrorString = FormatString(L"System error %u", (unsigned int)systemErrorCode);
+        systemErrorString =
+            FormatString(L"System error %u", static_cast<unsigned int>(systemErrorCode));
       }
       else
       {

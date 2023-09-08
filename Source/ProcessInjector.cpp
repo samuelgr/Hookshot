@@ -168,8 +168,8 @@ namespace Hookshot
     /// @param [in] procName Name of the exported procedure for which a pointer is requested.
     /// @return Handle of the specified module in the specified process, or `nullptr` if the
     /// operation failed.
-    static FARPROC
-        GetRemoteProcAddress(HANDLE processHandle, HMODULE moduleHandle, std::string_view procName)
+    static FARPROC GetRemoteProcAddress(
+        HANDLE processHandle, HMODULE moduleHandle, std::string_view procName)
     {
       size_t moduleExportTableRelativeBaseAddress = 0;
       std::vector<uint8_t> moduleExportTable;
@@ -267,8 +267,8 @@ namespace Hookshot
     /// which has already been read from the process of interest.
     /// @param [out] entryPoint Address of the pointer that receives the entry point address.
     /// @return Indicator of the result of the operation.
-    static EInjectResult
-        GetClrEntryPointAddress(const HANDLE processHandle, void** const entryPoint)
+    static EInjectResult GetClrEntryPointAddress(
+        const HANDLE processHandle, void** const entryPoint)
     {
       const HMODULE clrModuleHandle = GetRemoteModuleHandle(processHandle, L"mscoree.dll");
       if (nullptr == clrModuleHandle) return EInjectResult::ErrorGetModuleHandleClrLibraryFailed;
@@ -324,8 +324,8 @@ namespace Hookshot
     /// @param [out] processEnvironmentBlock Pointer to a buffer to be filled with the contents of
     /// the process environment block from the requested process.
     /// @return Indicator of the result of the operation.
-    static EInjectResult
-        GetProcessEnvironmentBlock(const HANDLE processHandle, PEB* processEnvironmentBlock)
+    static EInjectResult GetProcessEnvironmentBlock(
+        const HANDLE processHandle, PEB* processEnvironmentBlock)
     {
       // This function uses the documented, but internal, Windows API function
       // NtQueryInformationProcess. See
@@ -380,8 +380,8 @@ namespace Hookshot
     /// @param [out] baseAddress Address of the pointer that receives the image base address in the
     /// virtual address space of the given process.
     /// @return Indicator of the result of the operation.
-    static EInjectResult
-        GetProcessImageBaseAddress(const PEB& processEnvironmentBlock, void** const baseAddress)
+    static EInjectResult GetProcessImageBaseAddress(
+        const PEB& processEnvironmentBlock, void** const baseAddress)
     {
       // The field of interest in the PEB structure is ImageBaseAddress, whose offset is
       // undocumented but has remained stable over multiple Windows generations and continues to do
@@ -413,7 +413,7 @@ namespace Hookshot
           QueryFullProcessImageName(
               processHandle, 0, processExecutablePath.Data(), &processExecutablePathLength))
         return EInjectResult::ErrorCannotDetermineAuthorization;
-      processExecutablePath.UnsafeSetSize((unsigned int)processExecutablePathLength);
+      processExecutablePath.UnsafeSetSize(static_cast<unsigned int>(processExecutablePathLength));
 
       TemporaryString authorizationFileName =
           Strings::AuthorizationFilenameApplicationSpecific(processExecutablePath.Data());

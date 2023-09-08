@@ -26,7 +26,6 @@
 
 namespace HookshotTest
 {
-
   /// Pointer-to-function type for the FunctionGenerator function template.
   using TGeneratedTestFunction = int (*)(void);
 
@@ -36,7 +35,7 @@ namespace HookshotTest
     const int val = 100 * n;
 
     for (int i = 0; i < (val / 10); ++i)
-      srand((unsigned int)(val + i));
+      srand(static_cast<unsigned int>(val + i));
 
     return val;
   }
@@ -137,8 +136,9 @@ namespace HookshotTest
   // Expected result is success on all fronts.
   HOOKSHOT_CUSTOM_TEST(ManyManyHooks)
   {
-    // clang-format off
     // Each generated function must appear on its own line.
+
+    // clang-format off
 
     TGeneratedTestFunction originalFuncs[] = {
         GENERATE_FUNCTION(),
@@ -340,10 +340,10 @@ namespace HookshotTest
   // Executed by each thread.
   DWORD WINAPI MultipleThreadsTestThreadProc(LPVOID lpParameter)
   {
-    SMultipleThreadsTestData& testData = *(SMultipleThreadsTestData*)lpParameter;
+    SMultipleThreadsTestData& testData = *reinterpret_cast<SMultipleThreadsTestData*>(lpParameter);
     DWORD numSuccesses = 0;
 
-    const int threadID = (int)InterlockedAdd(&testData.syncThreadCounter, 1);
+    const int threadID = static_cast<int>(InterlockedAdd(&testData.syncThreadCounter, 1));
     if (testData.numThreads == threadID) SetEvent(testData.syncEventPhase1);
 
     if (WAIT_OBJECT_0 != WaitForSingleObject(testData.syncEventPhase2, 10000)) return 0;
@@ -380,8 +380,9 @@ namespace HookshotTest
     HOOKSHOT_TEST_ASSERT(nullptr != testData.syncEventPhase1);
     HOOKSHOT_TEST_ASSERT(nullptr != testData.syncEventPhase2);
 
-    // clang-format off
     // Each generated function must appear on its own line.
+
+    // clang-format off
 
     TGeneratedTestFunction originalFuncs[] = {
         GENERATE_FUNCTION(),
@@ -636,14 +637,15 @@ namespace HookshotTest
     GENERATE_AND_ASSIGN_FUNCTION(funcA);
     HOOKSHOT_TEST_ASSERT(
         Hookshot::EResult::FailInvalidArgument ==
-        hookshot->CreateHook(funcA, (void*)((intptr_t)funcA + 1)));
+        hookshot->CreateHook(
+            funcA, reinterpret_cast<void*>(reinterpret_cast<intptr_t>(funcA) + 1)));
   }
 
   // Performs a standard hooking operation after hooking some Windows API functions used internally
   // by Hookshot to implement hooking. Hookshot should be resilient against this and work anyway.
   // Hook version of the VirtualProtect Windows API function. Always fails.
-  BOOL WINAPI
-      HookVirtualProtect(LPVOID lpAddress, SIZE_T dwSize, DWORD flNewProtect, PDWORD lpflOldProtect)
+  BOOL WINAPI HookVirtualProtect(
+      LPVOID lpAddress, SIZE_T dwSize, DWORD flNewProtect, PDWORD lpflOldProtect)
   {
     return FALSE;
   }

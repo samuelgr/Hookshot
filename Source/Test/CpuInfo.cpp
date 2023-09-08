@@ -13,22 +13,13 @@
 
 #include <cpuinfo_x86.h>
 
-
 namespace HookshotTest
 {
-        
+  CpuInfo::CpuInfo(void) : cpuInfo(cpu_features::GetX86Info()) {}
 
-    CpuInfo::CpuInfo(void) : cpuInfo(cpu_features::GetX86Info())
-    {
-        
-    }
-
-
-        
-
-    CpuInfo& CpuInfo::GetInstance(void)
-    {
-        static CpuInfo cpuInfo;
-        return cpuInfo;
-    }
-}
+  CpuInfo& CpuInfo::GetInstance(void)
+  {
+    static CpuInfo cpuInfo;
+    return cpuInfo;
+  }
+} // namespace HookshotTest

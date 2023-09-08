@@ -67,8 +67,10 @@ namespace Hookshot
 
     // Verify that the hook function is not located within the region of the original function that
     // is guaranteed to be transplanted.
-    if (((intptr_t)hookFunc >= (intptr_t)originalFunc) &&
-        ((intptr_t)hookFunc < (intptr_t)originalFunc + X86Instruction::kJumpInstructionLengthBytes))
+    if ((reinterpret_cast<size_t>(hookFunc) >= reinterpret_cast<size_t>(originalFunc)) &&
+        (reinterpret_cast<size_t>(hookFunc) <
+         (reinterpret_cast<size_t>(originalFunc) +
+          static_cast<size_t>(X86Instruction::kJumpInstructionLengthBytes))))
       return false;
 
     // Hooking Hookshot itself is forbidden.
@@ -109,7 +111,7 @@ namespace Hookshot
       Protected::Windows_FlushInstructionCache(
           Globals::GetCurrentProcessHandle(),
           from,
-          (SIZE_T)X86Instruction::kJumpInstructionLengthBytes);
+          static_cast<SIZE_T>(X86Instruction::kJumpInstructionLengthBytes));
 
     return (writeJumpResult && restoreProtectionResult);
   }
@@ -161,14 +163,14 @@ namespace Hookshot
       proposedTrampolineStoreAddress -=
           (numAddressesAlreadyTried * TrampolineStore::kTrampolineStoreSizeBytes);
 
-      for (int i = (int)numAddressesAlreadyTried;
+      for (int i = static_cast<int>(numAddressesAlreadyTried);
            i < ((INT_MAX / TrampolineStore::kTrampolineStoreSizeBytes) / 4);
            ++i)
       {
         TrampolineStore newTrampolineStore(reinterpret_cast<void*>(proposedTrampolineStoreAddress));
         if (true == newTrampolineStore.IsInitialized())
         {
-          trampolineStoreMap[baseAddress].push_back((int)trampolines.size());
+          trampolineStoreMap[baseAddress].push_back(static_cast<int>(trampolines.size()));
           trampolines.push_back(std::move(newTrampolineStore));
           break;
         }

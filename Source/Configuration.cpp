@@ -191,8 +191,8 @@ namespace Hookshot
     /// @param [in] buf Buffer containing the configuration file line.
     /// @param [in] length Number of characters in the buffer.
     /// @return Configuration line classification.
-    static ELineClassification
-        ClassifyConfigurationFileLine(const wchar_t* const buf, const int length)
+    static ELineClassification ClassifyConfigurationFileLine(
+        const wchar_t* const buf, const int length)
     {
       // Skip over all whitespace at the start of the input line.
       const wchar_t* realBuf = buf;
@@ -413,7 +413,7 @@ namespace Hookshot
       // If the line fits in the buffer, then either its detected length is small by comparison to
       // the buffer size or, if it perfectly fits in the buffer, then the last character is a
       // newline.
-      int lineLength = (int)wcsnlen(lineBuffer, lineBufferCount);
+      int lineLength = static_cast<int>(wcsnlen(lineBuffer, lineBufferCount));
       if (((lineBufferCount - 1) == lineLength) && (L'\n' != lineBuffer[lineLength - 1])) return -1;
 
       // Trim off any whitespace on the end of the line.
@@ -425,8 +425,8 @@ namespace Hookshot
       return lineLength;
     }
 
-    ConfigurationData
-        ConfigurationFileReader::ReadConfigurationFile(std::wstring_view configFileName)
+    ConfigurationData ConfigurationFileReader::ReadConfigurationFile(
+        std::wstring_view configFileName)
     {
       ConfigurationData configToFill;
 

@@ -124,8 +124,8 @@ namespace Hookshot
     /// @param [in] to Target address of the jump instruction.
     /// @return `true` on success, `false` on failure due to the jump target being too far for a
     /// rel32 jump instruction.
-    static bool
-        WriteJumpInstruction(void* const where, const int whereSizeBytes, const void* const to);
+    static bool WriteJumpInstruction(
+        void* const where, const int whereSizeBytes, const void* const to);
 
     /// If this instruction contains a position-dependent memory reference, determines if it is
     /// possible to set the displacement to the specified value.
@@ -141,7 +141,7 @@ namespace Hookshot
     /// @param [in] maxLengthBytes Maximum number of bytes to read from the instruction address.
     /// @return `true` on success, `false` on failure.
     bool DecodeInstruction(
-        void* const instruction, const int maxLengthBytes = kMaxInstructionLengthBytes);
+        const void* instruction, const int maxLengthBytes = kMaxInstructionLengthBytes);
 
     /// Attempts to encode this instruction to the specified address, overwriting a number of bytes
     /// equal to the length of this instruction.
@@ -159,7 +159,7 @@ namespace Hookshot
 
     /// Retrieves and returns the original location in memory of this instruction.
     /// @return Original address of this instruction, or `nullptr` if it is invalid.
-    inline void* GetAddress(void) const
+    inline const void* GetAddress(void) const
     {
       return address;
     }
@@ -266,7 +266,7 @@ namespace Hookshot
 
     /// Holds the original address of the represented instruction.
     /// Used to convert IP-relative operands to absolute addresses.
-    void* address;
+    const void* address;
 
     /// Specifies if the represented instruction is valid.
     bool valid;

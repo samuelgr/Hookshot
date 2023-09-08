@@ -17,9 +17,11 @@
 // of system functionality.
 
 // clang-format off
+
 #define NOMINMAX
 #include <sdkddkver.h>
 #include <windows.h>
+
 // clang-format on
 
 #include <commctrl.h>
@@ -29,7 +31,6 @@
 
 namespace Hookshot
 {
-
   /// Retrieves the proper address of a Windows API function. Many Windows API functions have been
   /// moved to lower-level binaries. See
   /// https://docs.microsoft.com/en-us/windows/win32/win7appqual/new-low-level-binaries for more

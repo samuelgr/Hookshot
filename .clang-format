@@ -95,6 +95,11 @@ LambdaBodyIndentation:                                      Signature
 MaxEmptyLinesToKeep:                                        1
 NamespaceIndentation:                                       All
 PackConstructorInitializers:                                NextLine
+PenaltyBreakBeforeFirstCallParameter:                       1
+PenaltyBreakTemplateDeclaration:                            500
+PenaltyBreakOpenParenthesis:                                1
+PenaltyExcessCharacter:                                     1000
+PenaltyReturnTypeOnItsOwnLine:                              200
 PointerAlignment:                                           Left
 QualifierAlignment:                                         Leave
 # QualifierOrder:                                             ['constexpr', 'friend', 'static', 'inline', 'const', 'volatile', 'restrict', 'type']

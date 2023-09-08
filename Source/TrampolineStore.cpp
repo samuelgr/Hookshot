@@ -25,11 +25,11 @@ namespace Hookshot
   /// @return Pointer to the allocated buffer, or `nullptr` on failure.
   static inline Trampoline* AllocateTrampolineBuffer(void* baseAddress = nullptr)
   {
-    return (Trampoline*)Protected::Windows_VirtualAlloc(
+    return reinterpret_cast<Trampoline*>(Protected::Windows_VirtualAlloc(
         baseAddress,
         TrampolineStore::kTrampolineStoreSizeBytes,
         MEM_RESERVE | MEM_COMMIT,
-        PAGE_EXECUTE_READWRITE);
+        PAGE_EXECUTE_READWRITE));
   }
 
   TrampolineStore::TrampolineStore(void) : count(0), trampolines(AllocateTrampolineBuffer()) {}
@@ -44,7 +44,7 @@ namespace Hookshot
       Protected::Windows_VirtualFree(trampolines, 0, MEM_RELEASE);
   }
 
-  TrampolineStore::TrampolineStore(TrampolineStore&& other)
+  TrampolineStore::TrampolineStore(TrampolineStore&& other) noexcept
       : count(other.count), trampolines(other.trampolines)
   {
     other.count = 0;

@@ -249,8 +249,8 @@ namespace Hookshot
       return (nullptr != originalFunction);
     }
 
-    static inline EResult
-        SetHook(IHookshot* const hookshot, void* originalFunc, const void* hookFunc)
+    static inline EResult SetHook(
+        IHookshot* const hookshot, void* originalFunc, const void* hookFunc)
     {
       if (true == IsHookSet()) return EResult::NoEffect;
 

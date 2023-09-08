@@ -22,7 +22,6 @@
 
 namespace Hookshot
 {
-
   /// Magic value that identifies the metadata section of a loaded binary file.
   static constexpr DWORD kInjectionMetaMagicValue = 0x51525354;
 

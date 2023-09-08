@@ -43,7 +43,7 @@ namespace Hookshot
 
     TrampolineStore(const TrampolineStore&) = delete;
 
-    TrampolineStore(TrampolineStore&& other);
+    TrampolineStore(TrampolineStore&& other) noexcept;
 
     inline Trampoline& operator[](const int index)
     {

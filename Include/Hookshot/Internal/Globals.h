@@ -25,7 +25,6 @@ namespace Hookshot
 {
   namespace Globals
   {
-
     /// Version information structure.
     struct SVersionInfo
     {

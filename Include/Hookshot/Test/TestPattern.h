@@ -29,7 +29,7 @@ static constexpr size_t kHookFunctionResult = (kOriginalFunctionResult << 1);
 
 /// Signature of a Hookshot test function.
 /// Most, if not all, test functions are written in assembly.
-typedef size_t(__fastcall* THookshotTestFunc)(size_t scx, size_t sdx);
+using THookshotTestFunc = size_t(__fastcall*)(size_t scx, size_t sdx);
 
 /// Encapsulates the logic that implements a Hookshot test in which a hook is set successfully, thus
 /// effectively replacing the original function with the hooked version. This test pattern verifies

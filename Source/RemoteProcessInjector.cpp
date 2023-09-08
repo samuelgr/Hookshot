@@ -63,8 +63,8 @@ namespace Hookshot
       if (nullptr == sharedMemoryHandle) return EInjectResult::ErrorInterProcessCommunicationFailed;
 
       RemoteProcessInjector::SInjectRequest* const sharedInfo =
-          (RemoteProcessInjector::SInjectRequest*)Protected::Windows_MapViewOfFile(
-              sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+          reinterpret_cast<RemoteProcessInjector::SInjectRequest*>(
+              Protected::Windows_MapViewOfFile(sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0));
 
       if (nullptr == sharedInfo)
       {
@@ -77,7 +77,7 @@ namespace Hookshot
       // Append the command-line argument to pass to the new Hookshot instance and convert to a
       // mutable string, as required by CreateProcess.
       executableCommandLine << L' ' << Strings::kCharCmdlineIndicatorFileMappingHandle << std::hex
-                            << (uint64_t)sharedMemoryHandle;
+                            << reinterpret_cast<uint64_t>(sharedMemoryHandle);
 
       TemporaryBuffer<wchar_t> executableCommandLineMutableString;
       if (0 !=
@@ -156,10 +156,10 @@ namespace Hookshot
         return EInjectResult::ErrorInterProcessCommunicationFailed;
       }
 
-      sharedInfo->processHandle = (uint64_t)duplicateProcessHandle;
-      sharedInfo->threadHandle = (uint64_t)duplicateThreadHandle;
+      sharedInfo->processHandle = reinterpret_cast<uint64_t>(duplicateProcessHandle);
+      sharedInfo->threadHandle = reinterpret_cast<uint64_t>(duplicateThreadHandle);
       sharedInfo->enableDebugFeatures = enableDebugFeatures;
-      sharedInfo->injectionResult = (uint64_t)EInjectResult::Failure;
+      sharedInfo->injectionResult = static_cast<uint64_t>(EInjectResult::Failure);
       sharedInfo->extendedInjectionResult = 0ull;
 
       // Let the new instance of Hookshot run and wait for it to finish.
@@ -168,7 +168,7 @@ namespace Hookshot
       if (WAIT_OBJECT_0 != Protected::Windows_WaitForSingleObject(processInfo.hProcess, 10000))
       {
         const DWORD extendedResult = Protected::Windows_GetLastError();
-        Protected::Windows_TerminateProcess(processInfo.hProcess, (UINT)-1);
+        Protected::Windows_TerminateProcess(processInfo.hProcess, ~(0u));
         Protected::Windows_CloseHandle(processInfo.hProcess);
         Protected::Windows_CloseHandle(processInfo.hThread);
         Protected::Windows_UnmapViewOfFile(sharedInfo);
@@ -191,8 +191,8 @@ namespace Hookshot
         return EInjectResult::ErrorInterProcessCommunicationFailed;
       }
 
-      EInjectResult operationResult = (EInjectResult)sharedInfo->injectionResult;
-      DWORD extendedResult = (DWORD)sharedInfo->extendedInjectionResult;
+      EInjectResult operationResult = static_cast<EInjectResult>(sharedInfo->injectionResult);
+      DWORD extendedResult = static_cast<DWORD>(sharedInfo->extendedInjectionResult);
       Protected::Windows_CloseHandle(processInfo.hProcess);
       Protected::Windows_CloseHandle(processInfo.hThread);
       Protected::Windows_UnmapViewOfFile(sharedInfo);

@@ -22,7 +22,7 @@
 #define injectInit(hproc, pinjectdata)                                                             \
   size_t syncVar1 = 1, syncVar2 = 2;                                                               \
   const HANDLE injectedProcessHandle = hproc;                                                      \
-  SInjectData* const injectedProcessData = (SInjectData*)pinjectdata;                              \
+  SInjectData* const injectedProcessData = reinterpret_cast<SInjectData*>(pinjectdata);            \
   size_t* const syncFlagAddress = &(injectedProcessData->sync)
 
 /// Reads the specified SInjectData field from the injected process' data region. Requires the field
@@ -30,7 +30,7 @@
 #define injectDataFieldRead(field, pdest)                                                          \
   injectDataFieldReadImpl(                                                                         \
       injectedProcessHandle,                                                                       \
-      (const void*)(&injectedProcessData->field),                                                  \
+      reinterpret_cast<const void*>(&injectedProcessData->field),                                  \
       pdest,                                                                                       \
       sizeof(injectedProcessData->field))
 
@@ -39,7 +39,7 @@
 #define injectDataFieldWrite(field, psrc)                                                          \
   injectDataFieldWriteImpl(                                                                        \
       injectedProcessHandle,                                                                       \
-      (void*)(&injectedProcessData->field),                                                        \
+      reinterpret_cast<void*>(&injectedProcessData->field),                                        \
       psrc,                                                                                        \
       sizeof(injectedProcessData->field))
 
@@ -74,8 +74,12 @@ namespace Hookshot
 
     if ((FALSE ==
          ReadProcessMemory(
-             processHandle, sourceAddress, destAddress, (SIZE_T)size, &numBytesRead)) ||
-        ((SIZE_T)size != numBytesRead))
+             processHandle,
+             sourceAddress,
+             destAddress,
+             static_cast<SIZE_T>(size),
+             &numBytesRead)) ||
+        (static_cast<SIZE_T>(size) != numBytesRead))
       return false;
 
     return true;
@@ -93,8 +97,12 @@ namespace Hookshot
 
     if ((FALSE ==
          WriteProcessMemory(
-             processHandle, destAddress, sourceAddress, (SIZE_T)size, &numBytesWritten)) ||
-        ((SIZE_T)size != numBytesWritten))
+             processHandle,
+             destAddress,
+             sourceAddress,
+             static_cast<SIZE_T>(size),
+             &numBytesWritten)) ||
+        (static_cast<SIZE_T>(size) != numBytesWritten))
       return false;
 
     return true;

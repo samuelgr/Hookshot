@@ -155,7 +155,7 @@ namespace Hookshot
     // at the same time as the second sub-part.
 
     // First sub-part.
-    uint8_t* const originalFunctionBytes = (uint8_t*)originalFunc;
+    const uint8_t* originalFunctionBytes = reinterpret_cast<const uint8_t*>(originalFunc);
     constexpr int numOriginalFunctionBytesNeeded = X86Instruction::kJumpInstructionLengthBytes;
     int numOriginalFunctionBytes = 0;
     int instructionIndex = 0;
@@ -257,7 +257,7 @@ namespace Hookshot
     int numTrampolineBytesWritten = 0;
     int numExtraTrampolineBytesUsed = 0;
 
-    for (int i = 0; i < (int)originalInstructions.size(); ++i)
+    for (int i = 0; i < static_cast<int>(originalInstructions.size()); ++i)
     {
       const int numTrampolineBytesLeft =
           sizeof(code.original) - numTrampolineBytesWritten - numExtraTrampolineBytesUsed;
@@ -276,26 +276,30 @@ namespace Hookshot
         // If the displacement is so small that it refers to another instruction that is also being
         // transplanted, then there is no need to modify it. Note the need to check both forwards
         // (positive) and backwards (negative) displacement directions.
-        const int64_t minForwardDisplacementNeedingModification = (int64_t)(numOriginalFunctionBytes - (numTrampolineBytesWritten + originalInstructions[i].GetLengthBytes()));
-        const int64_t minBackwardDisplacementNotNeedingMofification =
-            (int64_t)(-1 * (numTrampolineBytesWritten + originalInstructions[i].GetLengthBytes()));
+        const int64_t minForwardDisplacementNeedingModification = static_cast<int64_t>(
+            numOriginalFunctionBytes -
+            (numTrampolineBytesWritten + originalInstructions[i].GetLengthBytes()));
+        const int64_t minBackwardDisplacementNotNeedingMofification = static_cast<int64_t>(
+            -1 * (numTrampolineBytesWritten + originalInstructions[i].GetLengthBytes()));
 
         if (originalDisplacement >= minForwardDisplacementNeedingModification ||
             originalDisplacement < minBackwardDisplacementNotNeedingMofification)
         {
           // There are no changes to the length of the instruction, so the change to the
           // displacement value is just the difference in its new and original locations in memory.
-          const intptr_t newDisplacementValue = ((intptr_t)originalInstructions[i].GetAddress() -
-                                                 (intptr_t)nextTrampolineAddressToWrite) +
-              (intptr_t)originalDisplacement;
+          const intptr_t newDisplacementValue =
+              (reinterpret_cast<intptr_t>(originalInstructions[i].GetAddress()) -
+               reinterpret_cast<intptr_t>(nextTrampolineAddressToWrite)) +
+              static_cast<intptr_t>(originalDisplacement);
           Message::OutputFormatted(
               Message::ESeverity::Debug,
               L"Instruction %d - Transplanting from 0x%llx to 0x%llx, absolute target is 0x%llx, new displacement is 0x%llx.",
               i,
-              (long long)originalInstructions[i].GetAddress(),
-              (long long)nextTrampolineAddressToWrite,
-              (long long)originalInstructions[i].GetAbsoluteMemoryReferenceTarget(),
-              (long long)newDisplacementValue);
+              reinterpret_cast<long long>(originalInstructions[i].GetAddress()),
+              reinterpret_cast<long long>(nextTrampolineAddressToWrite),
+              reinterpret_cast<long long>(
+                  originalInstructions[i].GetAbsoluteMemoryReferenceTarget()),
+              static_cast<long long>(newDisplacementValue));
 
           // Try to replace the displacement in the original instruction. If this fails, perhaps
           // using a 32-bit unconditional jump as an assist will help, especially if the original
@@ -303,7 +307,9 @@ namespace Hookshot
           // is only possible if the original instruction has a relative branch displacement, not a
           // position-relative data access displacement. Note that the latter case, RIP-relative
           // addressing, is only supported in 64-bit mode.
-          if (false == originalInstructions[i].SetMemoryDisplacement((int64_t)newDisplacementValue))
+          if (false ==
+              originalInstructions[i].SetMemoryDisplacement(
+                  static_cast<int64_t>(newDisplacementValue)))
           {
             if (true == originalInstructions[i].HasRelativeBranchDisplacement())
             {
@@ -318,26 +324,28 @@ namespace Hookshot
 
               numExtraTrampolineBytesUsed += X86Instruction::kJumpInstructionLengthBytes;
 
-              void* const jumpAssistAddress =
-                  (void*)(((size_t)&code.original.byte[_countof(code.original.byte)]) - (size_t)numExtraTrampolineBytesUsed);
+              void* const jumpAssistAddress = reinterpret_cast<void*>(
+                  reinterpret_cast<size_t>(&code.original.byte[_countof(code.original.byte)]) -
+                  static_cast<size_t>(numExtraTrampolineBytesUsed));
               void* const jumpAssistTargetAddress =
                   originalInstructions[i].GetAbsoluteMemoryReferenceTarget();
-              const intptr_t displacementValueToJumpAssist = (intptr_t)jumpAssistAddress -
-                  ((intptr_t)nextTrampolineAddressToWrite +
-                   (intptr_t)originalInstructions[i].GetLengthBytes());
+              const intptr_t displacementValueToJumpAssist =
+                  reinterpret_cast<intptr_t>(jumpAssistAddress) -
+                  (reinterpret_cast<intptr_t>(nextTrampolineAddressToWrite) +
+                   static_cast<intptr_t>(originalInstructions[i].GetLengthBytes()));
 
               Message::OutputFormatted(
                   Message::ESeverity::Debug,
                   L"Instruction %d - Failed to set new displacement, but will attempt to use a jump assist (from=0x%llx, to=0x%llx, disp=0x%llx, target=0x%llx) instead.",
                   i,
-                  (long long)nextTrampolineAddressToWrite,
-                  (long long)jumpAssistAddress,
-                  (long long)displacementValueToJumpAssist,
-                  (long long)jumpAssistTargetAddress);
+                  reinterpret_cast<long long>(nextTrampolineAddressToWrite),
+                  reinterpret_cast<long long>(jumpAssistAddress),
+                  static_cast<long long>(displacementValueToJumpAssist),
+                  reinterpret_cast<long long>(jumpAssistTargetAddress));
 
               if (false ==
                   originalInstructions[i].SetMemoryDisplacement(
-                      (int64_t)displacementValueToJumpAssist))
+                      static_cast<int64_t>(displacementValueToJumpAssist)))
               {
                 Message::OutputFormatted(
                     Message::ESeverity::Debug,

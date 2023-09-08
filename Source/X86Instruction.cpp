@@ -111,14 +111,14 @@ namespace Hookshot
 
   bool X86Instruction::CanWriteJumpInstruction(const void* const from, const void* const to)
   {
-    const int64_t displacement =
-        (int64_t)to - ((int64_t)from + (int64_t)kJumpInstructionLengthBytes);
+    const int64_t displacement = reinterpret_cast<int64_t>(to) -
+        (reinterpret_cast<int64_t>(from) + static_cast<int64_t>(kJumpInstructionLengthBytes));
     return (displacement <= INT32_MAX && displacement >= INT32_MIN);
   }
 
   void X86Instruction::FillWithNop(void* const buf, const size_t numBytes)
   {
-    uint8_t* const bufBytes = (uint8_t*)buf;
+    uint8_t* const bufBytes = reinterpret_cast<uint8_t*>(buf);
 
     for (size_t i = 0; i < numBytes; ++i)
       bufBytes[i] = kNopInstructionOpcode;
@@ -131,14 +131,15 @@ namespace Hookshot
 
     if (false == CanWriteJumpInstruction(where, to)) return false;
 
-    uint8_t* const whereBytes = (uint8_t*)where;
-    const int64_t displacement =
-        (int64_t)to - ((int64_t)where + (int64_t)kJumpInstructionLengthBytes);
+    uint8_t* const whereBytes = reinterpret_cast<uint8_t*>(where);
+    const int64_t displacement = reinterpret_cast<int64_t>(to) -
+        (reinterpret_cast<int64_t>(where) + static_cast<int64_t>(kJumpInstructionLengthBytes));
 
     for (int i = 0; i < sizeof(kJumpInstructionPreamble); ++i)
       whereBytes[i] = kJumpInstructionPreamble[i];
 
-    *((int32_t*)&whereBytes[sizeof(kJumpInstructionPreamble)]) = (int32_t)displacement;
+    *reinterpret_cast<int32_t*>(&whereBytes[sizeof(kJumpInstructionPreamble)]) =
+        static_cast<int32_t>(displacement);
     return true;
   }
 
@@ -154,12 +155,15 @@ namespace Hookshot
         displacement >= GetMinMemoryDisplacement() && displacement <= GetMaxMemoryDisplacement());
   }
 
-  bool X86Instruction::DecodeInstruction(void* const instruction, const int maxLengthBytes)
+  bool X86Instruction::DecodeInstruction(const void* instruction, const int maxLengthBytes)
   {
     xed_decoded_inst_zero_set_mode(&decodedInstruction, &kXedMachineState);
 
     if (XED_ERROR_NONE !=
-        xed_decode(&decodedInstruction, (const unsigned char*)instruction, maxLengthBytes))
+        xed_decode(
+            &decodedInstruction,
+            reinterpret_cast<const unsigned char*>(instruction),
+            maxLengthBytes))
     {
       address = nullptr;
       positionDependentMemoryReference.ClearOperandLocation();
@@ -171,7 +175,9 @@ namespace Hookshot
     address = instruction;
     positionDependentMemoryReference.SetFromInstruction(&decodedInstruction);
     possibleRexPrefix =
-        (CouldBeRexPrefix(((uint8_t*)instruction)[0]) ? ((uint8_t*)instruction)[0] : 0);
+        (CouldBeRexPrefix(reinterpret_cast<const uint8_t*>(instruction)[0])
+             ? reinterpret_cast<const uint8_t*>(instruction)[0]
+             : 0);
     valid = true;
     return true;
   }
@@ -180,7 +186,8 @@ namespace Hookshot
   {
     const unsigned int decodedLength = GetLengthBytes();
 
-    if (false == valid || maxLengthBytes < 0 || (unsigned int)maxLengthBytes < decodedLength)
+    if (false == valid || maxLengthBytes < 0 ||
+        static_cast<unsigned int>(maxLengthBytes) < decodedLength)
       return 0;
 
     xed_encoder_request_t toEncode = decodedInstruction;
@@ -188,7 +195,8 @@ namespace Hookshot
 
     unsigned int encodedLength = 0;
     if (XED_ERROR_NONE !=
-        xed_encode(&toEncode, (unsigned char*)buf, maxLengthBytes, &encodedLength))
+        xed_encode(
+            &toEncode, reinterpret_cast<unsigned char*>(buf), maxLengthBytes, &encodedLength))
       return 0;
 
     if (encodedLength > decodedLength)
@@ -211,8 +219,8 @@ namespace Hookshot
       const unsigned int lengthDiscrepancy = decodedLength - encodedLength;
 
       for (unsigned int i = 0; i < encodedLength; ++i)
-        ((uint8_t*)buf)[decodedLength - 1 - i] =
-            ((uint8_t*)buf)[decodedLength - 1 - lengthDiscrepancy - i];
+        reinterpret_cast<uint8_t*>(buf)[decodedLength - 1 - i] =
+            reinterpret_cast<uint8_t*>(buf)[decodedLength - 1 - lengthDiscrepancy - i];
 
       FillWithNop(buf, lengthDiscrepancy);
 
@@ -223,14 +231,14 @@ namespace Hookshot
       // uses "rex.w jmp" to indicate a function epilogue. Therefore, in this case the REX prefix
       // should be reintroduced. REX prefixes only exist in 64-bit mode.
       if ((true == CouldBeRexPrefix(possibleRexPrefix)) &&
-          (false == CouldBeRexPrefix(((uint8_t*)buf)[lengthDiscrepancy])))
-        ((uint8_t*)buf)[lengthDiscrepancy - 1] = possibleRexPrefix;
+          (false == CouldBeRexPrefix(reinterpret_cast<uint8_t*>(buf)[lengthDiscrepancy])))
+        reinterpret_cast<uint8_t*>(buf)[lengthDiscrepancy - 1] = possibleRexPrefix;
 #endif
 
       encodedLength = decodedLength;
     }
 
-    return (int)encodedLength;
+    return static_cast<int>(encodedLength);
   }
 
   void* X86Instruction::GetAbsoluteMemoryReferenceTarget(void) const
@@ -238,20 +246,22 @@ namespace Hookshot
     const int64_t displacement = GetMemoryDisplacement();
     if (kInvalidMemoryDisplacement == displacement) return nullptr;
 
-    const int64_t base = (int64_t)((intptr_t)address) + (int64_t)GetLengthBytes();
-    return (void*)((size_t)base + (size_t)displacement);
+    const int64_t base = static_cast<int64_t>(reinterpret_cast<intptr_t>(address)) +
+        static_cast<int64_t>(GetLengthBytes());
+    return reinterpret_cast<void*>(static_cast<size_t>(base) + static_cast<size_t>(displacement));
   }
 
   int X86Instruction::GetLengthBytes(void) const
   {
     if (false == valid) return -1;
 
-    return (int)xed_decoded_inst_get_length(&decodedInstruction);
+    return static_cast<int>(xed_decoded_inst_get_length(&decodedInstruction));
   }
 
   int64_t X86Instruction::GetMaxMemoryDisplacement(void) const
   {
-    const int64_t memoryDisplacementWidthBits = (int64_t)GetMemoryDisplacementWidthBits();
+    const int64_t memoryDisplacementWidthBits =
+        static_cast<int64_t>(GetMemoryDisplacementWidthBits());
     if (0ll == memoryDisplacementWidthBits) return kInvalidMemoryDisplacement;
 
     return (1ll << (memoryDisplacementWidthBits - 1ll)) - 1ll;
@@ -267,11 +277,11 @@ namespace Hookshot
         return kInvalidMemoryDisplacement;
 
       case PositionDependentMemoryReference::kReferenceIsRelativeBranchDisplacement:
-        return (int64_t)xed_decoded_inst_get_branch_displacement(&decodedInstruction);
+        return static_cast<int64_t>(xed_decoded_inst_get_branch_displacement(&decodedInstruction));
 
       default:
-        return (int64_t)xed_decoded_inst_get_memory_displacement(
-            &decodedInstruction, positionDependentMemoryReference.GetOperandLocation());
+        return static_cast<int64_t>(xed_decoded_inst_get_memory_displacement(
+            &decodedInstruction, positionDependentMemoryReference.GetOperandLocation()));
     }
   }
 
@@ -285,17 +295,19 @@ namespace Hookshot
         return 0;
 
       case PositionDependentMemoryReference::kReferenceIsRelativeBranchDisplacement:
-        return (int64_t)xed_decoded_inst_get_branch_displacement_width_bits(&decodedInstruction);
+        return static_cast<int64_t>(
+            xed_decoded_inst_get_branch_displacement_width_bits(&decodedInstruction));
 
       default:
-        return (int64_t)xed_decoded_inst_get_memory_displacement_width_bits(
-            &decodedInstruction, positionDependentMemoryReference.GetOperandLocation());
+        return static_cast<int64_t>(xed_decoded_inst_get_memory_displacement_width_bits(
+            &decodedInstruction, positionDependentMemoryReference.GetOperandLocation()));
     }
   }
 
   int64_t X86Instruction::GetMinMemoryDisplacement(void) const
   {
-    const int64_t memoryDisplacementWidthBits = (int64_t)GetMemoryDisplacementWidthBits();
+    const int64_t memoryDisplacementWidthBits =
+        static_cast<int64_t>(GetMemoryDisplacementWidthBits());
     if (0ll == memoryDisplacementWidthBits) return kInvalidMemoryDisplacement;
 
     return INT64_MIN >> (64ll - memoryDisplacementWidthBits);
@@ -305,7 +317,7 @@ namespace Hookshot
   {
     if (1 != GetLengthBytes()) return false;
 
-    const uint8_t instructionBinary = *(uint8_t*)GetAddress();
+    const uint8_t instructionBinary = *reinterpret_cast<const uint8_t*>(GetAddress());
     switch (instructionBinary)
     {
       case 0x90: // nop
@@ -325,7 +337,7 @@ namespace Hookshot
 
     const int numBytesToCheck =
         ((numBytes < kMinNumBytesForPaddingBuffer) ? kMinNumBytesForPaddingBuffer : numBytes);
-    const uint8_t* const paddingBuffer = (uint8_t*)GetAddress();
+    const uint8_t* const paddingBuffer = reinterpret_cast<const uint8_t*>(GetAddress());
     const uint8_t expectedByte = paddingBuffer[0];
 
     for (int i = 1; i < numBytesToCheck; ++i)
@@ -362,7 +374,7 @@ namespace Hookshot
             &decodedInstruction,
             narrowCharDisassembly.Data(),
             narrowCharDisassembly.Capacity(),
-            (xed_uint64_t)address,
+            reinterpret_cast<xed_uint64_t>(address),
             nullptr,
             nullptr))
       return false;
@@ -388,12 +400,14 @@ namespace Hookshot
 
       case PositionDependentMemoryReference::kReferenceIsRelativeBranchDisplacement:
         xed_decoded_inst_set_branch_displacement_bits(
-            &decodedInstruction, (int)displacement, GetMemoryDisplacementWidthBits());
+            &decodedInstruction, static_cast<int>(displacement), GetMemoryDisplacementWidthBits());
         break;
 
       default:
         xed_decoded_inst_set_memory_displacement_bits(
-            &decodedInstruction, (long long)displacement, GetMemoryDisplacementWidthBits());
+            &decodedInstruction,
+            static_cast<long long>(displacement),
+            GetMemoryDisplacementWidthBits());
         break;
     }
 

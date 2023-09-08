@@ -271,7 +271,7 @@ namespace Hookshot
     {
       static std::mutex outputGuard;
 
-      EOutputMode outputModes[(int)EOutputMode::UpperBoundValue];
+      EOutputMode outputModes[static_cast<int>(EOutputMode::UpperBoundValue)];
       const int numOutputModes = DetermineOutputModes(severity, outputModes);
 
       if (numOutputModes > 0)
@@ -310,8 +310,8 @@ namespace Hookshot
     /// @param [in] format Message string, possibly with format specifiers.
     /// @param [in] args Variable-length list of arguments to be used for any format specifiers in
     /// the message string.
-    static void
-        OutputFormattedInternal(const ESeverity severity, const wchar_t* format, va_list args)
+    static void OutputFormattedInternal(
+        const ESeverity severity, const wchar_t* format, va_list args)
     {
       TemporaryBuffer<wchar_t> messageBuf;
 
@@ -370,8 +370,8 @@ namespace Hookshot
       Protected::Windows_SetLastError(lastError);
     }
 
-    void
-        OutputFormatted(const ESeverity severity, _Printf_format_string_ const wchar_t* format, ...)
+    void OutputFormatted(
+        const ESeverity severity, _Printf_format_string_ const wchar_t* format, ...)
     {
       const DWORD lastError = Protected::Windows_GetLastError();
 
@@ -414,7 +414,7 @@ namespace Hookshot
 
         // Check all the selected output modes.
         // If any are interactive, then this message is skipped over.
-        EOutputMode outputModes[(int)EOutputMode::UpperBoundValue];
+        EOutputMode outputModes[static_cast<int>(EOutputMode::UpperBoundValue)];
         const int numOutputModes = DetermineOutputModes(severity, outputModes);
 
         for (int i = 0; i < numOutputModes; ++i)

@@ -448,8 +448,8 @@ namespace Hookshot
       /// @param [in] name Name of the configuration setting into which to insert the value.
       /// @param [in] value Value to insert.
       /// @return `true` on success, `false` on failure.
-      template <typename ValueType>
-      inline bool Insert(std::wstring_view name, const ValueType& value)
+      template <typename ValueType> inline bool Insert(
+          std::wstring_view name, const ValueType& value)
       {
         return Insert(name, ValueType(value));
       }
@@ -513,12 +513,12 @@ namespace Hookshot
       /// Used when responding to queries for all settings of a given name across all sections.
       struct SSectionNamePair
       {
-        std::wstring_view
-            section;      ///< Name of the section that holds the identified configuration setting.
-        const Name& name; ///< Reference to the object that holds all values for the identified
-                          ///< configuration setting.
+        /// Name of the section that holds the identified configuration setting.
+        std::wstring_view section;
 
-        /// Initialization constructor. Initializes both references.
+        /// Reference to the object that holds all values for the identified configuration setting.
+        const Name& name;
+
         inline constexpr SSectionNamePair(std::wstring_view section, const Name& name)
             : section(section), name(name)
         {}
@@ -547,8 +547,8 @@ namespace Hookshot
       /// @param [in] name Name of the configuration setting into which to insert the value.
       /// @param [in] value Value to insert.
       /// @return `true` on success, `false` on failure.
-      template <typename ValueType>
-      bool Insert(std::wstring_view section, std::wstring_view name, const ValueType& value)
+      template <typename ValueType> bool Insert(
+          std::wstring_view section, std::wstring_view name, const ValueType& value)
       {
         return Insert(ValueType(value));
       }
@@ -560,8 +560,8 @@ namespace Hookshot
       /// @param [in] name Name of the configuration setting into which to insert the value.
       /// @param [in] value Value to insert.
       /// @return `true` on success, `false` on failure.
-      template <typename ValueType>
-      bool Insert(std::wstring_view section, std::wstring_view name, ValueType&& value)
+      template <typename ValueType> bool Insert(
+          std::wstring_view section, std::wstring_view name, ValueType&& value)
       {
         auto sectionIterator = sections.find(section);
 
@@ -579,8 +579,8 @@ namespace Hookshot
       /// @param [in] section Section name to search for the value.
       /// @param [in] name Name of the value for which to search.
       /// @return First value associated with the section and name, if it exists.
-      inline std::optional<TBooleanView>
-          GetFirstBooleanValue(std::wstring_view section, std::wstring_view name) const
+      inline std::optional<TBooleanView> GetFirstBooleanValue(
+          std::wstring_view section, std::wstring_view name) const
       {
         if (false == SectionExists(section)) return std::nullopt;
 
@@ -592,8 +592,8 @@ namespace Hookshot
       /// @param [in] section Section name to search for the value.
       /// @param [in] name Name of the value for which to search.
       /// @return First value associated with the section and name, if it exists.
-      inline std::optional<TIntegerView>
-          GetFirstIntegerValue(std::wstring_view section, std::wstring_view name) const
+      inline std::optional<TIntegerView> GetFirstIntegerValue(
+          std::wstring_view section, std::wstring_view name) const
       {
         if (false == SectionExists(section)) return std::nullopt;
 
@@ -605,8 +605,8 @@ namespace Hookshot
       /// @param [in] section Section name to search for the value.
       /// @param [in] name Name of the value for which to search.
       /// @return First value associated with the section and name, if it exists.
-      inline std::optional<TStringView>
-          GetFirstStringValue(std::wstring_view section, std::wstring_view name) const
+      inline std::optional<TStringView> GetFirstStringValue(
+          std::wstring_view section, std::wstring_view name) const
       {
         if (false == SectionExists(section)) return std::nullopt;
 
@@ -793,8 +793,8 @@ namespace Hookshot
       /// @param [in] value View of the value of the configuration setting, as read and parsed
       /// from the configuration file.
       /// @return Action to take with the name/value pair.
-      virtual EAction
-          ActionForValue(std::wstring_view section, std::wstring_view name, TIntegerView value) = 0;
+      virtual EAction ActionForValue(
+          std::wstring_view section, std::wstring_view name, TIntegerView value) = 0;
 
       /// Invoked to allow the subclass to process the specified Boolean-typed configuration
       /// setting, identified by enclosing section name and by configuration setting name.
@@ -809,8 +809,8 @@ namespace Hookshot
       /// @param [in] value View of the value of the configuration setting, as read and parsed
       /// from the configuration file.
       /// @return Action to take with the name/value pair.
-      virtual EAction
-          ActionForValue(std::wstring_view section, std::wstring_view name, TBooleanView value) = 0;
+      virtual EAction ActionForValue(
+          std::wstring_view section, std::wstring_view name, TBooleanView value) = 0;
 
       /// Invoked to allow the subclass to process specified string-typed configuration
       /// setting, identified by enclosing section name and by configuration setting name.
@@ -825,8 +825,8 @@ namespace Hookshot
       /// @param [in] value View of the value of the configuration setting, as read and parsed
       /// from the configuration file.
       /// @return Action to take with the name/value pair.
-      virtual EAction
-          ActionForValue(std::wstring_view section, std::wstring_view name, TStringView value) = 0;
+      virtual EAction ActionForValue(
+          std::wstring_view section, std::wstring_view name, TStringView value) = 0;
 
       /// Specifies the type of the value for the given configuration setting.
       /// In lines that are of the form "name = value" parameters identify both the enclosing

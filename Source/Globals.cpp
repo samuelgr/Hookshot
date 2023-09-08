@@ -53,7 +53,6 @@ namespace Hookshot
 
     private:
 
-      /// Default constructor. Objects cannot be constructed externally.
       GlobalData(void)
           : gCurrentProcessHandle(GetCurrentProcess()),
             gCurrentProcessId(GetProcessId(GetCurrentProcess())),
@@ -68,7 +67,6 @@ namespace Hookshot
         GetNativeSystemInfo(&gSystemInformation);
       }
 
-      /// Copy constructor. Should never be invoked.
       GlobalData(const GlobalData& other) = delete;
 
     public:
@@ -111,14 +109,12 @@ namespace Hookshot
       if (logLevel > 0)
       {
         // Offset the requested severity so that 0 = disabled, 1 = error, 2 = warning, etc.
-        const Message::ESeverity configuredSeverity = (Message::ESeverity)(
-            logLevel + (int64_t)Message::ESeverity::LowerBoundConfigurableValue);
+        const Message::ESeverity configuredSeverity = static_cast<Message::ESeverity>(
+            logLevel + static_cast<int64_t>(Message::ESeverity::LowerBoundConfigurableValue));
         EnableLog(configuredSeverity);
       }
     }
-#endif
 
-#ifndef HOOKSHOT_SKIP_CONFIG
     const Configuration::ConfigurationData& GetConfigurationData(void)
     {
       static Configuration::ConfigurationData configData;

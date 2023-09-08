@@ -36,7 +36,7 @@ namespace Hookshot
         std::wstring_view name,
         const Configuration::TStringView value) override;
     void BeginRead(void) override;
-    Configuration::EValueType
-        TypeForValue(std::wstring_view section, std::wstring_view name) override;
+    Configuration::EValueType TypeForValue(
+        std::wstring_view section, std::wstring_view name) override;
   };
 } // namespace Hookshot

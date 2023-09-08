@@ -19,9 +19,6 @@ INCLUDE Registers.inc
 _TEXT                                       SEGMENT
 
 
-; --------- FUNCTIONS ---------------------------------------------------------
-; See "InjectLanding.h" for documentation.
-
 InjectLanding                               PROC PUBLIC
     ; Starting state:
     ;  - data region pointer is in sbp

@@ -90,7 +90,8 @@ namespace Hookshot
 
     inline TemporaryBuffer(void) : TemporaryBufferBase() {}
 
-    inline TemporaryBuffer(TemporaryBuffer&& other) noexcept : TemporaryBufferBase(std::move(other)) {}
+    inline TemporaryBuffer(TemporaryBuffer&& other) noexcept : TemporaryBufferBase(std::move(other))
+    {}
 
     inline TemporaryBuffer& operator=(TemporaryBuffer&& other) noexcept
     {
@@ -121,14 +122,14 @@ namespace Hookshot
     /// @return Typed pointer to the buffer.
     inline const T* Data(void) const
     {
-      return (T*)Buffer();
+      return reinterpret_cast<const T*>(Buffer());
     }
 
     /// Retrieves a properly-typed pointer to the buffer itself, mutable version.
     /// @return Typed pointer to the buffer.
     inline T* Data(void)
     {
-      return (T*)Buffer();
+      return reinterpret_cast<T*>(Buffer());
     }
 
     /// Retrieves the size of the buffer space, in bytes.
@@ -431,7 +432,9 @@ namespace Hookshot
       (*this)[size] = L'\0';
     }
 
-    inline TemporaryString(TemporaryString&& other) noexcept : TemporaryVector<wchar_t>(std::move(other)) {}
+    inline TemporaryString(TemporaryString&& other) noexcept
+        : TemporaryVector<wchar_t>(std::move(other))
+    {}
 
     inline TemporaryString& operator=(const TemporaryString& other)
     {
@@ -536,7 +539,7 @@ namespace Hookshot
           const IntegerType remainder = (i % 10);
 
           i = quotient;
-          digits[--charIndex] = (L'0' + (wchar_t)remainder);
+          digits[--charIndex] = (L'0' + static_cast<wchar_t>(remainder));
         }
 
         return (*this += &digits[charIndex]);
@@ -604,7 +607,7 @@ namespace Hookshot
       if (replacementSuffix.size() >= Size())
         Clear();
       else
-        size -= (unsigned int)replacementSuffix.size();
+        size -= static_cast<unsigned int>(replacementSuffix.size());
 
       *this += replacementSuffix;
     }

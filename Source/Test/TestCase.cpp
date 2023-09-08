@@ -9,18 +9,16 @@
  *   Implementation of Hookshot test case interface.
  **************************************************************************************************/
 
-#include "Harness.h"
 #include "TestCase.h"
 
 #include <string_view>
 
+#include "Harness.h"
 
 namespace HookshotTest
 {
-        
-
-    ITestCase::ITestCase(std::wstring_view name)
-    {
-        Harness::RegisterTestCase(this, name);
-    }
-}
+  ITestCase::ITestCase(std::wstring_view name)
+  {
+    Harness::RegisterTestCase(this, name);
+  }
+} // namespace HookshotTest

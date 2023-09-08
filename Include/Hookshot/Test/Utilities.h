@@ -15,7 +15,6 @@
 
 namespace HookshotTest
 {
-
   /// Prints the specified message and appends a newline.
   /// @param [in] str Message string.
   void Print(const wchar_t* const str);

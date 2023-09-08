@@ -60,16 +60,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     wchar_t* parseEnd;
 
 #ifdef _WIN64
-    sharedMemoryHandle = (HANDLE)wcstoull(&__wargv[1][1], &parseEnd, 16);
+    sharedMemoryHandle = reinterpret_cast<HANDLE>(wcstoull(&__wargv[1][1], &parseEnd, 16));
 #else
-    sharedMemoryHandle = (HANDLE)wcstoul(&__wargv[1][1], &parseEnd, 16);
+    sharedMemoryHandle = reinterpret_cast<HANDLE>(wcstoul(&__wargv[1][1], &parseEnd, 16));
 #endif
 
     if (L'\0' != *parseEnd) return __LINE__;
 
     RemoteProcessInjector::SInjectRequest* const remoteInjectionData =
-        (RemoteProcessInjector::SInjectRequest*)MapViewOfFile(
-            sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+        reinterpret_cast<RemoteProcessInjector::SInjectRequest*>(
+            MapViewOfFile(sharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, 0));
     if (nullptr == remoteInjectionData) return __LINE__;
 
     const bool remoteInjectionResult =
@@ -112,8 +112,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     {
       Message::OutputFormatted(
           Message::ESeverity::ForcedInteractiveError,
-          L"Specified command line exceeds the limit of %d characters.",
-          (int)commandLine.Capacity());
+          L"Specified command line exceeds the limit of %u characters.",
+          commandLine.Capacity());
       return __LINE__;
     }
 
@@ -146,13 +146,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
       case EInjectResult::ErrorCreateProcess:
         if (ERROR_ELEVATION_REQUIRED == GetLastError())
         {
-          const INT_PTR executeElevatedResult = (INT_PTR)ShellExecute(
+          const INT_PTR executeElevatedResult = reinterpret_cast<INT_PTR>(ShellExecute(
               nullptr,
               L"runas",
               Strings::kStrExecutableCompleteFilename.data(),
               commandLine.Data(),
               nullptr,
-              SW_SHOWDEFAULT);
+              SW_SHOWDEFAULT));
           if (executeElevatedResult > 32)
           {
             Message::OutputFormatted(
