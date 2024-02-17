@@ -3,7 +3,7 @@
 ;   General-purpose library for injecting DLLs and hooking function calls.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Authored by Samuel Grossman
-; Copyright (c) 2019-2023
+; Copyright (c) 2019-2024
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; TestDefinitions.inc
 ;   Definitions to assist with the creation of test cases. Helps to ensure 32/64-bit portability.

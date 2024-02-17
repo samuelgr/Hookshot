@@ -6,7 +6,7 @@ rem | Hookshot
 rem |   General-purpose library for injecting DLLs and hooking function calls.
 rem +-----------------------------------------------------------------------------------------------
 rem | Authored by Samuel Grossman
-rem | Copyright (c) 2019-2023
+rem | Copyright (c) 2019-2024
 rem +-----------------------------------------------------------------------------------------------
 rem | GitVersionInfo.bat
 rem |   Script for extracting version information from Git. Executed automatically on build.

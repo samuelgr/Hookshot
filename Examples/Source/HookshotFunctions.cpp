@@ -3,7 +3,7 @@
  *   General-purpose library for hooking API calls in spawned processes.
  ***************************************************************************************************
  * Authored by Samuel Grossman
- * Copyright (c) 2019-2023
+ * Copyright (c) 2019-2024
  ***********************************************************************************************//**
  * @file HookshotFunctions.cpp
  *   "HookshotFunctions" hook module example.
