@@ -190,7 +190,8 @@ namespace Hookshot
     static StaticHookProxy GetProxy(void)                                                          \
     {                                                                                              \
       return StaticHookProxy(&IsHookSet, &SetHook, &DisableHook, &EnableHook, &GetFunctionName);   \
-    };
+    }                                                                                              \
+  };
 
 namespace Hookshot
 {
