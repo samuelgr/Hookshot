@@ -37,6 +37,24 @@ namespace Hookshot
     /// Single hook configuration interface object.
     static HookStore hookStore;
 
+    /// Determines which directory should be checked when loading hook modules. This defaults to the
+    /// executable directory but can instead be configured for the Hookshot directory, in case the
+    /// two are different.
+    /// @return Name of the directory in which to look for hook modules.
+    static std::wstring_view HookModuleDirectoryName(void)
+    {
+      static const bool loadHookModulesFromHookshotDirectory =
+          Globals::GetConfigurationData()
+              .GetFirstBooleanValue(
+                  Configuration::kSectionNameGlobal,
+                  Strings::kStrConfigurationSettingNameLoadHookModulesFromHookshotDirectory)
+              .value_or(false);
+
+      return (
+          loadHookModulesFromHookshotDirectory ? Strings::kStrHookshotDirectoryName
+                                               : Strings::kStrExecutableDirectoryName);
+    }
+
     /// Obtains pointers to all of the relevant configuration settings for the currently-running
     /// executable. Currently, this function checks both the global section and the
     /// executable-specific section for configuration settings that match the specified name.
@@ -145,7 +163,6 @@ namespace Hookshot
     /// @return Number of hook modules successfully loaded.
     static int LoadConfiguredHookModules(void)
     {
-      const Configuration::ConfigurationData& configData = Globals::GetConfigurationData();
       int numHookModulesLoaded = 0;
 
       Message::Output(
@@ -156,7 +173,9 @@ namespace Hookshot
       {
         for (auto& hookModule : configuredHookModuleSource->Values())
         {
-          if (true == LoadHookModule(Strings::HookModuleFilename(hookModule.GetStringValue())))
+          if (true ==
+              LoadHookModule(Strings::HookModuleFilename(
+                  hookModule.GetStringValue(), HookModuleDirectoryName())))
             numHookModulesLoaded += 1;
         }
       }
@@ -170,12 +189,16 @@ namespace Hookshot
     static int LoadDefaultHookModules(void)
     {
       int numHookModulesLoaded = 0;
+      const std::wstring_view hookModuleDirectory = HookModuleDirectoryName();
 
-      Message::Output(
+      Message::OutputFormatted(
           Message::ESeverity::Info,
-          L"Loading all hook modules in the same directory as the executable.");
+          L"Looking in \"%.*s\" and loading all hook modules found there.",
+          static_cast<int>(hookModuleDirectory.size()),
+          hookModuleDirectory.data());
 
-      const TemporaryString hookModuleSearchString = Strings::HookModuleFilename(L"*");
+      const TemporaryString hookModuleSearchString =
+          Strings::HookModuleFilename(L"*", hookModuleDirectory);
       WIN32_FIND_DATA hookModuleFileData{};
       HANDLE hookModuleFind = Protected::Windows_FindFirstFileEx(
           hookModuleSearchString.AsCString(),
@@ -188,15 +211,13 @@ namespace Hookshot
 
       TemporaryBuffer<wchar_t> hookModuleFileName;
       wcscpy_s(
-          hookModuleFileName.Data(),
-          hookModuleFileName.Capacity(),
-          Strings::kStrExecutableDirectoryName.data());
+          hookModuleFileName.Data(), hookModuleFileName.Capacity(), hookModuleDirectory.data());
 
       while (TRUE == moreHookModulesExist)
       {
         wcscpy_s(
-            &hookModuleFileName[Strings::kStrExecutableDirectoryName.length()],
-            hookModuleFileName.Capacity() - Strings::kStrExecutableDirectoryName.length(),
+            &hookModuleFileName[hookModuleDirectory.length()],
+            hookModuleFileName.Capacity() - hookModuleDirectory.length(),
             hookModuleFileData.cFileName);
 
         if (true == LoadHookModule(&hookModuleFileName[0])) numHookModulesLoaded += 1;
@@ -246,16 +267,15 @@ namespace Hookshot
         useConfigurationFileHookModules = true;
 
         if (true ==
-            Globals::GetConfigurationData().SectionNamePairExists(
+            configData.SectionNamePairExists(
                 Configuration::kSectionNameGlobal,
                 Strings::kStrConfigurationSettingNameUseConfiguredHookModules))
         {
           if (false ==
-              Globals::GetConfigurationData()
-                  [Configuration::kSectionNameGlobal]
-                  [Strings::kStrConfigurationSettingNameUseConfiguredHookModules]
-                      .GetFirstValue()
-                      .GetBooleanValue())
+              configData[Configuration::kSectionNameGlobal]
+                        [Strings::kStrConfigurationSettingNameUseConfiguredHookModules]
+                            .GetFirstValue()
+                            .GetBooleanValue())
           {
             useConfigurationFileHookModules = false;
           }

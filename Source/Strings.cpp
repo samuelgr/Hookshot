@@ -544,11 +544,11 @@ namespace Hookshot
       return buf;
     }
 
-    TemporaryString HookModuleFilename(std::wstring_view moduleName)
+    TemporaryString HookModuleFilename(std::wstring_view moduleName, std::wstring_view directoryName)
     {
       TemporaryString hookModuleFilename;
 
-      hookModuleFilename += kStrExecutableDirectoryName;
+      hookModuleFilename += directoryName;
       hookModuleFilename += moduleName;
       hookModuleFilename += kStrHookModuleExtension;
 

@@ -40,6 +40,9 @@ namespace Hookshot
               ConfigurationFileLayoutNameAndValueType(
                   Strings::kStrConfigurationSettingNameUseConfiguredHookModules,
                   Configuration::EValueType::Boolean),
+              ConfigurationFileLayoutNameAndValueType(
+                  Strings::kStrConfigurationSettingNameLoadHookModulesFromHookshotDirectory,
+                  Configuration::EValueType::Boolean),
           }),
   };
 

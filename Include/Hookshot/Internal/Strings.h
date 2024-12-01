@@ -87,6 +87,12 @@ namespace Hookshot
     inline constexpr std::wstring_view kStrConfigurationSettingNameUseConfiguredHookModules =
         L"UseConfiguredHookModules";
 
+    /// Configuration file setting for specifying that Hookshot should look for hook modules in its
+    /// own directory instead of in the executable's directory.
+    inline constexpr std::wstring_view
+        kStrConfigurationSettingNameLoadHookModulesFromHookshotDirectory =
+            L"LoadHookModulesFromHookshotDirectory";
+
     // These strings are not safe to access before run-time, and should not be used to perform
     // dynamic initialization. Views are guaranteed to be null-terminated.
 
@@ -204,10 +210,14 @@ namespace Hookshot
     TemporaryString FormatString(_Printf_format_string_ const wchar_t* format, ...);
 
     /// Generates the expected filename of a hook module of the specified name.
-    /// Hook module filename = (executable directory)\(hook module name).(hook module suffix)
+    /// Hook module filename = (directory name)\(hook module name).(hook module suffix)
     /// @param [in] moduleName Hook module name to use when generating the filename.
-    /// @return Hook module filename.
-    TemporaryString HookModuleFilename(std::wstring_view moduleName);
+    /// @param [in] directoryName Directory name to use when generating the filename. Defaults to
+    /// the executable's directory.
+    /// @return Resulting hook module filename.
+    TemporaryString HookModuleFilename(
+        std::wstring_view moduleName,
+        std::wstring_view directoryName = kStrExecutableDirectoryName);
 
     /// Checks if one string is a prefix of another without regard for the case of each individual
     /// character.
