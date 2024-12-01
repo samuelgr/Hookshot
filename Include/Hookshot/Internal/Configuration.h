@@ -13,14 +13,16 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <list>
+#include <initializer_list>
 #include <map>
-#include <memory>
 #include <optional>
 #include <set>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <vector>
+
+#include "TemporaryBuffer.h"
 
 /// Convenience wrapper around initializer list syntax for defining a configuration file section in
 /// a layout object. Specify a section name followed by a series of setting name and value type
@@ -119,26 +121,36 @@ namespace Hookshot
     public:
 
       /// Creates an integer-typed value by copying it.
-      inline Value(const TIntegerValue& value) : type(EValueType::Integer), intValue(value) {}
+      inline Value(const TIntegerView& value, int lineNumber = 0)
+          : lineNumber(lineNumber), type(EValueType::Integer), intValue(value)
+      {}
 
       /// Creates an integer-typed value by moving it.
-      inline Value(TIntegerValue&& value) : type(EValueType::Integer), intValue(std::move(value)) {}
+      inline Value(TIntegerValue&& value, int lineNumber = 0)
+          : lineNumber(lineNumber), type(EValueType::Integer), intValue(std::move(value))
+      {}
 
       /// Creates a Boolean-typed value by copying it.
-      inline Value(const TBooleanValue& value) : type(EValueType::Boolean), boolValue(value) {}
+      inline Value(const TBooleanView& value, int lineNumber = 0)
+          : lineNumber(lineNumber), type(EValueType::Boolean), boolValue(value)
+      {}
 
       /// Creates a Boolean-typed value by moving it.
-      inline Value(TBooleanValue&& value) : type(EValueType::Boolean), boolValue(std::move(value))
+      inline Value(TBooleanValue&& value, int lineNumber = 0)
+          : lineNumber(lineNumber), type(EValueType::Boolean), boolValue(std::move(value))
       {}
 
       /// Creates a string-typed value by copying it.
-      inline Value(const TStringValue& value) : type(EValueType::String), stringValue(value) {}
-
-      /// Creates a string-typed value by moving it.
-      inline Value(TStringValue&& value) : type(EValueType::String), stringValue(std::move(value))
+      inline Value(const TStringView& value, int lineNumber = 0)
+          : lineNumber(lineNumber), type(EValueType::String), stringValue(value)
       {}
 
-      inline Value(const Value& other) : type(other.type)
+      /// Creates a string-typed value by moving it.
+      inline Value(TStringValue&& value, int lineNumber = 0)
+          : lineNumber(lineNumber), type(EValueType::String), stringValue(std::move(value))
+      {}
+
+      inline Value(const Value& other) : lineNumber(other.lineNumber), type(other.type)
       {
         switch (other.type)
         {
@@ -159,7 +171,8 @@ namespace Hookshot
         }
       }
 
-      inline Value(Value&& other) noexcept : type(std::move(other.type))
+      inline Value(Value&& other) noexcept
+          : lineNumber(std::move(other.lineNumber)), type(std::move(other.type))
       {
         switch (other.type)
         {
@@ -244,6 +257,27 @@ namespace Hookshot
         }
       }
 
+      /// Determines whether the type of value held by this object matches the template
+      /// parameter.
+      /// @tparam ValueType Type of value to check against what is held by this object.
+      /// @return `true` if the template parameter value matches the actual value type held by
+      /// this object, `false` otherwise.
+      template <typename ValueType> bool TypeIs(void) const;
+
+      /// Extracts the value held by this object without checking for type-correctness and
+      /// returns it using move semantics.
+      /// @tparam ValueType Type of value to extract from this object.
+      /// @return Value extracted from this object.
+      template <typename ValueType> ValueType ExtractValue(void);
+
+      /// Retrieves and returns the line number within the configuration file on which this
+      /// value was located.
+      /// @return Line number that corresponds to this value.
+      inline int GetLineNumber(void) const
+      {
+        return lineNumber;
+      }
+
       /// Retrieves and returns the type of the stored value.
       /// @return Type of the stored value.
       inline EValueType GetType(void) const
@@ -277,6 +311,9 @@ namespace Hookshot
 
     private:
 
+      /// Line number within the configuration file on which this value was located.
+      int lineNumber;
+
       /// Indicates the value type.
       EValueType type;
 
@@ -289,59 +326,201 @@ namespace Hookshot
       };
     };
 
-    /// Third-level object used to represent a single configuration setting within one section of a
-    /// configuration file.
+    /// Third-level object used to represent a single configuration setting within one section
+    /// of a configuration file.
     class Name
     {
     public:
 
-      /// Alias for the underlying data structure used to store per-setting configuration values.
+      /// Alias for the underlying data structure used to store per-setting configuration
+      /// values.
       using TValues = std::set<Value>;
 
-      /// Inserts an initial value by copying it. All objects are required to contain at least one
-      /// value.
-      template <typename ValueType> inline Name(const ValueType& firstValue) : values()
+      Name(void) = default;
+
+      /// Allows contents to be specified directly using multiple integer literals. Intended
+      /// for use by tests.
+      template <
+          typename IntegerType,
+          std::enable_if_t<
+              std::conjunction_v<
+                  std::is_integral<IntegerType>,
+                  std::negation<std::is_same<IntegerType, bool>>>,
+              bool> = true>
+      inline Name(std::initializer_list<IntegerType> values) : Name()
       {
-        Insert(firstValue);
+        for (const auto& value : values)
+          InsertValue(Value((TIntegerView)value));
       }
 
-      /// Inserts an initial value by moving it. All objects are required to contain at least one
-      /// value.
-      template <typename ValueType> inline Name(ValueType&& firstValue) : values()
+      /// Allows contents to be specified directly using a single integer literal. Intended
+      /// for use by tests.
+      template <
+          typename IntegerType,
+          std::enable_if_t<
+              std::conjunction_v<
+                  std::is_integral<IntegerType>,
+                  std::negation<std::is_same<IntegerType, bool>>>,
+              bool> = true>
+      inline Name(IntegerType value) : Name({value})
+      {}
+
+      /// Allows contents to be specified directly using multiple Boolean literals. Intended
+      /// for use by tests.
+      template <
+          typename BooleanType,
+          std::enable_if_t<std::is_same_v<BooleanType, bool>, bool> = true>
+      inline Name(std::initializer_list<BooleanType> values) : Name()
       {
-        Insert(std::move(firstValue));
+        for (const auto& value : values)
+          InsertValue(Value((TBooleanView)value));
       }
 
-      /// Allows read-only access to the first stored value, which is guaranteed to exist.
+      /// Allows contents to be specified directly using a single Boolean literal. Intended
+      /// for use by tests.
+      template <
+          typename BooleanType,
+          std::enable_if_t<std::is_same_v<BooleanType, bool>, bool> = true>
+      inline Name(BooleanType value) : Name({value})
+      {}
+
+      /// Allows contents to be specified directly using multiple string literals. Intended
+      /// for use by tests.
+      template <
+          typename StringType,
+          std::enable_if_t<std::negation_v<std::is_integral<StringType>>, bool> = true>
+      inline Name(std::initializer_list<StringType> values) : Name()
+      {
+        for (const auto& value : values)
+          InsertValue(Value(TStringView(value)));
+      }
+
+      /// Allows contents to be specified directly using a single string literal. Intended for
+      /// use by tests.
+      template <
+          typename StringType,
+          std::enable_if_t<std::negation_v<std::is_integral<StringType>>, bool> = true>
+      inline Name(StringType value) : Name({value})
+      {}
+
+      bool operator==(const Name& rhs) const = default;
+
+      /// Extracts the first value from this configruation setting using move semantics.
+      /// @tparam ValueType Expected value type of the configuration setting to extract.
+      /// @return Extracted value if the value type matches the template parameter.
+      template <typename ValueType> std::optional<ValueType> ExtractFirstValue(void);
+
+      /// Extracts the first Boolean value from this configuration setting using move
+      /// semantics.
+      /// @param [in] name Name of the configuration setting to extract.
+      /// @return Extracted value if the value is of type Boolean.
+      inline std::optional<TBooleanValue> ExtractFirstBooleanValue(void)
+      {
+        return ExtractFirstValue<TBooleanValue>();
+      }
+
+      /// Extracts the first integer value from this configuration setting using move
+      /// semantics.
+      /// @param [in] name Name of the configuration setting to extract.
+      /// @return Extracted value if the value is of type integer.
+      inline std::optional<TIntegerValue> ExtractFirstIntegerValue(void)
+      {
+        return ExtractFirstValue<TIntegerValue>();
+      }
+
+      /// Extracts the first string value from this configuration setting using move
+      /// semantics.
+      /// @param [in] name Name of the configuration setting to extract.
+      /// @return Extracted value if the value is of type string.
+      inline std::optional<TStringValue> ExtractFirstStringValue(void)
+      {
+        return ExtractFirstValue<TStringValue>();
+      }
+
+      /// Extracts all values from this configuration setting using move semantics and returns
+      /// them as a vector.
+      /// @tparam ValueType Expected value type of the configuration setting to extract.
+      /// @return Vector of extracted values if the value type matches the template parameter.
+      template <typename ValueType> std::optional<std::vector<ValueType>> ExtractValues(void);
+
+      /// Extracts all Boolean values from this configuration setting using move semantics and
+      /// returns them as a vector.
+      /// @return Vector of extracted Boolean values if the they are of type Boolean.
+      inline std::optional<std::vector<TBooleanValue>> ExtractBooleanValues(void)
+      {
+        return ExtractValues<TBooleanValue>();
+      }
+
+      /// Extracts all integer values from this configuration setting using move semantics and
+      /// returns them as a vector.
+      /// @return Vector of extracted Boolean values if the they are of type integer.
+      inline std::optional<std::vector<TIntegerValue>> ExtractIntegerValues(void)
+      {
+        return ExtractValues<TIntegerValue>();
+      }
+
+      /// Extracts all string values from this configuration setting using move semantics and
+      /// returns them as a vector.
+      /// @return Vector of extracted Boolean values if the they are of type string.
+      inline std::optional<std::vector<TStringValue>> ExtractStringValues(void)
+      {
+        return ExtractValues<TStringValue>();
+      }
+
+      /// Allows read-only access to the first stored value.
       /// Useful for single-valued settings.
       /// @return First stored value.
-      inline const Value& FirstValue(void) const
+      inline const Value& GetFirstValue(void) const
       {
         return *(values.begin());
       }
 
-      /// Stores a new value for the configuration setting represented by this object by copying the
-      /// input parameter. Will fail if the value already exists.
-      /// @tparam ValueType Type of value to insert.
-      /// @param [in] value Value to insert.
-      /// @return `true` on success, `false` on failure.
-      template <typename ValueType> bool Insert(const ValueType& value)
+      /// Retrieves and returns the type of the stored values for this configuration setting.
+      /// If this configuration setting is empty by virtue of all values being extracted then
+      /// it is considered typeless, so operations that attempt to get the type return
+      /// error-type.
+      /// @return Type of the stored values.
+      inline EValueType GetType(void) const
       {
-        return Insert(ValueType(value));
+        if (ValueCount() < 1) return EValueType::Error;
+
+        return GetFirstValue().GetType();
       }
 
-      /// Stores a new value for the configuration setting represented by this object by moving the
-      /// input parameter. Will fail if the value already exists.
-      /// @tparam ValueType Type of value to insert.
+      /// Stores a new value for the configuration setting represented by this object by
+      /// moving the input parameter. Will fail if the value already exists.
       /// @param [in] value Value to insert.
       /// @return `true` on success, `false` on failure.
-      template <typename ValueType> bool Insert(ValueType&& value)
+      bool InsertValue(Value&& value)
       {
         return values.emplace(std::move(value)).second;
       }
 
-      /// Retrieves the number of values present for the configuration setting represented by this
-      /// object.
+      /// Determines if this configuration setting object is empty (i.e. contains no
+      /// configuration data).
+      /// @return `true` if so, `false` otherwise.
+      inline bool IsEmpty(void) const
+      {
+        return values.empty();
+      }
+
+      /// Determines whether the type of value held in this configuration setting matches the
+      /// template parameter. If this configuration setting is empty by virtue of all values
+      /// being extracted then it is considered typeless, so this method always returns
+      /// `false`.
+      /// @tparam ValueType Type of value to check against what is held by this configuration
+      /// setting.
+      /// @return `true` if the template parameter value matches the actual value type held by
+      /// this object, `false` otherwise.
+      template <typename ValueType> inline bool TypeIs(void) const
+      {
+        if (ValueCount() < 1) return false;
+
+        return GetFirstValue().TypeIs<ValueType>();
+      }
+
+      /// Retrieves the number of values present for the configuration setting represented by
+      /// this object.
       /// @return Number of values present.
       inline size_t ValueCount(void) const
       {
@@ -365,116 +544,157 @@ namespace Hookshot
     /// Second-level object used to represent an entire section of a configuration file.
     class Section
     {
+      /// Alias for the underlying data structure used to store per-section configuration
+      /// settings.
+      using TNames = std::map<std::wstring, Name, std::less<>>;
+
     public:
 
-      /// Alias for the underlying data structure used to store per-section configuration settings.
-      using TNames = std::map<std::wstring, Name, std::less<>>;
+      Section(void) = default;
+
+      /// Allows contents to be specified directly. Intended for use by tests.
+      inline Section(std::initializer_list<std::pair<std::wstring, Name>> contents) : Section()
+      {
+        for (const auto& name : contents)
+          names.emplace(name);
+      }
+
+      bool operator==(const Section& rhs) const = default;
 
       /// Allows read-only access to individual configuration settings by name, without bounds
       /// checking.
-      /// @param [in] name Name of the configuration setting to retrieve.
-      /// @return Reference to the desired configuration setting.
       inline const Name& operator[](std::wstring_view name) const
       {
         return names.find(name)->second;
       }
 
-      /// Convenience wrapper for quickly attempting to obtain a single Boolean-typed configuration
-      /// value.
-      /// @param [in] name Name of the value for which to search within this section.
-      /// @return First value associated with the section and name, if it exists.
-      inline std::optional<TBooleanView> GetFirstBooleanValue(std::wstring_view name) const
+      /// Extracts the entire first configuration setting from this section using move
+      /// semantics.
+      /// @return Pair consisting of the configuration setting name and configuration setting
+      /// object if this section is non-empty.
+      std::optional<std::pair<std::wstring, Name>> ExtractFirstName(void);
+
+      /// Extracts the first value from the specified configruation setting using move
+      /// semantics. If the configuration setting is single-valued then it is destroyed.
+      /// @tparam ValueType Expected value type of the configuration setting to extract.
+      /// @return Extracted value if the value type matches the template parameter.
+      template <typename ValueType> std::optional<ValueType> ExtractFirstValue(
+          std::wstring_view name);
+
+      /// Extracts the first Boolean value from the specified configuration setting using move
+      /// semantics.
+      /// @param [in] name Name of the configuration setting to extract.
+      /// @return Extracted value if the value is of type Boolean.
+      inline std::optional<TBooleanValue> ExtractFirstBooleanValue(std::wstring_view name)
       {
-        if (false == NameExists(name)) return std::nullopt;
-
-        switch ((*this)[name].FirstValue().GetType())
-        {
-          case EValueType::Boolean:
-          case EValueType::BooleanMultiValue:
-            break;
-
-          default:
-            return std::nullopt;
-        }
-
-        return (*this)[name].FirstValue().GetBooleanValue();
+        return ExtractFirstValue<TBooleanValue>(name);
       }
 
-      /// Convenience wrapper for quickly attempting to obtain a single Integer-typed configuration
-      /// value.
-      /// @param [in] name Name of the value for which to search within this section.
-      /// @return First value associated with the section and name, if it exists.
-      inline std::optional<TIntegerView> GetFirstIntegerValue(std::wstring_view name) const
+      /// Extracts the first integer value from the specified configuration setting using move
+      /// semantics.
+      /// @param [in] name Name of the configuration setting to extract.
+      /// @return Extracted value if the value is of type integer.
+      inline std::optional<TIntegerValue> ExtractFirstIntegerValue(std::wstring_view name)
       {
-        if (false == NameExists(name)) return std::nullopt;
-
-        switch ((*this)[name].FirstValue().GetType())
-        {
-          case EValueType::Integer:
-          case EValueType::IntegerMultiValue:
-            break;
-
-          default:
-            return std::nullopt;
-        }
-
-        return (*this)[name].FirstValue().GetIntegerValue();
+        return ExtractFirstValue<TIntegerValue>(name);
       }
 
-      /// Convenience wrapper for quickly attempting to obtain a single string-typed configuration
-      /// value.
-      /// @param [in] name Name of the value for which to search within this section.
-      /// @return First value associated with the section and name, if it exists.
-      inline std::optional<TStringView> GetFirstStringValue(std::wstring_view name) const
+      /// Extracts the first string value from the specified configuration setting using move
+      /// semantics.
+      /// @param [in] name Name of the configuration setting to extract.
+      /// @return Extracted value if the value is of type string.
+      inline std::optional<TStringValue> ExtractFirstStringValue(std::wstring_view name)
       {
-        if (false == NameExists(name)) return std::nullopt;
-
-        switch ((*this)[name].FirstValue().GetType())
-        {
-          case EValueType::String:
-          case EValueType::StringMultiValue:
-            break;
-
-          default:
-            return std::nullopt;
-        }
-
-        return (*this)[name].FirstValue().GetStringValue();
+        return ExtractFirstValue<TStringValue>(name);
       }
 
-      /// Stores a new value for the specified configuration setting in the section represented by
-      /// this object by copying the input parameter. Will fail if the value already exists.
-      /// @tparam ValueType Type of value to insert.
+      /// Extracts all values from the specified configuration setting using move semantics,
+      /// erasing the entire setting from this section data object and returning all the
+      /// values as a vector.
+      /// @tparam ValueType Expected value type of the configuration setting to extract.
+      /// @param [in] name Name of the configuration setting to extract.
+      /// @return Vector of extracted values, if the name exists in this section and is of the
+      /// correct type as identified by the template parameter.
+      template <typename ValueType> std::optional<std::vector<ValueType>> ExtractValues(
+          std::wstring_view name);
+
+      /// Extracts all Boolean values from the specified configuration setting using move
+      /// semantics, erasing the entire setting from this section data object and returning
+      /// all the values as a vector.
+      /// @param [in] name Name of the configuration setting to extract.
+      /// @return Vector of extracted values, if the name was successfully located and values
+      /// are of type Boolean.
+      inline std::optional<std::vector<TBooleanValue>> ExtractBooleanValues(std::wstring_view name)
+      {
+        return ExtractValues<TBooleanValue>(name);
+      }
+
+      /// Extracts all integer values from the specified configuration setting using move
+      /// semantics, erasing the entire setting from this section data object and returning
+      /// all the values as a vector.
+      /// @param [in] name Name of the configuration setting to extract.
+      /// @return Vector of extracted values, if the name was successfully located and values
+      /// are of type integer.
+      inline std::optional<std::vector<TIntegerValue>> ExtractIntegerValues(std::wstring_view name)
+      {
+        return ExtractValues<TIntegerValue>(name);
+      }
+
+      /// Extracts all string values from the specified configuration setting using move
+      /// semantics, erasing the entire setting from this section data object and returning
+      /// all the values as a vector.
+      /// @param [in] name Name of the configuration setting to extract.
+      /// @return Vector of extracted values, if the name was successfully located and values
+      /// are of type string.
+      inline std::optional<std::vector<TStringValue>> ExtractStringValues(std::wstring_view name)
+      {
+        return ExtractValues<TStringValue>(name);
+      }
+
+      /// Convenience wrapper for quickly attempting to obtain a single Boolean-typed
+      /// configuration value.
+      /// @param [in] name Name of the value for which to search within this section.
+      /// @return First value associated with the section and name, if it exists.
+      std::optional<TBooleanView> GetFirstBooleanValue(std::wstring_view name) const;
+
+      /// Convenience wrapper for quickly attempting to obtain a single Integer-typed
+      /// configuration value.
+      /// @param [in] name Name of the value for which to search within this section.
+      /// @return First value associated with the section and name, if it exists.
+      std::optional<TIntegerView> GetFirstIntegerValue(std::wstring_view name) const;
+
+      /// Convenience wrapper for quickly attempting to obtain a single string-typed
+      /// configuration value.
+      /// @param [in] name Name of the value for which to search within this section.
+      /// @return First value associated with the section and name, if it exists.
+      std::optional<TStringView> GetFirstStringValue(std::wstring_view name) const;
+
+      /// Stores a new value for the specified configuration setting in the section
+      /// represented by this object by moving the input parameter. Will fail if the value
+      /// already exists.
       /// @param [in] name Name of the configuration setting into which to insert the value.
       /// @param [in] value Value to insert.
       /// @return `true` on success, `false` on failure.
-      template <typename ValueType> inline bool Insert(
-          std::wstring_view name, const ValueType& value)
-      {
-        return Insert(name, ValueType(value));
-      }
-
-      /// Stores a new value for the specified configuration setting in the section represented by
-      /// this object by moving the input parameter. Will fail if the value already exists.
-      /// @tparam ValueType Type of value to insert.
-      /// @param [in] name Name of the configuration setting into which to insert the value.
-      /// @param [in] value Value to insert.
-      /// @return `true` on success, `false` on failure.
-      template <typename ValueType> inline bool Insert(std::wstring_view name, ValueType&& value)
+      inline bool InsertValue(std::wstring_view name, Value&& value)
       {
         auto nameIterator = names.find(name);
 
         if (names.end() == nameIterator)
-        {
-          names.emplace(name, value);
-          return true;
-        }
+          nameIterator = names.emplace(std::wstring(name), Name()).first;
 
-        return nameIterator->second.Insert(value);
+        return nameIterator->second.InsertValue(std::move(value));
       }
 
-      /// Retrieves the number of configuration settings present for the section represented by this
-      /// object.
+      /// Determines if this configuration section data object is empty (i.e. contains no
+      /// configuration data).
+      /// @return `true` if so, `false` otherwise.
+      inline bool IsEmpty(void) const
+      {
+        return names.empty();
+      }
+
+      /// Retrieves the number of configuration settings present for the section represented
+      /// by this object.
       /// @return Number of configuration settings present.
       inline size_t NameCount(void) const
       {
@@ -504,137 +724,179 @@ namespace Hookshot
       TNames names;
     };
 
-    /// Top-level object used to represent all configuration data read from a configuration file.
+    /// Top-level object used to represent all configuration data read from a configuration
+    /// file.
     class ConfigurationData
     {
     public:
 
-      /// Holds an individual section and name pair.
-      /// Used when responding to queries for all settings of a given name across all sections.
-      struct SSectionNamePair
-      {
-        /// Name of the section that holds the identified configuration setting.
-        std::wstring_view section;
-
-        /// Reference to the object that holds all values for the identified configuration setting.
-        const Name& name;
-
-        inline constexpr SSectionNamePair(std::wstring_view section, const Name& name)
-            : section(section), name(name)
-        {}
-      };
-
-      /// Alias for the underlying data structure used to store top-level configuration section
-      /// data.
+      /// Alias for the underlying data structure used to store top-level configuration
+      /// section data.
       using TSections = std::map<std::wstring, Section, std::less<>>;
 
-      /// Alias for the data structure used to respond to queries for all settings of a given name
-      /// across all sections.
-      using TSectionNamePairList = std::list<SSectionNamePair>;
+      ConfigurationData(void) = default;
+
+      /// Allows contents to be specified directly. Intended for use by tests.
+      inline ConfigurationData(std::initializer_list<std::pair<std::wstring, Section>> contents)
+          : ConfigurationData()
+      {
+        for (const auto& section : contents)
+          sections.insert(section);
+      }
 
       /// Allows read-only access to individual sections by name, without bounds checking.
-      /// @param [in] section Name of the section to retrieve.
-      /// @return Reference to the desired section.
       inline const Section& operator[](std::wstring_view section) const
       {
         return sections.find(section)->second;
       }
 
-      /// Stores a new value for the specified configuration setting in the specified section by
-      /// copying the input parameter. Will fail if the value already exists.
-      /// @tparam ValueType Type of value to insert.
-      /// @param [in] section Section into which to insert the configuration setting.
-      /// @param [in] name Name of the configuration setting into which to insert the value.
-      /// @param [in] value Value to insert.
-      /// @return `true` on success, `false` on failure.
-      template <typename ValueType> bool Insert(
-          std::wstring_view section, std::wstring_view name, const ValueType& value)
+      /// Compares data contents and presence or absence of errors only, ignoring error
+      /// messages themselves.
+      inline bool operator==(const ConfigurationData& rhs) const
       {
-        return Insert(ValueType(value));
+        return ((sections == rhs.sections) && (HasReadErrors() == rhs.HasReadErrors()));
       }
 
-      /// Stores a new value for the specified configuration setting in the specified section by
-      /// moving the input parameter. Will fail if the value already exists.
-      /// @tparam ValueType Type of value to insert.
-      /// @param [in] section Section into which to insert the configuration setting.
-      /// @param [in] name Name of the configuration setting into which to insert the value.
-      /// @param [in] value Value to insert.
-      /// @return `true` on success, `false` on failure.
-      template <typename ValueType> bool Insert(
-          std::wstring_view section, std::wstring_view name, ValueType&& value)
+      /// Clears all of the stored read error messages and frees up all of the memory space
+      /// they occupy. This method does not affect the return value of #HasReadErrors. Read
+      /// error messages indicate a problem that occurred while the configuration file that
+      /// produced this object was being read.
+      inline void ClearReadErrorMessages(void)
       {
-        auto sectionIterator = sections.find(section);
-
-        if (sections.end() == sectionIterator)
-        {
-          sections.emplace(section, Section());
-          sectionIterator = sections.find(section);
-        }
-
-        return sectionIterator->second.Insert(name, std::move(value));
+        if (readErrors.has_value()) readErrors->clear();
       }
 
-      /// Convenience wrapper for quickly attempting to obtain a single Boolean-typed configuration
-      /// value.
+      /// Clears all of the stored configuration data. Does not affect error messages.
+      inline void Clear(void)
+      {
+        sections.clear();
+      }
+
+      /// Extracts the specified section from this configuration data object using move
+      /// semantics. This has the additional effect of erasing it from this configuration data
+      /// object.
+      /// @param [in] position Iterator that corresponds to the specific section object to be
+      /// extracted.
+      /// @return Pair containing the extracted section name and extracted section object.
+      std::pair<std::wstring, Section> ExtractSection(TSections::const_iterator position);
+
+      /// Extracts the specified section from this configuration data object using move
+      /// semantics. This has the additional effect of erasing it from this configuration data
+      /// object.
+      /// @param [in] section Section name to extract.
+      /// @return Pair containing the extracted section name and extracted section object, if
+      /// the section was successfully located.
+      std::optional<std::pair<std::wstring, Section>> ExtractSection(std::wstring_view section);
+
+      /// Convenience wrapper for quickly attempting to obtain a single Boolean-typed
+      /// configuration value.
       /// @param [in] section Section name to search for the value.
       /// @param [in] name Name of the value for which to search.
       /// @return First value associated with the section and name, if it exists.
       inline std::optional<TBooleanView> GetFirstBooleanValue(
           std::wstring_view section, std::wstring_view name) const
       {
-        if (false == SectionExists(section)) return std::nullopt;
+        const auto sectionIterator = sections.find(section);
+        if (sections.cend() == sectionIterator) return std::nullopt;
 
-        return (*this)[section].GetFirstBooleanValue(name);
+        return sectionIterator->second.GetFirstBooleanValue(name);
       }
 
-      /// Convenience wrapper for quickly attempting to obtain a single Integer-typed configuration
-      /// value.
+      /// Convenience wrapper for quickly attempting to obtain a single Integer-typed
+      /// configuration value.
       /// @param [in] section Section name to search for the value.
       /// @param [in] name Name of the value for which to search.
       /// @return First value associated with the section and name, if it exists.
       inline std::optional<TIntegerView> GetFirstIntegerValue(
           std::wstring_view section, std::wstring_view name) const
       {
-        if (false == SectionExists(section)) return std::nullopt;
+        const auto sectionIterator = sections.find(section);
+        if (sections.cend() == sectionIterator) return std::nullopt;
 
-        return (*this)[section].GetFirstIntegerValue(name);
+        return sectionIterator->second.GetFirstIntegerValue(name);
       }
 
-      /// Convenience wrapper for quickly attempting to obtain a single string-typed configuration
-      /// value.
+      /// Convenience wrapper for quickly attempting to obtain a single string-typed
+      /// configuration value.
       /// @param [in] section Section name to search for the value.
       /// @param [in] name Name of the value for which to search.
       /// @return First value associated with the section and name, if it exists.
       inline std::optional<TStringView> GetFirstStringValue(
           std::wstring_view section, std::wstring_view name) const
       {
-        if (false == SectionExists(section)) return std::nullopt;
+        const auto sectionIterator = sections.find(section);
+        if (sections.cend() == sectionIterator) return std::nullopt;
 
-        return (*this)[section].GetFirstStringValue(name);
+        return sectionIterator->second.GetFirstStringValue(name);
       }
 
-      /// Specifies if one or more errors were encountered while generating the data contained in
-      /// this object.
-      /// @return `true` if so, `false` if not.
-      inline bool HasErrors(void) const
+      /// Retrieves and returns the error messages that arose during the configuration file
+      /// read attempt that produced this object. Does not check that read error messages
+      /// actually exist.
+      /// @return Error messages from last configuration file read attempt.
+      inline const std::vector<std::wstring>& GetReadErrorMessages(void) const
       {
-        return hasErrors;
+        return *readErrors;
       }
 
-      /// Retrieves the number of sections present in the configuration represented by this object.
+      /// Specifies whether or not any errors arose during the configuration file read attempt
+      /// that produced this object. More details on any errors that arose are available by
+      /// examining the error messages, unless they have already been cleared
+      /// @return `true` if so, `false` if not.
+      inline bool HasReadErrors(void) const
+      {
+        return readErrors.has_value();
+      }
+
+      /// Stores a new value for the specified configuration setting in the specified section
+      /// by moving the input parameter. Will fail if the value already exists.
+      /// @param [in] section Section into which to insert the configuration setting.
+      /// @param [in] name Name of the configuration setting into which to insert the value.
+      /// @param [in] value Value to insert.
+      /// @return `true` on success, `false` on failure.
+      bool InsertValue(std::wstring_view section, std::wstring_view name, Value&& value)
+      {
+        auto sectionIterator = sections.find(section);
+
+        if (sections.end() == sectionIterator)
+          sectionIterator = sections.emplace(section, Section()).first;
+
+        return sectionIterator->second.InsertValue(name, std::move(value));
+      }
+
+      /// Inserts an error message into the list of error messages.
+      /// Each such error message is a semantically-rich description of an error that occurred
+      /// during the configuration file read attempt that fills this object.
+      inline void InsertReadErrorMessage(std::wstring_view errorMessage)
+      {
+        if (false == readErrors.has_value()) readErrors.emplace();
+
+        readErrors->emplace_back(errorMessage);
+      }
+
+      /// Determines if this configuration data object is empty (i.e. contains no
+      /// configuration data).
+      /// @return `true` if so, `false` otherwise.
+      inline bool IsEmpty(void) const
+      {
+        return sections.empty();
+      }
+
+      /// Retrieves the number of sections present in the configuration represented by this
+      /// object.
       /// @return Number of configuration settings present.
       inline size_t SectionCount(void) const
       {
         return sections.size();
       }
 
-      /// Determines if a section of the specified name exists in the configuration represented by
-      /// this object.
+      /// Determines if a section of the specified name exists in the configuration
+      /// represented by this object.
       /// @param [in] section Section name to check.
       /// @return `true` if the setting exists, `false` otherwise.
       inline bool SectionExists(std::wstring_view section) const
       {
-        return (0 != sections.count(section));
+        return sections.contains(section);
       }
 
       /// Determines if a configuration setting of the specified name exists in the specified
@@ -658,75 +920,50 @@ namespace Hookshot
         return sections;
       }
 
-      /// Searches all sections in the configuration for settings identified by the specified name.
-      /// For each, identifies both the section (by name) and the configuration setting (by the
-      /// object that holds its values). Places all such pairs into a container and returns the
-      /// container. If there are no matches, returns an empty container.
-      /// @param [in] name Name of the configuration setting for which to search.
-      /// @return Container holding the results.
-      inline std::unique_ptr<TSectionNamePairList> SectionsContaining(std::wstring_view name) const
-      {
-        std::unique_ptr<TSectionNamePairList> sectionsWithName =
-            std::make_unique<TSectionNamePairList>();
-
-        for (auto& section : sections)
-        {
-          if (section.second.NameExists(name))
-            sectionsWithName->emplace_back(section.first, section.second[name]);
-        }
-
-        return sectionsWithName;
-      }
-
-      /// Marks this object as having errors associated with the process of inserting data.
-      /// For use by whatever function is generating the configuration data to be contained within
+      /// Converts the entire contents of this object into a configuration file string.
+      /// @return String that contains a configuration file representation of the data held by
       /// this object.
-      inline void SetError(void)
-      {
-        hasErrors = true;
-      }
+      TemporaryString ToConfigurationFileString(void) const;
 
     private:
 
       /// Holds configuration data at the level of entire sections, one element per section.
       TSections sections;
 
-      /// Specifies if errors were encountered while generating the data contained within this
-      /// object.
-      bool hasErrors;
+      /// Holds the error messages that describes any errors that occurred during
+      /// configuration file read.
+      std::optional<std::vector<std::wstring>> readErrors;
     };
 
     /// Interface for reading and parsing INI-formatted configuration files.
     /// Name-and-value pairs (of the format "name = value") are namespaced by sections (of the
     /// format "[section name]"). Provides basic configuration file reading and parsing
-    /// functionality, but leaves managing and error-checking configuration values to subclasses.
+    /// functionality, but leaves managing and error-checking configuration values to
+    /// subclasses.
     class ConfigurationFileReader
     {
     public:
 
       virtual ~ConfigurationFileReader(void) = default;
 
-      /// Retrieves and returns the error messages that arose during the last attempt at reading a
-      /// configuration file.
-      /// @return Error messages from last configuration file read attempt.
-      inline const std::vector<std::wstring>& GetReadErrors(void) const
-      {
-        return readErrors;
-      }
-
-      /// Specifies whether or not any errors arose during the last attempt at reading a
-      /// configuration files.
-      /// @return `true` if so, `false` if not.
-      inline bool HasReadErrors(void) const
-      {
-        return !(readErrors.empty());
-      }
-
-      /// Reads and parses a configuration file, storing the settings in the supplied configuration
-      /// object. Intended to be invoked externally. Subclasses should not override this method.
+      /// Reads and parses a configuration file, storing the settings in the supplied
+      /// configuration object. Intended to be invoked externally. Subclasses should not
+      /// override this method.
       /// @param [in] configFileName Name of the configuration file to read.
-      /// @return Configuration data object filled based on the contents of the configuration file.
-      ConfigurationData ReadConfigurationFile(std::wstring_view configFileName);
+      /// @param [in] mustExist Indicates that it is an error for the configuration file not
+      /// to exist. This requirement is unusual, so the default behavior is not to require it.
+      /// @return Configuration data object filled based on the contents of the configuration
+      /// file.
+      ConfigurationData ReadConfigurationFile(
+          std::wstring_view configFileName, bool mustExist = false);
+
+      /// Reads and parses a configuration file held in memory, storing the settings in the
+      /// supplied configuration object. Intended to be invoked externally, primarily by
+      /// tests. Subclasses should not override this method.
+      /// @param [in] configFileName Name of the configuration file to read.
+      /// @return Configuration data object filled based on the contents of the configuration
+      /// file.
+      ConfigurationData ReadInMemoryConfigurationFile(std::wstring_view configBuffer);
 
     protected:
 
@@ -743,32 +980,32 @@ namespace Hookshot
       virtual void EndRead(void);
 
       /// Sets a semantically-rich error message to be presented to the user in response to a
-      /// subclass returning an error when asked what action to take. If a subclass does not set a
-      /// semantically-rich error message then the default error message is used instead. Intended
-      /// to be invoked optionally by subclasses during any method calls that return #EAction but
-      /// only when #EAction::Error is being returned.
-      /// @param [in] errorMessage String that is consumed to provide a semantically-rich error
-      /// message.
-      inline void SetErrorMessage(std::wstring&& errorMessage)
+      /// subclass returning an error when asked what action to take. If a subclass does not
+      /// set a semantically-rich error message then the default error message is used
+      /// instead. Intended to be invoked optionally by subclasses during any method calls
+      /// that return #EAction but only when #EAction::Error is being returned.
+      /// @param [in] errorMessage String that is consumed to provide a semantically-rich
+      /// error message.
+      inline void SetLastErrorMessage(std::wstring&& errorMessage)
       {
         lastErrorMessage = std::move(errorMessage);
       }
 
       /// Convenience wrapper that sets a semantically-rich error message using a string view.
-      /// @param [in] errorMessage String view that is copied to provide a semantically-rich error
-      /// message.
-      inline void SetErrorMessage(std::wstring_view errorMessage)
+      /// @param [in] errorMessage String view that is copied to provide a semantically-rich
+      /// error message.
+      inline void SetLastErrorMessage(std::wstring_view errorMessage)
       {
-        SetErrorMessage(std::wstring(errorMessage));
+        SetLastErrorMessage(std::wstring(errorMessage));
       }
 
-      /// Convenience wrapper that sets a semantically-rich error message using a null-terminated
-      /// C-style string.
-      /// @param [in] errorMessage Temporary buffer containing a null-terminated string that is
-      /// copied to provide a semantically-rich error message.
-      inline void SetErrorMessage(const wchar_t* errorMessage)
+      /// Convenience wrapper that sets a semantically-rich error message using a
+      /// null-terminated C-style string.
+      /// @param [in] errorMessage Temporary buffer containing a null-terminated string that
+      /// is copied to provide a semantically-rich error message.
+      inline void SetLastErrorMessage(const wchar_t* errorMessage)
       {
-        SetErrorMessage(std::wstring(errorMessage));
+        SetLastErrorMessage(std::wstring(errorMessage));
       }
 
       /// Specifies the action to take when a given section is encountered in a configuration
@@ -844,7 +1081,8 @@ namespace Hookshot
 
     private:
 
-      /// Used internally to retrieve and reset a semantically-rich error message if it exists.
+      /// Used internally to retrieve and reset a semantically-rich error message if it
+      /// exists.
       /// @return Last error message.
       inline std::wstring GetLastErrorMessage(void)
       {
@@ -858,24 +1096,30 @@ namespace Hookshot
         return !(lastErrorMessage.empty());
       }
 
-    private:
-
-      /// Holds the error messages that describes any errors that occurred during
-      /// configuration file read.
-      std::vector<std::wstring> readErrors;
+      /// Internal implementation of reading and parsing configuration files from any source.
+      /// @tparam ReadHandleType Handle that implements the functions required to read one
+      /// line at a time from an input source.
+      /// @param [in] readHandle Mutable reference to a handle that controls the reading
+      /// process.
+      /// @param [in] configSourceName Name associated with the source of the configuration
+      /// file data that can be used to identify it in logs and error messages.
+      template <typename ReadHandleType> ConfigurationData ReadConfiguration(
+          ReadHandleType& readHandle, std::wstring_view configSourceName);
 
       /// Holds a semantically-rich error message to be presented to the user whenever there
-      /// is an error processing a configuration value.
+      /// is an error processing a configuration value. Used for temporary internal state
+      /// only. These messages are subsequently stored in the configuration data object into
+      /// which a configuration file is being read.
       std::wstring lastErrorMessage;
     };
 
     /// Type alias for a suggested format for storing the supported layout of a section within a
-    /// configuration file. Useful for pre-determining what is allowed to appear within one section
-    /// of a configuration file.
+    /// configuration file. Useful for pre-determining what is allowed to appear within one
+    /// section of a configuration file.
     using TConfigurationFileSectionLayout = std::map<std::wstring_view, EValueType, std::less<>>;
 
-    /// Type alias for a suggested format for storing the supported layout of a configuration file.
-    /// Useful for pre-determining what is allowed to appear within a configuration file.
+    /// Type alias for a suggested format for storing the supported layout of a configuration
+    /// file. Useful for pre-determining what is allowed to appear within a configuration file.
     using TConfigurationFileLayout =
         std::map<std::wstring_view, TConfigurationFileSectionLayout, std::less<>>;
   } // namespace Configuration

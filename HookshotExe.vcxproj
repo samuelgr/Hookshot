@@ -44,7 +44,9 @@
     <ClInclude Include="Include\Hookshot\Internal\Globals.h" />
     <ClInclude Include="Include\Hookshot\Internal\Inject.h" />
     <ClInclude Include="Include\Hookshot\Internal\InjectResult.h" />
+    <ClInclude Include="Include\Hookshot\Internal\Iterator.h" />
     <ClInclude Include="Include\Hookshot\Internal\Message.h" />
+    <ClInclude Include="Include\Hookshot\Internal\MutexWrapper.h" />
     <ClInclude Include="Include\Hookshot\Internal\ProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Internal\Strings.h" />

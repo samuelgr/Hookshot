@@ -13,6 +13,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cwctype>
 #include <initializer_list>
 #include <limits>
 #include <string_view>
@@ -20,27 +21,28 @@
 #include <utility>
 
 #include "DebugAssert.h"
+#include "Iterator.h"
 
 namespace Hookshot
 {
-  /// Manages a global set of temporary buffers.
-  /// These can be used for any purpose and are intended to replace large stack-allocated or
-  /// heap-allocated buffers. Instead, memory is allocated statically at load-time and divided up as
-  /// needed to various parts of the application. If too many buffers are allocated such that the
-  /// available static buffers are exhausted, additional objects will allocate heap memory. All
-  /// temporary buffer functionality is concurrency-safe and available as early as dynamic
-  /// initialization. Do not instantiate this class directly; instead, instantiate the template
-  /// class below.
+  /// Manages a global set of temporary buffers. These can be used for any purpose and are
+  /// intended to replace large stack-allocated or heap-allocated buffers. Instead, memory is
+  /// allocated statically at load-time and divided up as needed to various parts of the
+  /// application. If too many buffers are allocated such that the available static buffers are
+  /// exhausted, additional objects will allocate heap memory. All temporary buffer functionality
+  /// is concurrency-safe and available as early as dynamic initialization. Do not instantiate
+  /// this class directly; instead, instantiate the template class below.
   class TemporaryBufferBase
   {
   public:
 
     /// Specifies the total size of all temporary buffers, in bytes.
-    static constexpr unsigned int kBuffersTotalNumBytes = 1 * 1024 * 1024;
+    static constexpr unsigned int kBuffersTotalNumBytes = 4 * 1024 * 1024;
 
-    /// Specifies the number of temporary buffers to create statically. Even once this limit is
-    /// reached buffers can be allocated but they are dynamically heap-allocated.
-    static constexpr unsigned int kBuffersCount = 8;
+    /// Specifies the number of temporary buffers to create statically.
+    /// Even once this limit is reached buffers can be allocated but they are dynamically
+    /// heap-allocated.
+    static constexpr unsigned int kBuffersCount = 32;
 
     /// Specifies the size of each temporary buffer in bytes.
     static constexpr unsigned int kBytesPerBuffer = kBuffersTotalNumBytes / kBuffersCount;
@@ -113,9 +115,16 @@ namespace Hookshot
 
     /// Retrieves the size of the buffer space, in number of elements of type T.
     /// @return Size of the buffer, in T-sized elements.
-    constexpr unsigned int Capacity(void) const
+    static constexpr unsigned int Capacity(void)
     {
       return kNumElementsPerBuffer;
+    }
+
+    /// Retrieves the size of the buffer space, in bytes.
+    /// @return Size of the buffer, in bytes.
+    static constexpr unsigned int CapacityBytes(void)
+    {
+      return kBytesPerBuffer;
     }
 
     /// Retrieves a properly-typed pointer to the buffer itself, constant version.
@@ -131,124 +140,19 @@ namespace Hookshot
     {
       return reinterpret_cast<T*>(Buffer());
     }
-
-    /// Retrieves the size of the buffer space, in bytes.
-    /// @return Size of the buffer, in bytes.
-    constexpr unsigned int CapacityBytes(void) const
-    {
-      return kBytesPerBuffer;
-    }
   };
 
-  /// Implements a vector-like container backed by a temporary buffer.
+  /// Implements a vector-type container backed by a temporary buffer.
   /// Optimized for efficiency. Performs no boundary checks.
   template <typename T> class TemporaryVector : public TemporaryBuffer<T>
   {
   public:
 
-    /// Iterator type used to denote a position within a temporary vector object.
-    template <typename DataType> class Iterator
-    {
-    public:
+    /// Iterator type for providing mutable access to the contents of this temporary vector.
+    using TIterator = ContiguousRandomAccessIterator<T>;
 
-      constexpr Iterator(DataType* buffer, unsigned int index) : buffer(buffer), index(index) {}
-
-      constexpr DataType& operator*(void) const
-      {
-        return buffer[index];
-      }
-
-      constexpr Iterator& operator++(void)
-      {
-        index += 1;
-        return *this;
-      }
-
-      constexpr Iterator operator++(void) const
-      {
-        Iterator orig = *this;
-        index += 1;
-        return orig;
-      }
-
-      constexpr Iterator& operator--(void)
-      {
-        index -= 1;
-        return *this;
-      }
-
-      constexpr Iterator operator--(void) const
-      {
-        Iterator orig = *this;
-        index -= 1;
-        return orig;
-      }
-
-      constexpr bool operator==(const Iterator& other) const
-      {
-        DebugAssert(buffer == other.buffer, "Iterators point to different instances.");
-        return (index == other.index);
-      }
-
-      constexpr bool operator<(const Iterator& rhs) const
-      {
-        DebugAssert(buffer == rhs.buffer, "Iterators point to different instances.");
-        return (index < rhs.index);
-      }
-
-      constexpr bool operator<=(const Iterator& rhs) const
-      {
-        DebugAssert(buffer == rhs.buffer, "Iterators point to different instances.");
-        return (index <= rhs.index);
-      }
-
-      constexpr bool operator>(const Iterator& rhs) const
-      {
-        DebugAssert(buffer == rhs.buffer, "Iterators point to different instances.");
-        return (index > rhs.index);
-      }
-
-      constexpr bool operator>=(const Iterator& rhs) const
-      {
-        DebugAssert(buffer == rhs.buffer, "Iterators point to different instances.");
-        return (index >= rhs.index);
-      }
-
-      constexpr Iterator operator+(int indexIncrement) const
-      {
-        return Iterator(buffer, index + indexIncrement);
-      }
-
-      constexpr Iterator& operator+=(int indexIncrement)
-      {
-        index += indexIncrement;
-        return *this;
-      }
-
-      constexpr Iterator operator-(int indexIncrement) const
-      {
-        return Iterator(buffer, index - indexIncrement);
-      }
-
-      constexpr Iterator& operator-=(int indexIncrement)
-      {
-        index -= indexIncrement;
-        return *this;
-      }
-
-    private:
-
-      /// Pointer directly to the temporary vector's underlying data.
-      /// This implementation takes advantage of the fact that temporary vectors do not
-      /// dynamically resize and reallocate.
-      DataType* buffer;
-
-      /// Index within the temporary vector data buffer.
-      int index;
-    };
-
-    using TIterator = Iterator<T>;
-    using TConstIterator = Iterator<const T>;
+    /// Iterator type for providing read-only access to the contents of this temporary vector.
+    using TConstIterator = ContiguousRandomAccessConstIterator<T>;
 
     inline TemporaryVector(void) : TemporaryBuffer<T>(), size(0) {}
 
@@ -276,7 +180,7 @@ namespace Hookshot
     {
       Clear();
 
-      for (int i = 0; i < other.size; ++i)
+      for (unsigned int i = 0; i < other.size; ++i)
         EmplaceBack(other[i]);
 
       return *this;
@@ -303,7 +207,7 @@ namespace Hookshot
     {
       if (other.size != size) return false;
 
-      for (int i = 0; i < size; ++i)
+      for (unsigned int i = 0; i < size; ++i)
       {
         if (other[i] != (*this)[i]) return false;
       }
@@ -341,6 +245,20 @@ namespace Hookshot
       return TIterator(this->Data(), size);
     }
 
+    /// Accesses the last element in this container without any bounds-checking.
+    /// @return Read-only reference to the last element in this container.
+    inline const T& Back(void) const
+    {
+      return (*this)[size - 1];
+    }
+
+    /// Accesses the last element in this container without any bounds-checking.
+    /// @return Mutable reference to the last element in this container.
+    inline T& Back(void)
+    {
+      return (*this)[size - 1];
+    }
+
     /// Removes all elements from this container, destroying each in sequence.
     inline void Clear(void)
     {
@@ -370,6 +288,20 @@ namespace Hookshot
       return (0 == Size());
     }
 
+    /// Accesses the first element in this container without any bounds-checking.
+    /// @return Read-only reference to the first element in this container.
+    inline const T& Front(void) const
+    {
+      return (*this)[0];
+    }
+
+    /// Accesses the first element in this container without any bounds-checking.
+    /// @return Mutable reference to the first element in this container.
+    inline T& Front(void)
+    {
+      return (*this)[0];
+    }
+
     /// Removes the last element from this container and destroys it.
     inline void PopBack(void)
     {
@@ -397,10 +329,19 @@ namespace Hookshot
       return size;
     }
 
+    /// Changes this object's knowledge of its own size. This is generally an unsafe operation but
+    /// is intended to be used after the underlying buffer is manipulated directly by functions that
+    /// write to it directly.
+    /// @param [in] newsize New size to use.
+    inline void UnsafeSetSize(unsigned int newsize)
+    {
+      size = newsize;
+    }
+
   protected:
 
     /// Number of elements held by this container.
-    int size;
+    unsigned int size;
   };
 
   /// Implements a string-like object backed by a temporary buffer.
@@ -599,9 +540,10 @@ namespace Hookshot
     }
 
     /// Replaces the end of the string with the specified replacement string.
-    /// If the length of the replacement string exceeds the length of the existing string then the
-    /// entire string is replaced.
-    /// @param [in] replacementSuffix String with which to replace the end of the current string.
+    /// If the length of the replacement string exceeds the length of the existing string then
+    /// the entire string is replaced.
+    /// @param [in] replacementSuffix String with which to replace the end of the current
+    /// string.
     inline void ReplaceSuffix(std::wstring_view replacementSuffix)
     {
       if (replacementSuffix.size() >= Size())
@@ -629,13 +571,12 @@ namespace Hookshot
       }
     }
 
-    /// Changes this object's knowledge of its own size.
-    /// This is generally an unsafe operation but is intended to be used after the underlying buffer
-    /// is manipulated by functions that operate on C strings.
-    /// @param [in] newsize New size to use.
-    inline void UnsafeSetSize(unsigned int newsize)
+    // Removes all occurrences the specified trailing character from this string.
+    // @param [in] trailingChar Trailing character to strip from this string.
+    inline void RemoveTrailing(wchar_t trailingChar)
     {
-      size = newsize;
+      while (AsStringView().ends_with(trailingChar))
+        RemoveSuffix(1);
     }
 
     // These methods are unsafe in the context of null-terminated string manipulation.

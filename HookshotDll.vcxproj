@@ -54,9 +54,11 @@
     <ClInclude Include="Include\Hookshot\Internal\InjectLanding.h" />
     <ClInclude Include="Include\Hookshot\Internal\InjectResult.h" />
     <ClInclude Include="Include\Hookshot\Internal\InternalHook.h" />
+    <ClInclude Include="Include\Hookshot\Internal\Iterator.h" />
     <ClInclude Include="Include\Hookshot\Internal\LibraryInterface.h" />
     <ClInclude Include="Include\Hookshot\Internal\Message.h" />
     <ClInclude Include="Include\Hookshot\Internal\DependencyProtect.h" />
+    <ClInclude Include="Include\Hookshot\Internal\MutexWrapper.h" />
     <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Internal\Strings.h" />
     <ClInclude Include="Include\Hookshot\Internal\TemporaryBuffer.h" />

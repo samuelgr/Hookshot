@@ -129,14 +129,14 @@ namespace Hookshot
             configData =
                 configReader.ReadConfigurationFile(Strings::kStrHookshotConfigurationFilename);
 
-            if (true == configReader.HasReadErrors())
+            if (true == configData.HasReadErrors())
             {
               EnableLog(Message::ESeverity::Error);
 
               Message::Output(
                   Message::ESeverity::Error,
                   L"Errors were encountered during configuration file reading.");
-              for (const auto& readError : configReader.GetReadErrors())
+              for (const auto& readError : configData.GetReadErrorMessages())
                 Message::OutputFormatted(Message::ESeverity::Error, L"    %s", readError.c_str());
 
               Message::Output(

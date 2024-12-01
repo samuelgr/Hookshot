@@ -14,6 +14,7 @@
 #include <memory>
 #include <mutex>
 #include <string_view>
+#include <vector>
 
 #include "DependencyProtect.h"
 #include "Globals.h"
@@ -35,6 +36,37 @@ namespace Hookshot
 
     /// Single hook configuration interface object.
     static HookStore hookStore;
+
+    /// Obtains pointers to all of the relevant configuration settings for the currently-running
+    /// executable. Currently, this function checks both the global section and the
+    /// executable-specific section for configuration settings that match the specified name.
+    /// @param [in] configSettingName Name of the configuration setting for which to check.
+    /// @return Vector of read-only pointers to all relevant configuration setting names.
+    static std::vector<const Configuration::Name*> RelevantConfigurationSettings(
+        std::wstring_view configSettingName)
+    {
+      const Configuration::ConfigurationData& configData = Globals::GetConfigurationData();
+
+      std::vector<const Configuration::Name*> relevantConfigSettings;
+      relevantConfigSettings.reserve(2);
+
+      if (false == configData.HasReadErrors())
+      {
+        if (configData.SectionNamePairExists(Configuration::kSectionNameGlobal, configSettingName))
+        {
+          relevantConfigSettings.push_back(
+              &configData[Configuration::kSectionNameGlobal][configSettingName]);
+        }
+
+        if (configData.SectionNamePairExists(Strings::kStrExecutableBaseName, configSettingName))
+        {
+          relevantConfigSettings.push_back(
+              &configData[Strings::kStrExecutableBaseName][configSettingName]);
+        }
+      }
+
+      return relevantConfigSettings;
+    }
 
     /// Attempts to load and initialize the named hook module. Useful if hooks to be set are
     /// contained in an external hook module.
@@ -119,18 +151,13 @@ namespace Hookshot
       Message::Output(
           Message::ESeverity::Info, L"Loading hook modules specified in the configuration file.");
 
-      if (false == configData.HasErrors())
+      for (const auto& configuredHookModuleSource :
+           RelevantConfigurationSettings(Strings::kStrConfigurationSettingNameHookModule))
       {
-        auto hookModulesToLoad = Globals::GetConfigurationData().SectionsContaining(
-            Strings::kStrConfigurationSettingNameHookModule);
-
-        for (auto& sectionsWithHookModules : *hookModulesToLoad)
+        for (auto& hookModule : configuredHookModuleSource->Values())
         {
-          for (auto& hookModule : sectionsWithHookModules.name.Values())
-          {
-            if (true == LoadHookModule(Strings::HookModuleFilename(hookModule.GetStringValue())))
-              numHookModulesLoaded += 1;
-          }
+          if (true == LoadHookModule(Strings::HookModuleFilename(hookModule.GetStringValue())))
+            numHookModulesLoaded += 1;
         }
       }
 
@@ -149,7 +176,7 @@ namespace Hookshot
           L"Loading all hook modules in the same directory as the executable.");
 
       const TemporaryString hookModuleSearchString = Strings::HookModuleFilename(L"*");
-      WIN32_FIND_DATA hookModuleFileData;
+      WIN32_FIND_DATA hookModuleFileData{};
       HANDLE hookModuleFind = Protected::Windows_FindFirstFileEx(
           hookModuleSearchString.AsCString(),
           FindExInfoBasic,
@@ -212,9 +239,9 @@ namespace Hookshot
       const Configuration::ConfigurationData& configData = Globals::GetConfigurationData();
       bool useConfigurationFileHookModules = false;
 
-      // If a configuration file is present and valid, load the hook modules it specifies unless it
-      // specifically requests the default behavior.
-      if (false == configData.HasErrors())
+      // If a configuration file is present, non-empty, and valid, load the hook modules it
+      // specifies unless it specifically requests the default behavior.
+      if ((false == configData.HasReadErrors()) && (false == configData.IsEmpty()))
       {
         useConfigurationFileHookModules = true;
 
@@ -227,7 +254,7 @@ namespace Hookshot
               Globals::GetConfigurationData()
                   [Configuration::kSectionNameGlobal]
                   [Strings::kStrConfigurationSettingNameUseConfiguredHookModules]
-                      .FirstValue()
+                      .GetFirstValue()
                       .GetBooleanValue())
           {
             useConfigurationFileHookModules = false;
@@ -246,18 +273,13 @@ namespace Hookshot
       const Configuration::ConfigurationData& configData = Globals::GetConfigurationData();
       int numInjectOnlyLibrariesLoaded = 0;
 
-      if (false == configData.HasErrors())
+      for (const auto& configuredInjectOnlyLibrarySource :
+           RelevantConfigurationSettings(Strings::kStrConfigurationSettingNameInject))
       {
-        auto injectOnlyLibrariesToLoad = Globals::GetConfigurationData().SectionsContaining(
-            Strings::kStrConfigurationSettingNameInject);
-
-        for (auto& sectionsWithInjectOnlyLibraries : *injectOnlyLibrariesToLoad)
+        for (auto& injectOnlyLibrary : configuredInjectOnlyLibrarySource->Values())
         {
-          for (auto& injectOnlyLibrary : sectionsWithInjectOnlyLibraries.name.Values())
-          {
-            if (true == LoadInjectOnlyLibrary(injectOnlyLibrary.GetStringValue()))
-              numInjectOnlyLibrariesLoaded += 1;
-          }
+          if (true == LoadInjectOnlyLibrary(injectOnlyLibrary.GetStringValue()))
+            numInjectOnlyLibrariesLoaded += 1;
         }
       }
 

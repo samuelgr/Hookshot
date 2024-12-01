@@ -182,7 +182,7 @@ At global scope (i.e. at the top of the file, before any sections are listed), t
    - Hookshot passes the value of this setting directly to the system without modification.
    - The system's directory search order for locating DLLs determines how the path is interpreted.
 - **UseConfiguredHookModules**, a Boolean value that is used to tell Hookshot if it should load the hook modules specified in the configuration file or use its default behavior of loading all hook modules in the same directory as the target application's executable file.
-   - Default value is `yes` if a configuration file is present and `no` if a configuration file is not present.
+   - Default value is `yes` if a configuration file is present, valid, and non-empty and `no` otherwise.
    - This is useful for turning on logging or specifying injected DLLs without affecting how Hookshot looks for hook modules.
 
 Hookshot additionally supports per-executable scopes in the configuration file. The settings contained within each are applied only to the executable whose file name matches the configuration file section name. Each per-executable scope can contain values for **HookModule** and **Inject**.
