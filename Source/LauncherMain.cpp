@@ -65,8 +65,9 @@ namespace Hookshot
     const std::wstring buttonTextCancel = buttonTextCancelStream.str();
 
     const TASKDIALOG_BUTTON kUserDialogCustomButtons[] = {
-        {.nButtonID = IDOK, .pszButtonText = buttonTextOk.c_str()},
-        {.nButtonID = IDCANCEL, .pszButtonText = buttonTextCancel.c_str()}};
+        {.nButtonID = IDOK,     .pszButtonText = buttonTextOk.c_str()    },
+        {.nButtonID = IDCANCEL, .pszButtonText = buttonTextCancel.c_str()}
+    };
 
     const TASKDIALOGCONFIG userDialogConfig = {
         .cbSize = sizeof(TASKDIALOGCONFIG),

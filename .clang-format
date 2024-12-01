@@ -4,7 +4,7 @@ Language:                                                   Cpp
 Standard:                                                   Latest
 AccessModifierOffset:                                       -2
 AlignAfterOpenBracket:                                      AlwaysBreak
-AlignArrayOfStructures:                                     None
+AlignArrayOfStructures:                                     Left
 AlignConsecutiveAssignments:                                None
 AlignConsecutiveBitFields:                                  None
 AlignConsecutiveDeclarations:                               None
@@ -46,10 +46,10 @@ BraceWrapping:
     SplitEmptyFunction:                                     false
     SplitEmptyRecord:                                       false
     SplitEmptyNamespace:                                    false
-# BreakAfterAttributes:                                       Always
+BreakAfterAttributes:                                       Always
 BreakBeforeBinaryOperators:                                 None
 BreakBeforeConceptDeclarations:                             Always
-# BreakBeforeInlineASMColon:                                  Always
+BreakBeforeInlineASMColon:                                  Always
 BreakBeforeTernaryOperators:                                true
 BreakConstructorInitializers:                               BeforeColon
 BreakInheritanceList:                                       BeforeColon
@@ -87,9 +87,9 @@ IndentRequiresClause:                                       true
 IndentWidth:                                                2
 IndentWrappedFunctionNames:                                 true
 InsertBraces:                                               false
-# InsertNewlineAtEOF:                                         true
+InsertNewlineAtEOF:                                         true
 InsertTrailingCommas:                                       Wrapped
-# KeepEmptyLinesAtEOF:                                        false
+KeepEmptyLinesAtEOF:                                        false
 KeepEmptyLinesAtTheStartOfBlocks:                           false
 LambdaBodyIndentation:                                      Signature
 MaxEmptyLinesToKeep:                                        1
@@ -142,7 +142,7 @@ SpacesInContainerLiterals:                                  false
 SpacesInLineCommentPrefix:
     Minimum:                                                1
     Maximum:                                                1
-# SpacesInParens:                                             Never
+SpacesInParens:                                             Never
 SpacesInParentheses:                                        false
 SpacesInSquareBrackets:                                     false
 UseTab:                                                     Never
