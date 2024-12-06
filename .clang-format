@@ -1,10 +1,24 @@
+# public, then protected, then private
+# within each:
+#  - type definitions
+#  - static constants
+#  - construction/destruction
+#  - operators
+#  - begin/end/cbegin/cend
+#  - class methods
+#  - instance methods
+#  - abstract/virtual instance methods
+#  - overrides with one comment indicating the interface, grouped by interface
+#  - instance variables
+
+
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 
 Language:                                                   Cpp
 Standard:                                                   Latest
 AccessModifierOffset:                                       -2
 AlignAfterOpenBracket:                                      AlwaysBreak
-AlignArrayOfStructures:                                     Left
+AlignArrayOfStructures:                                     None
 AlignConsecutiveAssignments:                                None
 AlignConsecutiveBitFields:                                  None
 AlignConsecutiveDeclarations:                               None
@@ -22,7 +36,7 @@ AllowShortIfStatementsOnASingleLine:                        WithoutElse
 AllowShortLambdasOnASingleLine:                             Empty
 AllowShortLoopsOnASingleLine:                               false
 AlwaysBreakAfterReturnType:                                 None
-AlwaysBreakBeforeMultilineStrings:                          false
+AlwaysBreakBeforeMultilineStrings:                          true
 AlwaysBreakTemplateDeclarations:                            No
 BinPackArguments:                                           false
 BinPackParameters:                                          false
@@ -46,10 +60,10 @@ BraceWrapping:
     SplitEmptyFunction:                                     false
     SplitEmptyRecord:                                       false
     SplitEmptyNamespace:                                    false
-BreakAfterAttributes:                                       Always
+# BreakAfterAttributes:                                       Always
 BreakBeforeBinaryOperators:                                 None
-BreakBeforeConceptDeclarations:                             Always
-BreakBeforeInlineASMColon:                                  Always
+BreakBeforeConceptDeclarations:                             Allowed
+# BreakBeforeInlineASMColon:                                  Always
 BreakBeforeTernaryOperators:                                true
 BreakConstructorInitializers:                               BeforeColon
 BreakInheritanceList:                                       BeforeColon
@@ -65,8 +79,8 @@ EmptyLineBeforeAccessModifier:                              Always
 FixNamespaceComments:                                       true
 IncludeBlocks:                                              Regroup
 IncludeCategories:
-    - Regex:                                                'TestCase\.h'
-      Priority:                                             -1
+    - Regex:                                                '".*\.generated\.h"'
+      Priority:                                             100
     - Regex:                                                '<[^/]+\.h>'
       Priority:                                             1
     - Regex:                                                '<[^/]+>'
@@ -87,9 +101,9 @@ IndentRequiresClause:                                       true
 IndentWidth:                                                2
 IndentWrappedFunctionNames:                                 true
 InsertBraces:                                               false
-InsertNewlineAtEOF:                                         true
+# InsertNewlineAtEOF:                                         true
 InsertTrailingCommas:                                       Wrapped
-KeepEmptyLinesAtEOF:                                        false
+# KeepEmptyLinesAtEOF:                                        false
 KeepEmptyLinesAtTheStartOfBlocks:                           false
 LambdaBodyIndentation:                                      Signature
 MaxEmptyLinesToKeep:                                        1
@@ -107,7 +121,7 @@ ReferenceAlignment:                                         Pointer
 ReflowComments:                                             true
 # RemoveParentheses:                                          Leave
 # RemoveSemicolon:                                            false
-RequiresClausePosition:                                     WithPreceding
+RequiresClausePosition:                                     OwnLine
 # RequiresExpressionIndentation:                              OuterScope
 SeparateDefinitionBlocks:                                   Always
 ShortNamespaceLines:                                        0
@@ -142,7 +156,7 @@ SpacesInContainerLiterals:                                  false
 SpacesInLineCommentPrefix:
     Minimum:                                                1
     Maximum:                                                1
-SpacesInParens:                                             Never
+# SpacesInParens:                                             Never
 SpacesInParentheses:                                        false
 SpacesInSquareBrackets:                                     false
 UseTab:                                                     Never

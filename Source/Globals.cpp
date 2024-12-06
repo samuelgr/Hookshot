@@ -13,9 +13,10 @@
 #include "Globals.h"
 
 #include "ApiWindows.h"
-#include "GitVersionInfo.h"
 #include "Message.h"
 #include "Strings.h"
+
+#include "GitVersionInfo.generated.h"
 
 #ifndef HOOKSHOT_SKIP_CONFIG
 #include "Configuration.h"

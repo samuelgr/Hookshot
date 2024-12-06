@@ -73,16 +73,18 @@ goto :next_arg
 
 set version_info_script=%script_path%\GitVersionInfo.bat
 set version_info_dir=%script_path%Output
-set version_info_file=%version_info_dir%\GitVersionInfo.h
+set version_info_file=%version_info_dir%\GitVersionInfo.generated.bat
 
-call "%version_info_script%" "%version_info_dir%" %version_info_extra_args% >NUL 2>NUL
+call "%version_info_script%" bat "%version_info_dir%" %version_info_extra_args% >NUL 2>NUL
 
 if not exist %version_info_file% (
     echo Failed to generate information file: %version_info_file%
     goto :exit_with_error
 )
 
-for /f "usebackq tokens=3" %%V in (`findstr GIT_VERSION_STRING %version_info_file%`) do set raw_release_ver=%%~V
+call %version_info_file%
+
+set raw_release_ver=%GIT_VERSION_STRING%
 if "%raw_release_ver%"=="" (
     echo Missing release version^^!
     goto :exit_with_error
@@ -122,9 +124,9 @@ if not yes==%assume_always_yes% (
 if not yes==%digitally_sign_binaries% (
     set is_official_build=no
 
-    for /f "usebackq tokens=3" %%V in (`findstr GIT_VERSION_COMMIT_DISTANCE %version_info_file%`) do set git_commit_distance=%%~V
+    set git_commit_distance=%GIT_COMMIT_DISTANCE%
     if "!git_commit_distance!"=="0" (
-        for /f "usebackq tokens=3" %%V in (`findstr GIT_VERSION_IS_DIRTY %version_info_file%`) do set git_is_dirty=%%~V
+        set git_is_dirty=%GIT_VERSION_IS_DIRTY%
         if "!git_is_dirty!"=="0" (
             set is_official_build=yes
         )
