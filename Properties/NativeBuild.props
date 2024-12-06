@@ -21,7 +21,7 @@
     <IntDir>$(TopLevelIntDir)</IntDir>
   </PropertyGroup>
 
-  <Import Project="$(MSBuildThisFileDirectory)GitVersionInfo.props" />
+  <Import Project="$(MSBuildThisFileDirectory)GitVersionInfo.props" Condition="'$(BuildSettingsSkipGitVersionInfo)'!=''"/>
 
   <!-- Build settings -->
   <PropertyGroup>
