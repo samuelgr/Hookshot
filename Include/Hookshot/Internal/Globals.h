@@ -15,7 +15,8 @@
 #include "ApiWindows.h"
 
 #ifndef HOOKSHOT_SKIP_CONFIG
-#include "Configuration.h"
+#include <Infra/Core/Configuration.h>
+
 #include "HookshotConfigReader.h"
 #endif
 
@@ -44,7 +45,7 @@ namespace Hookshot
 #ifndef HOOKSHOT_SKIP_CONFIG
     /// Retrieves the Hookshot configuration data object.
     /// Only useful if IsConfigurationDataValid returns `true`.
-    const Configuration::ConfigurationData& GetConfigurationData(void);
+    const Infra::Configuration::ConfigurationData& GetConfigurationData(void);
 #endif
 
     /// Retrieves the method by which this form of Hookshot was loaded.

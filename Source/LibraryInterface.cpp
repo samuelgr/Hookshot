@@ -16,6 +16,7 @@
 #include <string_view>
 #include <vector>
 
+#include <Infra/Core/Configuration.h>
 #include <Infra/Core/Message.h>
 #include <Infra/Core/ProcessInfo.h>
 #include <Infra/Core/Strings.h>
@@ -49,7 +50,7 @@ namespace Hookshot
       static const bool loadHookModulesFromHookshotDirectory =
           Globals::GetConfigurationData()
               .GetFirstBooleanValue(
-                  Configuration::kSectionNameGlobal,
+                  Infra::Configuration::kSectionNameGlobal,
                   Strings::kStrConfigurationSettingNameLoadHookModulesFromHookshotDirectory)
               .value_or(false);
 
@@ -63,20 +64,21 @@ namespace Hookshot
     /// executable-specific section for configuration settings that match the specified name.
     /// @param [in] configSettingName Name of the configuration setting for which to check.
     /// @return Vector of read-only pointers to all relevant configuration setting names.
-    static std::vector<const Configuration::Name*> RelevantConfigurationSettings(
+    static std::vector<const Infra::Configuration::Name*> RelevantConfigurationSettings(
         std::wstring_view configSettingName)
     {
-      const Configuration::ConfigurationData& configData = Globals::GetConfigurationData();
+      const auto& configData = Globals::GetConfigurationData();
 
-      std::vector<const Configuration::Name*> relevantConfigSettings;
+      std::vector<const Infra::Configuration::Name*> relevantConfigSettings;
       relevantConfigSettings.reserve(2);
 
       if (false == configData.HasReadErrors())
       {
-        if (configData.SectionNamePairExists(Configuration::kSectionNameGlobal, configSettingName))
+        if (configData.SectionNamePairExists(
+                Infra::Configuration::kSectionNameGlobal, configSettingName))
         {
           relevantConfigSettings.push_back(
-              &configData[Configuration::kSectionNameGlobal][configSettingName]);
+              &configData[Infra::Configuration::kSectionNameGlobal][configSettingName]);
         }
 
         if (configData.SectionNamePairExists(
@@ -257,7 +259,7 @@ namespace Hookshot
 
     int LoadHookModules(void)
     {
-      const Configuration::ConfigurationData& configData = Globals::GetConfigurationData();
+      const auto& configData = Globals::GetConfigurationData();
       bool useConfigurationFileHookModules = false;
 
       // If a configuration file is present, non-empty, and valid, load the hook modules it
@@ -268,11 +270,11 @@ namespace Hookshot
 
         if (true ==
             configData.SectionNamePairExists(
-                Configuration::kSectionNameGlobal,
+                Infra::Configuration::kSectionNameGlobal,
                 Strings::kStrConfigurationSettingNameUseConfiguredHookModules))
         {
           if (false ==
-              configData[Configuration::kSectionNameGlobal]
+              configData[Infra::Configuration::kSectionNameGlobal]
                         [Strings::kStrConfigurationSettingNameUseConfiguredHookModules]
                             .GetFirstValue()
                             .GetBooleanValue())
@@ -290,7 +292,7 @@ namespace Hookshot
 
     int LoadInjectOnlyLibraries(void)
     {
-      const Configuration::ConfigurationData& configData = Globals::GetConfigurationData();
+      const auto& configData = Globals::GetConfigurationData();
       int numInjectOnlyLibrariesLoaded = 0;
 
       for (const auto& configuredInjectOnlyLibrarySource :

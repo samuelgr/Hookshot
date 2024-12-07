@@ -15,36 +15,35 @@
 #include <string_view>
 #include <unordered_map>
 
+#include <Infra/Core/Configuration.h>
 #include <Infra/Core/ProcessInfo.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
-#include "Configuration.h"
 #include "Strings.h"
 
 namespace Hookshot
 {
+  using namespace ::Infra::Configuration;
+
   /// Holds the layout of the Hookshot configuration file that is known statically. At compile time,
   /// this encompasses all settings except for the dynamically-determined section whose name matches
   /// the file name of the currently-running executable, which is filled in at runtime.
-  static Configuration::TConfigurationFileLayout configurationFileLayout = {
+  static TConfigurationFileLayout configurationFileLayout = {
       ConfigurationFileLayoutSection(
-          Configuration::kSectionNameGlobal,
+          kSectionNameGlobal,
           {
               ConfigurationFileLayoutNameAndValueType(
-                  Strings::kStrConfigurationSettingNameHookModule,
-                  Configuration::EValueType::StringMultiValue),
+                  Strings::kStrConfigurationSettingNameHookModule, EValueType::StringMultiValue),
               ConfigurationFileLayoutNameAndValueType(
-                  Strings::kStrConfigurationSettingNameInject,
-                  Configuration::EValueType::StringMultiValue),
+                  Strings::kStrConfigurationSettingNameInject, EValueType::StringMultiValue),
               ConfigurationFileLayoutNameAndValueType(
-                  Strings::kStrConfigurationSettingNameLogLevel,
-                  Configuration::EValueType::Integer),
+                  Strings::kStrConfigurationSettingNameLogLevel, EValueType::Integer),
               ConfigurationFileLayoutNameAndValueType(
                   Strings::kStrConfigurationSettingNameUseConfiguredHookModules,
-                  Configuration::EValueType::Boolean),
+                  EValueType::Boolean),
               ConfigurationFileLayoutNameAndValueType(
                   Strings::kStrConfigurationSettingNameLoadHookModulesFromHookshotDirectory,
-                  Configuration::EValueType::Boolean),
+                  EValueType::Boolean),
           }),
   };
 
@@ -69,42 +68,40 @@ namespace Hookshot
           Infra::ProcessInfo::GetExecutableBaseName(),
           {
               ConfigurationFileLayoutNameAndValueType(
-                  Strings::kStrConfigurationSettingNameHookModule,
-                  Configuration::EValueType::StringMultiValue),
+                  Strings::kStrConfigurationSettingNameHookModule, EValueType::StringMultiValue),
               ConfigurationFileLayoutNameAndValueType(
-                  Strings::kStrConfigurationSettingNameInject,
-                  Configuration::EValueType::StringMultiValue),
+                  Strings::kStrConfigurationSettingNameInject, EValueType::StringMultiValue),
           }));
 
       configurationFileLayoutIsComplete = true;
     }
   }
 
-  Configuration::EAction HookshotConfigReader::ActionForSection(std::wstring_view section)
+  EAction HookshotConfigReader::ActionForSection(std::wstring_view section)
   {
-    if (0 != configurationFileLayout.count(section)) return Configuration::EAction::Process;
+    if (0 != configurationFileLayout.count(section)) return EAction::Process;
 
-    return Configuration::EAction::Skip;
+    return EAction::Skip;
   }
 
-  Configuration::EAction HookshotConfigReader::ActionForValue(
-      std::wstring_view section, std::wstring_view name, const Configuration::TIntegerView value)
+  EAction HookshotConfigReader::ActionForValue(
+      std::wstring_view section, std::wstring_view name, const TIntegerView value)
   {
-    if (value >= 0) return Configuration::EAction::Process;
+    if (value >= 0) return EAction::Process;
 
-    return Configuration::EAction::Error;
+    return EAction::Error;
   }
 
-  Configuration::EAction HookshotConfigReader::ActionForValue(
-      std::wstring_view section, std::wstring_view name, const Configuration::TBooleanView value)
+  EAction HookshotConfigReader::ActionForValue(
+      std::wstring_view section, std::wstring_view name, const TBooleanView value)
   {
-    return Configuration::EAction::Process;
+    return EAction::Process;
   }
 
-  Configuration::EAction HookshotConfigReader::ActionForValue(
-      std::wstring_view section, std::wstring_view name, const Configuration::TStringView value)
+  EAction HookshotConfigReader::ActionForValue(
+      std::wstring_view section, std::wstring_view name, const TStringView value)
   {
-    return Configuration::EAction::Process;
+    return EAction::Process;
   }
 
   void HookshotConfigReader::BeginRead(void)
@@ -112,14 +109,13 @@ namespace Hookshot
     CompleteConfigurationFileLayout();
   }
 
-  Configuration::EValueType HookshotConfigReader::TypeForValue(
-      std::wstring_view section, std::wstring_view name)
+  EValueType HookshotConfigReader::TypeForValue(std::wstring_view section, std::wstring_view name)
   {
     auto sectionLayout = configurationFileLayout.find(section);
-    if (configurationFileLayout.end() == sectionLayout) return Configuration::EValueType::Error;
+    if (configurationFileLayout.end() == sectionLayout) return EValueType::Error;
 
     auto settingInfo = sectionLayout->second.find(name);
-    if (sectionLayout->second.end() == settingInfo) return Configuration::EValueType::Error;
+    if (sectionLayout->second.end() == settingInfo) return EValueType::Error;
 
     return settingInfo->second;
   }

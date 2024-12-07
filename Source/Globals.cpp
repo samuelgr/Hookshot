@@ -20,7 +20,8 @@
 #include "GitVersionInfo.generated.h"
 
 #ifndef HOOKSHOT_SKIP_CONFIG
-#include "Configuration.h"
+#include <Infra/Core/Configuration.h>
+
 #include "HookshotConfigReader.h"
 #include "Strings.h"
 #endif
@@ -79,11 +80,11 @@ namespace Hookshot
     /// Enables the log, if it is configured in the configuration file.
     static void EnableLogIfConfigured(void)
     {
-      const int64_t logLevel =
-          GetConfigurationData()
-              .GetFirstIntegerValue(
-                  Configuration::kSectionNameGlobal, Strings::kStrConfigurationSettingNameLogLevel)
-              .value_or(0);
+      const int64_t logLevel = GetConfigurationData()
+                                   .GetFirstIntegerValue(
+                                       Infra::Configuration::kSectionNameGlobal,
+                                       Strings::kStrConfigurationSettingNameLogLevel)
+                                   .value_or(0);
 
       if (logLevel > 0)
       {
@@ -95,9 +96,9 @@ namespace Hookshot
       }
     }
 
-    const Configuration::ConfigurationData& GetConfigurationData(void)
+    const Infra::Configuration::ConfigurationData& GetConfigurationData(void)
     {
-      static Configuration::ConfigurationData configData;
+      static Infra::Configuration::ConfigurationData configData;
 
       static std::once_flag readConfigFlag;
       std::call_once(

@@ -13,30 +13,25 @@
 
 #include <string_view>
 
-#include "Configuration.h"
+#include <Infra/Core/Configuration.h>
 
 namespace Hookshot
 {
-  class HookshotConfigReader : public Configuration::ConfigurationFileReader
+  using namespace ::Infra::Configuration;
+
+  class HookshotConfigReader : public ConfigurationFileReader
   {
   protected:
 
     // ConfigurationFileReader
-    Configuration::EAction ActionForSection(std::wstring_view section) override;
-    Configuration::EAction ActionForValue(
-        std::wstring_view section,
-        std::wstring_view name,
-        const Configuration::TIntegerView value) override;
-    Configuration::EAction ActionForValue(
-        std::wstring_view section,
-        std::wstring_view name,
-        const Configuration::TBooleanView value) override;
-    Configuration::EAction ActionForValue(
-        std::wstring_view section,
-        std::wstring_view name,
-        const Configuration::TStringView value) override;
+    EAction ActionForSection(std::wstring_view section) override;
+    EAction ActionForValue(
+        std::wstring_view section, std::wstring_view name, const TIntegerView value) override;
+    EAction ActionForValue(
+        std::wstring_view section, std::wstring_view name, const TBooleanView value) override;
+    EAction ActionForValue(
+        std::wstring_view section, std::wstring_view name, const TStringView value) override;
     void BeginRead(void) override;
-    Configuration::EValueType TypeForValue(
-        std::wstring_view section, std::wstring_view name) override;
+    EValueType TypeForValue(std::wstring_view section, std::wstring_view name) override;
   };
 } // namespace Hookshot
