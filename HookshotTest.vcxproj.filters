@@ -15,12 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Test\Harness.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Test\TestCase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Test\Case\HookSetSuccess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -33,17 +27,14 @@
     <ClCompile Include="Source\Test\Case\Custom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Test\Utilities.cpp">
+    <ClCompile Include="Source\Test\TestMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Test\TestGlobals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Hookshot\Test\Harness.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Hookshot\Test\TestCase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Hookshot\Test\TestPattern.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -59,7 +50,7 @@
     <ClInclude Include="Include\Hookshot\HookshotTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Hookshot\Test\Utilities.h">
+    <ClInclude Include="Include\Hookshot\Test\TestGlobals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -67,6 +58,7 @@
     <None Include="Include\Hookshot\Test\TestDefinitions.inc">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Source\Test\Case\HookSetSuccess\BasicFunction.asm">

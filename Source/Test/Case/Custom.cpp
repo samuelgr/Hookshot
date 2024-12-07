@@ -11,9 +11,11 @@
 
 #include <windows.h>
 
+#include <Infra/Test/Utilities.h>
+
 #include "Hookshot.h"
+#include "TestGlobals.h"
 #include "TestPattern.h"
-#include "Utilities.h"
 
 /// Generates a new function using FunctionGenerator and returns a pointer to it.
 /// A maximum of one instance of this macro can exist on each source code line.
@@ -48,8 +50,8 @@ namespace HookshotTest
     GENERATE_AND_ASSIGN_FUNCTION(funcB);
     GENERATE_AND_ASSIGN_FUNCTION(funcC);
 
-    HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(funcB, funcC)));
-    HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == hookshot->CreateHook(funcA, funcB));
+    TEST_ASSERT(Hookshot::SuccessfulResult(HookshotInterface()->CreateHook(funcB, funcC)));
+    TEST_ASSERT(Hookshot::EResult::FailDuplicate == HookshotInterface()->CreateHook(funcA, funcB));
   }
 
   // Attempts to set the same hook twice.
@@ -59,9 +61,11 @@ namespace HookshotTest
     GENERATE_AND_ASSIGN_FUNCTION(originalFunc);
     GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
 
-    HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc, hookFunc)));
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::EResult::FailDuplicate == hookshot->CreateHook(originalFunc, hookFunc));
+    TEST_ASSERT(
+        Hookshot::SuccessfulResult(HookshotInterface()->CreateHook(originalFunc, hookFunc)));
+    TEST_ASSERT(
+        Hookshot::EResult::FailDuplicate ==
+        HookshotInterface()->CreateHook(originalFunc, hookFunc));
   }
 
   // Disables and re-enables a hook.
@@ -74,28 +78,30 @@ namespace HookshotTest
     const auto originalFuncResult = originalFunc();
     const auto hookFuncResult = hookFunc();
 
-    HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc, hookFunc)));
-    HOOKSHOT_TEST_ASSERT(hookFuncResult == originalFunc());
-    HOOKSHOT_TEST_ASSERT(
+    TEST_ASSERT(
+        Hookshot::SuccessfulResult(HookshotInterface()->CreateHook(originalFunc, hookFunc)));
+    TEST_ASSERT(hookFuncResult == originalFunc());
+    TEST_ASSERT(
         originalFuncResult ==
-        ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
+        ((decltype(originalFunc))HookshotInterface()->GetOriginalFunction(originalFunc))());
 
-    HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->DisableHookFunction(hookFunc)));
-    HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->DisableHookFunction(originalFunc)));
-    HOOKSHOT_TEST_ASSERT(originalFuncResult == originalFunc());
-    HOOKSHOT_TEST_ASSERT(
+    TEST_ASSERT(Hookshot::SuccessfulResult(HookshotInterface()->DisableHookFunction(hookFunc)));
+    TEST_ASSERT(Hookshot::SuccessfulResult(HookshotInterface()->DisableHookFunction(originalFunc)));
+    TEST_ASSERT(originalFuncResult == originalFunc());
+    TEST_ASSERT(
         originalFuncResult ==
-        ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
-    HOOKSHOT_TEST_ASSERT(nullptr == hookshot->GetOriginalFunction(hookFunc));
+        ((decltype(originalFunc))HookshotInterface()->GetOriginalFunction(originalFunc))());
+    TEST_ASSERT(nullptr == HookshotInterface()->GetOriginalFunction(hookFunc));
 
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::EResult::FailNotFound == hookshot->ReplaceHookFunction(hookFunc, hookFunc));
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::SuccessfulResult(hookshot->ReplaceHookFunction(originalFunc, hookFunc)));
-    HOOKSHOT_TEST_ASSERT(hookFuncResult == originalFunc());
-    HOOKSHOT_TEST_ASSERT(
+    TEST_ASSERT(
+        Hookshot::EResult::FailNotFound ==
+        HookshotInterface()->ReplaceHookFunction(hookFunc, hookFunc));
+    TEST_ASSERT(Hookshot::SuccessfulResult(
+        HookshotInterface()->ReplaceHookFunction(originalFunc, hookFunc)));
+    TEST_ASSERT(hookFuncResult == originalFunc());
+    TEST_ASSERT(
         originalFuncResult ==
-        ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
+        ((decltype(originalFunc))HookshotInterface()->GetOriginalFunction(originalFunc))());
   }
 
   // Creates a hook chain going forwards.
@@ -106,8 +112,8 @@ namespace HookshotTest
     GENERATE_AND_ASSIGN_FUNCTION(funcB);
     GENERATE_AND_ASSIGN_FUNCTION(funcC);
 
-    HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(funcA, funcB)));
-    HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == hookshot->CreateHook(funcB, funcC));
+    TEST_ASSERT(Hookshot::SuccessfulResult(HookshotInterface()->CreateHook(funcA, funcB)));
+    TEST_ASSERT(Hookshot::EResult::FailDuplicate == HookshotInterface()->CreateHook(funcB, funcC));
   }
 
   // Creates a hook cycle.
@@ -117,8 +123,8 @@ namespace HookshotTest
     GENERATE_AND_ASSIGN_FUNCTION(funcA);
     GENERATE_AND_ASSIGN_FUNCTION(funcB);
 
-    HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(funcA, funcB)));
-    HOOKSHOT_TEST_ASSERT(Hookshot::EResult::FailDuplicate == hookshot->CreateHook(funcB, funcA));
+    TEST_ASSERT(Hookshot::SuccessfulResult(HookshotInterface()->CreateHook(funcA, funcB)));
+    TEST_ASSERT(Hookshot::EResult::FailDuplicate == HookshotInterface()->CreateHook(funcB, funcA));
   }
 
   // Attempts to hook a Hookshot function.
@@ -126,9 +132,9 @@ namespace HookshotTest
   HOOKSHOT_CUSTOM_TEST(HookHookshot)
   {
     GENERATE_AND_ASSIGN_FUNCTION(hookFunc);
-    HOOKSHOT_TEST_ASSERT(
+    TEST_ASSERT(
         Hookshot::EResult::FailInvalidArgument ==
-        hookshot->CreateHook(HookshotLibraryInitialize, hookFunc));
+        HookshotInterface()->CreateHook(HookshotLibraryInitialize, hookFunc));
   }
 
   // Attempts to set a very high number of hooks.
@@ -313,8 +319,8 @@ namespace HookshotTest
         "ManyManyHooks Test: number of original and hook functions must match.");
 
     for (int i = 0; i < _countof(originalFuncs); ++i)
-      HOOKSHOT_TEST_ASSERT(
-          Hookshot::SuccessfulResult(hookshot->CreateHook(originalFuncs[i], hookFuncs[i])));
+      TEST_ASSERT(Hookshot::SuccessfulResult(
+          HookshotInterface()->CreateHook(originalFuncs[i], hookFuncs[i])));
   }
 
   // Exercises Hookshot's concurrency control mechanisms by creating several threads and having them
@@ -324,7 +330,7 @@ namespace HookshotTest
   // Information structure to pass to each thread.
   struct SMultipleThreadsTestData
   {
-    const HookshotTest::ITestCase* testCase;
+    const ::Infra::Test::ITestCase* testCase;
     Hookshot::IHookshot* hookshot;
 
     HANDLE syncEventPhase1;
@@ -353,7 +359,7 @@ namespace HookshotTest
       if (Hookshot::SuccessfulResult(
               testData.hookshot->CreateHook(testData.originalFuncs[i], testData.hookFuncs[i])))
       {
-        PrintFormatted(L"Thread %d: Successfully set hook at index %d.", threadID, i);
+        Infra::Test::PrintFormatted(L"Thread %d: Successfully set hook at index %d.", threadID, i);
         numSuccesses += 1;
       }
     }
@@ -364,9 +370,7 @@ namespace HookshotTest
   // Main test case logic.
   HOOKSHOT_CUSTOM_TEST(MultipleThreads)
   {
-    SMultipleThreadsTestData testData;
-    testData.testCase = this;
-    testData.hookshot = hookshot;
+    SMultipleThreadsTestData testData{.testCase = this, .hookshot = HookshotInterface()};
 
     // Create and initialize synchronization objects.
     // This test uses a two-phase synchronization process.
@@ -377,8 +381,8 @@ namespace HookshotTest
     testData.syncThreadCounter = 0;
     testData.syncEventPhase1 = CreateEvent(nullptr, TRUE, FALSE, nullptr);
     testData.syncEventPhase2 = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-    HOOKSHOT_TEST_ASSERT(nullptr != testData.syncEventPhase1);
-    HOOKSHOT_TEST_ASSERT(nullptr != testData.syncEventPhase2);
+    TEST_ASSERT(nullptr != testData.syncEventPhase1);
+    TEST_ASSERT(nullptr != testData.syncEventPhase2);
 
     // Each generated function must appear on its own line.
 
@@ -435,7 +439,7 @@ namespace HookshotTest
 
     constexpr int kNumThreads = _countof(originalFuncs) / 4;
     testData.numThreads = kNumThreads;
-    PrintFormatted(L"Creating %d threads.", kNumThreads);
+    Infra::Test::PrintFormatted(L"Creating %d threads.", kNumThreads);
 
     // Capture some expected values.
     // These are just the results of calling the hook functions.
@@ -450,13 +454,12 @@ namespace HookshotTest
     {
       threadHandles[i] =
           CreateThread(nullptr, 0, MultipleThreadsTestThreadProc, &testData, 0, nullptr);
-      HOOKSHOT_TEST_ASSERT(nullptr != threadHandles[i]);
+      TEST_ASSERT(nullptr != threadHandles[i]);
     }
 
-    HOOKSHOT_TEST_ASSERT(WAIT_OBJECT_0 == WaitForSingleObject(testData.syncEventPhase1, 10000));
-    HOOKSHOT_TEST_ASSERT(0 != SetEvent(testData.syncEventPhase2));
-    HOOKSHOT_TEST_ASSERT(
-        WAIT_OBJECT_0 == WaitForMultipleObjects(kNumThreads, threadHandles, TRUE, 10000));
+    TEST_ASSERT(WAIT_OBJECT_0 == WaitForSingleObject(testData.syncEventPhase1, 10000));
+    TEST_ASSERT(0 != SetEvent(testData.syncEventPhase2));
+    TEST_ASSERT(WAIT_OBJECT_0 == WaitForMultipleObjects(kNumThreads, threadHandles, TRUE, 10000));
 
     // At this point all threads have exited.
     // Each thread returned the number of successful attempts at setting a hook.
@@ -468,26 +471,26 @@ namespace HookshotTest
     for (int i = 0; i < kNumThreads; ++i)
     {
       DWORD thisThreadNumSuccesses = 0;
-      HOOKSHOT_TEST_ASSERT(0 != GetExitCodeThread(threadHandles[i], &thisThreadNumSuccesses));
+      TEST_ASSERT(0 != GetExitCodeThread(threadHandles[i], &thisThreadNumSuccesses));
 
       CloseHandle(threadHandles[i]);
 
       totalNumSuccesses += thisThreadNumSuccesses;
     }
 
-    PrintFormatted(L"%d total successful hook set operations.", totalNumSuccesses);
-    HOOKSHOT_TEST_ASSERT(_countof(originalFuncs) == totalNumSuccesses);
+    Infra::Test::PrintFormatted(L"%d total successful hook set operations.", totalNumSuccesses);
+    TEST_ASSERT(_countof(originalFuncs) == totalNumSuccesses);
 
     for (int i = 0; i < _countof(originalFuncs); ++i)
     {
       const int actualValue = originalFuncs[i]();
-      PrintFormatted(
+      Infra::Test::PrintFormatted(
           L"Hook %d: %s: expected %d, got %d.",
           i,
           (actualValue == expectedValues[i] ? L"OK" : L"BAD"),
           expectedValues[i],
           actualValue);
-      HOOKSHOT_TEST_ASSERT(actualValue == expectedValues[i]);
+      TEST_ASSERT(actualValue == expectedValues[i]);
     }
 
     CloseHandle(testData.syncEventPhase1);
@@ -498,8 +501,9 @@ namespace HookshotTest
   // Expected result is Hookshot rejects the input arguments as invalid.
   HOOKSHOT_CUSTOM_TEST(NullPointerBoth)
   {
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::EResult::FailInvalidArgument == hookshot->CreateHook(nullptr, nullptr));
+    TEST_ASSERT(
+        Hookshot::EResult::FailInvalidArgument ==
+        HookshotInterface()->CreateHook(nullptr, nullptr));
   }
 
   // Hookshot is presented with a null pointer for the hook function.
@@ -507,8 +511,8 @@ namespace HookshotTest
   HOOKSHOT_CUSTOM_TEST(NullPointerHook)
   {
     GENERATE_AND_ASSIGN_FUNCTION(func);
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::EResult::FailInvalidArgument == hookshot->CreateHook(func, nullptr));
+    TEST_ASSERT(
+        Hookshot::EResult::FailInvalidArgument == HookshotInterface()->CreateHook(func, nullptr));
   }
 
   // Hookshot is presented with a null pointer for the original function.
@@ -516,8 +520,8 @@ namespace HookshotTest
   HOOKSHOT_CUSTOM_TEST(NullPointerOriginal)
   {
     GENERATE_AND_ASSIGN_FUNCTION(func);
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::EResult::FailInvalidArgument == hookshot->CreateHook(nullptr, func));
+    TEST_ASSERT(
+        Hookshot::EResult::FailInvalidArgument == HookshotInterface()->CreateHook(nullptr, func));
   }
 
   // Hookshot is presented with equal non-null pointers for both original and hook functions.
@@ -525,8 +529,8 @@ namespace HookshotTest
   HOOKSHOT_CUSTOM_TEST(SelfHook)
   {
     GENERATE_AND_ASSIGN_FUNCTION(func);
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::EResult::FailInvalidArgument == hookshot->CreateHook(func, func));
+    TEST_ASSERT(
+        Hookshot::EResult::FailInvalidArgument == HookshotInterface()->CreateHook(func, func));
   }
 
   // Attempts to replace a valid hook's hook function with one that is already involved in another
@@ -535,24 +539,26 @@ namespace HookshotTest
   {
     GENERATE_AND_ASSIGN_FUNCTION(originalFunc1);
     GENERATE_AND_ASSIGN_FUNCTION(hookFunc1);
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc1, hookFunc1)));
+    TEST_ASSERT(
+        Hookshot::SuccessfulResult(HookshotInterface()->CreateHook(originalFunc1, hookFunc1)));
 
     GENERATE_AND_ASSIGN_FUNCTION(originalFunc2);
     GENERATE_AND_ASSIGN_FUNCTION(hookFunc2);
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc2, hookFunc2)));
+    TEST_ASSERT(
+        Hookshot::SuccessfulResult(HookshotInterface()->CreateHook(originalFunc2, hookFunc2)));
 
-    HOOKSHOT_TEST_ASSERT(
+    TEST_ASSERT(
         Hookshot::EResult::FailDuplicate ==
-        hookshot->ReplaceHookFunction(originalFunc1, hookFunc2));
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::EResult::FailDuplicate == hookshot->ReplaceHookFunction(hookFunc1, hookFunc2));
-    HOOKSHOT_TEST_ASSERT(
+        HookshotInterface()->ReplaceHookFunction(originalFunc1, hookFunc2));
+    TEST_ASSERT(
         Hookshot::EResult::FailDuplicate ==
-        hookshot->ReplaceHookFunction(originalFunc2, hookFunc1));
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::EResult::FailDuplicate == hookshot->ReplaceHookFunction(hookFunc2, hookFunc1));
+        HookshotInterface()->ReplaceHookFunction(hookFunc1, hookFunc2));
+    TEST_ASSERT(
+        Hookshot::EResult::FailDuplicate ==
+        HookshotInterface()->ReplaceHookFunction(originalFunc2, hookFunc1));
+    TEST_ASSERT(
+        Hookshot::EResult::FailDuplicate ==
+        HookshotInterface()->ReplaceHookFunction(hookFunc2, hookFunc1));
   }
 
   // Attempts to replace a non-existent hook's hook function.
@@ -562,14 +568,14 @@ namespace HookshotTest
     GENERATE_AND_ASSIGN_FUNCTION(funcA);
     GENERATE_AND_ASSIGN_FUNCTION(funcB);
 
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::EResult::FailNotFound == hookshot->ReplaceHookFunction(funcA, funcA));
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::EResult::FailNotFound == hookshot->ReplaceHookFunction(funcA, funcB));
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::EResult::FailNotFound == hookshot->ReplaceHookFunction(funcB, funcA));
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::EResult::FailNotFound == hookshot->ReplaceHookFunction(funcB, funcB));
+    TEST_ASSERT(
+        Hookshot::EResult::FailNotFound == HookshotInterface()->ReplaceHookFunction(funcA, funcA));
+    TEST_ASSERT(
+        Hookshot::EResult::FailNotFound == HookshotInterface()->ReplaceHookFunction(funcA, funcB));
+    TEST_ASSERT(
+        Hookshot::EResult::FailNotFound == HookshotInterface()->ReplaceHookFunction(funcB, funcA));
+    TEST_ASSERT(
+        Hookshot::EResult::FailNotFound == HookshotInterface()->ReplaceHookFunction(funcB, funcB));
   }
 
   // Attempts to replace a valid hook's hook function with another valid hook function.
@@ -584,21 +590,22 @@ namespace HookshotTest
     const auto hookFuncResult = hookFunc();
     const auto replacementHookFuncResult = replacementHookFunc();
 
-    HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc, hookFunc)));
-    HOOKSHOT_TEST_ASSERT(hookFuncResult == originalFunc());
-    HOOKSHOT_TEST_ASSERT(
+    TEST_ASSERT(
+        Hookshot::SuccessfulResult(HookshotInterface()->CreateHook(originalFunc, hookFunc)));
+    TEST_ASSERT(hookFuncResult == originalFunc());
+    TEST_ASSERT(
         originalFuncResult ==
-        ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
-    HOOKSHOT_TEST_ASSERT(nullptr != hookshot->GetOriginalFunction(hookFunc));
+        ((decltype(originalFunc))HookshotInterface()->GetOriginalFunction(originalFunc))());
+    TEST_ASSERT(nullptr != HookshotInterface()->GetOriginalFunction(hookFunc));
 
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::SuccessfulResult(hookshot->ReplaceHookFunction(hookFunc, replacementHookFunc)));
-    HOOKSHOT_TEST_ASSERT(replacementHookFuncResult == originalFunc());
-    HOOKSHOT_TEST_ASSERT(
+    TEST_ASSERT(Hookshot::SuccessfulResult(
+        HookshotInterface()->ReplaceHookFunction(hookFunc, replacementHookFunc)));
+    TEST_ASSERT(replacementHookFuncResult == originalFunc());
+    TEST_ASSERT(
         originalFuncResult ==
-        ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
-    HOOKSHOT_TEST_ASSERT(nullptr == hookshot->GetOriginalFunction(hookFunc));
-    HOOKSHOT_TEST_ASSERT(nullptr != hookshot->GetOriginalFunction(replacementHookFunc));
+        ((decltype(originalFunc))HookshotInterface()->GetOriginalFunction(originalFunc))());
+    TEST_ASSERT(nullptr == HookshotInterface()->GetOriginalFunction(hookFunc));
+    TEST_ASSERT(nullptr != HookshotInterface()->GetOriginalFunction(replacementHookFunc));
   }
 
   // Attempts to replace a valid hook's hook function with another valid hook function.
@@ -611,22 +618,23 @@ namespace HookshotTest
     const auto originalFuncResult = originalFunc();
     const auto hookFuncResult = hookFunc();
 
-    HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc, hookFunc)));
-    HOOKSHOT_TEST_ASSERT(hookFuncResult == originalFunc());
-    HOOKSHOT_TEST_ASSERT(
+    TEST_ASSERT(
+        Hookshot::SuccessfulResult(HookshotInterface()->CreateHook(originalFunc, hookFunc)));
+    TEST_ASSERT(hookFuncResult == originalFunc());
+    TEST_ASSERT(
         originalFuncResult ==
-        ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
-    HOOKSHOT_TEST_ASSERT(nullptr != hookshot->GetOriginalFunction(hookFunc));
+        ((decltype(originalFunc))HookshotInterface()->GetOriginalFunction(originalFunc))());
+    TEST_ASSERT(nullptr != HookshotInterface()->GetOriginalFunction(hookFunc));
 
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::SuccessfulResult(hookshot->ReplaceHookFunction(originalFunc, hookFunc)));
-    HOOKSHOT_TEST_ASSERT(
-        Hookshot::SuccessfulResult(hookshot->ReplaceHookFunction(hookFunc, hookFunc)));
-    HOOKSHOT_TEST_ASSERT(hookFuncResult == originalFunc());
-    HOOKSHOT_TEST_ASSERT(
+    TEST_ASSERT(Hookshot::SuccessfulResult(
+        HookshotInterface()->ReplaceHookFunction(originalFunc, hookFunc)));
+    TEST_ASSERT(
+        Hookshot::SuccessfulResult(HookshotInterface()->ReplaceHookFunction(hookFunc, hookFunc)));
+    TEST_ASSERT(hookFuncResult == originalFunc());
+    TEST_ASSERT(
         originalFuncResult ==
-        ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
-    HOOKSHOT_TEST_ASSERT(nullptr != hookshot->GetOriginalFunction(hookFunc));
+        ((decltype(originalFunc))HookshotInterface()->GetOriginalFunction(originalFunc))());
+    TEST_ASSERT(nullptr != HookshotInterface()->GetOriginalFunction(hookFunc));
   }
 
   // Hookshot is presented with a valid original function but a hook function whose address is
@@ -635,9 +643,9 @@ namespace HookshotTest
   HOOKSHOT_CUSTOM_TEST(UnsafeSeparation)
   {
     GENERATE_AND_ASSIGN_FUNCTION(funcA);
-    HOOKSHOT_TEST_ASSERT(
+    TEST_ASSERT(
         Hookshot::EResult::FailInvalidArgument ==
-        hookshot->CreateHook(
+        HookshotInterface()->CreateHook(
             funcA, reinterpret_cast<void*>(reinterpret_cast<intptr_t>(funcA) + 1)));
   }
 
@@ -669,8 +677,8 @@ namespace HookshotTest
   {
     // Hook the VirtualProtect Windows API function.
     // This is used internally by Hookshot to set memory permissions while setting hooks.
-    HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(
-        hookshot->CreateHook(GetVirtualProtectAddress(), &HookVirtualProtect)));
+    TEST_ASSERT(Hookshot::SuccessfulResult(
+        HookshotInterface()->CreateHook(GetVirtualProtectAddress(), &HookVirtualProtect)));
 
     // Standard hook operations follow. These are expected to succeed.
     GENERATE_AND_ASSIGN_FUNCTION(originalFunc);
@@ -679,10 +687,11 @@ namespace HookshotTest
     const auto originalFuncResult = originalFunc();
     const auto hookFuncResult = hookFunc();
 
-    HOOKSHOT_TEST_ASSERT(Hookshot::SuccessfulResult(hookshot->CreateHook(originalFunc, hookFunc)));
-    HOOKSHOT_TEST_ASSERT(hookFuncResult == originalFunc());
-    HOOKSHOT_TEST_ASSERT(
+    TEST_ASSERT(
+        Hookshot::SuccessfulResult(HookshotInterface()->CreateHook(originalFunc, hookFunc)));
+    TEST_ASSERT(hookFuncResult == originalFunc());
+    TEST_ASSERT(
         originalFuncResult ==
-        ((decltype(originalFunc))hookshot->GetOriginalFunction(originalFunc))());
+        ((decltype(originalFunc))HookshotInterface()->GetOriginalFunction(originalFunc))());
   }
 } // namespace HookshotTest

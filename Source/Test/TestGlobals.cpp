@@ -5,20 +5,17 @@
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2024
  ***********************************************************************************************//**
- * @file TestCase.cpp
- *   Implementation of Hookshot test case interface.
+ * @file TestGlobals.cpp
+ *   Implementation of global data for use in test cases.
  **************************************************************************************************/
 
-#include "TestCase.h"
-
-#include <string_view>
-
-#include "Harness.h"
+#include "Hookshot.h"
 
 namespace HookshotTest
 {
-  ITestCase::ITestCase(std::wstring_view name)
+  Hookshot::IHookshot* HookshotInterface(void)
   {
-    Harness::RegisterTestCase(this, name);
+    static Hookshot::IHookshot* const hookshotInterface = HookshotLibraryInitialize();
+    return hookshotInterface;
   }
 } // namespace HookshotTest

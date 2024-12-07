@@ -4,22 +4,19 @@
  ***************************************************************************************************
  * Authored by Samuel Grossman
  * Copyright (c) 2019-2024
- *************************************************************************//**
- * @file Utilities.h
- *   Declaration of test utility functions.
+ ***********************************************************************************************//**
+ * @file TestGlobals.h
+ *   Declaration of global data for use in test cases.
  **************************************************************************************************/
 
 #pragma once
 
-#include <sal.h>
+#include "Hookshot.h"
 
 namespace HookshotTest
 {
-  /// Prints the specified message and appends a newline.
-  /// @param [in] str Message string.
-  void Print(const wchar_t* const str);
-
-  /// Formats and prints the specified message.
-  /// @param [in] format Message string, possibly with format specifiers.
-  void PrintFormatted(_Printf_format_string_ const wchar_t* const format, ...);
+  /// Retrieves a pointer to the Hookshot interface object that test cases should use. Initialized
+  /// once and then reused across all test cases.
+  /// @return Pointer to the Hookshot interface object.
+  Hookshot::IHookshot* HookshotInterface(void);
 } // namespace HookshotTest

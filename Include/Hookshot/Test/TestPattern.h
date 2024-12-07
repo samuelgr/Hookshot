@@ -11,11 +11,12 @@
 
 #pragma once
 
-#include "TestCase.h"
-
 #include <cstddef>
 
+#include <Infra/Test/TestCase.h>
+
 #include "Hookshot.h"
+#include "TestGlobals.h"
 
 /// Expected result of a call to an original version of a function.
 /// Test cases should compare the result received from what should be an original function
@@ -31,6 +32,11 @@ static constexpr size_t kHookFunctionResult = (kOriginalFunctionResult << 1);
 /// Most, if not all, test functions are written in assembly.
 using THookshotTestFunc = size_t(__fastcall*)(size_t scx, size_t sdx);
 
+/// If creating test functions that serve either as either hook or target functions, mark them with
+/// this macro. Also, to avoid the optimizer optimizing away multiple calls, make sure that each
+/// call to such functions use different parameter values.
+#define HOOKSHOT_TEST_HELPER_FUNCTION __declspec(noinline) static
+
 /// Encapsulates the logic that implements a Hookshot test in which a hook is set successfully, thus
 /// effectively replacing the original function with the hooked version. This test pattern verifies
 /// that Hookshot correctly returns a hook identifier that identifies the hook, sets the hook, and
@@ -44,17 +50,18 @@ using THookshotTestFunc = size_t(__fastcall*)(size_t scx, size_t sdx);
 #define HOOKSHOT_HOOK_SET_SUCCESS_TEST_CONDITIONAL(name, cond)                                     \
   extern "C" size_t __fastcall name##_Original(size_t scx, size_t sdx);                            \
   extern "C" size_t __fastcall name##_Hook(size_t scx, size_t sdx);                                \
-  HOOKSHOT_TEST_CASE_CONDITIONAL(HookSetSuccess_##name, cond)                                      \
+  TEST_CASE_CONDITIONAL(HookSetSuccess_##name, cond)                                               \
   {                                                                                                \
-    HOOKSHOT_TEST_ASSERT(                                                                          \
-        Hookshot::SuccessfulResult(hookshot->CreateHook(&name##_Original, &name##_Hook)));         \
-    HOOKSHOT_TEST_ASSERT(kHookFunctionResult == name##_Original(kOriginalFunctionResult, 0));      \
+    TEST_ASSERT(Hookshot::SuccessfulResult(                                                        \
+        ::HookshotTest::HookshotInterface()->CreateHook(&name##_Original, &name##_Hook)));         \
+    TEST_ASSERT(kHookFunctionResult == name##_Original(kOriginalFunctionResult, 0));               \
     THookshotTestFunc originalFuncPtr =                                                            \
-        (THookshotTestFunc)hookshot->GetOriginalFunction(&name##_Hook);                            \
-    HOOKSHOT_TEST_ASSERT(nullptr != originalFuncPtr);                                              \
-    HOOKSHOT_TEST_ASSERT(                                                                          \
-        (THookshotTestFunc)hookshot->GetOriginalFunction(&name##_Original) == originalFuncPtr);    \
-    HOOKSHOT_TEST_ASSERT(kOriginalFunctionResult == originalFuncPtr(kOriginalFunctionResult, 0));  \
+        (THookshotTestFunc)::HookshotTest::HookshotInterface()->GetOriginalFunction(&name##_Hook); \
+    TEST_ASSERT(nullptr != originalFuncPtr);                                                       \
+    TEST_ASSERT(                                                                                   \
+        (THookshotTestFunc)::HookshotTest::HookshotInterface()->GetOriginalFunction(               \
+            &name##_Original) == originalFuncPtr);                                                 \
+    TEST_ASSERT(kOriginalFunctionResult == originalFuncPtr(kOriginalFunctionResult, 0));           \
   }
 
 /// Convenience wrapper that unconditionally runs a test in which the expected result is the hook
@@ -75,9 +82,11 @@ using THookshotTestFunc = size_t(__fastcall*)(size_t scx, size_t sdx);
   {                                                                                                \
     return __LINE__;                                                                               \
   }                                                                                                \
-  HOOKSHOT_TEST_CASE_CONDITIONAL(HookSetFail_##name, cond)                                         \
+  TEST_CASE_CONDITIONAL(HookSetFail_##name, cond)                                                  \
   {                                                                                                \
-    HOOKSHOT_TEST_ASSERT(result == hookshot->CreateHook(&name##_Test, &name##_Test_Hook));         \
+    TEST_ASSERT(                                                                                   \
+        result ==                                                                                  \
+        ::HookshotTest::HookshotInterface()->CreateHook(&name##_Test, &name##_Test_Hook));         \
   }
 
 /// Convenience wrapper that unconditionally runs a test in which the expected result is the hook
@@ -87,8 +96,7 @@ using THookshotTestFunc = size_t(__fastcall*)(size_t scx, size_t sdx);
 
 /// Encapsulates the logic that implements a completely custom Hookshot test.
 /// This particular macro just ensures a proper test case naming convention.
-#define HOOKSHOT_CUSTOM_TEST_CONDITIONAL(name, cond)                                               \
-  HOOKSHOT_TEST_CASE_CONDITIONAL(Custom_##name, cond)
+#define HOOKSHOT_CUSTOM_TEST_CONDITIONAL(name, cond) TEST_CASE_CONDITIONAL(Custom_##name, cond)
 
 /// Convenience wrapper that unconditionally runs a custom test.
-#define HOOKSHOT_CUSTOM_TEST(name) HOOKSHOT_CUSTOM_TEST_CONDITIONAL(name, true)
+#define HOOKSHOT_CUSTOM_TEST(name)                   HOOKSHOT_CUSTOM_TEST_CONDITIONAL(name, true)
