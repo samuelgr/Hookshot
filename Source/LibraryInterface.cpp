@@ -16,6 +16,8 @@
 #include <string_view>
 #include <vector>
 
+#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "DependencyProtect.h"
@@ -40,7 +42,7 @@ namespace Hookshot
 
     /// Determines which directory should be checked when loading hook modules. This defaults to the
     /// executable directory but can instead be configured for the Hookshot directory, in case the
-    /// two are different.
+    /// two are different. There is no trailing backslash on the path returned by this function.
     /// @return Name of the directory in which to look for hook modules.
     static std::wstring_view HookModuleDirectoryName(void)
     {
@@ -52,8 +54,8 @@ namespace Hookshot
               .value_or(false);
 
       return (
-          loadHookModulesFromHookshotDirectory ? Strings::kStrHookshotDirectoryName
-                                               : Strings::kStrExecutableDirectoryName);
+          loadHookModulesFromHookshotDirectory ? Infra::ProcessInfo::GetThisModuleDirectoryName()
+                                               : Infra::ProcessInfo::GetExecutableDirectoryName());
     }
 
     /// Obtains pointers to all of the relevant configuration settings for the currently-running
@@ -77,10 +79,11 @@ namespace Hookshot
               &configData[Configuration::kSectionNameGlobal][configSettingName]);
         }
 
-        if (configData.SectionNamePairExists(Strings::kStrExecutableBaseName, configSettingName))
+        if (configData.SectionNamePairExists(
+                Infra::ProcessInfo::GetExecutableBaseName(), configSettingName))
         {
           relevantConfigSettings.push_back(
-              &configData[Strings::kStrExecutableBaseName][configSettingName]);
+              &configData[Infra::ProcessInfo::GetExecutableBaseName()][configSettingName]);
         }
       }
 
@@ -105,7 +108,7 @@ namespace Hookshot
             Message::ESeverity::Warning,
             L"%s - Failed to load hook module: %s.",
             hookModuleFileName.data(),
-            Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).AsCString());
+            Infra::Strings::FromSystemErrorCode(Protected::Windows_GetLastError()).AsCString());
         return false;
       }
 
@@ -118,7 +121,7 @@ namespace Hookshot
             Message::ESeverity::Warning,
             L"%s - Failed to locate required procedure in hook module: %s.",
             hookModuleFileName.data(),
-            Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).AsCString());
+            Infra::Strings::FromSystemErrorCode(Protected::Windows_GetLastError()).AsCString());
         return false;
       }
 
@@ -148,7 +151,7 @@ namespace Hookshot
             Message::ESeverity::Warning,
             L"%s - Failed to load library: %s.",
             injectOnlyLibraryFileName.data(),
-            Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).AsCString());
+            Infra::Strings::FromSystemErrorCode(Protected::Windows_GetLastError()).AsCString());
         return false;
       }
 
@@ -210,18 +213,13 @@ namespace Hookshot
           0);
       BOOL moreHookModulesExist = (INVALID_HANDLE_VALUE != hookModuleFind);
 
-      Infra::TemporaryBuffer<wchar_t> hookModuleFileName;
-      wcscpy_s(
-          hookModuleFileName.Data(), hookModuleFileName.Capacity(), hookModuleDirectory.data());
+      Infra::TemporaryString hookModuleFileName;
 
       while (TRUE == moreHookModulesExist)
       {
-        wcscpy_s(
-            &hookModuleFileName[hookModuleDirectory.length()],
-            hookModuleFileName.Capacity() - hookModuleDirectory.length(),
-            hookModuleFileData.cFileName);
-
-        if (true == LoadHookModule(&hookModuleFileName[0])) numHookModulesLoaded += 1;
+        hookModuleFileName.Clear();
+        hookModuleFileName << hookModuleDirectory << L"\\" << hookModuleFileData.cFileName;
+        if (true == LoadHookModule(hookModuleFileName.AsCString())) numHookModulesLoaded += 1;
 
         moreHookModulesExist = Protected::Windows_FindNextFile(hookModuleFind, &hookModuleFileData);
       }

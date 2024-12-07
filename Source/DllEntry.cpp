@@ -11,13 +11,14 @@
 
 #include <string_view>
 
+#include <Infra/Core/ProcessInfo.h>
+
 #include "DependencyProtect.h"
 #include "Globals.h"
 #include "HookshotTypes.h"
 #include "InjectLanding.h"
 #include "LibraryInterface.h"
 #include "Message.h"
-#include "Strings.h"
 
 using namespace Hookshot;
 
@@ -62,14 +63,14 @@ extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
   if (true == LibraryInterface::Initialize(Globals::ELoadMethod::Injected))
   {
     return reinterpret_cast<void*>(InjectLanding);
-    ;
   }
   else
   {
     Message::OutputFormatted(
         Message::ESeverity::Warning,
-        L"Detected an improper attempt to initialize %s by invoking %s.",
-        Strings::kStrProductName.data(),
+        L"Detected an improper attempt to initialize %.*s by invoking %s.",
+        static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
+        Infra::ProcessInfo::GetProductName()->data(),
         __FUNCTIONW__);
     return nullptr;
   }
@@ -87,8 +88,9 @@ extern "C" __declspec(dllexport) IHookshot* __fastcall HookshotLibraryInitialize
   {
     Message::OutputFormatted(
         Message::ESeverity::Warning,
-        L"Detected an improper attempt to initialize %s by invoking %s.",
-        Strings::kStrProductName.data(),
+        L"Detected an improper attempt to initialize %.*s by invoking %s.",
+        static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
+        Infra::ProcessInfo::GetProductName()->data(),
         __FUNCTIONW__);
     return nullptr;
   }

@@ -12,6 +12,8 @@
 #include <sstream>
 #include <string>
 
+#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "ApiWindows.h"
@@ -38,9 +40,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   {
     Message::OutputFormatted(
         Message::ESeverity::ForcedInteractiveError,
-        L"%s cannot be launched directly. An executable file must be specified as an argument.\n\nUsage: %s <command> [<arg1> <arg2>...]",
-        Strings::kStrProductName.data(),
-        Strings::kStrExecutableBaseName.data());
+        L"%.*s cannot be launched directly. An executable file must be specified as an argument.\n\nUsage: %.*s <command> [<arg1> <arg2>...]",
+        static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
+        Infra::ProcessInfo::GetProductName()->data(),
+        static_cast<int>(Infra::ProcessInfo::GetExecutableBaseName().length()),
+        Infra::ProcessInfo::GetExecutableBaseName().data());
     return __LINE__;
   }
 
@@ -150,7 +154,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
           const INT_PTR executeElevatedResult = reinterpret_cast<INT_PTR>(ShellExecute(
               nullptr,
               L"runas",
-              Strings::kStrExecutableCompleteFilename.data(),
+              Infra::ProcessInfo::GetExecutableCompleteFilename().data(),
               commandLine.Data(),
               nullptr,
               SW_SHOWDEFAULT));
@@ -172,10 +176,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
           {
             Message::OutputFormatted(
                 Message::ESeverity::ForcedInteractiveError,
-                L"%s\n\n%s failed to inject this executable.\n\nTarget process requires elevation (%s).",
+                L"%s\n\n%.*s failed to inject this executable.\n\nTarget process requires elevation (%s).",
                 __wargv[1],
-                Strings::kStrProductName.data(),
-                Strings::SystemErrorCodeString((unsigned long)executeElevatedResult).AsCString());
+                static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
+                Infra::ProcessInfo::GetProductName()->data(),
+                Infra::Strings::FromSystemErrorCode((unsigned long)executeElevatedResult)
+                    .AsCString());
             return __LINE__;
           }
         }
@@ -184,11 +190,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
       default:
         Message::OutputFormatted(
             Message::ESeverity::ForcedInteractiveError,
-            L"%s\n\n%s failed to inject this executable.\n\n%s (%s).",
+            L"%s\n\n%.*s failed to inject this executable.\n\n%s (%s).",
             __wargv[1],
-            Strings::kStrProductName.data(),
+            static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
+            Infra::ProcessInfo::GetProductName()->data(),
             InjectResultString(result).data(),
-            Strings::SystemErrorCodeString(GetLastError()).AsCString());
+            Infra::Strings::FromSystemErrorCode(GetLastError()).AsCString());
         return __LINE__;
     }
   }

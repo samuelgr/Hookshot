@@ -72,214 +72,7 @@ namespace Hookshot
     /// authorized to act on a process.
     static constexpr std::wstring_view kStrAuthorizationFileExtension = L".hookshot";
 
-    /// Converts a single character to lowercase.
-    /// Default implementation does nothing useful.
-    /// @tparam CharType Character type.
-    /// @param [in] c Character to convert.
-    /// @return Null character, as the default implementation does nothing useful.
-    template <typename CharType> static inline CharType ToLowercase(CharType c)
-    {
-      return L'\0';
-    }
-
-    /// Converts a single narrow character to lowercase.
-    /// @tparam CharType Character type.
-    /// @param [in] c Character to convert.
-    /// @return Lowercase version of the input, if a conversion is possible, or the same character
-    /// as the input otherwise.
-    template <> char static inline ToLowercase(char c)
-    {
-      return std::tolower(c);
-    }
-
-    /// Converts a single wide character to lowercase.
-    /// Default implementation does nothing useful.
-    /// @tparam CharType Character type.
-    /// @param [in] c Character to convert.
-    /// @return Lowercase version of the input, if a conversion is possible, or the same character
-    /// as the input otherwise.
-    template <> wchar_t static inline ToLowercase(wchar_t c)
-    {
-      return std::towlower(c);
-    }
-
-    /// Generates the value for kStrProductName; see documentation of this run-time constant for
-    /// more information.
-    /// @return Corresponding run-time constant value.
-    static const std::wstring& GetProductName(void)
-    {
-      static std::wstring initString;
-      static std::once_flag initFlag;
-
-      std::call_once(
-          initFlag,
-          []() -> void
-          {
-            const wchar_t* stringStart = nullptr;
-            int stringLength = LoadString(
-                Infra::ProcessInfo::GetThisModuleInstanceHandle(),
-                IDS_HOOKSHOT_PRODUCT_NAME,
-                (wchar_t*)&stringStart,
-                0);
-
-            while ((stringLength > 0) && (L'\0' == stringStart[stringLength - 1]))
-              stringLength -= 1;
-
-            if (stringLength > 0) initString.assign(stringStart, &stringStart[stringLength]);
-          });
-
-      return initString;
-    }
-
-    /// Generates the value for kStrExecutableCompleteFilename; see documentation of this run-time
-    /// constant for more information.
-    /// @return Corresponding run-time constant value.
-    static const std::wstring& GetExecutableCompleteFilename(void)
-    {
-      static std::wstring initString;
-      static std::once_flag initFlag;
-
-      std::call_once(
-          initFlag,
-          []() -> void
-          {
-            Infra::TemporaryBuffer<wchar_t> buf;
-            GetModuleFileName(nullptr, buf.Data(), static_cast<DWORD>(buf.Capacity()));
-
-            initString.assign(buf.Data());
-          });
-
-      return initString;
-    }
-
-    /// Generates the value for kStrExecutableBaseName; see documentation of this run-time constant
-    /// for more information.
-    /// @return Corresponding run-time constant value.
-    static const std::wstring& GetExecutableBaseName(void)
-    {
-      static std::wstring initString;
-      static std::once_flag initFlag;
-
-      std::call_once(
-          initFlag,
-          []() -> void
-          {
-            std::wstring_view executableBaseName = GetExecutableCompleteFilename();
-
-            const size_t lastBackslashPos = executableBaseName.find_last_of(L"\\");
-            if (std::wstring_view::npos != lastBackslashPos)
-              executableBaseName.remove_prefix(1 + lastBackslashPos);
-
-            initString.assign(executableBaseName);
-          });
-
-      return initString;
-    }
-
-    /// Generates the value for kStrExecutableDirectoryName; see documentation of this run-time
-    /// constant for more information.
-    /// @return Corresponding run-time constant value.
-    static const std::wstring& GetExecutableDirectoryName(void)
-    {
-      static std::wstring initString;
-      static std::once_flag initFlag;
-
-      std::call_once(
-          initFlag,
-          []() -> void
-          {
-            std::wstring_view executableDirectoryName = GetExecutableCompleteFilename();
-
-            const size_t lastBackslashPos = executableDirectoryName.find_last_of(L"\\");
-            if (std::wstring_view::npos != lastBackslashPos)
-            {
-              executableDirectoryName.remove_suffix(
-                  executableDirectoryName.length() - lastBackslashPos - 1);
-              initString.assign(executableDirectoryName);
-            }
-          });
-
-      return initString;
-    }
-
-    /// Generates the value for kStrHookshotCompleteFilename; see documentation of this run-time
-    /// constant for more information.
-    /// @return Corresponding run-time constant value.
-    static const std::wstring& GetHookshotCompleteFilename(void)
-    {
-      static std::wstring initString;
-      static std::once_flag initFlag;
-
-      std::call_once(
-          initFlag,
-          []() -> void
-          {
-            Infra::TemporaryBuffer<wchar_t> buf;
-            GetModuleFileName(
-                Infra::ProcessInfo::GetThisModuleInstanceHandle(),
-                buf.Data(),
-                static_cast<DWORD>(buf.Capacity()));
-
-            initString.assign(buf.Data());
-          });
-
-      return initString;
-    }
-
-    /// Generates the value for kStrHookshotBaseName; see documentation of this run-time constant
-    /// for more information.
-    /// @return Corresponding run-time constant value.
-    static const std::wstring& GetHookshotBaseName(void)
-    {
-      static std::wstring initString;
-      static std::once_flag initFlag;
-
-      std::call_once(
-          initFlag,
-          []() -> void
-          {
-            std::wstring_view hookshotBaseName = GetHookshotCompleteFilename();
-
-            const size_t lastBackslashPos = hookshotBaseName.find_last_of(L"\\");
-            if (std::wstring_view::npos != lastBackslashPos)
-              hookshotBaseName.remove_prefix(1 + lastBackslashPos);
-
-            initString.assign(hookshotBaseName);
-          });
-
-      return initString;
-    }
-
-    /// Generates the value for kStrHookshotDirectoryName; see documentation of this run-time
-    /// constant for more information.
-    /// @return Corresponding run-time constant value.
-    static const std::wstring& GetHookshotDirectoryName(void)
-    {
-      static std::wstring initString;
-      static std::once_flag initFlag;
-
-      std::call_once(
-          initFlag,
-          []() -> void
-          {
-            std::wstring_view hookshotDirectoryName = GetHookshotCompleteFilename();
-
-            const size_t lastBackslashPos = hookshotDirectoryName.find_last_of(L"\\");
-            if (std::wstring_view::npos != lastBackslashPos)
-            {
-              hookshotDirectoryName.remove_suffix(
-                  hookshotDirectoryName.length() - lastBackslashPos - 1);
-              initString.assign(hookshotDirectoryName);
-            }
-          });
-
-      return initString;
-    }
-
-    /// Generates the value for kStrHookshotConfigurationFilename; see documentation of this
-    /// run-time constant for more information.
-    /// @return Corresponding run-time constant value.
-    static const std::wstring& GetHookshotConfigurationFilename(void)
+    std::wstring_view GetHookshotConfigurationFilename(void)
     {
       static std::wstring initString;
       static std::once_flag initFlag;
@@ -289,8 +82,9 @@ namespace Hookshot
           []() -> void
           {
             std::wstring_view pieces[] = {
-                GetExecutableDirectoryName(),
-                GetProductName(),
+                Infra::ProcessInfo::GetExecutableDirectoryName(),
+                L"\\",
+                *Infra::ProcessInfo::GetProductName(),
                 kStrHookshotConfigurationFileExtension};
 
             size_t totalLength = 0;
@@ -306,10 +100,7 @@ namespace Hookshot
       return initString;
     }
 
-    /// Generates the value for kStrHookshotLogFilename; see documentation of this run-time constant
-    /// for more information.
-    /// @return Corresponding run-time constant value.
-    static const std::wstring& GetHookshotLogFilename(void)
+    std::wstring_view GetHookshotLogFilename(void)
     {
       static std::wstring initString;
       static std::once_flag initFlag;
@@ -330,7 +121,8 @@ namespace Hookshot
               CoTaskMemFree(knownFolderPath);
             }
 
-            logFilename << GetProductName() << L'_' << GetExecutableBaseName() << L'_'
+            logFilename << *Infra::ProcessInfo::GetProductName() << L'_'
+                        << Infra::ProcessInfo::GetExecutableBaseName() << L'_'
                         << Infra::ProcessInfo::GetCurrentProcessId()
                         << kStrHookshotLogFileExtension;
 
@@ -340,10 +132,7 @@ namespace Hookshot
       return initString;
     }
 
-    /// Generates the value for kStrHookshotDynamicLinkLibraryFilename; see documentation of this
-    /// run-time constant for more information.
-    /// @return Corresponding run-time constant value.
-    static const std::wstring& GetHookshotDynamicLinkLibraryFilename(void)
+    std::wstring_view GetHookshotDynamicLinkLibraryFilename(void)
     {
       static std::wstring initString;
       static std::once_flag initFlag;
@@ -353,8 +142,9 @@ namespace Hookshot
           []() -> void
           {
             std::wstring_view pieces[] = {
-                GetHookshotDirectoryName(),
-                GetProductName(),
+                Infra::ProcessInfo::GetThisModuleDirectoryName(),
+                L"\\",
+                *Infra::ProcessInfo::GetProductName(),
                 kStrHookshotDynamicLinkLibraryExtension};
 
             size_t totalLength = 0;
@@ -370,10 +160,7 @@ namespace Hookshot
       return initString;
     }
 
-    /// Generates the value for kStrHookshotExecutableFilename; see documentation of this run-time
-    /// constant for more information.
-    /// @return Corresponding run-time constant value.
-    static const std::wstring& GetHookshotExecutableFilename(void)
+    std::wstring_view GetHookshotExecutableFilename(void)
     {
       static std::wstring initString;
       static std::once_flag initFlag;
@@ -383,7 +170,10 @@ namespace Hookshot
           []() -> void
           {
             std::wstring_view pieces[] = {
-                GetHookshotDirectoryName(), GetProductName(), kStrHookshotExecutableExtension};
+                Infra::ProcessInfo::GetThisModuleDirectoryName(),
+                L"\\",
+                *Infra::ProcessInfo::GetProductName(),
+                kStrHookshotExecutableExtension};
 
             size_t totalLength = 0;
             for (int i = 0; i < _countof(pieces); ++i)
@@ -398,10 +188,7 @@ namespace Hookshot
       return initString;
     }
 
-    /// Generates the value for kStrHookshotExecutableOtherArchitectureFilename; see documentation
-    /// of this run-time constant for more information.
-    /// @return Corresponding run-time constant value.
-    static const std::wstring& GetHookshotExecutableOtherArchitectureFilename(void)
+    std::wstring_view GetHookshotExecutableOtherArchitectureFilename(void)
     {
       static std::wstring initString;
       static std::once_flag initFlag;
@@ -411,8 +198,9 @@ namespace Hookshot
           []() -> void
           {
             std::wstring_view pieces[] = {
-                GetHookshotDirectoryName(),
-                GetProductName(),
+                Infra::ProcessInfo::GetThisModuleDirectoryName(),
+                L"\\",
+                *Infra::ProcessInfo::GetProductName(),
                 kStrHookshotExecutableOtherArchitectureExtension};
 
             size_t totalLength = 0;
@@ -427,22 +215,6 @@ namespace Hookshot
 
       return initString;
     }
-
-    extern const std::wstring_view kStrProductName(GetProductName());
-    extern const std::wstring_view kStrExecutableCompleteFilename(GetExecutableCompleteFilename());
-    extern const std::wstring_view kStrExecutableBaseName(GetExecutableBaseName());
-    extern const std::wstring_view kStrExecutableDirectoryName(GetExecutableDirectoryName());
-    extern const std::wstring_view kStrHookshotCompleteFilename(GetHookshotCompleteFilename());
-    extern const std::wstring_view kStrHookshotBaseName(GetHookshotBaseName());
-    extern const std::wstring_view kStrHookshotDirectoryName(GetHookshotDirectoryName());
-    extern const std::wstring_view kStrHookshotConfigurationFilename(
-        GetHookshotConfigurationFilename());
-    extern const std::wstring_view kStrHookshotLogFilename(GetHookshotLogFilename());
-    extern const std::wstring_view kStrHookshotDynamicLinkLibraryFilename(
-        GetHookshotDynamicLinkLibraryFilename());
-    extern const std::wstring_view kStrHookshotExecutableFilename(GetHookshotExecutableFilename());
-    extern const std::wstring_view kStrHookshotExecutableOtherArchitectureFilename(
-        GetHookshotExecutableOtherArchitectureFilename());
 
     Infra::TemporaryString AuthorizationFilenameApplicationSpecific(
         std::wstring_view executablePath)
@@ -467,147 +239,24 @@ namespace Hookshot
       else
       {
         executablePath.remove_suffix(executablePath.length() - lastBackslashPos - 1);
-
-        authorizationFilename += executablePath;
-        authorizationFilename += kStrAuthorizationFileExtension;
+        authorizationFilename << executablePath << kStrAuthorizationFileExtension;
       }
 
       return authorizationFilename;
-    }
-
-    Infra::TemporaryString ConvertStringNarrowToWide(const char* str)
-    {
-      Infra::TemporaryString convertedStr;
-      size_t numCharsConverted = 0;
-
-      if (0 ==
-          mbstowcs_s(
-              &numCharsConverted,
-              convertedStr.Data(),
-              convertedStr.Capacity(),
-              str,
-              convertedStr.Capacity() - 1))
-        convertedStr.UnsafeSetSize(static_cast<unsigned int>(numCharsConverted));
-
-      return convertedStr;
-    }
-
-    Infra::TemporaryBuffer<char> ConvertStringWideToNarrow(const wchar_t* str)
-    {
-      Infra::TemporaryBuffer<char> convertedStr;
-      size_t numCharsConverted = 0;
-
-      if (0 !=
-          wcstombs_s(
-              &numCharsConverted,
-              convertedStr.Data(),
-              convertedStr.Capacity(),
-              str,
-              convertedStr.Capacity() - 1))
-        convertedStr[0] = '\0';
-
-      return convertedStr;
-    }
-
-    template <typename CharType> bool EndsWithCaseInsensitive(
-        std::basic_string_view<CharType> str, std::basic_string_view<CharType> maybeSuffix)
-    {
-      if (str.length() < maybeSuffix.length()) return false;
-
-      str.remove_prefix(str.length() - maybeSuffix.length());
-      return EqualsCaseInsensitive(str, maybeSuffix);
-    }
-
-    template bool EndsWithCaseInsensitive<char>(std::string_view, std::string_view);
-    template bool EndsWithCaseInsensitive<wchar_t>(std::wstring_view, std::wstring_view);
-
-    template <typename CharType> bool EqualsCaseInsensitive(
-        std::basic_string_view<CharType> strA, std::basic_string_view<CharType> strB)
-    {
-      if (strA.length() != strB.length()) return false;
-
-      for (size_t i = 0; i < strA.length(); ++i)
-      {
-        if (ToLowercase(strA[i]) != ToLowercase(strB[i])) return false;
-      }
-
-      return true;
-    }
-
-    template bool EqualsCaseInsensitive<char>(std::string_view, std::string_view);
-    template bool EqualsCaseInsensitive<wchar_t>(std::wstring_view, std::wstring_view);
-
-    Infra::TemporaryString FormatString(_Printf_format_string_ const wchar_t* format, ...)
-    {
-      Infra::TemporaryString buf;
-
-      va_list args;
-      va_start(args, format);
-
-      buf.UnsafeSetSize(
-          static_cast<unsigned int>(vswprintf_s(buf.Data(), buf.Capacity(), format, args)));
-
-      va_end(args);
-
-      return buf;
     }
 
     Infra::TemporaryString HookModuleFilename(
         std::wstring_view moduleName, std::wstring_view directoryName)
     {
       Infra::TemporaryString hookModuleFilename;
-
-      hookModuleFilename += directoryName;
-      hookModuleFilename += moduleName;
-      hookModuleFilename += kStrHookModuleExtension;
+      hookModuleFilename << directoryName;
+      if (false == directoryName.ends_with(L"\\"))
+      {
+        hookModuleFilename << L"\\";
+      }
+      hookModuleFilename << moduleName << kStrHookModuleExtension;
 
       return hookModuleFilename;
-    }
-
-    template <typename CharType> bool StartsWithCaseInsensitive(
-        std::basic_string_view<CharType> str, std::basic_string_view<CharType> maybePrefix)
-    {
-      if (str.length() < maybePrefix.length()) return false;
-
-      str.remove_suffix(str.length() - maybePrefix.length());
-      return EqualsCaseInsensitive(str, maybePrefix);
-    }
-
-    template bool StartsWithCaseInsensitive<char>(std::string_view, std::string_view);
-    template bool StartsWithCaseInsensitive<wchar_t>(std::wstring_view, std::wstring_view);
-
-    Infra::TemporaryString SystemErrorCodeString(const unsigned long systemErrorCode)
-    {
-      Infra::TemporaryString systemErrorString;
-      DWORD systemErrorLength = Protected::Windows_FormatMessage(
-          FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-          nullptr,
-          systemErrorCode,
-          0,
-          systemErrorString.Data(),
-          systemErrorString.Capacity(),
-          nullptr);
-
-      if (0 == systemErrorLength)
-      {
-        systemErrorString =
-            FormatString(L"System error %u", static_cast<unsigned int>(systemErrorCode));
-      }
-      else
-      {
-        for (; systemErrorLength > 0; --systemErrorLength)
-        {
-          if (L'\0' != systemErrorString[systemErrorLength] &&
-              L'.' != systemErrorString[systemErrorLength] &&
-              !iswspace(systemErrorString[systemErrorLength]))
-            break;
-
-          systemErrorString[systemErrorLength] = L'\0';
-          systemErrorString.UnsafeSetSize(systemErrorLength);
-        }
-      }
-
-      return systemErrorString;
     }
   } // namespace Strings
 } // namespace Hookshot

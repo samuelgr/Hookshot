@@ -21,6 +21,7 @@
 #include <vector>
 
 #include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "ApiWindows.h"
@@ -152,7 +153,8 @@ namespace Hookshot
         if (true == loadedModuleName.Empty()) return nullptr;
 
         if (true ==
-            Strings::EndsWithCaseInsensitive<wchar_t>(loadedModuleName.AsStringView(), moduleName))
+            Infra::Strings::EndsWithCaseInsensitive<wchar_t>(
+                loadedModuleName.AsStringView(), moduleName))
           return loadedModule;
       }
 

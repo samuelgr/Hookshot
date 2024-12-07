@@ -43,8 +43,9 @@ extern "C" void __fastcall InjectLandingLoadHookModules(const SInjectData* const
   if ((0 != injectData->enableDebugFeatures) && (0 == Protected::Windows_IsDebuggerPresent()))
     Message::OutputFormatted(
         Message::ESeverity::ForcedInteractiveInfo,
-        L"Attach to \"%s\" (PID %d) to continue debugging.",
-        Strings::kStrExecutableBaseName.data(),
+        L"Attach to \"%.*s\" (PID %d) to continue debugging.",
+        static_cast<int>(Infra::ProcessInfo::GetExecutableBaseName().length()),
+        Infra::ProcessInfo::GetExecutableBaseName().data(),
         Infra::ProcessInfo::GetCurrentProcessId());
 
   const int numHookModulesLoaded = LibraryInterface::LoadHookModules();

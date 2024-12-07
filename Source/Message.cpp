@@ -19,6 +19,7 @@
 #include <string>
 
 #include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "ApiWindows.h"
@@ -164,7 +165,7 @@ namespace Hookshot
       fwprintf_s(
           stderr,
           L"%s:[%c] %s\n",
-          Strings::kStrHookshotBaseName.data(),
+          Infra::ProcessInfo::GetThisModuleBaseName().data(),
           CharacterForSeverity(severity),
           message);
     }
@@ -175,9 +176,9 @@ namespace Hookshot
     /// @param [in] message Message text.
     static void OutputInternalUsingDebugString(const ESeverity severity, const wchar_t* message)
     {
-      Protected::Windows_OutputDebugString(Strings::FormatString(
+      Protected::Windows_OutputDebugString(Infra::Strings::Format(
                                                L"%s:[%c] %s\n",
-                                               Strings::kStrHookshotBaseName.data(),
+                                               Infra::ProcessInfo::GetThisModuleBaseName().data(),
                                                CharacterForSeverity(severity),
                                                message)
                                                .AsCString());
@@ -261,7 +262,7 @@ namespace Hookshot
       }
 
       Protected::Windows_MessageBox(
-          nullptr, message, Strings::kStrProductName.data(), messageBoxType);
+          nullptr, message, Infra::ProcessInfo::GetProductName()->data(), messageBoxType);
     }
 
     /// Outputs the specified message.
@@ -326,13 +327,13 @@ namespace Hookshot
       if (false == IsLogFileEnabled())
       {
         // Open the log file.
-        if (0 != _wfopen_s(&logFileHandle, Strings::kStrHookshotLogFilename.data(), L"w"))
+        if (0 != _wfopen_s(&logFileHandle, Strings::GetHookshotLogFilename().data(), L"w"))
         {
           logFileHandle = nullptr;
           OutputFormatted(
               ESeverity::Error,
               L"%s - Unable to create log file.",
-              Strings::kStrHookshotLogFilename.data());
+              Strings::GetHookshotLogFilename().data());
           return;
         }
 
@@ -340,7 +341,7 @@ namespace Hookshot
         static constexpr wchar_t kLogHeaderSeparator[] =
             L"---------------------------------------------";
         fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator);
-        fwprintf_s(logFileHandle, L"%s Log\n", Strings::kStrProductName.data());
+        fwprintf_s(logFileHandle, L"%s Log\n", Infra::ProcessInfo::GetProductName()->data());
         fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator);
         fwprintf_s(
             logFileHandle,
@@ -349,7 +350,9 @@ namespace Hookshot
         fwprintf_s(
             logFileHandle, L"Method:    %s\n", Globals::GetHookshotLoadMethodString().data());
         fwprintf_s(
-            logFileHandle, L"Program:   %s\n", Strings::kStrExecutableCompleteFilename.data());
+            logFileHandle,
+            L"Program:   %s\n",
+            Infra::ProcessInfo::GetExecutableCompleteFilename().data());
         fwprintf_s(logFileHandle, L"PID:       %d\n", Infra::ProcessInfo::GetCurrentProcessId());
         fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator);
         fflush(logFileHandle);

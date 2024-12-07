@@ -35,8 +35,8 @@ namespace Hookshot
       // name in quotes. At most the argument needs to represent a 64-bit integer in hexadecimal, so
       // two characters per byte, plus a space, an indicator character and a null character.
       const std::wstring_view executableFileName =
-          (switchArchitecture ? Strings::kStrHookshotExecutableOtherArchitectureFilename
-                              : Strings::kStrHookshotExecutableFilename);
+          (switchArchitecture ? Strings::GetHookshotExecutableOtherArchitectureFilename()
+                              : Strings::GetHookshotExecutableFilename());
       const size_t executableArgumentMaxCount = 3 + (2 * sizeof(uint64_t));
       const size_t executableCommandLineMaxCount =
           3 + executableFileName.length() + executableArgumentMaxCount;
@@ -48,10 +48,10 @@ namespace Hookshot
       // be inherited by child processes. This has the effect of creating an anonymous shared memory
       // object. The resulting handle must be passed to the new instance of Hookshot that is
       // spawned.
-      SECURITY_ATTRIBUTES sharedMemorySecurityAttributes;
-      sharedMemorySecurityAttributes.nLength = sizeof(sharedMemorySecurityAttributes);
-      sharedMemorySecurityAttributes.lpSecurityDescriptor = nullptr;
-      sharedMemorySecurityAttributes.bInheritHandle = TRUE;
+      SECURITY_ATTRIBUTES sharedMemorySecurityAttributes{
+          .nLength = sizeof(sharedMemorySecurityAttributes),
+          .lpSecurityDescriptor = nullptr,
+          .bInheritHandle = TRUE};
 
       HANDLE sharedMemoryHandle = Protected::Windows_CreateFileMapping(
           INVALID_HANDLE_VALUE,

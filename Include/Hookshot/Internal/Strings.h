@@ -24,9 +24,6 @@ namespace Hookshot
 {
   namespace Strings
   {
-    // These strings can safely be used at any time, including to perform static initialization.
-    // Views are guaranteed to be null-terminated.
-
     /// Character that occurs at the start of a command-line argument to indicate it is a file
     /// mapping handle rather than an executable name.
     inline constexpr wchar_t kCharCmdlineIndicatorFileMappingHandle = L'|';
@@ -93,72 +90,26 @@ namespace Hookshot
         kStrConfigurationSettingNameLoadHookModulesFromHookshotDirectory =
             L"LoadHookModulesFromHookshotDirectory";
 
-    // These strings are not safe to access before run-time, and should not be used to perform
-    // dynamic initialization. Views are guaranteed to be null-terminated.
-
-    /// Product name.
-    /// Use this to identify Hookshot in areas of user interaction.
-    extern const std::wstring_view kStrProductName;
-
-    /// Complete path and filename of the currently-running executable.
-    /// For Hookshot's executable form, this will be the Hookshot executable.
-    /// For Hookshot's library form, this will be the name of the executable that loaded it or into
-    /// which it was injected. For the Hookshot Launcher, this will be the executable of the
-    /// launcher itself.
-    extern const std::wstring_view kStrExecutableCompleteFilename;
-
-    /// Base name of the currently-running executable.
-    /// For Hookshot's executable form, this will be the Hookshot executable.
-    /// For Hookshot's library form, this will be the name of the executable that loaded it or into
-    /// which it was injected. For the Hookshot Launcher, this will be the executable name of the
-    /// launcher itself.
-    extern const std::wstring_view kStrExecutableBaseName;
-
-    /// Directory name of the currently-running executable, including trailing backslash if
-    /// available. For Hookshot's executable form, this will be the directory containing the
-    /// Hookshot executable. For Hookshot's library form, this will be the name of the executable
-    /// that loaded it or into which it was injected. For the Hookshot Launcher, this will be the
-    /// directory containing the launcher itself.
-    extern const std::wstring_view kStrExecutableDirectoryName;
-
-    /// Complete path and filename of the currently-running form of Hookshot.
-    /// For Hookshot's executable form, this will be the same as kStrExecutableCompleteFilename.
-    /// For Hookshot's library form, this will be the name of the library.
-    /// For the Hookshot Launcher, this will be the same as kStrExecutableCompleteFilename.
-    extern const std::wstring_view kStrHookshotCompleteFilename;
-
-    /// Base name for the currently-running form of Hookshot.
-    /// For Hookshot's executable form, this will be the same as kStrExecutableBaseName.
-    /// For Hookshot's library form, this will be the name of the library.
-    /// For the Hookshot Launcher, this will be the same as kStrExecutableBaseName.
-    extern const std::wstring_view kStrHookshotBaseName;
-
-    /// Directory name for the currently-running form of Hookshot.
-    /// For Hookshot's executable form, this will be the same as kStrExecutableDirectoryName.
-    /// For Hookshot's library form, this will be the name of the library.
-    /// For the Hookshot Launcher, this will be the same as kStrExecutableDirectoryName.
-    extern const std::wstring_view kStrHookshotDirectoryName;
-
     /// Expected filename of a Hookshot configuration file.
     /// Hookshot configuration filename = (executable directory)\(base name of this form of
     /// Hookshot).ini
-    extern const std::wstring_view kStrHookshotConfigurationFilename;
+    std::wstring_view GetHookshotConfigurationFilename(void);
 
     /// Expected filename for the log file.
     /// Hookshot log filename = (current user's desktop)\(base name of this form of Hookshot)_(base
     /// name of the running executable)_(process ID).log
-    extern const std::wstring_view kStrHookshotLogFilename;
+    std::wstring_view GetHookshotLogFilename(void);
 
     /// Expected filename of the dynamic-link library form of Hookshot.
-    extern const std::wstring_view kStrHookshotDynamicLinkLibraryFilename;
+    std::wstring_view GetHookshotDynamicLinkLibraryFilename(void);
 
     /// Expected filename of the executable form of Hookshot.
-    extern const std::wstring_view kStrHookshotExecutableFilename;
+    std::wstring_view GetHookshotExecutableFilename(void);
 
     /// Expected filename of the executable form of Hookshot targeting the opposite processor
     /// architecture. For example, when running in 32-bit mode, this is the name of the 64-bit
     /// executable, and vice versa.
-    extern const std::wstring_view kStrHookshotExecutableOtherArchitectureFilename;
+    std::wstring_view GetHookshotExecutableOtherArchitectureFilename(void);
 
     /// Generates and returns the application-specific authorization file name, given the full path
     /// to an executable file. Authorization files are checked for existence before Hookshot acts on
@@ -175,64 +126,12 @@ namespace Hookshot
     /// @return Directory-wide authorization filename.
     Infra::TemporaryString AuthorizationFilenameDirectoryWide(std::wstring_view executablePath);
 
-    /// Converts characters in a narrow character string to wide character format.
-    /// @param [in] str Null-terminated string to convert.
-    /// @return Result of the conversion, or an empty string on failure.
-    Infra::TemporaryString ConvertStringNarrowToWide(const char* str);
-
-    /// Converts characters in a wide character string to narrow character format.
-    /// @param [in] str Null-terminated string to convert.
-    /// @return Result of the conversion, or an empty string on failure.
-    Infra::TemporaryBuffer<char> ConvertStringWideToNarrow(const wchar_t* str);
-
-    /// Checks if one string is a suffix of another without regard for the case of each individual
-    /// character.
-    /// @tparam CharType Type of character in each string, either narrow or wide.
-    /// @param [in] str String to be checked for a possible prefix.
-    /// @param [in] maybeSuffix Candidate suffix to compare with the end of the string.
-    /// @return `true` if the candidate suffix is a suffix of the specified string, `false`
-    /// otherwise.
-    template <typename CharType> bool EndsWithCaseInsensitive(
-        std::basic_string_view<CharType> str, std::basic_string_view<CharType> maybeSuffix);
-
-    /// Compares two strings without regard for the case of each individual character.
-    /// @tparam CharType Type of character in each string, either narrow or wide.
-    /// @param [in] strA First string in the comparison.
-    /// @param [in] strB Second string in the comparison.
-    /// @return `true` if the strings compare equal, `false` otherwise.
-    template <typename CharType> bool EqualsCaseInsensitive(
-        std::basic_string_view<CharType> strA, std::basic_string_view<CharType> strB);
-
-    /// Formats a string and returns the result in a newly-allocated null-terminated temporary
-    /// buffer.
-    /// @param [in] format Format string, possibly with format specifiers which must be matched with
-    /// the arguments that follow.
-    /// @return Resulting string after all formatting is applied.
-    Infra::TemporaryString FormatString(_Printf_format_string_ const wchar_t* format, ...);
-
     /// Generates the expected filename of a hook module of the specified name.
     /// Hook module filename = (directory name)\(hook module name).(hook module suffix)
     /// @param [in] moduleName Hook module name to use when generating the filename.
-    /// @param [in] directoryName Directory name to use when generating the filename. Defaults to
-    /// the executable's directory.
+    /// @param [in] directoryName Directory name to use when generating the filename.
     /// @return Resulting hook module filename.
     Infra::TemporaryString HookModuleFilename(
-        std::wstring_view moduleName,
-        std::wstring_view directoryName = kStrExecutableDirectoryName);
-
-    /// Checks if one string is a prefix of another without regard for the case of each individual
-    /// character.
-    /// @tparam CharType Type of character in each string, either narrow or wide.
-    /// @param [in] str String to be checked for a possible prefix.
-    /// @param [in] maybePrefix Candidate prefix to compare with the beginning of the string.
-    /// @return `true` if the candidate prefix is a prefix of the specified string, `false`
-    /// otherwise.
-    template <typename CharType> bool StartsWithCaseInsensitive(
-        std::basic_string_view<CharType> str, std::basic_string_view<CharType> maybePrefix);
-
-    /// Generates a string representation of a system error code.
-    /// @param [in] systemErrorCode System error code for which to generate a string.
-    /// @return String representation of the system error code.
-    Infra::TemporaryString SystemErrorCodeString(const unsigned long systemErrorCode);
+        std::wstring_view moduleName, std::wstring_view directoryName);
   } // namespace Strings
 } // namespace Hookshot

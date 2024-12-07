@@ -16,13 +16,13 @@
 
 #include "ApiWindows.h"
 #include "Message.h"
-#include "Strings.h"
 
 #include "GitVersionInfo.generated.h"
 
 #ifndef HOOKSHOT_SKIP_CONFIG
 #include "Configuration.h"
 #include "HookshotConfigReader.h"
+#include "Strings.h"
 #endif
 
 #include <mutex>
@@ -41,9 +41,6 @@ namespace Hookshot
 
       /// Method by which Hookshot was loaded into the current process.
       ELoadMethod gLoadMethod;
-
-      /// Holds information about the current system, as retrieved from Windows.
-      SYSTEM_INFO gSystemInformation;
 
     private:
 
@@ -109,7 +106,7 @@ namespace Hookshot
             HookshotConfigReader configReader;
 
             configData =
-                configReader.ReadConfigurationFile(Strings::kStrHookshotConfigurationFilename);
+                configReader.ReadConfigurationFile(Strings::GetHookshotConfigurationFilename());
 
             if (true == configData.HasReadErrors())
             {

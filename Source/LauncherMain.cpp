@@ -13,6 +13,8 @@
 #include <string>
 #include <string_view>
 
+#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "ApiWindows.h"
@@ -40,7 +42,7 @@ namespace Hookshot
   {
     std::wstringstream contentStream;
     contentStream
-        << Strings::kStrProductName
+        << *Infra::ProcessInfo::GetProductName()
         << L" temporarily needs administrator permission so it can create an authorization file for the executable it is attempting to launch.\n\nThis is a one-time operation unless the file is deleted.";
     const std::wstring contentString = contentStream.str();
 
@@ -52,13 +54,13 @@ namespace Hookshot
 
     std::wstringstream footerStream;
     footerStream << L"An authorization file contains no data. Its existence tells "
-                 << Strings::kStrProductName
+                 << *Infra::ProcessInfo::GetProductName()
                  << L" it has your permission to inject a particular executable.";
     const std::wstring footerString = footerStream.str();
 
     std::wstringstream buttonTextOkStream;
     buttonTextOkStream << L"Proceed\nCreate the authorization file and launch the executable with "
-                       << Strings::kStrProductName << L".";
+                       << *Infra::ProcessInfo::GetProductName() << L".";
     const std::wstring buttonTextOk = buttonTextOkStream.str();
 
     std::wstringstream buttonTextCancelStream;
@@ -72,7 +74,7 @@ namespace Hookshot
     const TASKDIALOGCONFIG userDialogConfig = {
         .cbSize = sizeof(TASKDIALOGCONFIG),
         .dwFlags = TDF_USE_COMMAND_LINKS | TDF_SIZE_TO_CONTENT,
-        .pszWindowTitle = Strings::kStrProductName.data(),
+        .pszWindowTitle = Infra::ProcessInfo::GetProductName()->data(),
         .pszContent = contentString.c_str(),
         .cButtons = _countof(kUserDialogCustomButtons),
         .pButtons = kUserDialogCustomButtons,
@@ -136,7 +138,7 @@ namespace Hookshot
     taskAttemptInfo.fMask = SEE_MASK_DEFAULT | SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC |
         SEE_MASK_FLAG_NO_UI | SEE_MASK_UNICODE;
     taskAttemptInfo.lpVerb = ((true == elevationRequired) ? L"runas" : L"open");
-    taskAttemptInfo.lpFile = Strings::kStrExecutableCompleteFilename.data();
+    taskAttemptInfo.lpFile = Infra::ProcessInfo::GetExecutableCompleteFilename().data();
     taskAttemptInfo.lpParameters = launcherArg.c_str();
     taskAttemptInfo.nShow = SW_SHOWDEFAULT;
 
@@ -223,9 +225,10 @@ namespace Hookshot
 
     std::wstring launchExePath;
     std::wstring_view pieces[] = {
-        Strings::kStrExecutableDirectoryName,
+        Infra::ProcessInfo::GetExecutableDirectoryName(),
+        L"\\",
         kStrExecutableNamePrefix,
-        Strings::kStrExecutableBaseName};
+        Infra::ProcessInfo::GetExecutableBaseName()};
 
     size_t totalLength = 0;
     for (int i = 0; i < _countof(pieces); ++i)
@@ -294,10 +297,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         default:
           Message::OutputFormatted(
               Message::ESeverity::ForcedInteractiveError,
-              L"%s\n\n%s failed to launch this executable.\n\nUnable to create the authorization file (%s).",
+              L"%s\n\n%.*s failed to launch this executable.\n\nUnable to create the authorization file (%s).",
               kExecutableToLaunch.c_str(),
-              Strings::kStrProductName.data(),
-              Strings::SystemErrorCodeString(authorizeResult).AsCString());
+              static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
+              Infra::ProcessInfo::GetProductName()->data(),
+              Infra::Strings::FromSystemErrorCode(authorizeResult).AsCString());
           return __LINE__;
       }
 
@@ -354,10 +358,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         {
           Message::OutputFormatted(
               Message::ESeverity::ForcedInteractiveError,
-              L"%s\n\n%s failed to launch this executable (%s).",
+              L"%s\n\n%.*s failed to launch this executable (%s).",
               kExecutableToLaunch.c_str(),
-              Strings::kStrProductName.data(),
-              Strings::SystemErrorCodeString(GetLastError()).AsCString());
+              static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
+              Infra::ProcessInfo::GetProductName()->data(),
+              Infra::Strings::FromSystemErrorCode(GetLastError()).AsCString());
           return __LINE__;
         }
 
@@ -372,7 +377,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
             .cbSize = sizeof(SHELLEXECUTEINFO),
             .fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC,
             .lpVerb = L"runas",
-            .lpFile = Strings::kStrExecutableCompleteFilename.data(),
+            .lpFile = Infra::ProcessInfo::GetExecutableCompleteFilename().data(),
             .lpParameters = commandLineArgs,
             .nShow = SW_SHOWDEFAULT};
 
@@ -381,10 +386,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         {
           Message::OutputFormatted(
               Message::ESeverity::ForcedInteractiveError,
-              L"%s\n\n%s failed to launch this executable because it requires elevation (%s).",
+              L"%s\n\n%.*s failed to launch this executable because it requires elevation (%s).",
               kExecutableToLaunch.c_str(),
-              Strings::kStrProductName.data(),
-              Strings::SystemErrorCodeString(GetLastError()).AsCString());
+              static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
+              Infra::ProcessInfo::GetProductName()->data(),
+              Infra::Strings::FromSystemErrorCode(GetLastError()).AsCString());
           return __LINE__;
         }
 
@@ -401,11 +407,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         {
           Message::OutputFormatted(
               Message::ESeverity::ForcedInteractiveError,
-              L"%s\n\n%s failed to inject this executable.\n\n%s (%s).",
+              L"%s\n\n%.*s failed to inject this executable.\n\n%s (%s).",
               kExecutableToLaunch.c_str(),
-              Strings::kStrProductName.data(),
+              static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
+              Infra::ProcessInfo::GetProductName()->data(),
               InjectResultString(injectResult).data(),
-              Strings::SystemErrorCodeString(GetLastError()).AsCString());
+              Infra::Strings::FromSystemErrorCode(GetLastError()).AsCString());
           TerminateProcess(processInfo.hProcess, (UINT)-1);
           return __LINE__;
         }
@@ -418,8 +425,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
       Message::OutputFormatted(
           Message::ESeverity::Info,
-          L"Successfully used %s to inject %s.",
-          Strings::kStrHookshotExecutableFilename.data(),
+          L"Successfully used %.*s to inject %s.",
+          static_cast<int>(Strings::GetHookshotExecutableFilename().length()),
+          Strings::GetHookshotExecutableFilename().data(),
           kExecutableToLaunch.c_str());
 
       if (WAIT_FAILED == WaitForSingleObject(launchedProcess, INFINITE))
@@ -427,7 +435,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
             Message::ESeverity::Error,
             L"Failed to wait for %s to terminate (%s).",
             kExecutableToLaunch.c_str(),
-            Strings::SystemErrorCodeString(GetLastError()).AsCString());
+            Infra::Strings::FromSystemErrorCode(GetLastError()).AsCString());
 
       CloseHandle(launchedProcess);
       return 0;
@@ -439,10 +447,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     // additional interactive setup functionality could be implemented here.
     Message::OutputFormatted(
         Message::ESeverity::ForcedInteractiveError,
-        L"%s\n\n%s cannot access this executable.\n\n%s.",
+        L"%s\n\n%.*s cannot access this executable.\n\n%s.",
         kExecutableToLaunch.c_str(),
-        Strings::kStrProductName.data(),
-        Strings::SystemErrorCodeString(GetLastError()).AsCString());
+        static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
+        Infra::ProcessInfo::GetProductName()->data(),
+        Infra::Strings::FromSystemErrorCode(GetLastError()).AsCString());
     return __LINE__;
   }
 }

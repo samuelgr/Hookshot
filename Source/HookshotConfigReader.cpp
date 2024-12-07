@@ -15,6 +15,7 @@
 #include <string_view>
 #include <unordered_map>
 
+#include <Infra/Core/ProcessInfo.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "Configuration.h"
@@ -65,7 +66,7 @@ namespace Hookshot
     if (false == configurationFileLayoutIsComplete)
     {
       configurationFileLayout.insert(ConfigurationFileLayoutSection(
-          Strings::kStrExecutableBaseName,
+          Infra::ProcessInfo::GetExecutableBaseName(),
           {
               ConfigurationFileLayoutNameAndValueType(
                   Strings::kStrConfigurationSettingNameHookModule,

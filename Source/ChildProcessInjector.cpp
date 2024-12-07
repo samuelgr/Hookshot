@@ -9,6 +9,7 @@
  *   Implementation of internal hooks for injecting child processes.
  **************************************************************************************************/
 
+#include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "ApiWindows.h"
@@ -17,7 +18,6 @@
 #include "InternalHook.h"
 #include "Message.h"
 #include "RemoteProcessInjector.h"
-#include "Strings.h"
 
 namespace Hookshot
 {
@@ -54,7 +54,7 @@ namespace Hookshot
           (0 == childProcessExecutableLength ? L"(error determining executable file name)"
                                              : &childProcessExecutable[0]),
           InjectResultString(result).data(),
-          Strings::SystemErrorCodeString(Protected::Windows_GetLastError()).AsCString());
+          Infra::Strings::FromSystemErrorCode(Protected::Windows_GetLastError()).AsCString());
   }
 
   void* InternalHook_CreateProcessA::OriginalFunctionAddress(void)

@@ -16,6 +16,7 @@
 #include <cstddef>
 
 #include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "ApiWindows.h"
@@ -231,7 +232,7 @@ namespace Hookshot
       if (nullptr == addrGetLastError)
       {
         if (true ==
-            Strings::EqualsCaseInsensitive(
+            Infra::Strings::EqualsCaseInsensitive(
                 moduleFilenameGetLastError.AsStringView(), loadedModuleName.AsStringView()))
         {
           if (FALSE ==
@@ -246,7 +247,7 @@ namespace Hookshot
       if (nullptr == addrGetProcAddress)
       {
         if (true ==
-            Strings::EqualsCaseInsensitive(
+            Infra::Strings::EqualsCaseInsensitive(
                 moduleFilenameGetProcAddress.AsStringView(), loadedModuleName.AsStringView()))
         {
           if (FALSE ==
@@ -261,7 +262,7 @@ namespace Hookshot
       if (nullptr == addrLoadLibraryA)
       {
         if (true ==
-            Strings::EqualsCaseInsensitive(
+            Infra::Strings::EqualsCaseInsensitive(
                 moduleFilenameLoadLibraryA.AsStringView(), loadedModuleName.AsStringView()))
         {
           if (FALSE ==
@@ -435,7 +436,7 @@ namespace Hookshot
               &injectDataStrings[Strings::kStrLibraryInitializationProcName.length() + 1],
               sizeof(injectDataStrings) -
                   (Strings::kStrLibraryInitializationProcName.length() + 1) - 1,
-              Strings::kStrHookshotDynamicLinkLibraryFilename.data(),
+              Strings::GetHookshotDynamicLinkLibraryFilename().data(),
               sizeof(injectDataStrings) -
                   (Strings::kStrLibraryInitializationProcName.length() + 1) - 2))
         return EInjectResult::ErrorCannotGenerateLibraryFilename;
