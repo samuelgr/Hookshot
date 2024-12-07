@@ -21,7 +21,7 @@ extern "C"
 #include "xed/xed-interface.h"
 }
 
-#include "TemporaryBuffer.h"
+#include <Infra/Core/TemporaryBuffer.h>
 
 namespace Hookshot
 {
@@ -367,7 +367,7 @@ namespace Hookshot
   {
     if (false == valid) return false;
 
-    TemporaryBuffer<char> narrowCharDisassembly;
+    Infra::TemporaryBuffer<char> narrowCharDisassembly;
     if (false ==
         xed_format_context(
             XED_SYNTAX_INTEL,

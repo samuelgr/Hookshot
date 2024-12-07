@@ -20,15 +20,16 @@
 #include <optional>
 #include <vector>
 
+#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "ApiWindows.h"
 #include "CodeInjector.h"
-#include "Globals.h"
 #include "Inject.h"
 #include "InjectResult.h"
 #include "Message.h"
 #include "RemoteProcessInjector.h"
 #include "Strings.h"
-#include "TemporaryBuffer.h"
 
 namespace Hookshot
 {
@@ -128,7 +129,7 @@ namespace Hookshot
     /// operation failed.
     static HMODULE GetRemoteModuleHandle(HANDLE processHandle, std::wstring_view moduleName)
     {
-      TemporaryBuffer<HMODULE> loadedModules;
+      Infra::TemporaryBuffer<HMODULE> loadedModules;
       DWORD numLoadedModules = 0;
 
       if (FALSE ==
@@ -141,7 +142,7 @@ namespace Hookshot
 
       numLoadedModules /= sizeof(HMODULE);
 
-      TemporaryString loadedModuleName;
+      Infra::TemporaryString loadedModuleName;
       for (DWORD modidx = 0; modidx < numLoadedModules; ++modidx)
       {
         const HMODULE loadedModule = loadedModules[modidx];
@@ -406,7 +407,7 @@ namespace Hookshot
     /// @return Indicator of the result of the operation.
     static EInjectResult VerifyAuthorizedToInjectProcess(const HANDLE processHandle)
     {
-      TemporaryString processExecutablePath;
+      Infra::TemporaryString processExecutablePath;
       DWORD processExecutablePathLength = processExecutablePath.Capacity();
 
       if (0 ==
@@ -415,7 +416,7 @@ namespace Hookshot
         return EInjectResult::ErrorCannotDetermineAuthorization;
       processExecutablePath.UnsafeSetSize(static_cast<unsigned int>(processExecutablePathLength));
 
-      TemporaryString authorizationFileName =
+      Infra::TemporaryString authorizationFileName =
           Strings::AuthorizationFilenameApplicationSpecific(processExecutablePath.Data());
       if (FALSE == PathFileExists(authorizationFileName.AsCString()))
       {
@@ -454,7 +455,8 @@ namespace Hookshot
 
       if ((FALSE == IsWow64Process2(processHandle, &machineTargetProcess, nullptr)) ||
           (FALSE ==
-           IsWow64Process2(Globals::GetCurrentProcessHandle(), &machineCurrentProcess, nullptr)))
+           IsWow64Process2(
+               Infra::ProcessInfo::GetCurrentProcessHandle(), &machineCurrentProcess, nullptr)))
         return EInjectResult::ErrorDetermineMachineProcess;
 
       if (machineTargetProcess == machineCurrentProcess)
@@ -492,7 +494,7 @@ namespace Hookshot
           return operationResult;
       }
 
-      const size_t allocationGranularity = Globals::GetSystemInformation().dwPageSize;
+      const size_t allocationGranularity = Infra::ProcessInfo::GetSystemInformation().dwPageSize;
       const size_t effectiveInjectRegionSize =
           (InjectInfo::kMaxInjectBinaryFileSize < allocationGranularity)
           ? allocationGranularity

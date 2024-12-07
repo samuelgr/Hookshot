@@ -12,13 +12,14 @@
 #include <sstream>
 #include <string>
 
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "ApiWindows.h"
 #include "Globals.h"
 #include "InjectResult.h"
 #include "Message.h"
 #include "ProcessInjector.h"
 #include "Strings.h"
-#include "TemporaryBuffer.h"
 
 using namespace Hookshot;
 
@@ -107,7 +108,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
       commandLineStream << L"\" ";
     }
 
-    TemporaryBuffer<wchar_t> commandLine;
+    Infra::TemporaryBuffer<wchar_t> commandLine;
     if (0 != wcscpy_s(commandLine.Data(), commandLine.Capacity(), commandLineStream.str().c_str()))
     {
       Message::OutputFormatted(

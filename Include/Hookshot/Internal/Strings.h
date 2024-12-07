@@ -18,7 +18,7 @@
 #include <string>
 #include <string_view>
 
-#include "TemporaryBuffer.h"
+#include <Infra/Core/TemporaryBuffer.h>
 
 namespace Hookshot
 {
@@ -165,24 +165,25 @@ namespace Hookshot
     /// a process.
     /// @param [in] Full absolute path of the application being checked for authorization.
     /// @return Application-specific authorization filename.
-    TemporaryString AuthorizationFilenameApplicationSpecific(std::wstring_view executablePath);
+    Infra::TemporaryString AuthorizationFilenameApplicationSpecific(
+        std::wstring_view executablePath);
 
     /// Generates and returns the directory-wide authorization file name, given the full path to an
     /// executable file. Authorization files are checked for existence before Hookshot acts on a
     /// process.
     /// @param [in] Full absolute path of the application being checked for authorization.
     /// @return Directory-wide authorization filename.
-    TemporaryString AuthorizationFilenameDirectoryWide(std::wstring_view executablePath);
+    Infra::TemporaryString AuthorizationFilenameDirectoryWide(std::wstring_view executablePath);
 
     /// Converts characters in a narrow character string to wide character format.
     /// @param [in] str Null-terminated string to convert.
     /// @return Result of the conversion, or an empty string on failure.
-    TemporaryString ConvertStringNarrowToWide(const char* str);
+    Infra::TemporaryString ConvertStringNarrowToWide(const char* str);
 
     /// Converts characters in a wide character string to narrow character format.
     /// @param [in] str Null-terminated string to convert.
     /// @return Result of the conversion, or an empty string on failure.
-    TemporaryBuffer<char> ConvertStringWideToNarrow(const wchar_t* str);
+    Infra::TemporaryBuffer<char> ConvertStringWideToNarrow(const wchar_t* str);
 
     /// Checks if one string is a suffix of another without regard for the case of each individual
     /// character.
@@ -207,7 +208,7 @@ namespace Hookshot
     /// @param [in] format Format string, possibly with format specifiers which must be matched with
     /// the arguments that follow.
     /// @return Resulting string after all formatting is applied.
-    TemporaryString FormatString(_Printf_format_string_ const wchar_t* format, ...);
+    Infra::TemporaryString FormatString(_Printf_format_string_ const wchar_t* format, ...);
 
     /// Generates the expected filename of a hook module of the specified name.
     /// Hook module filename = (directory name)\(hook module name).(hook module suffix)
@@ -215,7 +216,7 @@ namespace Hookshot
     /// @param [in] directoryName Directory name to use when generating the filename. Defaults to
     /// the executable's directory.
     /// @return Resulting hook module filename.
-    TemporaryString HookModuleFilename(
+    Infra::TemporaryString HookModuleFilename(
         std::wstring_view moduleName,
         std::wstring_view directoryName = kStrExecutableDirectoryName);
 
@@ -232,6 +233,6 @@ namespace Hookshot
     /// Generates a string representation of a system error code.
     /// @param [in] systemErrorCode System error code for which to generate a string.
     /// @return String representation of the system error code.
-    TemporaryString SystemErrorCodeString(const unsigned long systemErrorCode);
+    Infra::TemporaryString SystemErrorCodeString(const unsigned long systemErrorCode);
   } // namespace Strings
 } // namespace Hookshot

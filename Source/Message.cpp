@@ -18,11 +18,13 @@
 #include <mutex>
 #include <string>
 
+#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "ApiWindows.h"
 #include "DependencyProtect.h"
 #include "Globals.h"
 #include "Strings.h"
-#include "TemporaryBuffer.h"
 
 namespace Hookshot
 {
@@ -187,13 +189,13 @@ namespace Hookshot
     /// @param [in] message Message text.
     static void OutputInternalUsingLogFile(const ESeverity severity, const wchar_t* message)
     {
-      TemporaryString outputString;
+      Infra::TemporaryString outputString;
 
       // First compose the output string stamp.
       // Desired format is "[(current date) (current time)] [(severity)]"
       outputString << L'[';
 
-      TemporaryBuffer<wchar_t> bufferTimestamp;
+      Infra::TemporaryBuffer<wchar_t> bufferTimestamp;
 
       if (0 !=
           GetDateFormatEx(
@@ -313,7 +315,7 @@ namespace Hookshot
     static void OutputFormattedInternal(
         const ESeverity severity, const wchar_t* format, va_list args)
     {
-      TemporaryBuffer<wchar_t> messageBuf;
+      Infra::TemporaryBuffer<wchar_t> messageBuf;
 
       vswprintf_s(messageBuf.Data(), messageBuf.Capacity(), format, args);
       OutputInternal(severity, messageBuf.Data());
@@ -340,12 +342,15 @@ namespace Hookshot
         fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator);
         fwprintf_s(logFileHandle, L"%s Log\n", Strings::kStrProductName.data());
         fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator);
-        fwprintf_s(logFileHandle, L"Version:   %s\n", Globals::GetVersion().string.data());
+        fwprintf_s(
+            logFileHandle,
+            L"Version:   %s\n",
+            Infra::ProcessInfo::GetProductVersion()->string.data());
         fwprintf_s(
             logFileHandle, L"Method:    %s\n", Globals::GetHookshotLoadMethodString().data());
         fwprintf_s(
             logFileHandle, L"Program:   %s\n", Strings::kStrExecutableCompleteFilename.data());
-        fwprintf_s(logFileHandle, L"PID:       %d\n", Globals::GetCurrentProcessId());
+        fwprintf_s(logFileHandle, L"PID:       %d\n", Infra::ProcessInfo::GetCurrentProcessId());
         fwprintf_s(logFileHandle, L"%s\n", kLogHeaderSeparator);
         fflush(logFileHandle);
       }

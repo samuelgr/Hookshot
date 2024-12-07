@@ -14,11 +14,12 @@
 #include <cstddef>
 #include <cstring>
 
+#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "ApiWindows.h"
-#include "Globals.h"
 #include "InjectResult.h"
 #include "Strings.h"
-#include "TemporaryBuffer.h"
 
 namespace Hookshot
 {
@@ -56,17 +57,20 @@ namespace Hookshot
     if (nullptr == injectCodeBinaryBaseAddress)
     {
       const HRSRC resourceInfoBlock = FindResource(
-          Globals::GetInstanceHandle(), MAKEINTRESOURCE(IDR_HOOKSHOT_INJECT_CODE), RT_RCDATA);
+          Infra::ProcessInfo::GetThisModuleInstanceHandle(),
+          MAKEINTRESOURCE(IDR_HOOKSHOT_INJECT_CODE),
+          RT_RCDATA);
       if (nullptr == resourceInfoBlock) return false;
 
-      const HGLOBAL resourceHandle = LoadResource(Globals::GetInstanceHandle(), resourceInfoBlock);
+      const HGLOBAL resourceHandle =
+          LoadResource(Infra::ProcessInfo::GetThisModuleInstanceHandle(), resourceInfoBlock);
       if (nullptr == resourceHandle) return false;
 
       void* const resourceBaseAddress = LockResource(resourceHandle);
       if (nullptr == resourceBaseAddress) return false;
 
-      size_t resourceSizeBytes =
-          static_cast<size_t>(SizeofResource(Globals::GetInstanceHandle(), resourceInfoBlock));
+      size_t resourceSizeBytes = static_cast<size_t>(
+          SizeofResource(Infra::ProcessInfo::GetThisModuleInstanceHandle(), resourceInfoBlock));
       if (0 == resourceSizeBytes) return false;
 
       injectCodeBinaryBaseAddress = resourceBaseAddress;

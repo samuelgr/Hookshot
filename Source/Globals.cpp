@@ -12,6 +12,8 @@
 
 #include "Globals.h"
 
+#include <Infra/Core/ProcessInfo.h>
+
 #include "ApiWindows.h"
 #include "Message.h"
 #include "Strings.h"
@@ -37,15 +39,6 @@ namespace Hookshot
     {
     public:
 
-      /// Pseudohandle of the current process.
-      HANDLE gCurrentProcessHandle;
-
-      /// PID of the current process.
-      DWORD gCurrentProcessId;
-
-      /// Handle of the instance that represents the running form of Hookshot.
-      HINSTANCE gInstanceHandle;
-
       /// Method by which Hookshot was loaded into the current process.
       ELoadMethod gLoadMethod;
 
@@ -54,19 +47,7 @@ namespace Hookshot
 
     private:
 
-      GlobalData(void)
-          : gCurrentProcessHandle(GetCurrentProcess()),
-            gCurrentProcessId(GetProcessId(GetCurrentProcess())),
-            gInstanceHandle(nullptr),
-            gLoadMethod(ELoadMethod::Executed),
-            gSystemInformation()
-      {
-        GetModuleHandleEx(
-            GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
-            (LPCWSTR)&GlobalData::GetInstance,
-            &gInstanceHandle);
-        GetNativeSystemInfo(&gSystemInformation);
-      }
+      GlobalData(void) : gLoadMethod(ELoadMethod::Executed) {}
 
       GlobalData(const GlobalData& other) = delete;
 
@@ -150,16 +131,6 @@ namespace Hookshot
     }
 #endif
 
-    HANDLE GetCurrentProcessHandle(void)
-    {
-      return GlobalData::GetInstance().gCurrentProcessHandle;
-    }
-
-    DWORD GetCurrentProcessId(void)
-    {
-      return GlobalData::GetInstance().gCurrentProcessId;
-    }
-
     ELoadMethod GetHookshotLoadMethod(void)
     {
       return GlobalData::GetInstance().gLoadMethod;
@@ -183,31 +154,13 @@ namespace Hookshot
       }
     }
 
-    HINSTANCE GetInstanceHandle(void)
-    {
-      return GlobalData::GetInstance().gInstanceHandle;
-    }
-
-    const SYSTEM_INFO& GetSystemInformation(void)
-    {
-      return GlobalData::GetInstance().gSystemInformation;
-    }
-
-    SVersionInfo GetVersion(void)
-    {
-      constexpr uint16_t kVersionStructured[] = {GIT_VERSION_STRUCT};
-      static_assert(4 == _countof(kVersionStructured), "Invalid structured version information.");
-
-      return {
-          .major = kVersionStructured[0],
-          .minor = kVersionStructured[1],
-          .patch = kVersionStructured[2],
-          .flags = kVersionStructured[3],
-          .string = _CRT_WIDE(GIT_VERSION_STRING)};
-    }
-
     void Initialize(ELoadMethod loadMethod)
     {
+      Infra::ProcessInfo::SetProductInformation(
+          Infra::ProcessInfo::GetThisModuleInstanceHandle(),
+          IDS_HOOKSHOT_PRODUCT_NAME,
+          Infra::ProcessInfo::GitVersionInfoForCurrentProject());
+
       GlobalData::GetInstance().gLoadMethod = loadMethod;
 
 #ifndef HOOKSHOT_SKIP_CONFIG

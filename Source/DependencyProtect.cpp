@@ -16,8 +16,9 @@
 #include <cstdint>
 #include <unordered_map>
 
+#include <Infra/Core/DebugAssert.h>
+
 #include "ApiWindows.h"
-#include "DebugAssert.h"
 
 namespace Hookshot
 {

@@ -16,6 +16,8 @@
 #include <string_view>
 #include <vector>
 
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "DependencyProtect.h"
 #include "Globals.h"
 #include "HookshotTypes.h"
@@ -24,7 +26,6 @@
 #include "InternalHook.h"
 #include "Message.h"
 #include "Strings.h"
-#include "TemporaryBuffer.h"
 #include "X86Instruction.h"
 
 namespace Hookshot
@@ -197,7 +198,7 @@ namespace Hookshot
           static_cast<int>(hookModuleDirectory.size()),
           hookModuleDirectory.data());
 
-      const TemporaryString hookModuleSearchString =
+      const Infra::TemporaryString hookModuleSearchString =
           Strings::HookModuleFilename(L"*", hookModuleDirectory);
       WIN32_FIND_DATA hookModuleFileData{};
       HANDLE hookModuleFind = Protected::Windows_FindFirstFileEx(
@@ -209,7 +210,7 @@ namespace Hookshot
           0);
       BOOL moreHookModulesExist = (INVALID_HANDLE_VALUE != hookModuleFind);
 
-      TemporaryBuffer<wchar_t> hookModuleFileName;
+      Infra::TemporaryBuffer<wchar_t> hookModuleFileName;
       wcscpy_s(
           hookModuleFileName.Data(), hookModuleFileName.Capacity(), hookModuleDirectory.data());
 

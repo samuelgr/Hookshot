@@ -34,7 +34,6 @@
     <ClCompile Include="Source\Message.cpp" />
     <ClCompile Include="Source\RemoteProcessInjector.cpp" />
     <ClCompile Include="Source\Strings.cpp" />
-    <ClCompile Include="Source\TemporaryBuffer.cpp" />
     <ClCompile Include="Source\Trampoline.cpp" />
     <ClCompile Include="Source\TrampolineStore.cpp" />
     <ClCompile Include="Source\X86Instruction.cpp" />
@@ -58,10 +57,8 @@
     <ClInclude Include="Include\Hookshot\Internal\LibraryInterface.h" />
     <ClInclude Include="Include\Hookshot\Internal\Message.h" />
     <ClInclude Include="Include\Hookshot\Internal\DependencyProtect.h" />
-    <ClInclude Include="Include\Hookshot\Internal\MutexWrapper.h" />
     <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Internal\Strings.h" />
-    <ClInclude Include="Include\Hookshot\Internal\TemporaryBuffer.h" />
     <ClInclude Include="Include\Hookshot\Internal\Trampoline.h" />
     <ClInclude Include="Include\Hookshot\Internal\TrampolineStore.h" />
     <ClInclude Include="Include\Hookshot\Internal\X86Instruction.h" />
@@ -76,6 +73,11 @@
     <None Include="Include\Hookshot\Internal\InjectLanding.inc" />
     <None Include="Include\Hookshot\Internal\Preamble.inc" />
     <None Include="Include\Hookshot\Internal\Registers.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Modules\Infra\CoreInfra.vcxproj">
+      <Project>{5af31c51-1646-4bda-9407-12273b2da870}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

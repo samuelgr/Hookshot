@@ -12,14 +12,15 @@
 
 #include <cstddef>
 
+#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "ApiWindows.h"
 #include "DependencyProtect.h"
-#include "Globals.h"
 #include "Inject.h"
 #include "LibraryInterface.h"
 #include "Message.h"
 #include "Strings.h"
-#include "TemporaryBuffer.h"
 
 using namespace Hookshot;
 
@@ -44,7 +45,7 @@ extern "C" void __fastcall InjectLandingLoadHookModules(const SInjectData* const
         Message::ESeverity::ForcedInteractiveInfo,
         L"Attach to \"%s\" (PID %d) to continue debugging.",
         Strings::kStrExecutableBaseName.data(),
-        Globals::GetCurrentProcessId());
+        Infra::ProcessInfo::GetCurrentProcessId());
 
   const int numHookModulesLoaded = LibraryInterface::LoadHookModules();
   const int numInjectOnlyLibrariesLoaded = LibraryInterface::LoadInjectOnlyLibraries();

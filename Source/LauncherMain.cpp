@@ -13,12 +13,13 @@
 #include <string>
 #include <string_view>
 
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "ApiWindows.h"
 #include "Globals.h"
 #include "Message.h"
 #include "RemoteProcessInjector.h"
 #include "Strings.h"
-#include "TemporaryBuffer.h"
 
 namespace Hookshot
 {
@@ -65,9 +66,8 @@ namespace Hookshot
     const std::wstring buttonTextCancel = buttonTextCancelStream.str();
 
     const TASKDIALOG_BUTTON kUserDialogCustomButtons[] = {
-        {.nButtonID = IDOK,     .pszButtonText = buttonTextOk.c_str()    },
-        {.nButtonID = IDCANCEL, .pszButtonText = buttonTextCancel.c_str()}
-    };
+        {.nButtonID = IDOK, .pszButtonText = buttonTextOk.c_str()},
+        {.nButtonID = IDCANCEL, .pszButtonText = buttonTextCancel.c_str()}};
 
     const TASKDIALOGCONFIG userDialogConfig = {
         .cbSize = sizeof(TASKDIALOGCONFIG),
@@ -165,7 +165,7 @@ namespace Hookshot
   /// @return System error code representing the result of the operation.
   static DWORD LauncherTaskCreateAuthorizationFile(std::wstring_view executablePath)
   {
-    const TemporaryString authorizationFileToCreate =
+    const Infra::TemporaryString authorizationFileToCreate =
         Strings::AuthorizationFilenameApplicationSpecific(executablePath);
     const HANDLE authorizationFileHandle = CreateFile(
         authorizationFileToCreate.AsCString(),
@@ -188,9 +188,9 @@ namespace Hookshot
   /// @return System error code representing the result of the operation.
   static DWORD EnsureHookshotIsAuthorized(std::wstring_view executablePath)
   {
-    const TemporaryString authorizationFileApplicationSpecific =
+    const Infra::TemporaryString authorizationFileApplicationSpecific =
         Strings::AuthorizationFilenameApplicationSpecific(executablePath);
-    const TemporaryString authorizationFileDirectoryWide =
+    const Infra::TemporaryString authorizationFileDirectoryWide =
         Strings::AuthorizationFilenameDirectoryWide(executablePath);
 
     if ((TRUE == PathFileExists(authorizationFileApplicationSpecific.AsCString())) ||
@@ -305,7 +305,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
       // all command-line arguments, which were all originally supplied to this executable. Each
       // element must be enclosed in quotes, and for command-line arguments they must have any
       // contained quote characters escaped.
-      TemporaryString commandLine;
+      Infra::TemporaryString commandLine;
       commandLine << L'\"' << kExecutableToLaunch << L'\"';
 
       for (size_t argIndex = 1; argIndex < (size_t)__argc; ++argIndex)

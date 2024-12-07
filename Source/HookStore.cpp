@@ -13,10 +13,12 @@
 
 #include <shared_mutex>
 
+#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "DependencyProtect.h"
 #include "Globals.h"
 #include "Message.h"
-#include "TemporaryBuffer.h"
 #include "X86Instruction.h"
 
 namespace Hookshot
@@ -74,7 +76,9 @@ namespace Hookshot
       return false;
 
     // Hooking Hookshot itself is forbidden.
-    if (BaseAddressForOriginalFunc(originalFunc) == Globals::GetInstanceHandle()) return false;
+    if (BaseAddressForOriginalFunc(originalFunc) ==
+        Infra::ProcessInfo::GetThisModuleInstanceHandle())
+      return false;
 
     return true;
   }
@@ -109,7 +113,7 @@ namespace Hookshot
              &unusedOriginalProtection));
     if (true == restoreProtectionResult)
       Protected::Windows_FlushInstructionCache(
-          Globals::GetCurrentProcessHandle(),
+          Infra::ProcessInfo::GetCurrentProcessHandle(),
           from,
           static_cast<SIZE_T>(X86Instruction::kJumpInstructionLengthBytes));
 

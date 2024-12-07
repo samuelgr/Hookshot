@@ -14,7 +14,6 @@
 #include <cstddef>
 
 #include "ApiWindows.h"
-#include "Globals.h"
 #include "InjectResult.h"
 
 /// Initializes the state required to interact with the injected process. Requires the injected

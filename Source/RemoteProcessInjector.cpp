@@ -14,10 +14,11 @@
 #include <sstream>
 #include <string_view>
 
+#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "DependencyProtect.h"
-#include "Globals.h"
 #include "Strings.h"
-#include "TemporaryBuffer.h"
 
 namespace Hookshot
 {
@@ -79,7 +80,7 @@ namespace Hookshot
       executableCommandLine << L' ' << Strings::kCharCmdlineIndicatorFileMappingHandle << std::hex
                             << reinterpret_cast<uint64_t>(sharedMemoryHandle);
 
-      TemporaryBuffer<wchar_t> executableCommandLineMutableString;
+      Infra::TemporaryBuffer<wchar_t> executableCommandLineMutableString;
       if (0 !=
           wcscpy_s(
               executableCommandLineMutableString.Data(),
@@ -129,7 +130,7 @@ namespace Hookshot
 
       if ((FALSE ==
            Protected::Windows_DuplicateHandle(
-               Globals::GetCurrentProcessHandle(),
+               Infra::ProcessInfo::GetCurrentProcessHandle(),
                processHandle,
                processInfo.hProcess,
                &duplicateProcessHandle,
@@ -138,7 +139,7 @@ namespace Hookshot
                DUPLICATE_SAME_ACCESS)) ||
           (FALSE ==
            Protected::Windows_DuplicateHandle(
-               Globals::GetCurrentProcessHandle(),
+               Infra::ProcessInfo::GetCurrentProcessHandle(),
                threadHandle,
                processInfo.hProcess,
                &duplicateThreadHandle,

@@ -22,7 +22,7 @@
 #include <type_traits>
 #include <vector>
 
-#include "TemporaryBuffer.h"
+#include <Infra/Core/TemporaryBuffer.h>
 
 /// Convenience wrapper around initializer list syntax for defining a configuration file section in
 /// a layout object. Specify a section name followed by a series of setting name and value type
@@ -923,7 +923,7 @@ namespace Hookshot
       /// Converts the entire contents of this object into a configuration file string.
       /// @return String that contains a configuration file representation of the data held by
       /// this object.
-      TemporaryString ToConfigurationFileString(void) const;
+      Infra::TemporaryString ToConfigurationFileString(void) const;
 
     private:
 

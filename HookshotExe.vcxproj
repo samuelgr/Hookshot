@@ -30,7 +30,6 @@
     <ClCompile Include="Source\ProcessInjector.cpp" />
     <ClCompile Include="Source\RemoteProcessInjector.cpp" />
     <ClCompile Include="Source\Strings.cpp" />
-    <ClCompile Include="Source\TemporaryBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc" />
@@ -46,11 +45,9 @@
     <ClInclude Include="Include\Hookshot\Internal\InjectResult.h" />
     <ClInclude Include="Include\Hookshot\Internal\Iterator.h" />
     <ClInclude Include="Include\Hookshot\Internal\Message.h" />
-    <ClInclude Include="Include\Hookshot\Internal\MutexWrapper.h" />
     <ClInclude Include="Include\Hookshot\Internal\ProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Internal\Strings.h" />
-    <ClInclude Include="Include\Hookshot\Internal\TemporaryBuffer.h" />
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotExe.h" />
   </ItemGroup>
@@ -63,6 +60,9 @@
       <Private>false</Private>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <ProjectReference Include="Modules\Infra\CoreInfra.vcxproj">
+      <Project>{5af31c51-1646-4bda-9407-12273b2da870}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">

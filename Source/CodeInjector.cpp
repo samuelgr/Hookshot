@@ -15,12 +15,13 @@
 
 #include <cstddef>
 
+#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "ApiWindows.h"
-#include "Globals.h"
 #include "Inject.h"
 #include "InjectResult.h"
 #include "Strings.h"
-#include "TemporaryBuffer.h"
 
 namespace Hookshot
 {
@@ -104,9 +105,9 @@ namespace Hookshot
     HMODULE moduleGetProcAddress = nullptr;
     HMODULE moduleLoadLibraryA = nullptr;
 
-    TemporaryString moduleFilenameGetLastError;
-    TemporaryString moduleFilenameGetProcAddress;
-    TemporaryString moduleFilenameLoadLibraryA;
+    Infra::TemporaryString moduleFilenameGetLastError;
+    Infra::TemporaryString moduleFilenameGetProcAddress;
+    Infra::TemporaryString moduleFilenameLoadLibraryA;
     MODULEINFO moduleInfo;
 
     // Get module handles for the desired functions in the current process.
@@ -141,7 +142,7 @@ namespace Hookshot
 
     if (FALSE ==
         GetModuleInformation(
-            Globals::GetCurrentProcessHandle(),
+            Infra::ProcessInfo::GetCurrentProcessHandle(),
             moduleGetLastError,
             &moduleInfo,
             sizeof(moduleInfo)))
@@ -153,7 +154,7 @@ namespace Hookshot
     if ((moduleGetProcAddress != moduleGetLastError) &&
         (FALSE ==
          GetModuleInformation(
-             Globals::GetCurrentProcessHandle(),
+             Infra::ProcessInfo::GetCurrentProcessHandle(),
              moduleGetProcAddress,
              &moduleInfo,
              sizeof(moduleInfo))))
@@ -165,7 +166,7 @@ namespace Hookshot
     if ((moduleLoadLibraryA != moduleGetProcAddress) &&
         (FALSE ==
          GetModuleInformation(
-             Globals::GetCurrentProcessHandle(),
+             Infra::ProcessInfo::GetCurrentProcessHandle(),
              moduleGetProcAddress,
              &moduleInfo,
              sizeof(moduleInfo))))
@@ -196,7 +197,7 @@ namespace Hookshot
     // Enumerate all of the modules in the target process.
     // This approach is necessary because GetModuleHandle(Ex) cannot act on processes other than the
     // calling process.
-    TemporaryBuffer<HMODULE> loadedModules;
+    Infra::TemporaryBuffer<HMODULE> loadedModules;
     DWORD numLoadedModules = 0;
 
     if (FALSE ==
@@ -221,7 +222,7 @@ namespace Hookshot
          ++modidx)
     {
       const HMODULE loadedModule = loadedModules[modidx];
-      TemporaryString loadedModuleName;
+      Infra::TemporaryString loadedModuleName;
 
       loadedModuleName.UnsafeSetSize(GetModuleFileNameEx(
           injectedProcess, loadedModule, loadedModuleName.Data(), loadedModuleName.Capacity()));

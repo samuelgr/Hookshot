@@ -15,9 +15,10 @@
 #include <string_view>
 #include <unordered_map>
 
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "Configuration.h"
 #include "Strings.h"
-#include "TemporaryBuffer.h"
 
 namespace Hookshot
 {

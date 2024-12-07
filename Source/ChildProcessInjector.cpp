@@ -9,6 +9,8 @@
  *   Implementation of internal hooks for injecting child processes.
  **************************************************************************************************/
 
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "ApiWindows.h"
 #include "DependencyProtect.h"
 #include "InjectResult.h"
@@ -16,7 +18,6 @@
 #include "Message.h"
 #include "RemoteProcessInjector.h"
 #include "Strings.h"
-#include "TemporaryBuffer.h"
 
 namespace Hookshot
 {
@@ -29,7 +30,7 @@ namespace Hookshot
   /// @param [in] threadHandle Handle to the main thread of the process to inject.
   static void InjectChildProcess(const HANDLE processHandle, const HANDLE threadHandle)
   {
-    TemporaryBuffer<wchar_t> childProcessExecutable;
+    Infra::TemporaryBuffer<wchar_t> childProcessExecutable;
     DWORD childProcessExecutableLength = childProcessExecutable.Capacity();
 
     if (0 ==

@@ -16,10 +16,11 @@
 #include <string_view>
 #include <vector>
 
+#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "DependencyProtect.h"
-#include "Globals.h"
 #include "Message.h"
-#include "TemporaryBuffer.h"
 #include "X86Instruction.h"
 
 namespace Hookshot
@@ -115,7 +116,7 @@ namespace Hookshot
         (long long)hookFunc);
     code.hook.ptr[_countof(code.hook.ptr) - 1] = ValueForHookAddress(hookFunc);
     Protected::Windows_FlushInstructionCache(
-        Globals::GetCurrentProcessHandle(), &code.hook, sizeof(code.hook));
+        Infra::ProcessInfo::GetCurrentProcessHandle(), &code.hook, sizeof(code.hook));
   }
 
   bool Trampoline::SetOriginalFunction(const void* originalFunc)
@@ -181,7 +182,7 @@ namespace Hookshot
 
       if (Message::WillOutputMessageOfSeverity(Message::ESeverity::Debug))
       {
-        TemporaryBuffer<wchar_t> disassembly;
+        Infra::TemporaryBuffer<wchar_t> disassembly;
         const bool disassemblyResult =
             decodedInstruction.PrintDisassembly(disassembly.Data(), disassembly.Capacity());
         Message::OutputFormatted(
@@ -222,7 +223,7 @@ namespace Hookshot
       {
         if (Message::WillOutputMessageOfSeverity(Message::ESeverity::Debug))
         {
-          TemporaryBuffer<wchar_t> disassembly;
+          Infra::TemporaryBuffer<wchar_t> disassembly;
           const bool disassemblyResult = hopefullyPaddingInstruction.PrintDisassembly(
               disassembly.Data(), disassembly.Capacity());
           Message::OutputFormatted(
@@ -441,7 +442,7 @@ namespace Hookshot
     }
 
     Protected::Windows_FlushInstructionCache(
-        Globals::GetCurrentProcessHandle(), &code.original, sizeof(code.original));
+        Infra::ProcessInfo::GetCurrentProcessHandle(), &code.original, sizeof(code.original));
     return true;
   }
 } // namespace Hookshot

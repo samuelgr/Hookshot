@@ -21,10 +21,11 @@
 #include <string>
 #include <string_view>
 
+#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/TemporaryBuffer.h>
+
 #include "ApiWindows.h"
 #include "DependencyProtect.h"
-#include "Globals.h"
-#include "TemporaryBuffer.h"
 
 namespace Hookshot
 {
@@ -116,7 +117,10 @@ namespace Hookshot
           {
             const wchar_t* stringStart = nullptr;
             int stringLength = LoadString(
-                Globals::GetInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME, (wchar_t*)&stringStart, 0);
+                Infra::ProcessInfo::GetThisModuleInstanceHandle(),
+                IDS_HOOKSHOT_PRODUCT_NAME,
+                (wchar_t*)&stringStart,
+                0);
 
             while ((stringLength > 0) && (L'\0' == stringStart[stringLength - 1]))
               stringLength -= 1;
@@ -139,7 +143,7 @@ namespace Hookshot
           initFlag,
           []() -> void
           {
-            TemporaryBuffer<wchar_t> buf;
+            Infra::TemporaryBuffer<wchar_t> buf;
             GetModuleFileName(nullptr, buf.Data(), static_cast<DWORD>(buf.Capacity()));
 
             initString.assign(buf.Data());
@@ -210,9 +214,11 @@ namespace Hookshot
           initFlag,
           []() -> void
           {
-            TemporaryBuffer<wchar_t> buf;
+            Infra::TemporaryBuffer<wchar_t> buf;
             GetModuleFileName(
-                Globals::GetInstanceHandle(), buf.Data(), static_cast<DWORD>(buf.Capacity()));
+                Infra::ProcessInfo::GetThisModuleInstanceHandle(),
+                buf.Data(),
+                static_cast<DWORD>(buf.Capacity()));
 
             initString.assign(buf.Data());
           });
@@ -312,7 +318,7 @@ namespace Hookshot
           initFlag,
           []() -> void
           {
-            TemporaryString logFilename;
+            Infra::TemporaryString logFilename;
 
             PWSTR knownFolderPath;
             const HRESULT result =
@@ -325,7 +331,8 @@ namespace Hookshot
             }
 
             logFilename << GetProductName() << L'_' << GetExecutableBaseName() << L'_'
-                        << Globals::GetCurrentProcessId() << kStrHookshotLogFileExtension;
+                        << Infra::ProcessInfo::GetCurrentProcessId()
+                        << kStrHookshotLogFileExtension;
 
             initString.assign(logFilename);
           });
@@ -437,9 +444,10 @@ namespace Hookshot
     extern const std::wstring_view kStrHookshotExecutableOtherArchitectureFilename(
         GetHookshotExecutableOtherArchitectureFilename());
 
-    TemporaryString AuthorizationFilenameApplicationSpecific(std::wstring_view executablePath)
+    Infra::TemporaryString AuthorizationFilenameApplicationSpecific(
+        std::wstring_view executablePath)
     {
-      TemporaryString authorizationFilename;
+      Infra::TemporaryString authorizationFilename;
 
       authorizationFilename += executablePath;
       authorizationFilename += kStrAuthorizationFileExtension;
@@ -447,9 +455,9 @@ namespace Hookshot
       return authorizationFilename;
     }
 
-    TemporaryString AuthorizationFilenameDirectoryWide(std::wstring_view executablePath)
+    Infra::TemporaryString AuthorizationFilenameDirectoryWide(std::wstring_view executablePath)
     {
-      TemporaryString authorizationFilename;
+      Infra::TemporaryString authorizationFilename;
 
       const size_t lastBackslashPos = executablePath.find_last_of(L"\\");
       if (std::wstring_view::npos == lastBackslashPos)
@@ -467,9 +475,9 @@ namespace Hookshot
       return authorizationFilename;
     }
 
-    TemporaryString ConvertStringNarrowToWide(const char* str)
+    Infra::TemporaryString ConvertStringNarrowToWide(const char* str)
     {
-      TemporaryString convertedStr;
+      Infra::TemporaryString convertedStr;
       size_t numCharsConverted = 0;
 
       if (0 ==
@@ -484,9 +492,9 @@ namespace Hookshot
       return convertedStr;
     }
 
-    TemporaryBuffer<char> ConvertStringWideToNarrow(const wchar_t* str)
+    Infra::TemporaryBuffer<char> ConvertStringWideToNarrow(const wchar_t* str)
     {
-      TemporaryBuffer<char> convertedStr;
+      Infra::TemporaryBuffer<char> convertedStr;
       size_t numCharsConverted = 0;
 
       if (0 !=
@@ -529,9 +537,9 @@ namespace Hookshot
     template bool EqualsCaseInsensitive<char>(std::string_view, std::string_view);
     template bool EqualsCaseInsensitive<wchar_t>(std::wstring_view, std::wstring_view);
 
-    TemporaryString FormatString(_Printf_format_string_ const wchar_t* format, ...)
+    Infra::TemporaryString FormatString(_Printf_format_string_ const wchar_t* format, ...)
     {
-      TemporaryString buf;
+      Infra::TemporaryString buf;
 
       va_list args;
       va_start(args, format);
@@ -544,9 +552,10 @@ namespace Hookshot
       return buf;
     }
 
-    TemporaryString HookModuleFilename(std::wstring_view moduleName, std::wstring_view directoryName)
+    Infra::TemporaryString HookModuleFilename(
+        std::wstring_view moduleName, std::wstring_view directoryName)
     {
-      TemporaryString hookModuleFilename;
+      Infra::TemporaryString hookModuleFilename;
 
       hookModuleFilename += directoryName;
       hookModuleFilename += moduleName;
@@ -567,9 +576,9 @@ namespace Hookshot
     template bool StartsWithCaseInsensitive<char>(std::string_view, std::string_view);
     template bool StartsWithCaseInsensitive<wchar_t>(std::wstring_view, std::wstring_view);
 
-    TemporaryString SystemErrorCodeString(const unsigned long systemErrorCode)
+    Infra::TemporaryString SystemErrorCodeString(const unsigned long systemErrorCode)
     {
-      TemporaryString systemErrorString;
+      Infra::TemporaryString systemErrorString;
       DWORD systemErrorLength = Protected::Windows_FormatMessage(
           FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
           nullptr,

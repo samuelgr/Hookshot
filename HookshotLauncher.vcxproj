@@ -122,7 +122,6 @@
     <ClCompile Include="Source\Message.cpp" />
     <ClCompile Include="Source\RemoteProcessInjector.cpp" />
     <ClCompile Include="Source\Strings.cpp" />
-    <ClCompile Include="Source\TemporaryBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Hookshot\Internal\ApiWindows.h" />
@@ -132,16 +131,19 @@
     <ClInclude Include="Include\Hookshot\Internal\InjectResult.h" />
     <ClInclude Include="Include\Hookshot\Internal\Iterator.h" />
     <ClInclude Include="Include\Hookshot\Internal\Message.h" />
-    <ClInclude Include="Include\Hookshot\Internal\MutexWrapper.h" />
     <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Internal\Strings.h" />
-    <ClInclude Include="Include\Hookshot\Internal\TemporaryBuffer.h" />
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotLauncher.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc" />
     <ResourceCompile Include="Resources\HookshotLauncher.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Modules\Infra\CoreInfra.vcxproj">
+      <Project>{5af31c51-1646-4bda-9407-12273b2da870}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
