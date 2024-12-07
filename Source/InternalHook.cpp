@@ -14,8 +14,9 @@
 #include <map>
 #include <string_view>
 
+#include <Infra/Core/Message.h>
+
 #include "ApiWindows.h"
-#include "Message.h"
 
 namespace Hookshot
 {
@@ -68,13 +69,13 @@ namespace Hookshot
       const EResult result = hook->second();
 
       if (SuccessfulResult(result))
-        Message::OutputFormatted(
-            Message::ESeverity::Info,
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Info,
             L"Successfully set internal hook for %s.",
             hook->first.data());
       else
-        Message::OutputFormatted(
-            Message::ESeverity::Warning,
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Warning,
             L"Failed to set internal hook for %s. Hookshot features that use this hook will not work.",
             hook->first.data());
     }

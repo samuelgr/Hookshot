@@ -12,6 +12,7 @@
 #include <sstream>
 #include <string>
 
+#include <Infra/Core/Message.h>
 #include <Infra/Core/ProcessInfo.h>
 #include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
@@ -19,7 +20,6 @@
 #include "ApiWindows.h"
 #include "Globals.h"
 #include "InjectResult.h"
-#include "Message.h"
 #include "ProcessInjector.h"
 #include "Strings.h"
 
@@ -38,8 +38,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   if (2 > __argc)
   {
-    Message::OutputFormatted(
-        Message::ESeverity::ForcedInteractiveError,
+    Infra::Message::OutputFormatted(
+        Infra::Message::ESeverity::ForcedInteractiveError,
         L"%.*s cannot be launched directly. An executable file must be specified as an argument.\n\nUsage: %.*s <command> [<arg1> <arg2>...]",
         static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
         Infra::ProcessInfo::GetProductName()->data(),
@@ -115,8 +115,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     Infra::TemporaryBuffer<wchar_t> commandLine;
     if (0 != wcscpy_s(commandLine.Data(), commandLine.Capacity(), commandLineStream.str().c_str()))
     {
-      Message::OutputFormatted(
-          Message::ESeverity::ForcedInteractiveError,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::ForcedInteractiveError,
           L"Specified command line exceeds the limit of %u characters.",
           commandLine.Capacity());
       return __LINE__;
@@ -144,8 +144,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     switch (result)
     {
       case EInjectResult::Success:
-        Message::OutputFormatted(
-            Message::ESeverity::Info, L"Successfully injected %s.", __wargv[1]);
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Info, L"Successfully injected %s.", __wargv[1]);
         return 0;
 
       case EInjectResult::ErrorCreateProcess:
@@ -160,22 +160,22 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
               SW_SHOWDEFAULT));
           if (executeElevatedResult > 32)
           {
-            Message::OutputFormatted(
-                Message::ESeverity::Info,
+            Infra::Message::OutputFormatted(
+                Infra::Message::ESeverity::Info,
                 L"Re-attempting the creation and injection %s with elevation.",
                 __wargv[1]);
 
             if (IsDebuggerPresent())
-              Message::Output(
-                  Message::ESeverity::Warning,
+              Infra::Message::Output(
+                  Infra::Message::ESeverity::Warning,
                   L"Debugging state is not automatically propagated across an elevation attempt. To debug Hookshot as it injects a program that requires elevation, run the debugger as an administrator.");
 
             return 0;
           }
           else
           {
-            Message::OutputFormatted(
-                Message::ESeverity::ForcedInteractiveError,
+            Infra::Message::OutputFormatted(
+                Infra::Message::ESeverity::ForcedInteractiveError,
                 L"%s\n\n%.*s failed to inject this executable.\n\nTarget process requires elevation (%s).",
                 __wargv[1],
                 static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
@@ -188,8 +188,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         [[fallthrough]];
 
       default:
-        Message::OutputFormatted(
-            Message::ESeverity::ForcedInteractiveError,
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::ForcedInteractiveError,
             L"%s\n\n%.*s failed to inject this executable.\n\n%s (%s).",
             __wargv[1],
             static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),

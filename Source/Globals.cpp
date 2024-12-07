@@ -12,10 +12,10 @@
 
 #include "Globals.h"
 
+#include <Infra/Core/Message.h>
 #include <Infra/Core/ProcessInfo.h>
 
 #include "ApiWindows.h"
-#include "Message.h"
 
 #include "GitVersionInfo.generated.h"
 
@@ -63,17 +63,17 @@ namespace Hookshot
     /// Enables the log if it is not already enabled.
     /// Regardless, the minimum severity for output is set based on the parameter.
     /// @param [in] logLevel Logging level to configure as the minimum severity for output.
-    static void EnableLog(Message::ESeverity logLevel)
+    static void EnableLog(Infra::Message::ESeverity logLevel)
     {
       static std::once_flag enableLogFlag;
       std::call_once(
           enableLogFlag,
           [logLevel]() -> void
           {
-            Message::CreateAndEnableLogFile();
+            Infra::Message::CreateAndEnableLogFile(Strings::GetHookshotLogFilename());
           });
 
-      Message::SetMinimumSeverityForOutput(logLevel);
+      Infra::Message::SetMinimumSeverityForOutput(logLevel);
     }
 
     /// Enables the log, if it is configured in the configuration file.
@@ -88,8 +88,9 @@ namespace Hookshot
       if (logLevel > 0)
       {
         // Offset the requested severity so that 0 = disabled, 1 = error, 2 = warning, etc.
-        const Message::ESeverity configuredSeverity = static_cast<Message::ESeverity>(
-            logLevel + static_cast<int64_t>(Message::ESeverity::LowerBoundConfigurableValue));
+        const Infra::Message::ESeverity configuredSeverity = static_cast<Infra::Message::ESeverity>(
+            logLevel +
+            static_cast<int64_t>(Infra::Message::ESeverity::LowerBoundConfigurableValue));
         EnableLog(configuredSeverity);
       }
     }
@@ -110,16 +111,17 @@ namespace Hookshot
 
             if (true == configData.HasReadErrors())
             {
-              EnableLog(Message::ESeverity::Error);
+              EnableLog(Infra::Message::ESeverity::Error);
 
-              Message::Output(
-                  Message::ESeverity::Error,
+              Infra::Message::Output(
+                  Infra::Message::ESeverity::Error,
                   L"Errors were encountered during configuration file reading.");
               for (const auto& readError : configData.GetReadErrorMessages())
-                Message::OutputFormatted(Message::ESeverity::Error, L"    %s", readError.c_str());
+                Infra::Message::OutputFormatted(
+                    Infra::Message::ESeverity::Error, L"    %s", readError.c_str());
 
-              Message::Output(
-                  Message::ESeverity::ForcedInteractiveWarning,
+              Infra::Message::Output(
+                  Infra::Message::ESeverity::ForcedInteractiveWarning,
                   L"Errors were encountered during configuration file reading. See log file on the Desktop for more information.");
             }
           });

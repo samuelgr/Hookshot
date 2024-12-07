@@ -16,11 +16,11 @@
 #include <string_view>
 #include <vector>
 
+#include <Infra/Core/Message.h>
 #include <Infra/Core/ProcessInfo.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "DependencyProtect.h"
-#include "Message.h"
 #include "X86Instruction.h"
 
 namespace Hookshot
@@ -109,8 +109,8 @@ namespace Hookshot
 
   void Trampoline::SetHookFunction(const void* hookFunc)
   {
-    Message::OutputFormatted(
-        Message::ESeverity::Info,
+    Infra::Message::OutputFormatted(
+        Infra::Message::ESeverity::Info,
         L"Trampoline at 0x%llx is being set up with hook function 0x%llx.",
         (long long)this,
         (long long)hookFunc);
@@ -121,8 +121,8 @@ namespace Hookshot
 
   bool Trampoline::SetOriginalFunction(const void* originalFunc)
   {
-    Message::OutputFormatted(
-        Message::ESeverity::Info,
+    Infra::Message::OutputFormatted(
+        Infra::Message::ESeverity::Info,
         L"Trampoline at 0x%llx is being set up with original function 0x%llx.",
         (long long)this,
         (long long)originalFunc);
@@ -130,8 +130,8 @@ namespace Hookshot
     // Sanity check. Make sure the original function is not too far away from this trampoline.
     if (false == X86Instruction::CanWriteJumpInstruction(originalFunc, &code.hook))
     {
-      Message::OutputFormatted(
-          Message::ESeverity::Warning,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Warning,
           L"Set hook failed for function %llx because it is too far from the trampoline.",
           (long long)originalFunc);
       return false;
@@ -162,8 +162,8 @@ namespace Hookshot
     int instructionIndex = 0;
     std::vector<X86Instruction> originalInstructions;
 
-    Message::OutputFormatted(
-        Message::ESeverity::Debug,
+    Infra::Message::OutputFormatted(
+        Infra::Message::ESeverity::Debug,
         L"Starting to decode instructions at 0x%llx, need %d bytes.",
         (long long)originalFunc,
         numOriginalFunctionBytesNeeded);
@@ -175,26 +175,28 @@ namespace Hookshot
 
       if (false == decodedInstruction.IsValid())
       {
-        Message::OutputFormatted(
-            Message::ESeverity::Debug, L"Instruction %d - Invalid instruction.", instructionIndex);
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Debug,
+            L"Instruction %d - Invalid instruction.",
+            instructionIndex);
         return false;
       }
 
-      if (Message::WillOutputMessageOfSeverity(Message::ESeverity::Debug))
+      if (Infra::Message::WillOutputMessageOfSeverity(Infra::Message::ESeverity::Debug))
       {
         Infra::TemporaryBuffer<wchar_t> disassembly;
         const bool disassemblyResult =
             decodedInstruction.PrintDisassembly(disassembly.Data(), disassembly.Capacity());
-        Message::OutputFormatted(
-            Message::ESeverity::Debug,
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Debug,
             L"Instruction %d - Decoded %d-byte instruction \"%s\"",
             instructionIndex,
             decodedInstruction.GetLengthBytes(),
             ((true == disassemblyResult) ? &disassembly[0] : kDisassemblyFailedString.data()));
 
         if (decodedInstruction.IsTerminal())
-          Message::OutputFormatted(
-              Message::ESeverity::Debug,
+          Infra::Message::OutputFormatted(
+              Infra::Message::ESeverity::Debug,
               L"Instruction %d - This is a terminal instruction.",
               instructionIndex);
       }
@@ -221,13 +223,13 @@ namespace Hookshot
 
       if (hopefullyPaddingInstruction.IsPaddingWithLengthAtLeast(numBytesShort))
       {
-        if (Message::WillOutputMessageOfSeverity(Message::ESeverity::Debug))
+        if (Infra::Message::WillOutputMessageOfSeverity(Infra::Message::ESeverity::Debug))
         {
           Infra::TemporaryBuffer<wchar_t> disassembly;
           const bool disassemblyResult = hopefullyPaddingInstruction.PrintDisassembly(
               disassembly.Data(), disassembly.Capacity());
-          Message::OutputFormatted(
-              Message::ESeverity::Debug,
+          Infra::Message::OutputFormatted(
+              Infra::Message::ESeverity::Debug,
               L"Decoded a total of %d byte(s), needed %d. This is insufficient, but at least %d byte(s) of padding instruction \"%s\" are available. Proceeding.",
               numOriginalFunctionBytes,
               numOriginalFunctionBytesNeeded,
@@ -237,8 +239,8 @@ namespace Hookshot
       }
       else
       {
-        Message::OutputFormatted(
-            Message::ESeverity::Debug,
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Debug,
             L"Decoded a total of %d byte(s), needed %d. This is insufficient, and padding bytes could not be used. Bailing.",
             numOriginalFunctionBytes,
             numOriginalFunctionBytesNeeded);
@@ -247,8 +249,8 @@ namespace Hookshot
     }
     else
     {
-      Message::OutputFormatted(
-          Message::ESeverity::Debug,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Debug,
           L"Decoded a total of %d byte(s), needed %d. This is sufficient. Proceeding.",
           numOriginalFunctionBytes,
           numOriginalFunctionBytesNeeded);
@@ -268,8 +270,8 @@ namespace Hookshot
       if (originalInstructions[i].HasPositionDependentMemoryReference())
       {
         const int64_t originalDisplacement = originalInstructions[i].GetMemoryDisplacement();
-        Message::OutputFormatted(
-            Message::ESeverity::Debug,
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Debug,
             L"Instruction %d - Has a position-dependent memory reference with displacement 0x%llx.",
             i,
             (long long)originalDisplacement);
@@ -292,8 +294,8 @@ namespace Hookshot
               (reinterpret_cast<intptr_t>(originalInstructions[i].GetAddress()) -
                reinterpret_cast<intptr_t>(nextTrampolineAddressToWrite)) +
               static_cast<intptr_t>(originalDisplacement);
-          Message::OutputFormatted(
-              Message::ESeverity::Debug,
+          Infra::Message::OutputFormatted(
+              Infra::Message::ESeverity::Debug,
               L"Instruction %d - Transplanting from 0x%llx to 0x%llx, absolute target is 0x%llx, new displacement is 0x%llx.",
               i,
               reinterpret_cast<long long>(originalInstructions[i].GetAddress()),
@@ -335,8 +337,8 @@ namespace Hookshot
                   (reinterpret_cast<intptr_t>(nextTrampolineAddressToWrite) +
                    static_cast<intptr_t>(originalInstructions[i].GetLengthBytes()));
 
-              Message::OutputFormatted(
-                  Message::ESeverity::Debug,
+              Infra::Message::OutputFormatted(
+                  Infra::Message::ESeverity::Debug,
                   L"Instruction %d - Failed to set new displacement, but will attempt to use a jump assist (from=0x%llx, to=0x%llx, disp=0x%llx, target=0x%llx) instead.",
                   i,
                   reinterpret_cast<long long>(nextTrampolineAddressToWrite),
@@ -348,8 +350,8 @@ namespace Hookshot
                   originalInstructions[i].SetMemoryDisplacement(
                       static_cast<int64_t>(displacementValueToJumpAssist)))
               {
-                Message::OutputFormatted(
-                    Message::ESeverity::Debug,
+                Infra::Message::OutputFormatted(
+                    Infra::Message::ESeverity::Debug,
                     L"Instruction %d - Jump assist failed, unable to set original instruction displacement.",
                     i);
                 return false;
@@ -361,15 +363,15 @@ namespace Hookshot
                       X86Instruction::kJumpInstructionLengthBytes,
                       jumpAssistTargetAddress))
               {
-                Message::OutputFormatted(
-                    Message::ESeverity::Debug,
+                Infra::Message::OutputFormatted(
+                    Infra::Message::ESeverity::Debug,
                     L"Instruction %d - Jump assist failed, unable write jump assist instruction.",
                     i);
                 return false;
               }
 
-              Message::OutputFormatted(
-                  Message::ESeverity::Debug,
+              Infra::Message::OutputFormatted(
+                  Infra::Message::ESeverity::Debug,
                   L"Instruction %d - Jump assist succeeded, encoded %d extra bytes at 0x%llx.",
                   i,
                   X86Instruction::kJumpInstructionLengthBytes,
@@ -377,8 +379,8 @@ namespace Hookshot
             }
             else
             {
-              Message::OutputFormatted(
-                  Message::ESeverity::Debug,
+              Infra::Message::OutputFormatted(
+                  Infra::Message::ESeverity::Debug,
                   L"Instruction %d - Failed to set new displacement, and cannot use a jump assist.",
                   i);
               return false;
@@ -386,8 +388,8 @@ namespace Hookshot
           }
         }
         else
-          Message::OutputFormatted(
-              Message::ESeverity::Debug,
+          Infra::Message::OutputFormatted(
+              Infra::Message::ESeverity::Debug,
               L"Instruction %d - Displacement is short enough, no modification required.",
               i);
       }
@@ -398,16 +400,16 @@ namespace Hookshot
 
       if (0 == numEncodedBytes)
       {
-        Message::OutputFormatted(
-            Message::ESeverity::Debug,
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Debug,
             L"Instruction %d - Failed to encode at 0x%llx.",
             i,
             (long long)nextTrampolineAddressToWrite);
         return false;
       }
 
-      Message::OutputFormatted(
-          Message::ESeverity::Debug,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Debug,
           L"Instruction %d - Encoded %d byte(s) at 0x%llx.",
           i,
           numEncodedBytes,
@@ -423,8 +425,8 @@ namespace Hookshot
     {
       const int numTrampolineBytesLeft =
           sizeof(code.original) - numTrampolineBytesWritten - numExtraTrampolineBytesUsed;
-      Message::OutputFormatted(
-          Message::ESeverity::Debug,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Debug,
           L"Final encoded instruction is non-terminal, so adding a jump to 0x%llx with %d byte(s) free in the trampoline.",
           (long long)&originalFunctionBytes[numOriginalFunctionBytes],
           numTrampolineBytesLeft);
@@ -435,8 +437,8 @@ namespace Hookshot
               numTrampolineBytesLeft,
               &originalFunctionBytes[numOriginalFunctionBytes]))
       {
-        Message::OutputFormatted(
-            Message::ESeverity::Debug, L"Failed to write terminal jump instruction.");
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Debug, L"Failed to write terminal jump instruction.");
         return false;
       }
     }

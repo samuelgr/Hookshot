@@ -13,12 +13,12 @@
 
 #include <shared_mutex>
 
+#include <Infra/Core/Message.h>
 #include <Infra/Core/ProcessInfo.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "DependencyProtect.h"
 #include "Globals.h"
-#include "Message.h"
 #include "X86Instruction.h"
 
 namespace Hookshot
@@ -207,8 +207,8 @@ namespace Hookshot
     trampoline.SetHookFunction(hookFunc);
     if (false == trampoline.SetOriginalFunction(originalFunc))
     {
-      Message::OutputFormatted(
-          Message::ESeverity::Info,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Info,
           L"Failed to set up a trampoline for original function at 0x%llx.",
           (long long)originalFunc);
 
@@ -220,8 +220,8 @@ namespace Hookshot
 
     if (false == RedirectExecution(originalFunc, trampoline.GetHookFunction()))
     {
-      Message::OutputFormatted(
-          Message::ESeverity::Info,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Info,
           L"Failed to redirect execution from 0x%llx to 0x%llx.",
           (long long)originalFunc,
           (long long)trampoline.GetHookFunction());

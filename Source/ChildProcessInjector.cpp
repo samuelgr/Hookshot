@@ -9,6 +9,7 @@
  *   Implementation of internal hooks for injecting child processes.
  **************************************************************************************************/
 
+#include <Infra/Core/Message.h>
 #include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
@@ -16,7 +17,6 @@
 #include "DependencyProtect.h"
 #include "InjectResult.h"
 #include "InternalHook.h"
-#include "Message.h"
 #include "RemoteProcessInjector.h"
 
 namespace Hookshot
@@ -42,14 +42,14 @@ namespace Hookshot
         processHandle, threadHandle, false, Protected::Windows_IsDebuggerPresent());
 
     if (EInjectResult::Success == result)
-      Message::OutputFormatted(
-          Message::ESeverity::Info,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Info,
           L"Successfully injected child process %s.",
           (0 == childProcessExecutableLength ? L"(error determining executable file name)"
                                              : &childProcessExecutable[0]));
     else
-      Message::OutputFormatted(
-          Message::ESeverity::Warning,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Warning,
           L"%s - Failed to inject child process: %s: %s.",
           (0 == childProcessExecutableLength ? L"(error determining executable file name)"
                                              : &childProcessExecutable[0]),

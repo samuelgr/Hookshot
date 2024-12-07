@@ -30,9 +30,6 @@
     <ClCompile Include="Source\DependencyProtect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Message.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\RemoteProcessInjector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -57,9 +54,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resources\HookshotLauncher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Hookshot\Internal\Message.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h">

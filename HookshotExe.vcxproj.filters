@@ -27,9 +27,6 @@
     <ClCompile Include="Source\Inject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Message.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ProcessInjector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -71,9 +68,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Hookshot\Internal\InjectResult.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Hookshot\Internal\Message.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Hookshot\Internal\ProcessInjector.h">

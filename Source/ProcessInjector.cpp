@@ -20,6 +20,7 @@
 #include <optional>
 #include <vector>
 
+#include <Infra/Core/Message.h>
 #include <Infra/Core/ProcessInfo.h>
 #include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
@@ -28,7 +29,6 @@
 #include "CodeInjector.h"
 #include "Inject.h"
 #include "InjectResult.h"
-#include "Message.h"
 #include "RemoteProcessInjector.h"
 #include "Strings.h"
 
@@ -305,15 +305,15 @@ namespace Hookshot
       // for more information.
       if (0 != optionalHeader.DataDirectory[14].Size)
       {
-        Message::Output(
-            Message::ESeverity::Info,
+        Infra::Message::Output(
+            Infra::Message::ESeverity::Info,
             L"Process appears to be managed by the CLR. Using the CLR library's entry point address.");
         return GetClrEntryPointAddress(processHandle, entryPoint);
       }
       else
       {
-        Message::Output(
-            Message::ESeverity::Info,
+        Infra::Message::Output(
+            Infra::Message::ESeverity::Info,
             L"Process appears to be unmanaged by the CLR. Using the executable's own entry point address.");
         *entryPoint = reinterpret_cast<void*>(
             reinterpret_cast<size_t>(baseAddress) +
@@ -422,8 +422,8 @@ namespace Hookshot
           Strings::AuthorizationFilenameApplicationSpecific(processExecutablePath.Data());
       if (FALSE == PathFileExists(authorizationFileName.AsCString()))
       {
-        Message::OutputFormatted(
-            Message::ESeverity::Warning,
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Warning,
             L"Authorization not granted, cannot open application-specific file %s.",
             authorizationFileName.AsCString());
 
@@ -431,16 +431,16 @@ namespace Hookshot
             Strings::AuthorizationFilenameDirectoryWide(processExecutablePath.Data());
         if (FALSE == PathFileExists(authorizationFileName.AsCString()))
         {
-          Message::OutputFormatted(
-              Message::ESeverity::Warning,
+          Infra::Message::OutputFormatted(
+              Infra::Message::ESeverity::Warning,
               L"Authorization not granted, cannot open directory-wide file %s.",
               authorizationFileName.AsCString());
           return EInjectResult::ErrorNotAuthorized;
         }
       }
 
-      Message::OutputFormatted(
-          Message::ESeverity::Info,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Info,
           L"Authorization granted by presence of file %s.",
           authorizationFileName.AsCString());
       return EInjectResult::Success;

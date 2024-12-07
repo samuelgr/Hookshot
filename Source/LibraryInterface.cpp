@@ -16,6 +16,7 @@
 #include <string_view>
 #include <vector>
 
+#include <Infra/Core/Message.h>
 #include <Infra/Core/ProcessInfo.h>
 #include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
@@ -26,7 +27,6 @@
 #include "HookStore.h"
 #include "InjectLanding.h"
 #include "InternalHook.h"
-#include "Message.h"
 #include "Strings.h"
 #include "X86Instruction.h"
 
@@ -96,16 +96,16 @@ namespace Hookshot
     /// @return `true` on success, `false` on failure.
     static bool LoadHookModule(std::wstring_view hookModuleFileName)
     {
-      Message::OutputFormatted(
-          Message::ESeverity::Info,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Info,
           L"%s - Attempting to load hook module.",
           hookModuleFileName.data());
       const HMODULE hookModule = Protected::Windows_LoadLibrary(hookModuleFileName.data());
 
       if (nullptr == hookModule)
       {
-        Message::OutputFormatted(
-            Message::ESeverity::Warning,
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Warning,
             L"%s - Failed to load hook module: %s.",
             hookModuleFileName.data(),
             Infra::Strings::FromSystemErrorCode(Protected::Windows_GetLastError()).AsCString());
@@ -117,8 +117,8 @@ namespace Hookshot
 
       if (nullptr == initProc)
       {
-        Message::OutputFormatted(
-            Message::ESeverity::Warning,
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Warning,
             L"%s - Failed to locate required procedure in hook module: %s.",
             hookModuleFileName.data(),
             Infra::Strings::FromSystemErrorCode(Protected::Windows_GetLastError()).AsCString());
@@ -127,8 +127,8 @@ namespace Hookshot
 
       initProc(GetHookshotInterfacePointer());
 
-      Message::OutputFormatted(
-          Message::ESeverity::Info,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Info,
           L"%s - Successfully loaded hook module.",
           hookModuleFileName.data());
       return true;
@@ -139,24 +139,24 @@ namespace Hookshot
     /// @return `true` on success, `false` on failure.
     static bool LoadInjectOnlyLibrary(std::wstring_view injectOnlyLibraryFileName)
     {
-      Message::OutputFormatted(
-          Message::ESeverity::Info,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Info,
           L"%s - Attempting to load library.",
           injectOnlyLibraryFileName.data());
       const HMODULE hookModule = Protected::Windows_LoadLibrary(injectOnlyLibraryFileName.data());
 
       if (nullptr == hookModule)
       {
-        Message::OutputFormatted(
-            Message::ESeverity::Warning,
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Warning,
             L"%s - Failed to load library: %s.",
             injectOnlyLibraryFileName.data(),
             Infra::Strings::FromSystemErrorCode(Protected::Windows_GetLastError()).AsCString());
         return false;
       }
 
-      Message::OutputFormatted(
-          Message::ESeverity::Info,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Info,
           L"%s - Successfully loaded library.",
           injectOnlyLibraryFileName.data());
       return true;
@@ -169,8 +169,9 @@ namespace Hookshot
     {
       int numHookModulesLoaded = 0;
 
-      Message::Output(
-          Message::ESeverity::Info, L"Loading hook modules specified in the configuration file.");
+      Infra::Message::Output(
+          Infra::Message::ESeverity::Info,
+          L"Loading hook modules specified in the configuration file.");
 
       for (const auto& configuredHookModuleSource :
            RelevantConfigurationSettings(Strings::kStrConfigurationSettingNameHookModule))
@@ -195,8 +196,8 @@ namespace Hookshot
       int numHookModulesLoaded = 0;
       const std::wstring_view hookModuleDirectory = HookModuleDirectoryName();
 
-      Message::OutputFormatted(
-          Message::ESeverity::Info,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Info,
           L"Looking in \"%.*s\" and loading all hook modules found there.",
           static_cast<int>(hookModuleDirectory.size()),
           hookModuleDirectory.data());

@@ -31,7 +31,6 @@
     <ClCompile Include="Source\InjectResult.cpp" />
     <ClCompile Include="Source\InternalHook.cpp" />
     <ClCompile Include="Source\LibraryInterface.cpp" />
-    <ClCompile Include="Source\Message.cpp" />
     <ClCompile Include="Source\RemoteProcessInjector.cpp" />
     <ClCompile Include="Source\Strings.cpp" />
     <ClCompile Include="Source\Trampoline.cpp" />
@@ -53,7 +52,6 @@
     <ClInclude Include="Include\Hookshot\Internal\InjectResult.h" />
     <ClInclude Include="Include\Hookshot\Internal\InternalHook.h" />
     <ClInclude Include="Include\Hookshot\Internal\LibraryInterface.h" />
-    <ClInclude Include="Include\Hookshot\Internal\Message.h" />
     <ClInclude Include="Include\Hookshot\Internal\DependencyProtect.h" />
     <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Internal\Strings.h" />

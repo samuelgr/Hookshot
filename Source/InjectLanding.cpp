@@ -12,6 +12,7 @@
 
 #include <cstddef>
 
+#include <Infra/Core/Message.h>
 #include <Infra/Core/ProcessInfo.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
@@ -19,7 +20,6 @@
 #include "DependencyProtect.h"
 #include "Inject.h"
 #include "LibraryInterface.h"
-#include "Message.h"
 #include "Strings.h"
 
 using namespace Hookshot;
@@ -41,8 +41,8 @@ extern "C" void __fastcall InjectLandingCleanup(const SInjectData* const injectD
 extern "C" void __fastcall InjectLandingLoadHookModules(const SInjectData* const injectData)
 {
   if ((0 != injectData->enableDebugFeatures) && (0 == Protected::Windows_IsDebuggerPresent()))
-    Message::OutputFormatted(
-        Message::ESeverity::ForcedInteractiveInfo,
+    Infra::Message::OutputFormatted(
+        Infra::Message::ESeverity::ForcedInteractiveInfo,
         L"Attach to \"%.*s\" (PID %d) to continue debugging.",
         static_cast<int>(Infra::ProcessInfo::GetExecutableBaseName().length()),
         Infra::ProcessInfo::GetExecutableBaseName().data(),
@@ -51,8 +51,8 @@ extern "C" void __fastcall InjectLandingLoadHookModules(const SInjectData* const
   const int numHookModulesLoaded = LibraryInterface::LoadHookModules();
   const int numInjectOnlyLibrariesLoaded = LibraryInterface::LoadInjectOnlyLibraries();
 
-  Message::OutputFormatted(
-      Message::ESeverity::Info,
+  Infra::Message::OutputFormatted(
+      Infra::Message::ESeverity::Info,
       L"Loaded %d hook module%s and %d injection-only librar%s.",
       numHookModulesLoaded,
       (1 == numHookModulesLoaded ? L"" : L"s"),

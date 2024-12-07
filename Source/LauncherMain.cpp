@@ -13,13 +13,13 @@
 #include <string>
 #include <string_view>
 
+#include <Infra/Core/Message.h>
 #include <Infra/Core/ProcessInfo.h>
 #include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "ApiWindows.h"
 #include "Globals.h"
-#include "Message.h"
 #include "RemoteProcessInjector.h"
 #include "Strings.h"
 
@@ -295,8 +295,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
           return __LINE__;
 
         default:
-          Message::OutputFormatted(
-              Message::ESeverity::ForcedInteractiveError,
+          Infra::Message::OutputFormatted(
+              Infra::Message::ESeverity::ForcedInteractiveError,
               L"%s\n\n%.*s failed to launch this executable.\n\nUnable to create the authorization file (%s).",
               kExecutableToLaunch.c_str(),
               static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
@@ -356,8 +356,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
         if (ERROR_ELEVATION_REQUIRED != GetLastError())
         {
-          Message::OutputFormatted(
-              Message::ESeverity::ForcedInteractiveError,
+          Infra::Message::OutputFormatted(
+              Infra::Message::ESeverity::ForcedInteractiveError,
               L"%s\n\n%.*s failed to launch this executable (%s).",
               kExecutableToLaunch.c_str(),
               static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
@@ -384,8 +384,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         const BOOL executeElevatedResult = ShellExecuteEx(&elevationAttemptInfo);
         if ((TRUE != executeElevatedResult) || (NULL == elevationAttemptInfo.hProcess))
         {
-          Message::OutputFormatted(
-              Message::ESeverity::ForcedInteractiveError,
+          Infra::Message::OutputFormatted(
+              Infra::Message::ESeverity::ForcedInteractiveError,
               L"%s\n\n%.*s failed to launch this executable because it requires elevation (%s).",
               kExecutableToLaunch.c_str(),
               static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
@@ -405,8 +405,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
             processInfo.hProcess, processInfo.hThread, false, false);
         if (EInjectResult::Success != injectResult)
         {
-          Message::OutputFormatted(
-              Message::ESeverity::ForcedInteractiveError,
+          Infra::Message::OutputFormatted(
+              Infra::Message::ESeverity::ForcedInteractiveError,
               L"%s\n\n%.*s failed to inject this executable.\n\n%s (%s).",
               kExecutableToLaunch.c_str(),
               static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
@@ -423,16 +423,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         launchedProcess = processInfo.hProcess;
       }
 
-      Message::OutputFormatted(
-          Message::ESeverity::Info,
+      Infra::Message::OutputFormatted(
+          Infra::Message::ESeverity::Info,
           L"Successfully used %.*s to inject %s.",
           static_cast<int>(Strings::GetHookshotExecutableFilename().length()),
           Strings::GetHookshotExecutableFilename().data(),
           kExecutableToLaunch.c_str());
 
       if (WAIT_FAILED == WaitForSingleObject(launchedProcess, INFINITE))
-        Message::OutputFormatted(
-            Message::ESeverity::Error,
+        Infra::Message::OutputFormatted(
+            Infra::Message::ESeverity::Error,
             L"Failed to wait for %s to terminate (%s).",
             kExecutableToLaunch.c_str(),
             Infra::Strings::FromSystemErrorCode(GetLastError()).AsCString());
@@ -445,8 +445,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   {
     // Target executable is not accessible. For now this is just an error case, but in the future
     // additional interactive setup functionality could be implemented here.
-    Message::OutputFormatted(
-        Message::ESeverity::ForcedInteractiveError,
+    Infra::Message::OutputFormatted(
+        Infra::Message::ESeverity::ForcedInteractiveError,
         L"%s\n\n%.*s cannot access this executable.\n\n%s.",
         kExecutableToLaunch.c_str(),
         static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),

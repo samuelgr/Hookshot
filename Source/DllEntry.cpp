@@ -11,6 +11,7 @@
 
 #include <string_view>
 
+#include <Infra/Core/Message.h>
 #include <Infra/Core/ProcessInfo.h>
 
 #include "DependencyProtect.h"
@@ -18,7 +19,6 @@
 #include "HookshotTypes.h"
 #include "InjectLanding.h"
 #include "LibraryInterface.h"
-#include "Message.h"
 
 using namespace Hookshot;
 
@@ -66,8 +66,8 @@ extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
   }
   else
   {
-    Message::OutputFormatted(
-        Message::ESeverity::Warning,
+    Infra::Message::OutputFormatted(
+        Infra::Message::ESeverity::Warning,
         L"Detected an improper attempt to initialize %.*s by invoking %s.",
         static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
         Infra::ProcessInfo::GetProductName()->data(),
@@ -86,8 +86,8 @@ extern "C" __declspec(dllexport) IHookshot* __fastcall HookshotLibraryInitialize
   }
   else
   {
-    Message::OutputFormatted(
-        Message::ESeverity::Warning,
+    Infra::Message::OutputFormatted(
+        Infra::Message::ESeverity::Warning,
         L"Detected an improper attempt to initialize %.*s by invoking %s.",
         static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
         Infra::ProcessInfo::GetProductName()->data(),
