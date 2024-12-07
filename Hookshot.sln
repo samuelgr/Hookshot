@@ -13,11 +13,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookshotBin", "HookshotBin.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookshotLauncher", "HookshotLauncher.vcxproj", "{9EE50085-49B6-4B88-92CC-F80FDF2CF9ED}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Natvis", "Natvis", "{05CDF734-0E99-4C03-86B9-264B57D48D9B}"
-	ProjectSection(SolutionItems) = preProject
-		Natvis\TemporaryBuffer.natvis = Natvis\TemporaryBuffer.natvis
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{61CCCC5C-0EC0-4BB8-8433-E05BB989B2B2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CoreInfra", "Modules\Infra\CoreInfra.vcxproj", "{5AF31C51-1646-4BDA-9407-12273B2DA870}"
