@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup Label="UserMacros" />
-  <ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="$(ThirdPartyDeps.Contains('CpuFeatures'))">
     <ClCompile>
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\ThirdParty\CpuFeatures\cpu_features\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(MSBuildProjectDirectory)\ThirdParty\Output\CpuFeatures\$(Platform)\$(Configuration)\CpuFeatures.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(MSBuildProjectDirectory)\ThirdParty\Output\CpuFeatures\$(Configuration)\$(Platform)\CpuFeatures.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

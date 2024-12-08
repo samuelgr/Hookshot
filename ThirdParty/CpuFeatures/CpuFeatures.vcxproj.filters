@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CpuFeatures\cpu_features\src\cpuinfo_x86.c">
+    <ClCompile Include="cpu_features\src\cpuinfo_x86.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
