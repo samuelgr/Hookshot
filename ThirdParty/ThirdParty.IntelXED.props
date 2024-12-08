@@ -2,10 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemDefinitionGroup Condition="$(ThirdPartyDeps.Contains('IntelXED'))">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\ThirdParty\Output\IntelXED\$(Configuration)\$(Platform)\wkit\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)Output\IntelXED\$(Configuration)\$(Platform)\wkit\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(MSBuildProjectDirectory)\ThirdParty\Output\IntelXED\$(Configuration)\$(Platform)\wkit\lib\xed.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(MSBuildThisFileDirectory)Output\IntelXED\$(Configuration)\$(Platform)\wkit\lib\xed.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 </Project>

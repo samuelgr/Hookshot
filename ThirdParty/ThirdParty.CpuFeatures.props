@@ -2,10 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemDefinitionGroup Condition="$(ThirdPartyDeps.Contains('CpuFeatures'))">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\ThirdParty\CpuFeatures\cpu_features\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)CpuFeatures\cpu_features\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(MSBuildProjectDirectory)\ThirdParty\Output\CpuFeatures\$(Configuration)\$(Platform)\CpuFeatures.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(MSBuildThisFileDirectory)Output\CpuFeatures\$(Configuration)\$(Platform)\CpuFeatures.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 </Project>
