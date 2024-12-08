@@ -8,5 +8,4 @@
       <AdditionalDependencies>$(MSBuildProjectDirectory)\ThirdParty\Output\IntelXED\$(Configuration)\$(Platform)\wkit\lib\xed.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup />
 </Project>

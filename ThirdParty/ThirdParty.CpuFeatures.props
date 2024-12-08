@@ -8,5 +8,4 @@
       <AdditionalDependencies>$(MSBuildProjectDirectory)\ThirdParty\Output\CpuFeatures\$(Configuration)\$(Platform)\CpuFeatures.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup />
 </Project>
