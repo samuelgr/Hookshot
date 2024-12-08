@@ -23,6 +23,7 @@ if exist %hookshot_exe% (
     %hookshot_exe% %test_program_exe%
 ) else (
     echo %hookshot_exe%
-    echo File does not exist!  Build Hookshot and try again.
+    echo File does not exist! Build Hookshot and try again.
     pause
+    exit /b 1
 )

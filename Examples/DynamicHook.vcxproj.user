@@ -2,25 +2,25 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerCommand>RunExample.bat</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>$(SolutionDir)..\Output\Debug\Hookshot.$(PlatformArchitecture).exe $(OutDir)TestProgram.$(PlatformArchitecture).exe $(OutDir) $(ProjectName)</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>$(SolutionDir)..\Output\Debug\$(Platform)\Hookshot.$(PlatformArchitecture).exe $(OutDir)TestProgram.$(PlatformArchitecture).exe $(OutDir) $(ProjectName)</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerDebuggerType>Script</LocalDebuggerDebuggerType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommand>RunExample.bat</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>$(SolutionDir)..\Output\Release\Hookshot.$(PlatformArchitecture).exe $(OutDir)TestProgram.$(PlatformArchitecture).exe $(OutDir) $(ProjectName)</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>$(SolutionDir)..\Output\Release\$(Platform)\Hookshot.$(PlatformArchitecture).exe $(OutDir)TestProgram.$(PlatformArchitecture).exe $(OutDir) $(ProjectName)</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerDebuggerType>Script</LocalDebuggerDebuggerType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerCommand>RunExample.bat</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>$(SolutionDir)..\Output\Debug\Hookshot.$(PlatformArchitecture).exe $(OutDir)TestProgram.$(PlatformArchitecture).exe $(OutDir) $(ProjectName)</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>$(SolutionDir)..\Output\Debug\$(Platform)\Hookshot.$(PlatformArchitecture).exe $(OutDir)TestProgram.$(PlatformArchitecture).exe $(OutDir) $(ProjectName)</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerDebuggerType>Script</LocalDebuggerDebuggerType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommand>RunExample.bat</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>$(SolutionDir)..\Output\Release\Hookshot.$(PlatformArchitecture).exe $(OutDir)TestProgram.$(PlatformArchitecture).exe $(OutDir) $(ProjectName)</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>$(SolutionDir)..\Output\Release\$(Platform)\Hookshot.$(PlatformArchitecture).exe $(OutDir)TestProgram.$(PlatformArchitecture).exe $(OutDir) $(ProjectName)</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerDebuggerType>Script</LocalDebuggerDebuggerType>
   </PropertyGroup>
