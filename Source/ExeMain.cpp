@@ -41,8 +41,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     Infra::Message::OutputFormatted(
         Infra::Message::ESeverity::ForcedInteractiveError,
         L"%.*s cannot be launched directly. An executable file must be specified as an argument.\n\nUsage: %.*s <command> [<arg1> <arg2>...]",
-        static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
-        Infra::ProcessInfo::GetProductName()->data(),
+        static_cast<int>(Infra::ProcessInfo::GetProductName().length()),
+        Infra::ProcessInfo::GetProductName().data(),
         static_cast<int>(Infra::ProcessInfo::GetExecutableBaseName().length()),
         Infra::ProcessInfo::GetExecutableBaseName().data());
     return __LINE__;
@@ -178,8 +178,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 Infra::Message::ESeverity::ForcedInteractiveError,
                 L"%s\n\n%.*s failed to inject this executable.\n\nTarget process requires elevation (%s).",
                 __wargv[1],
-                static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
-                Infra::ProcessInfo::GetProductName()->data(),
+                static_cast<int>(Infra::ProcessInfo::GetProductName().length()),
+                Infra::ProcessInfo::GetProductName().data(),
                 Infra::Strings::FromSystemErrorCode((unsigned long)executeElevatedResult)
                     .AsCString());
             return __LINE__;
@@ -192,8 +192,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
             Infra::Message::ESeverity::ForcedInteractiveError,
             L"%s\n\n%.*s failed to inject this executable.\n\n%s (%s).",
             __wargv[1],
-            static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
-            Infra::ProcessInfo::GetProductName()->data(),
+            static_cast<int>(Infra::ProcessInfo::GetProductName().length()),
+            Infra::ProcessInfo::GetProductName().data(),
             InjectResultString(result).data(),
             Infra::Strings::FromSystemErrorCode(GetLastError()).AsCString());
         return __LINE__;

@@ -69,8 +69,8 @@ extern "C" __declspec(dllexport) void* __fastcall HookshotInjectInitialize(void)
     Infra::Message::OutputFormatted(
         Infra::Message::ESeverity::Warning,
         L"Detected an improper attempt to initialize %.*s by invoking %s.",
-        static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
-        Infra::ProcessInfo::GetProductName()->data(),
+        static_cast<int>(Infra::ProcessInfo::GetProductName().length()),
+        Infra::ProcessInfo::GetProductName().data(),
         __FUNCTIONW__);
     return nullptr;
   }
@@ -89,8 +89,8 @@ extern "C" __declspec(dllexport) IHookshot* __fastcall HookshotLibraryInitialize
     Infra::Message::OutputFormatted(
         Infra::Message::ESeverity::Warning,
         L"Detected an improper attempt to initialize %.*s by invoking %s.",
-        static_cast<int>(Infra::ProcessInfo::GetProductName()->length()),
-        Infra::ProcessInfo::GetProductName()->data(),
+        static_cast<int>(Infra::ProcessInfo::GetProductName().length()),
+        Infra::ProcessInfo::GetProductName().data(),
         __FUNCTIONW__);
     return nullptr;
   }

@@ -84,7 +84,7 @@ namespace Hookshot
             std::wstring_view pieces[] = {
                 Infra::ProcessInfo::GetExecutableDirectoryName(),
                 L"\\",
-                *Infra::ProcessInfo::GetProductName(),
+                Infra::ProcessInfo::GetProductName(),
                 kStrHookshotConfigurationFileExtension};
 
             size_t totalLength = 0;
@@ -121,7 +121,7 @@ namespace Hookshot
               CoTaskMemFree(knownFolderPath);
             }
 
-            logFilename << *Infra::ProcessInfo::GetProductName() << L'_'
+            logFilename << Infra::ProcessInfo::GetProductName() << L'_'
                         << Infra::ProcessInfo::GetExecutableBaseName() << L'_'
                         << Infra::ProcessInfo::GetCurrentProcessId()
                         << kStrHookshotLogFileExtension;
@@ -144,7 +144,7 @@ namespace Hookshot
             std::wstring_view pieces[] = {
                 Infra::ProcessInfo::GetThisModuleDirectoryName(),
                 L"\\",
-                *Infra::ProcessInfo::GetProductName(),
+                Infra::ProcessInfo::GetProductName(),
                 kStrHookshotDynamicLinkLibraryExtension};
 
             size_t totalLength = 0;
@@ -172,7 +172,7 @@ namespace Hookshot
             std::wstring_view pieces[] = {
                 Infra::ProcessInfo::GetThisModuleDirectoryName(),
                 L"\\",
-                *Infra::ProcessInfo::GetProductName(),
+                Infra::ProcessInfo::GetProductName(),
                 kStrHookshotExecutableExtension};
 
             size_t totalLength = 0;
@@ -200,7 +200,7 @@ namespace Hookshot
             std::wstring_view pieces[] = {
                 Infra::ProcessInfo::GetThisModuleDirectoryName(),
                 L"\\",
-                *Infra::ProcessInfo::GetProductName(),
+                Infra::ProcessInfo::GetProductName(),
                 kStrHookshotExecutableOtherArchitectureExtension};
 
             size_t totalLength = 0;

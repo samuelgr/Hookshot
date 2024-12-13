@@ -29,6 +29,10 @@
 #include <mutex>
 #include <string_view>
 
+INFRA_DEFINE_PRODUCT_NAME_FROM_RESOURCE(
+    Infra::ProcessInfo::GetThisModuleInstanceHandle(), IDS_HOOKSHOT_PRODUCT_NAME);
+INFRA_DEFINE_PRODUCT_VERSION_FROM_GIT_VERSION_INFO();
+
 namespace Hookshot
 {
   namespace Globals
@@ -156,11 +160,6 @@ namespace Hookshot
 
     void Initialize(ELoadMethod loadMethod)
     {
-      Infra::ProcessInfo::SetProductInformation(
-          Infra::ProcessInfo::GetThisModuleInstanceHandle(),
-          IDS_HOOKSHOT_PRODUCT_NAME,
-          Infra::ProcessInfo::GitVersionInfoForCurrentProject());
-
       GlobalData::GetInstance().gLoadMethod = loadMethod;
 
 #ifndef HOOKSHOT_SKIP_CONFIG
