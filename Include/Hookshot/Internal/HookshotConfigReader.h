@@ -24,12 +24,12 @@ namespace Hookshot
   protected:
 
     // ConfigurationFileReader
-    EAction ActionForSection(std::wstring_view section) override;
-    EAction ActionForValue(
+    Action ActionForSection(std::wstring_view section) override;
+    Action ActionForValue(
         std::wstring_view section, std::wstring_view name, const TIntegerView value) override;
-    EAction ActionForValue(
+    Action ActionForValue(
         std::wstring_view section, std::wstring_view name, const TBooleanView value) override;
-    EAction ActionForValue(
+    Action ActionForValue(
         std::wstring_view section, std::wstring_view name, const TStringView value) override;
     void BeginRead(void) override;
     EValueType TypeForValue(std::wstring_view section, std::wstring_view name) override;

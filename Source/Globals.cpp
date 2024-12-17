@@ -84,11 +84,9 @@ namespace Hookshot
     /// Enables the log, if it is configured in the configuration file.
     static void EnableLogIfConfigured(void)
     {
-      const int64_t logLevel = GetConfigurationData()
-                                   .GetFirstIntegerValue(
-                                       Infra::Configuration::kSectionNameGlobal,
-                                       Strings::kStrConfigurationSettingNameLogLevel)
-                                   .value_or(0);
+      const int64_t logLevel = GetConfigurationData()[Infra::Configuration::kSectionNameGlobal]
+                                                     [Strings::kStrConfigurationSettingNameLogLevel]
+                                                         .ValueOr(0);
 
       if (logLevel > 0)
       {
@@ -114,20 +112,25 @@ namespace Hookshot
             configData =
                 configReader.ReadConfigurationFile(Strings::GetHookshotConfigurationFilename());
 
-            if (true == configData.HasReadErrors())
+            if (true == configReader.HasErrorMessages())
             {
               EnableLog(Infra::Message::ESeverity::Error);
 
               Infra::Message::Output(
                   Infra::Message::ESeverity::Error,
                   L"Errors were encountered during configuration file reading.");
-              for (const auto& readError : configData.GetReadErrorMessages())
+              for (const auto& readError : configReader.GetErrorMessages())
                 Infra::Message::OutputFormatted(
                     Infra::Message::ESeverity::Error, L"    %s", readError.c_str());
+              Infra::Message::Output(
+                  Infra::Message::ESeverity::Error,
+                  L"None of the settings in the configuration file were applied. Fix the errors and restart the application.");
 
               Infra::Message::Output(
                   Infra::Message::ESeverity::ForcedInteractiveWarning,
                   L"Errors were encountered during configuration file reading. See log file on the Desktop for more information.");
+
+              configData.Clear();
             }
           });
 

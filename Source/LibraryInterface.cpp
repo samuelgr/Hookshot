@@ -49,10 +49,9 @@ namespace Hookshot
     {
       static const bool loadHookModulesFromHookshotDirectory =
           Globals::GetConfigurationData()
-              .GetFirstBooleanValue(
-                  Infra::Configuration::kSectionNameGlobal,
-                  Strings::kStrConfigurationSettingNameLoadHookModulesFromHookshotDirectory)
-              .value_or(false);
+              [Infra::Configuration::kSectionNameGlobal]
+              [Strings::kStrConfigurationSettingNameLoadHookModulesFromHookshotDirectory]
+                  .ValueOr(false);
 
       return (
           loadHookModulesFromHookshotDirectory ? Infra::ProcessInfo::GetThisModuleDirectoryName()
@@ -72,21 +71,16 @@ namespace Hookshot
       std::vector<const Infra::Configuration::Name*> relevantConfigSettings;
       relevantConfigSettings.reserve(2);
 
-      if (false == configData.HasReadErrors())
+      if (configData.Contains(Infra::Configuration::kSectionNameGlobal, configSettingName))
       {
-        if (configData.SectionNamePairExists(
-                Infra::Configuration::kSectionNameGlobal, configSettingName))
-        {
-          relevantConfigSettings.push_back(
-              &configData[Infra::Configuration::kSectionNameGlobal][configSettingName]);
-        }
+        relevantConfigSettings.push_back(
+            &configData[Infra::Configuration::kSectionNameGlobal][configSettingName]);
+      }
 
-        if (configData.SectionNamePairExists(
-                Infra::ProcessInfo::GetExecutableBaseName(), configSettingName))
-        {
-          relevantConfigSettings.push_back(
-              &configData[Infra::ProcessInfo::GetExecutableBaseName()][configSettingName]);
-        }
+      if (configData.Contains(Infra::ProcessInfo::GetExecutableBaseName(), configSettingName))
+      {
+        relevantConfigSettings.push_back(
+            &configData[Infra::ProcessInfo::GetExecutableBaseName()][configSettingName]);
       }
 
       return relevantConfigSettings;
@@ -181,8 +175,7 @@ namespace Hookshot
         for (auto& hookModule : configuredHookModuleSource->Values())
         {
           if (true ==
-              LoadHookModule(Strings::HookModuleFilename(
-                  hookModule.GetStringValue(), HookModuleDirectoryName())))
+              LoadHookModule(Strings::HookModuleFilename(hookModule, HookModuleDirectoryName())))
             numHookModulesLoaded += 1;
         }
       }
@@ -262,26 +255,14 @@ namespace Hookshot
       const auto& configData = Globals::GetConfigurationData();
       bool useConfigurationFileHookModules = false;
 
-      // If a configuration file is present, non-empty, and valid, load the hook modules it
-      // specifies unless it specifically requests the default behavior.
-      if ((false == configData.HasReadErrors()) && (false == configData.IsEmpty()))
+      // If a configuration file is non-empty (meaning it must be both present and valid), default
+      // behavior is to load only the hook modules configured in the configuration file.
+      if (false == configData.Empty())
       {
-        useConfigurationFileHookModules = true;
-
-        if (true ==
-            configData.SectionNamePairExists(
-                Infra::Configuration::kSectionNameGlobal,
-                Strings::kStrConfigurationSettingNameUseConfiguredHookModules))
-        {
-          if (false ==
-              configData[Infra::Configuration::kSectionNameGlobal]
-                        [Strings::kStrConfigurationSettingNameUseConfiguredHookModules]
-                            .GetFirstValue()
-                            .GetBooleanValue())
-          {
-            useConfigurationFileHookModules = false;
-          }
-        }
+        useConfigurationFileHookModules =
+            configData[Infra::Configuration::kSectionNameGlobal]
+                      [Strings::kStrConfigurationSettingNameUseConfiguredHookModules]
+                          .ValueOr(true);
       }
 
       if (true == useConfigurationFileHookModules)
@@ -299,10 +280,7 @@ namespace Hookshot
            RelevantConfigurationSettings(Strings::kStrConfigurationSettingNameInject))
       {
         for (auto& injectOnlyLibrary : configuredInjectOnlyLibrarySource->Values())
-        {
-          if (true == LoadInjectOnlyLibrary(injectOnlyLibrary.GetStringValue()))
-            numInjectOnlyLibrariesLoaded += 1;
-        }
+          if (true == LoadInjectOnlyLibrary(injectOnlyLibrary)) numInjectOnlyLibrariesLoaded += 1;
       }
 
       return numInjectOnlyLibrariesLoaded;

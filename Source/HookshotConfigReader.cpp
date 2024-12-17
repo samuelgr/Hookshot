@@ -77,31 +77,29 @@ namespace Hookshot
     }
   }
 
-  EAction HookshotConfigReader::ActionForSection(std::wstring_view section)
+  Action HookshotConfigReader::ActionForSection(std::wstring_view section)
   {
-    if (0 != configurationFileLayout.count(section)) return EAction::Process;
-
-    return EAction::Skip;
+    if (0 != configurationFileLayout.count(section)) return Action::Process();
+    return Action::Skip();
   }
 
-  EAction HookshotConfigReader::ActionForValue(
+  Action HookshotConfigReader::ActionForValue(
       std::wstring_view section, std::wstring_view name, const TIntegerView value)
   {
-    if (value >= 0) return EAction::Process;
-
-    return EAction::Error;
+    if (value >= 0) return Action::Process();
+    return Action::Error();
   }
 
-  EAction HookshotConfigReader::ActionForValue(
+  Action HookshotConfigReader::ActionForValue(
       std::wstring_view section, std::wstring_view name, const TBooleanView value)
   {
-    return EAction::Process;
+    return Action::Process();
   }
 
-  EAction HookshotConfigReader::ActionForValue(
+  Action HookshotConfigReader::ActionForValue(
       std::wstring_view section, std::wstring_view name, const TStringView value)
   {
-    return EAction::Process;
+    return Action::Process();
   }
 
   void HookshotConfigReader::BeginRead(void)
