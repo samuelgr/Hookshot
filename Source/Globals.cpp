@@ -75,7 +75,7 @@ namespace Hookshot
           enableLogFlag,
           [logLevel]() -> void
           {
-            Infra::Message::CreateAndEnableLogFile(Strings::GetHookshotLogFilename());
+            Infra::Message::CreateAndEnableLogFile();
           });
 
       Infra::Message::SetMinimumSeverityForOutput(logLevel);
@@ -109,8 +109,7 @@ namespace Hookshot
           {
             HookshotConfigReader configReader;
 
-            configData =
-                configReader.ReadConfigurationFile(Strings::GetHookshotConfigurationFilename());
+            configData = configReader.ReadConfigurationFile();
 
             if (true == configReader.HasErrorMessages())
             {
@@ -119,9 +118,7 @@ namespace Hookshot
               Infra::Message::Output(
                   Infra::Message::ESeverity::Error,
                   L"Errors were encountered during configuration file reading.");
-              for (const auto& readError : configReader.GetErrorMessages())
-                Infra::Message::OutputFormatted(
-                    Infra::Message::ESeverity::Error, L"    %s", readError.c_str());
+              configReader.LogAllErrorMessages();
               Infra::Message::Output(
                   Infra::Message::ESeverity::Error,
                   L"None of the settings in the configuration file were applied. Fix the errors and restart the application.");

@@ -11,14 +11,14 @@
 
 #include "TrampolineStore.h"
 
-#include <Infra/Core/ProcessInfo.h>
+#include <Infra/Core/SystemInfo.h>
 
 #include "DependencyProtect.h"
 
 namespace Hookshot
 {
   const int TrampolineStore::kTrampolineStoreSizeBytes =
-      Infra::ProcessInfo::GetSystemInformation().dwPageSize;
+      Infra::SystemInfo::GetPlatformAndArchitectureInfo().dwPageSize;
   const int TrampolineStore::kTrampolineStoreCount = kTrampolineStoreSizeBytes / sizeof(Trampoline);
 
   /// Allocates a buffer suitable for holding Trampoline objects optionally using a specified base

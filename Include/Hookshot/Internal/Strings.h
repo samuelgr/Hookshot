@@ -90,16 +90,6 @@ namespace Hookshot
         kStrConfigurationSettingNameLoadHookModulesFromHookshotDirectory =
             L"LoadHookModulesFromHookshotDirectory";
 
-    /// Expected filename of a Hookshot configuration file.
-    /// Hookshot configuration filename = (executable directory)\(base name of this form of
-    /// Hookshot).ini
-    std::wstring_view GetHookshotConfigurationFilename(void);
-
-    /// Expected filename for the log file.
-    /// Hookshot log filename = (current user's desktop)\(base name of this form of Hookshot)_(base
-    /// name of the running executable)_(process ID).log
-    std::wstring_view GetHookshotLogFilename(void);
-
     /// Expected filename of the dynamic-link library form of Hookshot.
     std::wstring_view GetHookshotDynamicLinkLibraryFilename(void);
 

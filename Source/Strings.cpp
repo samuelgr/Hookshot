@@ -72,66 +72,6 @@ namespace Hookshot
     /// authorized to act on a process.
     static constexpr std::wstring_view kStrAuthorizationFileExtension = L".hookshot";
 
-    std::wstring_view GetHookshotConfigurationFilename(void)
-    {
-      static std::wstring initString;
-      static std::once_flag initFlag;
-
-      std::call_once(
-          initFlag,
-          []() -> void
-          {
-            std::wstring_view pieces[] = {
-                Infra::ProcessInfo::GetExecutableDirectoryName(),
-                L"\\",
-                Infra::ProcessInfo::GetProductName(),
-                kStrHookshotConfigurationFileExtension};
-
-            size_t totalLength = 0;
-            for (int i = 0; i < _countof(pieces); ++i)
-              totalLength += pieces[i].length();
-
-            initString.reserve(1 + totalLength);
-
-            for (int i = 0; i < _countof(pieces); ++i)
-              initString.append(pieces[i]);
-          });
-
-      return initString;
-    }
-
-    std::wstring_view GetHookshotLogFilename(void)
-    {
-      static std::wstring initString;
-      static std::once_flag initFlag;
-
-      std::call_once(
-          initFlag,
-          []() -> void
-          {
-            Infra::TemporaryString logFilename;
-
-            PWSTR knownFolderPath;
-            const HRESULT result =
-                SHGetKnownFolderPath(FOLDERID_Desktop, 0, nullptr, &knownFolderPath);
-
-            if (S_OK == result)
-            {
-              logFilename << knownFolderPath << L'\\';
-              CoTaskMemFree(knownFolderPath);
-            }
-
-            logFilename << Infra::ProcessInfo::GetProductName() << L'_'
-                        << Infra::ProcessInfo::GetExecutableBaseName() << L'_'
-                        << Infra::ProcessInfo::GetCurrentProcessId()
-                        << kStrHookshotLogFileExtension;
-
-            initString.assign(logFilename);
-          });
-
-      return initString;
-    }
-
     std::wstring_view GetHookshotDynamicLinkLibraryFilename(void)
     {
       static std::wstring initString;

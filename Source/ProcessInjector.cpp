@@ -23,6 +23,7 @@
 #include <Infra/Core/Message.h>
 #include <Infra/Core/ProcessInfo.h>
 #include <Infra/Core/Strings.h>
+#include <Infra/Core/SystemInfo.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "ApiWindows.h"
@@ -496,7 +497,8 @@ namespace Hookshot
           return operationResult;
       }
 
-      const size_t allocationGranularity = Infra::ProcessInfo::GetSystemInformation().dwPageSize;
+      const size_t allocationGranularity =
+          Infra::SystemInfo::GetPlatformAndArchitectureInfo().dwPageSize;
       const size_t effectiveInjectRegionSize =
           (InjectInfo::kMaxInjectBinaryFileSize < allocationGranularity)
           ? allocationGranularity
