@@ -3,7 +3,7 @@
  *   General-purpose library for injecting DLLs and hooking function calls.
  ***************************************************************************************************
  * Authored by Samuel Grossman
- * Copyright (c) 2019-2024
+ * Copyright (c) 2019-2025
  ***********************************************************************************************//**
  * @file HookStore.cpp
  *   Data structure implementation for holding information about hooks.

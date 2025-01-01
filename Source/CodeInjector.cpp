@@ -3,7 +3,7 @@
  *   General-purpose library for injecting DLLs and hooking function calls.
  ***************************************************************************************************
  * Authored by Samuel Grossman
- * Copyright (c) 2019-2024
+ * Copyright (c) 2019-2025
  ***********************************************************************************************//**
  * @file CodeInjector.h
  *   Implementation of code injection, execution, and synchronization. This file is the only

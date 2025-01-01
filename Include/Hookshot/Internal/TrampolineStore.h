@@ -3,7 +3,7 @@
  *   General-purpose library for injecting DLLs and hooking function calls.
  ***************************************************************************************************
  * Authored by Samuel Grossman
- * Copyright (c) 2019-2024
+ * Copyright (c) 2019-2025
  ***********************************************************************************************//**
  * @file TrampolineStore.h
  *   Declaration of top-level data structure for holding trampoline objects.
