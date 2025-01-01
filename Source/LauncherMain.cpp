@@ -449,7 +449,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     // additional interactive setup functionality could be implemented here.
     Infra::Message::OutputFormatted(
         Infra::Message::ESeverity::ForcedInteractiveError,
-        L"%s\n\n%.*s cannot access this executable.\n\n%s.",
+        L"%s\n\n%.*s cannot access this executable.\n\n%s",
         kExecutableToLaunch.c_str(),
         static_cast<int>(Infra::ProcessInfo::GetProductName().length()),
         Infra::ProcessInfo::GetProductName().data(),

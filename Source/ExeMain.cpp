@@ -190,7 +190,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
       default:
         Infra::Message::OutputFormatted(
             Infra::Message::ESeverity::ForcedInteractiveError,
-            L"%s\n\n%.*s failed to inject this executable.\n\n%s (%s).",
+            L"%s\n\n%.*s failed to inject this executable.\n\n%s (%s)",
             __wargv[1],
             static_cast<int>(Infra::ProcessInfo::GetProductName().length()),
             Infra::ProcessInfo::GetProductName().data(),

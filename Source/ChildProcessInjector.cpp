@@ -50,7 +50,7 @@ namespace Hookshot
     else
       Infra::Message::OutputFormatted(
           Infra::Message::ESeverity::Warning,
-          L"%s - Failed to inject child process: %s: %s.",
+          L"%s - Failed to inject child process: %s: %s",
           (0 == childProcessExecutableLength ? L"(error determining executable file name)"
                                              : &childProcessExecutable[0]),
           InjectResultString(result).data(),

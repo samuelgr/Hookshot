@@ -102,7 +102,7 @@ namespace Hookshot
       {
         Infra::Message::OutputFormatted(
             Infra::Message::ESeverity::Warning,
-            L"%s - Failed to load hook module: %s.",
+            L"%s - Failed to load hook module: %s",
             hookModuleFileName.data(),
             Infra::Strings::FromSystemErrorCode(Protected::Windows_GetLastError()).AsCString());
         return false;
@@ -115,7 +115,7 @@ namespace Hookshot
       {
         Infra::Message::OutputFormatted(
             Infra::Message::ESeverity::Warning,
-            L"%s - Failed to locate required procedure in hook module: %s.",
+            L"%s - Failed to locate required procedure in hook module: %s",
             hookModuleFileName.data(),
             Infra::Strings::FromSystemErrorCode(Protected::Windows_GetLastError()).AsCString());
         return false;
