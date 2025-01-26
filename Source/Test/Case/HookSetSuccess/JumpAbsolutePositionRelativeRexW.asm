@@ -22,7 +22,7 @@ _TEXT                                       SEGMENT
 
 
 BEGIN_HOOKSHOT_TEST_FUNCTION                JumpAbsolutePositionRelativeRexW_Original
-IFDEF HOOKSHOT64
+IFDEF _WIN64
     rexw jmp SIZE_T PTR [$jumpTargetAbsolute]
 ENDIF
     ud2

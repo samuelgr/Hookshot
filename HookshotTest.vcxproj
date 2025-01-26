@@ -54,6 +54,7 @@
   <ImportGroup Label="ExtensionSettings">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
   </ImportGroup>
+  <Import Project="$(MSBuildProjectDirectory)\Modules\Infra\Build\Properties\AssemblyBuild.props" />
   <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -90,9 +91,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)ThirdParty\Output\CpuFeatures\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
-    <MASM>
-      <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
-    </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -103,9 +101,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)ThirdParty\Output\CpuFeatures\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
-    <MASM>
-      <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
-    </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -116,9 +111,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)ThirdParty\Output\CpuFeatures\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
-    <MASM>
-      <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
-    </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -129,9 +121,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)ThirdParty\Output\CpuFeatures\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
-    <MASM>
-      <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
-    </MASM>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\Test\Case\Custom.cpp" />

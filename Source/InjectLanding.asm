@@ -10,10 +10,11 @@
 ;   Receives control from injection code, cleans up, and runs the program.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+INCLUDE Infra/Core/Preamble.inc
+INCLUDE Infra/Core/Registers.inc
+
 INCLUDE Functions.inc
 INCLUDE InjectLanding.inc
-INCLUDE Preamble.inc
-INCLUDE Registers.inc
 
 
 _TEXT                                       SEGMENT

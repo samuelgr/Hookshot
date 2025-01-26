@@ -13,7 +13,7 @@ IFNDEF __HOOKSHOT_INJECT_INC
 __HOOKSHOT_INJECT_INC EQU 1
 
 
-INCLUDE Preamble.inc
+INCLUDE Infra/Core/Preamble.inc
 
 
 ; Magic value that identifies the metadata section of a loaded binary file.

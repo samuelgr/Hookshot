@@ -65,8 +65,6 @@
   <ItemGroup>
     <None Include="Include\Hookshot\Internal\Functions.inc" />
     <None Include="Include\Hookshot\Internal\InjectLanding.inc" />
-    <None Include="Include\Hookshot\Internal\Preamble.inc" />
-    <None Include="Include\Hookshot\Internal\Registers.inc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Modules\Infra\CoreInfra.vcxproj">
@@ -109,6 +107,7 @@
   <ImportGroup Label="ExtensionSettings">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
   </ImportGroup>
+  <Import Project="$(MSBuildProjectDirectory)\Modules\Infra\Build\Properties\AssemblyBuild.props" />
   <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -145,9 +144,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <MASM>
-      <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
-    </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -155,9 +151,6 @@
       <AssemblerOutput>All</AssemblerOutput>
     </ClCompile>
     <Link />
-    <MASM>
-      <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
-    </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -165,9 +158,6 @@
       <AssemblerOutput>All</AssemblerOutput>
     </ClCompile>
     <Link />
-    <MASM>
-      <PreprocessorDefinitions>HOOKSHOT32</PreprocessorDefinitions>
-    </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -178,9 +168,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)ThirdParty\Output\IntelXED\$(Platform)\$(Configuration)\wkit\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <MASM>
-      <PreprocessorDefinitions>HOOKSHOT64</PreprocessorDefinitions>
-    </MASM>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

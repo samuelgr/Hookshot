@@ -13,11 +13,11 @@ IFNDEF __HOOKSHOT_FUNCTIONS_INC
 __HOOKSHOT_FUNCTIONS_INC EQU 1
 
 
-INCLUDE Preamble.inc
-INCLUDE Registers.inc
+INCLUDE Infra/Core/Preamble.inc
+INCLUDE Infra/Core/Registers.inc
 
 
-IFDEF HOOKSHOT32
+IFDEF _WIN32
 ; Invokes an __stdcall function that takes no parameters.
 ; Function address must be placed in sfunc.
 ; Return value, if any, is loaded into sax.
@@ -55,7 +55,7 @@ stackStdCallShadowPop MACRO
 ENDM
 ENDIF
 
-IFDEF HOOKSHOT64
+IFDEF _WIN64
 ; Invokes an __stdcall function that takes no parameters.
 ; Per the x64 convention, a shadow space must be allocated in the stack for all four integer parameters.
 ; Function address must be placed in sfunc.

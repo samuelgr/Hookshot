@@ -23,12 +23,6 @@
     <None Include="Include\Hookshot\Internal\Inject.inc">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="Include\Hookshot\Internal\Preamble.inc">
-      <Filter>Header Files</Filter>
-    </None>
-    <None Include="Include\Hookshot\Internal\Registers.inc">
-      <Filter>Header Files</Filter>
-    </None>
     <None Include="Include\Hookshot\Internal\Strings.inc">
       <Filter>Header Files</Filter>
     </None>

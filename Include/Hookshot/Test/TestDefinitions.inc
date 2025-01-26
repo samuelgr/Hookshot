@@ -26,7 +26,7 @@ __HOOKSHOT_TEST_DEFINITIONS_INC EQU 1
 ; This is intended to provide a consistent initial condition without requiring any assembly code.
 
 
-IFDEF HOOKSHOT32
+IFDEF _WIN32
 ; 32-bit preamble
 ; Required to generate valid code for modern processors
 .686
@@ -56,7 +56,7 @@ ENDM
 ENDIF
 
 
-IFDEF HOOKSHOT64
+IFDEF _WIN64
 ; 64-bit data and pointer size
 SIZE_T TEXTEQU <QWORD>
 DSZ TEXTEQU <DQ>

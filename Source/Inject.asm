@@ -9,10 +9,11 @@
 ;   Implementation of all code that gets injected into another process.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+INCLUDE Infra/Core/Preamble.inc
+INCLUDE Infra/Core/Registers.inc
+
 INCLUDE Functions.inc
 INCLUDE Inject.inc
-INCLUDE Preamble.inc
-INCLUDE Registers.inc
 INCLUDE Strings.inc
 
 

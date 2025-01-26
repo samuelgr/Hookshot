@@ -15,12 +15,12 @@ __HOOKSHOT_STRINGS_INC EQU 1
 
 ; These strings must be updated to match "Strings.cpp" definitions.
 
-IFDEF HOOKSHOT32
+IFDEF _WIN32
 kStrInjectCodeSectionName TEXTEQU <_CODE32>
 kStrInjectMetaSectionName TEXTEQU <_META32>
 ENDIF
 
-IFDEF HOOKSHOT64
+IFDEF _WIN64
 kStrInjectCodeSectionName TEXTEQU <_CODE64>
 kStrInjectMetaSectionName TEXTEQU <_META64>
 ENDIF
