@@ -96,7 +96,7 @@ namespace Hookshot
           Infra::Message::ESeverity::Info,
           L"%s - Attempting to load hook module.",
           hookModuleFileName.data());
-      const HMODULE hookModule = Protected::Windows_LoadLibrary(hookModuleFileName.data());
+      const HMODULE hookModule = Protected::Windows_LoadLibraryW(hookModuleFileName.data());
 
       if (nullptr == hookModule)
       {
@@ -139,7 +139,7 @@ namespace Hookshot
           Infra::Message::ESeverity::Info,
           L"%s - Attempting to load library.",
           injectOnlyLibraryFileName.data());
-      const HMODULE hookModule = Protected::Windows_LoadLibrary(injectOnlyLibraryFileName.data());
+      const HMODULE hookModule = Protected::Windows_LoadLibraryW(injectOnlyLibraryFileName.data());
 
       if (nullptr == hookModule)
       {
@@ -200,7 +200,7 @@ namespace Hookshot
       const Infra::TemporaryString hookModuleSearchString =
           Strings::HookModuleFilename(L"*", hookModuleDirectory);
       WIN32_FIND_DATA hookModuleFileData{};
-      HANDLE hookModuleFind = Protected::Windows_FindFirstFileEx(
+      HANDLE hookModuleFind = Protected::Windows_FindFirstFileExW(
           hookModuleSearchString.AsCString(),
           FindExInfoBasic,
           &hookModuleFileData,
@@ -217,7 +217,7 @@ namespace Hookshot
         hookModuleFileName << hookModuleDirectory << L"\\" << hookModuleFileData.cFileName;
         if (true == LoadHookModule(hookModuleFileName.AsCString())) numHookModulesLoaded += 1;
 
-        moreHookModulesExist = Protected::Windows_FindNextFile(hookModuleFind, &hookModuleFileData);
+        moreHookModulesExist = Protected::Windows_FindNextFileW(hookModuleFind, &hookModuleFileData);
       }
 
       if (INVALID_HANDLE_VALUE != hookModuleFind) Protected::Windows_FindClose(hookModuleFind);

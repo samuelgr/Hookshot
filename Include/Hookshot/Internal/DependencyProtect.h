@@ -38,24 +38,24 @@ namespace Hookshot
     // "[second macro parameter]_[third macro parameter]" for each function pointer.
 
     PROTECTED_DEPENDENCY(, Windows, CloseHandle);
-    PROTECTED_DEPENDENCY(, Windows, CreateFileMapping);
-    PROTECTED_DEPENDENCY(, Windows, CreateProcess);
+    PROTECTED_DEPENDENCY(, Windows, CreateFileMappingW);
+    PROTECTED_DEPENDENCY(, Windows, CreateProcessW);
     PROTECTED_DEPENDENCY(, Windows, DuplicateHandle);
     PROTECTED_DEPENDENCY(, Windows, FindClose);
-    PROTECTED_DEPENDENCY(, Windows, FindFirstFileEx);
-    PROTECTED_DEPENDENCY(, Windows, FindNextFile);
+    PROTECTED_DEPENDENCY(, Windows, FindFirstFileExW);
+    PROTECTED_DEPENDENCY(, Windows, FindNextFileW);
     PROTECTED_DEPENDENCY(, Windows, FlushInstructionCache);
-    PROTECTED_DEPENDENCY(, Windows, FormatMessage);
+    PROTECTED_DEPENDENCY(, Windows, FormatMessageW);
     PROTECTED_DEPENDENCY(, Windows, GetExitCodeProcess);
     PROTECTED_DEPENDENCY(, Windows, GetLastError);
-    PROTECTED_DEPENDENCY(, Windows, GetModuleHandleEx);
+    PROTECTED_DEPENDENCY(, Windows, GetModuleHandleExW);
     PROTECTED_DEPENDENCY(, Windows, GetProcAddress);
     PROTECTED_DEPENDENCY(, Windows, IsDebuggerPresent);
-    PROTECTED_DEPENDENCY(, Windows, LoadLibrary);
-    PROTECTED_DEPENDENCY(, Windows, MessageBox);
+    PROTECTED_DEPENDENCY(, Windows, LoadLibraryW);
+    PROTECTED_DEPENDENCY(, Windows, MessageBoxW);
     PROTECTED_DEPENDENCY(, Windows, MapViewOfFile);
-    PROTECTED_DEPENDENCY(, Windows, OutputDebugString);
-    PROTECTED_DEPENDENCY(, Windows, QueryFullProcessImageName);
+    PROTECTED_DEPENDENCY(, Windows, OutputDebugStringW);
+    PROTECTED_DEPENDENCY(, Windows, QueryFullProcessImageNameW);
     PROTECTED_DEPENDENCY(, Windows, ResumeThread);
     PROTECTED_DEPENDENCY(, Windows, SetLastError);
     PROTECTED_DEPENDENCY(, Windows, TerminateProcess);

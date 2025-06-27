@@ -40,7 +40,7 @@ namespace Hookshot
     // address of that module.
     HMODULE moduleHandle;
     if (0 !=
-        Protected::Windows_GetModuleHandleEx(
+        Protected::Windows_GetModuleHandleExW(
             GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
             (LPCWSTR)originalFunc,
             &moduleHandle))

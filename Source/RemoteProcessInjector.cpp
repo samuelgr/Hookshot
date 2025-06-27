@@ -53,7 +53,7 @@ namespace Hookshot
           .lpSecurityDescriptor = nullptr,
           .bInheritHandle = TRUE};
 
-      HANDLE sharedMemoryHandle = Protected::Windows_CreateFileMapping(
+      HANDLE sharedMemoryHandle = Protected::Windows_CreateFileMappingW(
           INVALID_HANDLE_VALUE,
           &sharedMemorySecurityAttributes,
           PAGE_READWRITE,
@@ -101,7 +101,7 @@ namespace Hookshot
       memset(reinterpret_cast<void*>(&processInfo), 0, sizeof(processInfo));
 
       if (FALSE ==
-          Protected::Windows_CreateProcess(
+          Protected::Windows_CreateProcessW(
               nullptr,
               executableCommandLineMutableString.Data(),
               nullptr,

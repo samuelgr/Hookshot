@@ -34,7 +34,7 @@ namespace Hookshot
     DWORD childProcessExecutableLength = childProcessExecutable.Capacity();
 
     if (0 ==
-        Protected::Windows_QueryFullProcessImageName(
+        Protected::Windows_QueryFullProcessImageNameW(
             processHandle, 0, childProcessExecutable.Data(), &childProcessExecutableLength))
       childProcessExecutableLength = 0;
 
