@@ -74,6 +74,11 @@ namespace Hookshot
       return originalFunction;
     }
 
+    static const wchar_t* GetFunctionName(void)
+    {
+      return kOriginalFunctionName;
+    }
+
     static inline EResult SetHook(
         void* (*funcGetOriginalFunctionAddress)(void), const void* hookFunc)
     {

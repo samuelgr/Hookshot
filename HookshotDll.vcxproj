@@ -30,6 +30,7 @@
     <ClCompile Include="Source\InjectResult.cpp" />
     <ClCompile Include="Source\InternalHook.cpp" />
     <ClCompile Include="Source\LibraryInterface.cpp" />
+    <ClCompile Include="Source\NotifyOnLibraryLoad.cpp" />
     <ClCompile Include="Source\RemoteProcessInjector.cpp" />
     <ClCompile Include="Source\Strings.cpp" />
     <ClCompile Include="Source\Trampoline.cpp" />
