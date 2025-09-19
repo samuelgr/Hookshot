@@ -115,21 +115,21 @@ namespace Hookshot
     // The same DLL will export them in the target process, but the base address might not be the
     // same.
     if (FALSE ==
-        GetModuleHandleEx(
+        GetModuleHandleExW(
             GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
             reinterpret_cast<LPCWSTR>(GetLastError),
             &moduleGetLastError))
       return false;
 
     if (FALSE ==
-        GetModuleHandleEx(
+        GetModuleHandleExW(
             GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
             reinterpret_cast<LPCWSTR>(GetProcAddress),
             &moduleGetProcAddress))
       return false;
 
     if (FALSE ==
-        GetModuleHandleEx(
+        GetModuleHandleExW(
             GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
             reinterpret_cast<LPCWSTR>(LoadLibraryA),
             &moduleLoadLibraryA))

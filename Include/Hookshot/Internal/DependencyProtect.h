@@ -49,6 +49,7 @@ namespace Hookshot
     PROTECTED_DEPENDENCY(, Windows, GetExitCodeProcess);
     PROTECTED_DEPENDENCY(, Windows, GetLastError);
     PROTECTED_DEPENDENCY(, Windows, GetModuleHandleExW);
+    PROTECTED_DEPENDENCY(, Windows, GetModuleFileNameW);
     PROTECTED_DEPENDENCY(, Windows, GetProcAddress);
     PROTECTED_DEPENDENCY(, Windows, IsDebuggerPresent);
     PROTECTED_DEPENDENCY(, Windows, LoadLibraryW);

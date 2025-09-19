@@ -9,14 +9,21 @@
  *   Implementation of an event notification for when a DLL is loaded.
  **************************************************************************************************/
 
-#include <set>
+#include "NotifyOnLibraryLoad.h"
+
+#include <unordered_map>
+#include <vector>
 
 #include <Infra/Core/Message.h>
+#include <Infra/Core/Mutex.h>
 #include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "ApiWindows.h"
+#include "DependencyProtect.h"
+#include "HookshotTypes.h"
 #include "InternalHook.h"
+#include "LibraryInterface.h"
 
 namespace Hookshot
 {
@@ -24,6 +31,59 @@ namespace Hookshot
   HOOKSHOT_INTERNAL_HOOK(LoadLibraryExA);
   HOOKSHOT_INTERNAL_HOOK(LoadLibraryW);
   HOOKSHOT_INTERNAL_HOOK(LoadLibraryExW);
+
+  /// Handler information for a single library to for which a notification is to be sent when it is
+  /// loaded.
+  struct SHandlers
+  {
+    /// Whether or not a notification needs to be sent to the handlers in this structure.
+    bool needsNotification;
+
+    /// Handlers subscribed to the notification for the library represented by this object.
+    std::vector<std::function<void(IHookshot* hookshot, const wchar_t* modulePath)>> handlers;
+  };
+
+  /// Top-level data structure for holding all subscription information for notifications when a
+  /// library is loaded. Keyed by library path, which is case-insensitive.
+  static std::unordered_map<
+      std::wstring,
+      SHandlers,
+      Infra::Strings::CaseInsensitiveHasher<wchar_t>,
+      Infra::Strings::CaseInsensitiveEqualityComparator<wchar_t>>
+      subscribersByLibraryPath;
+
+  /// Mutex that guards access to the top-level subscription information data structure.
+  static Infra::Mutex subscribersMutex;
+
+  EResult SetNotificationOnLibraryLoad(
+      const wchar_t* libraryPath,
+      std::function<void(IHookshot* hookshot, const wchar_t* modulePath)> handlerFunc)
+  {
+    HMODULE alreadyLoadedModuleHandle = NULL;
+    if (0 !=
+        Protected::Windows_GetModuleHandleExW(
+            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, libraryPath, &alreadyLoadedModuleHandle))
+    {
+      Infra::TemporaryString alreadyLoadedModulePath;
+      alreadyLoadedModulePath.UnsafeSetSize(Protected::Windows_GetModuleFileNameW(
+          alreadyLoadedModuleHandle,
+          alreadyLoadedModulePath.Data(),
+          alreadyLoadedModulePath.Capacity()));
+      if (true == alreadyLoadedModulePath.Empty()) return EResult::FailInternal;
+
+      handlerFunc(
+          LibraryInterface::GetHookshotInterfacePointer(), alreadyLoadedModulePath.AsCString());
+      return EResult::Success;
+    }
+
+    std::unique_lock lock(subscribersMutex);
+
+    auto subscribersIter =
+        subscribersByLibraryPath.emplace(libraryPath, SHandlers{.needsNotification = true}).first;
+    subscribersIter->second.handlers.emplace_back(handlerFunc);
+
+    return EResult::Success;
+  }
 
   /// Determines if the library loading flags specified mean that the library is being loaded as
   /// executable code.
@@ -38,33 +98,40 @@ namespace Hookshot
           LOAD_LIBRARY_AS_IMAGE_RESOURCE)));
   }
 
-  HMODULE LoadLibraryInternal(
+  static HMODULE LoadLibraryInternal(
       const wchar_t* entryPointName, LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags)
   {
-    if (false == IsLoadingAsExecutableCode(dwFlags))
-      return InternalHook_LoadLibraryExW::Original(lpLibFileName, hFile, dwFlags);
-
-    static std::set<std::wstring, Infra::Strings::CaseInsensitiveLessThanComparator<wchar_t>>
-        seenLibraries;
-
     HMODULE loadResult = InternalHook_LoadLibraryExW::Original(lpLibFileName, hFile, dwFlags);
-    if (NULL != loadResult)
-    {
-      Infra::TemporaryString loadedModuleFileName;
-      loadedModuleFileName.UnsafeSetSize(GetModuleFileNameW(
-          loadResult, loadedModuleFileName.Data(), loadedModuleFileName.Capacity()));
+    if (false == IsLoadingAsExecutableCode(dwFlags)) return loadResult;
 
-      // If the library is not newly-loaded then both it and all of its dependencies were already
-      // previously loaded, so no new notifications need to be generated.
-      if (true == seenLibraries.emplace(loadedModuleFileName.AsStringView()).second)
-      {
-        Infra::Message::OutputFormatted(
-            Infra::Message::ESeverity::Info,
-            L"%s: Requested %s, loaded %s",
-            entryPointName,
-            lpLibFileName,
-            loadedModuleFileName.AsCString());
-      }
+    std::unique_lock lock(subscribersMutex);
+
+    // The call to the system's LoadLibrary may have loaded the requested library but also some
+    // dependencies of it, any of which must trigger a notification. The notification only needs to
+    // be triggered when a library is newly-loaded.
+    for (auto& subscribersForLibrary : subscribersByLibraryPath)
+    {
+      if (false == subscribersForLibrary.second.needsNotification) continue;
+
+      const wchar_t* subscribedLibraryPath = subscribersForLibrary.first.c_str();
+      HMODULE subscribedLibraryHandle = NULL;
+      if (0 ==
+          Protected::Windows_GetModuleHandleExW(
+              GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+              subscribedLibraryPath,
+              &subscribedLibraryHandle))
+        continue;
+
+      Infra::TemporaryString loadedModulePath;
+      loadedModulePath.UnsafeSetSize(Protected::Windows_GetModuleFileNameW(
+          subscribedLibraryHandle, loadedModulePath.Data(), loadedModulePath.Capacity()));
+      if (true == loadedModulePath.Empty()) continue;
+
+      for (auto& subscribedHandler : subscribersForLibrary.second.handlers)
+        subscribedHandler(
+            LibraryInterface::GetHookshotInterfacePointer(), loadedModulePath.AsCString());
+
+      subscribersForLibrary.second.needsNotification = false;
     }
 
     return loadResult;

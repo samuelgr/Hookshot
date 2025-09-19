@@ -20,6 +20,7 @@
 
 #include "DependencyProtect.h"
 #include "Globals.h"
+#include "NotifyOnLibraryLoad.h"
 #include "X86Instruction.h"
 
 namespace Hookshot
@@ -304,9 +305,9 @@ namespace Hookshot
   }
 
   EResult HookStore::NotifyOnLibraryLoad(
-      std::wstring_view libraryPath,
-      std::function<void(IHookshot* hookshot, std::wstring_view modulePath)> handlerFunc)
+      const wchar_t* libraryPath,
+      std::function<void(IHookshot* hookshot, const wchar_t* modulePath)> handlerFunc)
   {
-    return EResult::FailInternal;
+    return SetNotificationOnLibraryLoad(libraryPath, handlerFunc);
   }
 } // namespace Hookshot

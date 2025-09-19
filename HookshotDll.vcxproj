@@ -52,6 +52,7 @@
     <ClInclude Include="Include\Hookshot\Internal\InternalHook.h" />
     <ClInclude Include="Include\Hookshot\Internal\LibraryInterface.h" />
     <ClInclude Include="Include\Hookshot\Internal\DependencyProtect.h" />
+    <ClInclude Include="Include\Hookshot\Internal\NotifyOnLibraryLoad.h" />
     <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Internal\Strings.h" />
     <ClInclude Include="Include\Hookshot\Internal\Trampoline.h" />

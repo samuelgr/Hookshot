@@ -54,9 +54,8 @@ namespace Hookshot
     EResult __fastcall ReplaceHookFunction(
         const void* originalOrHookFunc, const void* newHookFunc) override;
     EResult __fastcall NotifyOnLibraryLoad(
-        std::wstring_view libraryPath,
-        std::function<void(IHookshot* hookshot, std::wstring_view modulePath)> handlerFunc)
-        override;
+        const wchar_t* libraryPath,
+        std::function<void(IHookshot* hookshot, const wchar_t* modulePath)> handlerFunc) override;
 
   private:
 

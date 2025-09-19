@@ -13,7 +13,6 @@
 #pragma once
 
 #include <functional>
-#include <string_view>
 
 namespace Hookshot
 {
@@ -128,7 +127,7 @@ namespace Hookshot
     /// notification is generated. Call the `GetModuleHandle` family of functions to get the
     /// associated module handle.
     virtual EResult __fastcall NotifyOnLibraryLoad(
-        std::wstring_view libraryPath,
-        std::function<void(IHookshot* hookshot, std::wstring_view modulePath)> handlerFunc) = 0;
+        const wchar_t* libraryPath,
+        std::function<void(IHookshot* hookshot, const wchar_t* modulePath)> handlerFunc) = 0;
   };
 } // namespace Hookshot
