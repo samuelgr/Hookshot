@@ -11,9 +11,10 @@
 
 #include "HookStore.h"
 
-#include <shared_mutex>
+#include <functional>
 
 #include <Infra/Core/Message.h>
+#include <Infra/Core/Mutex.h>
 #include <Infra/Core/ProcessInfo.h>
 #include <Infra/Core/TemporaryBuffer.h>
 
@@ -23,7 +24,7 @@
 
 namespace Hookshot
 {
-  std::shared_mutex HookStore::hookStoreMutex;
+  Infra::SharedMutex HookStore::hookStoreMutex;
   std::unordered_map<const void*, Trampoline*> HookStore::functionToTrampoline;
   std::unordered_map<Trampoline*, const void*> HookStore::trampolineToOriginalFunction;
   std::vector<TrampolineStore> HookStore::trampolines;
@@ -128,7 +129,7 @@ namespace Hookshot
   {
     if (false == IsHookSpecValid(originalFunc, hookFunc)) return EResult::FailInvalidArgument;
 
-    std::unique_lock<std::shared_mutex> lock(hookStoreMutex);
+    std::unique_lock<Infra::SharedMutex> lock(hookStoreMutex);
 
     // Check for duplicates.
     // If Hookshot has already set a hook that touches either the specified original or hook
@@ -160,8 +161,8 @@ namespace Hookshot
       const size_t numAddressesAlreadyTried = (0 == trampolineStoreMap.count(baseAddress))
           ? (0)
           : (1 +
-             ((proposedTrampolineStoreAddress - (size_t) &
-               (trampolines[trampolineStoreMap.at(baseAddress).back()][0])) /
+             ((proposedTrampolineStoreAddress -
+               (size_t)&(trampolines[trampolineStoreMap.at(baseAddress).back()][0])) /
               TrampolineStore::kTrampolineStoreSizeBytes));
 
       proposedTrampolineStoreAddress -=
@@ -261,7 +262,7 @@ namespace Hookshot
 
   const void* HookStore::GetOriginalFunction(const void* originalOrHookFunc)
   {
-    std::shared_lock<std::shared_mutex> lock(hookStoreMutex);
+    std::shared_lock<Infra::SharedMutex> lock(hookStoreMutex);
 
     if (0 == functionToTrampoline.count(originalOrHookFunc)) return nullptr;
 
@@ -270,7 +271,7 @@ namespace Hookshot
 
   EResult HookStore::ReplaceHookFunction(const void* originalOrHookFunc, const void* newHookFunc)
   {
-    std::unique_lock<std::shared_mutex> lock(hookStoreMutex);
+    std::unique_lock<Infra::SharedMutex> lock(hookStoreMutex);
 
     // If this fails, the specified hook does not exist.
     if (0 == functionToTrampoline.count(originalOrHookFunc)) return EResult::FailNotFound;
@@ -300,5 +301,12 @@ namespace Hookshot
     functionToTrampoline[newHookFunc] = trampoline;
 
     return EResult::Success;
+  }
+
+  EResult HookStore::NotifyOnLibraryLoad(
+      std::wstring_view libraryPath,
+      std::function<void(IHookshot* hookshot, std::wstring_view modulePath)> handlerFunc)
+  {
+    return EResult::FailInternal;
   }
 } // namespace Hookshot

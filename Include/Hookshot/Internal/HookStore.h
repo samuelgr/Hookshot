@@ -12,9 +12,11 @@
 #pragma once
 
 #include <cstdint>
-#include <shared_mutex>
+#include <functional>
 #include <unordered_map>
 #include <vector>
+
+#include <Infra/Core/Mutex.h>
 
 #include "ApiWindows.h"
 #include "HookshotTypes.h"
@@ -51,11 +53,15 @@ namespace Hookshot
     const void* __fastcall GetOriginalFunction(const void* originalOrHookFunc) override;
     EResult __fastcall ReplaceHookFunction(
         const void* originalOrHookFunc, const void* newHookFunc) override;
+    EResult __fastcall NotifyOnLibraryLoad(
+        std::wstring_view libraryPath,
+        std::function<void(IHookshot* hookshot, std::wstring_view modulePath)> handlerFunc)
+        override;
 
   private:
 
     /// Enforces serialized access to all parts of the hook data structure.
-    static std::shared_mutex hookStoreMutex;
+    static Infra::SharedMutex hookStoreMutex;
 
     /// Maps from function address (either original or target) to trampoline address.
     static std::unordered_map<const void*, Trampoline*> functionToTrampoline;
