@@ -52,8 +52,10 @@ namespace Hookshot
       Infra::Strings::CaseInsensitiveEqualityComparator<wchar_t>>
       subscribersByLibraryPath;
 
-  /// Mutex that guards access to the top-level subscription information data structure.
-  static Infra::Mutex subscribersMutex;
+  /// Mutex that guards access to the top-level subscription information data structure. It is
+  /// recursive so that mutual exclusion between threads is ensured but that notification handlers
+  /// can safely load additional libraries from the same thread.
+  static Infra::RecursiveMutex subscribersMutex;
 
   EResult SetNotificationOnLibraryLoad(
       const wchar_t* libraryPath,
@@ -111,7 +113,12 @@ namespace Hookshot
     // be triggered when a library is newly-loaded.
     for (auto& subscribersForLibrary : subscribersByLibraryPath)
     {
+      // A notification handler function may itself trigger additional library loads, which means
+      // this function can be called again during a handler. The library notification needs to be
+      // marked early as having been handled so that recursive instances of this function do not
+      // trigger additional notifications.
       if (false == subscribersForLibrary.second.needsNotification) continue;
+      subscribersForLibrary.second.needsNotification = false;
 
       const wchar_t* subscribedLibraryPath = subscribersForLibrary.first.c_str();
       HMODULE subscribedLibraryHandle = NULL;
@@ -130,8 +137,6 @@ namespace Hookshot
       for (auto& subscribedHandler : subscribersForLibrary.second.handlers)
         subscribedHandler(
             LibraryInterface::GetHookshotInterfacePointer(), loadedModulePath.AsCString());
-
-      subscribersForLibrary.second.needsNotification = false;
     }
 
     return loadResult;
