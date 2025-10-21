@@ -27,7 +27,9 @@ namespace Hookshot
 {
   /// Holds information about hooks and provides an interface a hook module can use to configure
   /// them. Enforces serialization between threads as needed. This is a global data structure
-  /// accessed using an interface object.
+  /// accessed using an interface object. The class itself partially implements the external
+  /// Hookshot interface, with any additional functionality of the interface that does not directly
+  /// involve hooks and hook storage being implemented elsewhere.
   class HookStore : public IHookshot
   {
   public:

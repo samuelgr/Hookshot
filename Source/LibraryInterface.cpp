@@ -28,6 +28,7 @@
 #include "HookStore.h"
 #include "InjectLanding.h"
 #include "InternalHook.h"
+#include "RemoteProcessInjector.h"
 #include "Strings.h"
 #include "X86Instruction.h"
 
@@ -38,8 +39,23 @@ namespace Hookshot
     /// Function signature for the hook module initialization function.
     using THookModuleInitProc = void(__fastcall*)(IHookshot*);
 
-    /// Single hook configuration interface object.
-    static HookStore hookStore;
+    /// Complete implementation of the Hookshot interface. The parts of the implementation supplied
+    /// here do not directly involve hooks or hook storage.
+    class HookshotImpl : public HookStore
+    {
+      EResult __fastcall InjectNewSuspendedProcess(const PROCESS_INFORMATION& processInfo) override
+      {
+        const auto internalResult = RemoteProcessInjector::InjectProcess(
+            processInfo.hProcess, processInfo.hThread, false, false);
+
+        // TODO: This return code needs to be improved.
+        return (
+            (EInjectResult::Success == internalResult) ? EResult::Success : EResult::FailInternal);
+      }
+    };
+
+    /// Singleton Hookshot interface implementation object.
+    static HookshotImpl hookshotImpl;
 
     /// Determines which directory should be checked when loading hook modules. This defaults to the
     /// executable directory but can instead be configured for the Hookshot directory, in case the
@@ -217,7 +233,8 @@ namespace Hookshot
         hookModuleFileName << hookModuleDirectory << L"\\" << hookModuleFileData.cFileName;
         if (true == LoadHookModule(hookModuleFileName.AsCString())) numHookModulesLoaded += 1;
 
-        moreHookModulesExist = Protected::Windows_FindNextFileW(hookModuleFind, &hookModuleFileData);
+        moreHookModulesExist =
+            Protected::Windows_FindNextFileW(hookModuleFind, &hookModuleFileData);
       }
 
       if (INVALID_HANDLE_VALUE != hookModuleFind) Protected::Windows_FindClose(hookModuleFind);
@@ -227,7 +244,7 @@ namespace Hookshot
 
     IHookshot* GetHookshotInterfacePointer(void)
     {
-      return &hookStore;
+      return &hookshotImpl;
     }
 
     bool Initialize(Globals::ELoadMethod loadMethod)
