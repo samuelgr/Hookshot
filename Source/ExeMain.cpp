@@ -34,6 +34,8 @@ using namespace Hookshot;
 /// @return Exit code from this program.
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
 {
+  SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
   Hookshot::Globals::Initialize(Hookshot::Globals::ELoadMethod::Executed);
 
   if (2 > __argc)

@@ -254,6 +254,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 {
   using namespace Hookshot;
 
+  SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
   Hookshot::Globals::Initialize(Hookshot::Globals::ELoadMethod::Executed);
 
   const std::wstring kExecutableToLaunch(GetLaunchExecutablePath());
