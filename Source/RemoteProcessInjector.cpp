@@ -18,6 +18,7 @@
 #include <Infra/Core/TemporaryBuffer.h>
 
 #include "DependencyProtect.h"
+#include "SafeCreateProcess.h"
 #include "Strings.h"
 
 namespace Hookshot
@@ -101,7 +102,7 @@ namespace Hookshot
       memset(reinterpret_cast<void*>(&processInfo), 0, sizeof(processInfo));
 
       if (FALSE ==
-          Protected::Windows_CreateProcessW(
+          SafeCreateProcess(
               nullptr,
               executableCommandLineMutableString.Data(),
               nullptr,

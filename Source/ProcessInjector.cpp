@@ -119,7 +119,7 @@ namespace Hookshot
     static HMODULE GetNtDllModule(void)
     {
       static const HMODULE ntdllModuleHandle =
-          LoadLibraryEx(L"ntdll.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+          LoadLibraryExW(L"ntdll.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
       return ntdllModuleHandle;
     }
 

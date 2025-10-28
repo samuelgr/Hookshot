@@ -28,6 +28,7 @@
 #include <psapi.h>
 #include <shlobj.h>
 #include <shlwapi.h>
+#include <winternl.h>
 
 namespace Hookshot
 {

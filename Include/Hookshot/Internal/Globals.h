@@ -56,6 +56,12 @@ namespace Hookshot
     /// @return String representation of the method by which Hookshot was loaded.
     std::wstring_view GetHookshotLoadMethodString(void);
 
+    /// Attempts to retrieve the handle for the `ntdll.dll` module which should be loaded in this
+    /// process and all created processes, even if suspended.
+    /// @return Handle of `ntdll.dll`, or `nullptr` in the event of a failure to locate it. It is
+    /// generally safe to assume this function succeeds.
+    HMODULE GetNtDllModule(void);
+
     /// Performs run-time initialization.
     /// @param [in] loadMethod Hookshot library load method.
     void Initialize(ELoadMethod loadMethod);

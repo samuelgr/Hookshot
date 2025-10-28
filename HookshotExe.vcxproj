@@ -28,6 +28,7 @@
     <ClCompile Include="Source\InjectResult.cpp" />
     <ClCompile Include="Source\ProcessInjector.cpp" />
     <ClCompile Include="Source\RemoteProcessInjector.cpp" />
+    <ClCompile Include="Source\SafeCreateProcess.cpp" />
     <ClCompile Include="Source\Strings.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +44,7 @@
     <ClInclude Include="Include\Hookshot\Internal\InjectResult.h" />
     <ClInclude Include="Include\Hookshot\Internal\ProcessInjector.h" />
     <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h" />
+    <ClInclude Include="Include\Hookshot\Internal\SafeCreateProcess.h" />
     <ClInclude Include="Include\Hookshot\Internal\Strings.h" />
     <ClInclude Include="Resources\Hookshot.h" />
     <ClInclude Include="Resources\HookshotExe.h" />
