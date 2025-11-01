@@ -66,9 +66,6 @@
     <ClCompile Include="Source\NotifyOnLibraryLoad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SafeCreateProcess.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Hookshot.rc">
@@ -131,9 +128,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Hookshot\Internal\NotifyOnLibraryLoad.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Hookshot\Internal\SafeCreateProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

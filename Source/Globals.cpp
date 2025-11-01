@@ -158,13 +158,6 @@ namespace Hookshot
       }
     }
 
-    HMODULE GetNtDllModule(void)
-    {
-      static const HMODULE ntdllModuleHandle =
-          LoadLibraryExW(L"ntdll.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
-      return ntdllModuleHandle;
-    }
-
     void Initialize(ELoadMethod loadMethod)
     {
       GlobalData::GetInstance().gLoadMethod = loadMethod;

@@ -32,7 +32,6 @@
     <ClCompile Include="Source\LibraryInterface.cpp" />
     <ClCompile Include="Source\NotifyOnLibraryLoad.cpp" />
     <ClCompile Include="Source\RemoteProcessInjector.cpp" />
-    <ClCompile Include="Source\SafeCreateProcess.cpp" />
     <ClCompile Include="Source\Strings.cpp" />
     <ClCompile Include="Source\Trampoline.cpp" />
     <ClCompile Include="Source\TrampolineStore.cpp" />
@@ -55,7 +54,6 @@
     <ClInclude Include="Include\Hookshot\Internal\DependencyProtect.h" />
     <ClInclude Include="Include\Hookshot\Internal\NotifyOnLibraryLoad.h" />
     <ClInclude Include="Include\Hookshot\Internal\RemoteProcessInjector.h" />
-    <ClInclude Include="Include\Hookshot\Internal\SafeCreateProcess.h" />
     <ClInclude Include="Include\Hookshot\Internal\Strings.h" />
     <ClInclude Include="Include\Hookshot\Internal\Trampoline.h" />
     <ClInclude Include="Include\Hookshot\Internal\TrampolineStore.h" />

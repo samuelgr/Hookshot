@@ -28,7 +28,6 @@
 #include <psapi.h>
 #include <shlobj.h>
 #include <shlwapi.h>
-#include <winternl.h>
 
 namespace Hookshot
 {
@@ -42,4 +41,10 @@ namespace Hookshot
   /// @return Recommended address to use for the Windows API function, which could be the same as
   /// the static address.
   void* GetWindowsApiFunctionAddress(const char* const funcName, void* const funcStaticAddress);
+
+  /// Drop-in replacement for the `GetProcAddress` Windows API function, used for safe retrieval of
+  /// procedure addresses from module handles. This version is not subject to any of the changes
+  /// Windows might normally make to the addressses, such as by allowing interception by a
+  /// compatibility layer.
+  FARPROC SafeGetProcAddress(HMODULE moduleHandle, LPCSTR procName);
 } // namespace Hookshot

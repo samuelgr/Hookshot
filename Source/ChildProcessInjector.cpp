@@ -15,37 +15,14 @@
 
 #include "ApiWindows.h"
 #include "DependencyProtect.h"
-#include "Globals.h"
 #include "InjectResult.h"
 #include "InternalHook.h"
 #include "RemoteProcessInjector.h"
-#include "SafeCreateProcess.h"
-
-/// Prototype for the undocumented low-level process creation system call. This is what Hookshot
-/// will hook to avoid missing any attempts at process creation.
-/// Source: https://captmeelo.com/redteam/maldev/2022/05/10/ntcreateuserprocess.html
-NTSTATUS NTAPI NtCreateUserProcess(
-    PHANDLE ProcessHandle,
-    PHANDLE ThreadHandle,
-    ACCESS_MASK ProcessDesiredAccess,
-    ACCESS_MASK ThreadDesiredAccess,
-    POBJECT_ATTRIBUTES ProcessObjectAttributes,
-    POBJECT_ATTRIBUTES ThreadObjectAttributes,
-    ULONG ProcessFlags,
-    ULONG ThreadFlags,
-    void* ProcessParameters, // RTL_USER_PROCESS_PARAMETERS
-    void* CreateInfo,        // PPS_CREATE_INFO
-    void* AttributeList      // PPS_ATTRIBUTE_LIST
-);
-
-/// Thread flag for indicating that the main thread in a new process should be created in a
-/// suspended state.
-/// Source: https://captmeelo.com/redteam/maldev/2022/05/10/ntcreateuserprocess.html
-inline constexpr ULONG kThreadCreateFlagsCreateSuspended = 0x00000001;
 
 namespace Hookshot
 {
-  HOOKSHOT_INTERNAL_HOOK(NtCreateUserProcess);
+  HOOKSHOT_INTERNAL_HOOK(CreateProcessA);
+  HOOKSHOT_INTERNAL_HOOK(CreateProcessW);
 
   /// Injects a newly-created child process with HookshotDll. Outputs a message indicating the
   /// result of the attempted injection.
@@ -80,53 +57,79 @@ namespace Hookshot
           Infra::Strings::FromSystemErrorCode(Protected::Windows_GetLastError()).AsCString());
   }
 
-  void* InternalHook_NtCreateUserProcess::OriginalFunctionAddress(void)
+  void* InternalHook_CreateProcessA::OriginalFunctionAddress(void)
   {
-    auto result = GetProcAddress(Globals::GetNtDllModule(), "NtCreateUserProcess");
-    return result;
+    return GetWindowsApiFunctionAddress("CreateProcessA", &CreateProcessA);
   }
 
-  NTSTATUS
-  InternalHook_NtCreateUserProcess::Hook(
-      PHANDLE ProcessHandle,
-      PHANDLE ThreadHandle,
-      ACCESS_MASK ProcessDesiredAccess,
-      ACCESS_MASK ThreadDesiredAccess,
-      POBJECT_ATTRIBUTES ProcessObjectAttributes,
-      POBJECT_ATTRIBUTES ThreadObjectAttributes,
-      ULONG ProcessFlags,
-      ULONG ThreadFlags,
-      void* ProcessParameters,
-      void* CreateInfo,
-      void* AttributeList)
+  BOOL InternalHook_CreateProcessA::Hook(
+      LPCSTR lpApplicationName,
+      LPSTR lpCommandLine,
+      LPSECURITY_ATTRIBUTES lpProcessAttributes,
+      LPSECURITY_ATTRIBUTES lpThreadAttributes,
+      BOOL bInheritHandles,
+      DWORD dwCreationFlags,
+      LPVOID lpEnvironment,
+      LPCSTR lpCurrentDirectory,
+      LPSTARTUPINFOA lpStartupInfo,
+      LPPROCESS_INFORMATION lpProcessInformation)
   {
-    constexpr ULONG kThreadCreateFlagsCreateSuspended = 0x00000001;
-    const bool shouldCreateSuspended =
-        (0 != (ThreadFlags & kThreadCreateFlagsCreateSuspended)) ? true : false;
+    const bool shouldCreateSuspended = (0 != (dwCreationFlags & CREATE_SUSPENDED)) ? true : false;
+    PROCESS_INFORMATION processInfo = *lpProcessInformation;
 
-    const NTSTATUS createProcessResult = Original(
-        ProcessHandle,
-        ThreadHandle,
-        ProcessDesiredAccess,
-        ThreadDesiredAccess,
-        ProcessObjectAttributes,
-        ThreadObjectAttributes,
-        ProcessFlags,
-        (ThreadFlags | kThreadCreateFlagsCreateSuspended),
-        ProcessParameters,
-        CreateInfo,
-        AttributeList);
+    const BOOL createProcessResult = Original(
+        lpApplicationName,
+        lpCommandLine,
+        lpProcessAttributes,
+        lpThreadAttributes,
+        bInheritHandles,
+        (dwCreationFlags | CREATE_SUSPENDED),
+        lpEnvironment,
+        lpCurrentDirectory,
+        lpStartupInfo,
+        &processInfo);
+    *lpProcessInformation = processInfo;
 
-    if (ERROR_SUCCESS == createProcessResult)
-    {
-      if (false == CheckForAndRemoveHookshotBypassToken(ProcessParameters))
-      {
-        InjectChildProcess(*ProcessHandle, *ThreadHandle);
-      }
-    }
+    if (0 != createProcessResult) InjectChildProcess(processInfo.hProcess, processInfo.hThread);
+    if (false == shouldCreateSuspended) Protected::Windows_ResumeThread(processInfo.hThread);
+    return createProcessResult;
+  }
 
-    if (false == shouldCreateSuspended) Protected::Windows_ResumeThread(*ThreadHandle);
+  void* InternalHook_CreateProcessW::OriginalFunctionAddress(void)
+  {
+    return GetWindowsApiFunctionAddress("CreateProcessW", &CreateProcessW);
+  }
 
+  BOOL InternalHook_CreateProcessW::Hook(
+      LPCWSTR lpApplicationName,
+      LPWSTR lpCommandLine,
+      LPSECURITY_ATTRIBUTES lpProcessAttributes,
+      LPSECURITY_ATTRIBUTES lpThreadAttributes,
+      BOOL bInheritHandles,
+      DWORD dwCreationFlags,
+      LPVOID lpEnvironment,
+      LPCWSTR lpCurrentDirectory,
+      LPSTARTUPINFOW lpStartupInfo,
+      LPPROCESS_INFORMATION lpProcessInformation)
+  {
+    const bool shouldCreateSuspended = (0 != (dwCreationFlags & CREATE_SUSPENDED)) ? true : false;
+    PROCESS_INFORMATION processInfo = *lpProcessInformation;
+
+    const BOOL createProcessResult = Original(
+        lpApplicationName,
+        lpCommandLine,
+        lpProcessAttributes,
+        lpThreadAttributes,
+        bInheritHandles,
+        (dwCreationFlags | CREATE_SUSPENDED),
+        lpEnvironment,
+        lpCurrentDirectory,
+        lpStartupInfo,
+        &processInfo);
+    *lpProcessInformation = processInfo;
+
+    if (0 != createProcessResult) InjectChildProcess(processInfo.hProcess, processInfo.hThread);
+    if (false == shouldCreateSuspended) Protected::Windows_ResumeThread(processInfo.hThread);
     return createProcessResult;
   }
 } // namespace Hookshot

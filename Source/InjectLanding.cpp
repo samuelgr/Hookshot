@@ -19,6 +19,7 @@
 #include "ApiWindows.h"
 #include "DependencyProtect.h"
 #include "Inject.h"
+#include "InternalHook.h"
 #include "LibraryInterface.h"
 #include "Strings.h"
 
@@ -47,6 +48,8 @@ extern "C" void __fastcall InjectLandingLoadHookModules(const SInjectData* const
         static_cast<int>(Infra::ProcessInfo::GetExecutableBaseName().length()),
         Infra::ProcessInfo::GetExecutableBaseName().data(),
         Infra::ProcessInfo::GetCurrentProcessId());
+
+  SetAllInternalHooks();
 
   const int numHookModulesLoaded = LibraryInterface::LoadHookModules();
   const int numInjectOnlyLibrariesLoaded = LibraryInterface::LoadInjectOnlyLibraries();

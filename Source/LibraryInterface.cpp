@@ -46,7 +46,10 @@ namespace Hookshot
       EResult __fastcall InjectNewSuspendedProcess(const PROCESS_INFORMATION& processInfo) override
       {
         const auto internalResult = RemoteProcessInjector::InjectProcess(
-            processInfo.hProcess, processInfo.hThread, false, false);
+            processInfo.hProcess,
+            processInfo.hThread,
+            false,
+            Protected::Windows_IsDebuggerPresent());
 
         // TODO: This return code needs to be improved.
         return (
@@ -259,7 +262,7 @@ namespace Hookshot
             Globals::Initialize(loadMethod);
             X86Instruction::Initialize();
 
-            if (Globals::ELoadMethod::Injected == loadMethod) SetAllInternalHooks();
+            //if (Globals::ELoadMethod::Injected == loadMethod) SetAllInternalHooks();
 
             initializeResult = true;
           });
