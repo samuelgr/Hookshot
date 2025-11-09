@@ -72,12 +72,6 @@ namespace Hookshot
           reinterpret_cast<const char*>(moduleBaseAddress + exportedNames[exportIndex]);
       if (procName != exportName) continue;
 
-      int x = 0;
-      if ((exportName == "GetLastError") || (exportName == "SetLastError"))
-      {
-        x = 1;
-      }
-
       const DWORD exportOrdinal = exportedNameOrdinals[exportIndex];
       const DWORD exportFinalRva = exportedFunctions[exportOrdinal];
       const size_t exportFinalAddress = moduleBaseAddress + exportFinalRva;
