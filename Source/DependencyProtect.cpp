@@ -17,6 +17,7 @@
 #include <unordered_map>
 
 #include <Infra/Core/DebugAssert.h>
+#include <Infra/Core/WindowsUtilities.h>
 
 #include "ApiWindows.h"
 
@@ -55,7 +56,7 @@ namespace Hookshot
       const char* const funcBaseName,
       void* const funcStaticAddress)
   {
-    return GetWindowsApiFunctionAddress(funcBaseName, funcStaticAddress);
+    return Infra::Windows::GetRealApiFunctionAddress(funcBaseName, funcStaticAddress);
   }
 } // namespace Hookshot
 

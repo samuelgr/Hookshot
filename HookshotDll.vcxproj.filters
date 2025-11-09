@@ -60,9 +60,6 @@
     <ClCompile Include="Source\InjectResult.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ApiWindows.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\NotifyOnLibraryLoad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

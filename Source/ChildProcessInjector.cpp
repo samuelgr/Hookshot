@@ -12,6 +12,7 @@
 #include <Infra/Core/Message.h>
 #include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
+#include <Infra/Core/WindowsUtilities.h>
 
 #include "ApiWindows.h"
 #include "DependencyProtect.h"
@@ -59,7 +60,7 @@ namespace Hookshot
 
   void* InternalHook_CreateProcessA::OriginalFunctionAddress(void)
   {
-    return GetWindowsApiFunctionAddress("CreateProcessA", &CreateProcessA);
+    return Infra::Windows::GetRealApiFunctionAddress("CreateProcessA", &CreateProcessA);
   }
 
   BOOL InternalHook_CreateProcessA::Hook(
@@ -97,7 +98,7 @@ namespace Hookshot
 
   void* InternalHook_CreateProcessW::OriginalFunctionAddress(void)
   {
-    return GetWindowsApiFunctionAddress("CreateProcessW", &CreateProcessW);
+    return Infra::Windows::GetRealApiFunctionAddress("CreateProcessW", &CreateProcessW);
   }
 
   BOOL InternalHook_CreateProcessW::Hook(

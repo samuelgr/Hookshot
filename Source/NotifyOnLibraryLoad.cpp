@@ -18,6 +18,7 @@
 #include <Infra/Core/Mutex.h>
 #include <Infra/Core/Strings.h>
 #include <Infra/Core/TemporaryBuffer.h>
+#include <Infra/Core/WindowsUtilities.h>
 
 #include "ApiWindows.h"
 #include "DependencyProtect.h"
@@ -145,7 +146,7 @@ namespace Hookshot
 
   void* InternalHook_LoadLibraryA::OriginalFunctionAddress(void)
   {
-    return GetWindowsApiFunctionAddress("LoadLibraryA", &LoadLibraryA);
+    return Infra::Windows::GetRealApiFunctionAddress("LoadLibraryA", &LoadLibraryA);
   }
 
   HMODULE InternalHook_LoadLibraryA::Hook(LPCSTR lpLibFileName)
@@ -156,7 +157,7 @@ namespace Hookshot
 
   void* InternalHook_LoadLibraryExA::OriginalFunctionAddress(void)
   {
-    return GetWindowsApiFunctionAddress("LoadLibraryExA", &LoadLibraryExA);
+    return Infra::Windows::GetRealApiFunctionAddress("LoadLibraryExA", &LoadLibraryExA);
   }
 
   HMODULE InternalHook_LoadLibraryExA::Hook(LPCSTR lpLibFileName, HANDLE hFile, DWORD dwFlags)
@@ -167,7 +168,7 @@ namespace Hookshot
 
   void* InternalHook_LoadLibraryW::OriginalFunctionAddress(void)
   {
-    return GetWindowsApiFunctionAddress("LoadLibraryW", &LoadLibraryW);
+    return Infra::Windows::GetRealApiFunctionAddress("LoadLibraryW", &LoadLibraryW);
   }
 
   HMODULE InternalHook_LoadLibraryW::Hook(LPCWSTR lpLibFileName)
@@ -177,7 +178,7 @@ namespace Hookshot
 
   void* InternalHook_LoadLibraryExW::OriginalFunctionAddress(void)
   {
-    return GetWindowsApiFunctionAddress("LoadLibraryExW", &LoadLibraryExW);
+    return Infra::Windows::GetRealApiFunctionAddress("LoadLibraryExW", &LoadLibraryExW);
   }
 
   HMODULE InternalHook_LoadLibraryExW::Hook(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags)
