@@ -27,6 +27,7 @@
 #include "HookshotTypes.h"
 #include "HookStore.h"
 #include "InjectLanding.h"
+#include "InjectResult.h"
 #include "InternalHook.h"
 #include "RemoteProcessInjector.h"
 #include "Strings.h"
@@ -43,7 +44,8 @@ namespace Hookshot
     /// here do not directly involve hooks or hook storage.
     class HookshotImpl : public HookStore
     {
-      EResult __fastcall InjectNewSuspendedProcess(const PROCESS_INFORMATION& processInfo) override
+      std::wstring_view __fastcall InjectNewSuspendedProcess(
+          const PROCESS_INFORMATION& processInfo) override
       {
         const auto internalResult = RemoteProcessInjector::InjectProcess(
             processInfo.hProcess,
@@ -51,9 +53,9 @@ namespace Hookshot
             false,
             Protected::Windows_IsDebuggerPresent());
 
-        // TODO: This return code needs to be improved.
         return (
-            (EInjectResult::Success == internalResult) ? EResult::Success : EResult::FailInternal);
+            (EInjectResult::Success == internalResult) ? std::wstring_view()
+                                                       : InjectResultString(internalResult));
       }
     };
 
@@ -262,7 +264,7 @@ namespace Hookshot
             Globals::Initialize(loadMethod);
             X86Instruction::Initialize();
 
-            //if (Globals::ELoadMethod::Injected == loadMethod) SetAllInternalHooks();
+            // if (Globals::ELoadMethod::Injected == loadMethod) SetAllInternalHooks();
 
             initializeResult = true;
           });
