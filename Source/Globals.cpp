@@ -109,7 +109,17 @@ namespace Hookshot
           {
             HookshotConfigReader configReader;
 
-            configData = configReader.ReadConfigurationFile();
+            Infra::TemporaryString preferredConfigFilePath;
+            preferredConfigFilePath << Infra::ProcessInfo::GetExecutableDirectoryName() << L"\\"
+                                    << Infra::ProcessInfo::GetProductName() << L".ini";
+            std::wstring_view fallbackConfigFilePath =
+                Infra::Configuration::RecommendedConfigurationFilePath();
+
+            std::wstring_view actualConfigFilePath =
+                (PathFileExistsW(preferredConfigFilePath.AsCString())
+                     ? preferredConfigFilePath.AsStringView()
+                     : fallbackConfigFilePath);
+            configData = configReader.ReadConfigurationFile(actualConfigFilePath);
 
             if (true == configReader.HasErrorMessages())
             {
