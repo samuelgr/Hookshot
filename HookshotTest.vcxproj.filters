@@ -53,6 +53,9 @@
     <ClInclude Include="Include\Hookshot\Test\TestGlobals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Hookshot\HookshotInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\Hookshot\Test\TestDefinitions.inc">

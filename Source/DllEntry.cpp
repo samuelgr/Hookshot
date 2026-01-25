@@ -16,7 +16,7 @@
 
 #include "DependencyProtect.h"
 #include "Globals.h"
-#include "HookshotTypes.h"
+#include "HookshotInterface.h"
 #include "InjectLanding.h"
 #include "LibraryInterface.h"
 
@@ -94,4 +94,11 @@ extern "C" __declspec(dllexport) IHookshot* __fastcall HookshotLibraryInitialize
         __FUNCTIONW__);
     return nullptr;
   }
+}
+
+/// Invoked to check which version of the Hookshot interface is the latest supported.
+/// @return Latest supported version of the Hookshot interface.
+extern "C" __declspec(dllexport) unsigned int __fastcall HookshotGetLatestInterfaceVersion(void)
+{
+  return IHookshotLatest::kHookshotInterfaceVersion;
 }

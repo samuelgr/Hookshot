@@ -20,7 +20,6 @@
 
 #include "DependencyProtect.h"
 #include "Globals.h"
-#include "NotifyOnLibraryLoad.h"
 #include "X86Instruction.h"
 
 namespace Hookshot
@@ -302,12 +301,5 @@ namespace Hookshot
     functionToTrampoline[newHookFunc] = trampoline;
 
     return EResult::Success;
-  }
-
-  EResult HookStore::NotifyOnLibraryLoad(
-      const wchar_t* libraryPath,
-      std::function<void(IHookshot* hookshot, const wchar_t* modulePath)> handlerFunc)
-  {
-    return SetNotificationOnLibraryLoad(libraryPath, handlerFunc);
   }
 } // namespace Hookshot

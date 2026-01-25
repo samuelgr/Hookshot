@@ -14,7 +14,7 @@
 #include <string_view>
 
 #include "Globals.h"
-#include "HookshotTypes.h"
+#include "HookshotInterface.h"
 
 namespace Hookshot
 {

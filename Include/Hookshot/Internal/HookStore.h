@@ -19,7 +19,7 @@
 #include <Infra/Core/Mutex.h>
 
 #include "ApiWindows.h"
-#include "HookshotTypes.h"
+#include "HookshotInterface.h"
 #include "Trampoline.h"
 #include "TrampolineStore.h"
 
@@ -30,7 +30,7 @@ namespace Hookshot
   /// accessed using an interface object. The class itself partially implements the external
   /// Hookshot interface, with any additional functionality of the interface that does not directly
   /// involve hooks and hook storage being implemented elsewhere.
-  class HookStore : public IHookshot
+  class HookStore : public IHookshotLatest
   {
   public:
 
@@ -55,9 +55,6 @@ namespace Hookshot
     const void* __fastcall GetOriginalFunction(const void* originalOrHookFunc) override;
     EResult __fastcall ReplaceHookFunction(
         const void* originalOrHookFunc, const void* newHookFunc) override;
-    EResult __fastcall NotifyOnLibraryLoad(
-        const wchar_t* libraryPath,
-        std::function<void(IHookshot* hookshot, const wchar_t* modulePath)> handlerFunc) override;
 
   private:
 

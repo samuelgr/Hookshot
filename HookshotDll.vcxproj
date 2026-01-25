@@ -41,6 +41,7 @@
     <ResourceCompile Include="Resources\HookshotDll.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Hookshot\HookshotInterface.h" />
     <ClInclude Include="Include\Hookshot\HookshotTypes.h" />
     <ClInclude Include="Include\Hookshot\Internal\HookshotConfigReader.h" />
     <ClInclude Include="Include\Hookshot\Internal\ApiWindows.h" />

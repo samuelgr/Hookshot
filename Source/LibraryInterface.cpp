@@ -29,6 +29,7 @@
 #include "InjectLanding.h"
 #include "InjectResult.h"
 #include "InternalHook.h"
+#include "NotifyOnLibraryLoad.h"
 #include "RemoteProcessInjector.h"
 #include "Strings.h"
 #include "X86Instruction.h"
@@ -44,6 +45,7 @@ namespace Hookshot
     /// here do not directly involve hooks or hook storage.
     class HookshotImpl : public HookStore
     {
+      // IHookshot2
       std::wstring_view __fastcall InjectNewSuspendedProcess(
           const PROCESS_INFORMATION& processInfo) override
       {
@@ -56,6 +58,13 @@ namespace Hookshot
         return (
             (EInjectResult::Success == internalResult) ? std::wstring_view()
                                                        : InjectResultString(internalResult));
+      }
+
+      EResult __fastcall NotifyOnLibraryLoad(
+          const wchar_t* libraryPath,
+          std::function<void(IHookshot* hookshot, const wchar_t* modulePath)> handlerFunc) override
+      {
+        return SetNotificationOnLibraryLoad(libraryPath, handlerFunc);
       }
     };
 

@@ -13,7 +13,7 @@
 
 #include <functional>
 
-#include "HookshotTypes.h"
+#include "HookshotInterface.h"
 
 namespace Hookshot
 {
