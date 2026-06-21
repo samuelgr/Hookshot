@@ -274,6 +274,12 @@ namespace Hookshot
     static EInjectResult GetClrEntryPointAddress(
         const HANDLE processHandle, void** const entryPoint)
     {
+      // Advance the process so that the loader thread finishes loading any modules needed by the
+      // program. This ensures that "mscoree.dll" and CLR the entry point "_CorExeMain" are already
+      // loaded and available for querying and patching.
+      EInjectResult operationResult = AdvanceProcess(processHandle);
+      if (EInjectResult::Success != operationResult) return operationResult;
+
       const HMODULE clrModuleHandle = GetRemoteModuleHandle(processHandle, L"mscoree.dll");
       if (nullptr == clrModuleHandle) return EInjectResult::ErrorGetModuleHandleClrLibraryFailed;
 
@@ -507,10 +513,6 @@ namespace Hookshot
       void* processEntryPoint = nullptr;
       void* injectedCodeBase = nullptr;
       void* injectedDataBase = nullptr;
-
-      // Advance the process so that the loader thread finishes loading any modules needed.
-      operationResult = AdvanceProcess(processHandle);
-      if (EInjectResult::Success != operationResult) return operationResult;
 
       // Attempt to obtain the process environment block for the new process.
       PEB processEnvironmentBlock;
