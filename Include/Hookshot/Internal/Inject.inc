@@ -21,6 +21,17 @@ INCLUDE Infra/Core/Preamble.inc
 kInjectionMetaMagicValue EQU 51525354h
 
 
+; Used as a placeholder for an immediate value that is to be replaced before code execution.
+; This needs to be a SIZE_T sized immediate value so that it is fully represented in the assembly code.
+; It is overwritten with a similarly-sized value during the injection process.
+IFDEF _WIN32
+initialvalue EQU 01234567h
+ENDIF
+IFDEF _WIN64
+initialvalue EQU 0123456789abcdefh
+ENDIF
+
+
 ; Defines the structure of the data exchanged between the injecting and injected processes.
 ; Corresponds to the identically-named structured type in "Inject.h" and must be updated when any changes are made there.
 ; See "Inject.h" for documentation.
