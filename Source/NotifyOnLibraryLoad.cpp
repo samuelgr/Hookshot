@@ -11,8 +11,8 @@
 
 #include "NotifyOnLibraryLoad.h"
 
-#include <unordered_map>
-#include <vector>
+#include <concurrent_unordered_map.h>
+#include <concurrent_vector.h>
 
 #include <Infra/Core/Message.h>
 #include <Infra/Core/Mutex.h>
@@ -37,26 +37,30 @@ namespace Hookshot
   /// loaded.
   struct SHandlers
   {
-    /// Whether or not a notification needs to be sent to the handlers in this structure.
-    bool needsNotification;
+    /// Whether or not a notification has already been sent to the handlers in this structure.
+    std::atomic<bool> notificationAlreadySent;
 
     /// Handlers subscribed to the notification for the library represented by this object.
-    std::vector<std::function<void(IHookshot* hookshot, const wchar_t* modulePath)>> handlers;
+    concurrency::concurrent_vector<
+        std::function<void(IHookshot* hookshot, const wchar_t* modulePath)>>
+        handlers;
+
+    inline SHandlers() = default;
+
+    SHandlers(SHandlers&& other) noexcept
+        : notificationAlreadySent(other.notificationAlreadySent.load(std::memory_order_relaxed)),
+          handlers(std::move(other.handlers))
+    {}
   };
 
   /// Top-level data structure for holding all subscription information for notifications when a
   /// library is loaded. Keyed by library path, which is case-insensitive.
-  static std::unordered_map<
+  static concurrency::concurrent_unordered_map<
       std::wstring,
       SHandlers,
       Infra::Strings::CaseInsensitiveHasher<wchar_t>,
       Infra::Strings::CaseInsensitiveEqualityComparator<wchar_t>>
       subscribersByLibraryPath;
-
-  /// Mutex that guards access to the top-level subscription information data structure. It is
-  /// recursive so that mutual exclusion between threads is ensured but that notification handlers
-  /// can safely load additional libraries from the same thread.
-  static Infra::RecursiveMutex subscribersMutex;
 
   EResult SetNotificationOnLibraryLoad(
       const wchar_t* libraryPath,
@@ -79,12 +83,7 @@ namespace Hookshot
       return EResult::Success;
     }
 
-    std::unique_lock lock(subscribersMutex);
-
-    auto subscribersIter =
-        subscribersByLibraryPath.emplace(libraryPath, SHandlers{.needsNotification = true}).first;
-    subscribersIter->second.handlers.emplace_back(handlerFunc);
-
+    subscribersByLibraryPath[libraryPath].handlers.push_back(std::move(handlerFunc));
     return EResult::Success;
   }
 
@@ -107,14 +106,14 @@ namespace Hookshot
     HMODULE loadResult = InternalHook_LoadLibraryExW::Original(lpLibFileName, hFile, dwFlags);
     if (false == IsLoadingAsExecutableCode(dwFlags)) return loadResult;
 
-    std::unique_lock lock(subscribersMutex);
-
     // The call to the system's LoadLibrary may have loaded the requested library but also some
     // dependencies of it, any of which must trigger a notification. The notification only needs to
     // be triggered when a library is newly-loaded.
     for (auto& subscribersForLibrary : subscribersByLibraryPath)
     {
-      if (false == subscribersForLibrary.second.needsNotification) continue;
+      if (true ==
+          subscribersForLibrary.second.notificationAlreadySent.load(std::memory_order_relaxed))
+        continue;
 
       const wchar_t* subscribedLibraryPath = subscribersForLibrary.first.c_str();
       HMODULE subscribedLibraryHandle = NULL;
@@ -128,8 +127,14 @@ namespace Hookshot
       // A notification handler function may itself trigger additional library loads, which means
       // this function can be called again during a handler. The library notification needs to be
       // marked as having been handled before any handlers are called so that recursive instances of
-      // this function do not trigger additional notifications.
-      subscribersForLibrary.second.needsNotification = false;
+      // this function do not trigger additional notifications. Furthermore, because this function
+      // is multi-threaded, multiple threads might have reached this point, but only one should
+      // actually "claim ownership" of sending the notifications associated with this specific
+      // library, hence the atomic exchange operation to guard it.
+      if (true ==
+          subscribersForLibrary.second.notificationAlreadySent.exchange(
+              true, std::memory_order_acq_rel))
+        continue;
 
       Infra::TemporaryString loadedModulePath;
       loadedModulePath.UnsafeSetSize(Protected::Windows_GetModuleFileNameW(
