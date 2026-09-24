@@ -19,4 +19,5 @@ set files_sdk_include=Include\Hookshot\*.h
 
 set third_party_license=IntelXED
 
-call Modules\Infra\Build\Scripts\PackageRelease.bat
+set infra_command="Modules\Infra\Build\Scripts\PackageRelease.bat" %* 
+call %%infra_command%%
